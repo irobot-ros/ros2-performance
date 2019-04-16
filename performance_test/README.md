@@ -61,6 +61,7 @@ Populate the `src` directory with the `performance_test` package.
     cp -r <path_to_this_repository>/performances/performance_test .
 
 Cross-compile the workspace.
+You can follow the instructions in the [cross-compiling directory](../cross-compiling).
 
 Copy the cross-compiled package to the target board.
 

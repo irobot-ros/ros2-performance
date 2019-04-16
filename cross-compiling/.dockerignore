@@ -1,0 +1,5 @@
+**/*.vcxproj
+**/*.sln
+
+*/
+!compilation_scripts

@@ -1,0 +1,86 @@
+
+FROM ubuntu:18.04
+LABEL maintainer="Alberto Soragna asoragna at irobot dot com"
+
+# working directory
+ENV HOME /root
+WORKDIR $HOME
+
+# create an empty .bashrc file
+RUN touch $HOME/.bashrc
+RUN > $HOME/.bashrc
+
+# Set timezone otherwise tz will ask for it
+ENV TZ=America/Los_Angeles
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# general utilities
+RUN apt-get update && apt-get install -y \
+  apt-utils \
+  curl \
+  nano \
+  git \
+  wget \
+  software-properties-common \
+  gnupg2
+
+###### INSTALL ROS2 REQUIREMENTS
+
+# Locale options
+RUN apt-get install -y locales
+RUN locale-gen en_US en_US.UTF-8
+RUN update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+ENV LANG en_US.UTF-8
+
+# Setup sources
+RUN apt-get update && apt-get install -y curl gnupg2 lsb-release
+RUN curl http://repo.ros2.org/repos.key | apt-key add -
+RUN sh -c 'echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/main `lsb_release -cs` main" > /etc/apt/sources.list.d/ros2-latest.list'
+RUN apt-get update
+
+# install development tools and ROS tools
+RUN apt-get update && apt-get install -y \
+  build-essential \
+  cmake \
+  python3-colcon-common-extensions \
+  python-rosdep \
+  python3-pip
+
+# TODO: numpy should be installed on the RaspberryPi sysroot (Python3.6 version) but pip and build from sources fail
+RUN pip3 install -U \
+  argcomplete \
+  git+https://github.com/lark-parser/lark.git@0.7d \
+  numpy
+
+
+###### INSTALL RASPBIAN CROSS-COMPILATION REQUIREMENTS
+
+# install gcc6 compiler and toolchain
+RUN apt-get install -y \
+  gcc-6 \
+  g++-6 \
+  g++-6-arm-linux-gnueabihf
+
+
+###### ADDITIONAL SCRIPTS AND ENVIRONMENT VARIABLES
+
+# export architecture specific toolchain variables
+RUN echo ' \n\
+source /root/cc_export.sh' >> $HOME/.bashrc
+
+# TODO: investigate why this line is needed. It's the path where ament packages are installed.
+# These packages are required when cross-compiling additional packages once the sysroot already contains the ROS2 SDK
+# add the sysroot python modules to PYTHONPATH
+RUN echo '  \n\
+export PYTHONPATH=/root/sysroot/usr/lib/python3.6/site-packages/:$PYTHONPATH' >> $HOME/.bashrc
+
+# TODO: here there is a terrible hack.
+# we have problems when a package depends both on ROS2 SDK and on Python.
+# For some reason if we specify here the path to the place where Python can be found on the sysroot everything works.
+# However, we should use `:` as a delimiter, not `;`, but that does not work.
+# set the AMENT_PREFIX_PATH to the sysroot
+RUN echo '  \n\
+export AMENT_PREFIX_PATH="/root/sysroot/usr;/root/sysroot/usr/bin"' >> $HOME/.bashrc
+
+# copy the compilation scripts into the docker image
+COPY compilation_scripts $HOME/compilation_scripts

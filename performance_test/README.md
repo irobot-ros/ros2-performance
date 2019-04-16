@@ -61,6 +61,7 @@ Populate the `src` directory with the `performance_test` package.
     cp -r <path_to_this_repository>/performances/performance_test .
 
 Cross-compile the workspace.
+You can follow the instructions in the [cross-compiling directory](../cross-compiling).
 
 Copy the cross-compiled package to the target board.
 
@@ -77,6 +78,7 @@ On the target board, open with a text editor `~/performance_test/env.sh` and mod
  - MERGE_INSTALL=<true_or_false>
 
 **Note:** set the `ROS2_SDK_INSTALL_PATH` and `MERGE_INSTALL` according to how you cross-compiled the ROS2 SDK and the performance_test package.
+If you used our tools, `MERGE_INSTALL` has to be set to false.
 
 ## Usage
 

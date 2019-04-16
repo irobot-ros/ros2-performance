@@ -19,6 +19,14 @@ Evaluations have been performed on standard x86_64 laptops as well as on embedde
 
 If you want to repeat the experiments, eventually with different parameters, follow the [Build Instructions](performance_test/README.md).
 
+## Cross-Compilation
+
+This repository also contains some Docker-based tools for cross-compiling ROS2 SDK and single packages for RaspberryPi.
+
+You can find detailed instructions in the [cross-compiling directory](cross-compiling).
+
+
+
 ##### Motivations
 
 The goal is to develop a set of experiments which are easily reproducible and provide useful insights on the ROS2 performances.

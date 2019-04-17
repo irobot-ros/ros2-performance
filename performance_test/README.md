@@ -78,7 +78,12 @@ On the target board, open with a text editor `~/performance_test/env.sh` and mod
  - MERGE_INSTALL=<true_or_false>
 
 **Note:** set the `ROS2_SDK_INSTALL_PATH` and `MERGE_INSTALL` according to how you cross-compiled the ROS2 SDK and the performance_test package.
-If you used our tools, `MERGE_INSTALL` has to be set to false.
+If you followed the instructions in this repository, you can set
+
+```
+ROS2_SDK_INSTALL_PATH=~/ros2_crystal
+MERGE_INSTALL=true
+```
 
 ## Usage
 

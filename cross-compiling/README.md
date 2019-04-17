@@ -22,7 +22,7 @@ The supported architectures are:
 
  - Docker
 
-If you don't have Docker installed follow [this link](../docker/docker_setup.md).
+If you don't have Docker installed follow [this link](../docker_setup.md).
 Ensure that you have support for building and running ARM Docker containers.
 
 ## Build
@@ -48,7 +48,18 @@ However it's recommended to wipe out the sysroot and get a new one when you want
 
 ## Cross-compile ROS2 SDK
 
-Let's go through an example showing how to cross-compile ROS2 Crystal SDK for `raspbian` board.
+**NOTE:** there is an automated script for cross-compiling specific versions of the ROS2 SDK.
+For example you can run:
+
+```
+export TARGET=raspbian
+export ROS2_BRANCH=master
+bash automatic_cross_compile.sh
+```
+
+You can find the output in the directory `install/"$ROS2_BRANCH"_"$HEAD"_"$TARGET"`.
+
+Let's go through an example showing how to manually cross-compile ROS2 Crystal SDK for `raspbian` board.
 
 Source the environment variables for this architecture using
 

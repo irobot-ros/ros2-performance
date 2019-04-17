@@ -17,7 +17,7 @@ standard_init_linux.go:207: exec user process caused "exec format error"
 
 **Possible reasons:** You are trying to build an ARM Docker image on an X86_64 machine. This requires running some ARM binaries which are not supported by default.
 
-**Solution:** Follow the `Allow Docker to run and build ARM containers` instructions in [our Docker setup](../docker/docker_setup).
+**Solution:** Follow the `Allow Docker to run and build ARM containers` instructions in [our Docker setup](../docker_setup).
 
 ## Cross-compilation issues
 

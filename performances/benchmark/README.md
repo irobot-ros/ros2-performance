@@ -211,6 +211,7 @@ The target performance of these applications on different platforms can be found
     "executable": "sierra_nevada",
     "platform": "rpi3 b 1.2",
     "options": "-t 600 --ipc on -s 1000 --late-percentage 20 --late-absolute 5000 --too-late-percentage 100 --too-late-absolute 50000",
+    "comments": "scaling governor should be set to 'performance' at 900MHz"
     "resources": {
         "cpu[%]":   15,
         "rss[KB]":  10240

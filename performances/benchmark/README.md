@@ -1,10 +1,10 @@
 # Benchmarking Applications
 
-This repository contains benchmarking applications to test the performance of a ROS2 system. These applications do not perform extra computation besides dummy-message passing between the nodes and the data collection. It will run for a user-specified amount of time collecting data, and will output the usage of resources (such as CPU utilization and RAM consumption) and latency statistics.
+This repository contains benchmarking applications to test the performance of a ROS2 system. These applications do not perform extra computation besides dummy-message passing between the nodes and data collection. They will run for a user-specified amount of time collecting data, and will output the usage of resources (such as CPU utilization and RAM consumption) and latency statistics.
 
 ## Sierra Nevada
 
-For now, only a light ROS2 system application is available, called *Sierra Nevada*. Sierra Nevada is a ten node system. [This pdf](sierra_nevada.pdf) illustrates the topology.
+For now, only a light ROS2 system application is available called *Sierra Nevada*. Sierra Nevada is a ten-node system. [This pdf](sierra_nevada.pdf) illustrates the topology.
 
 ### Building
 
@@ -50,7 +50,7 @@ After running the application, a folder **log** will be created along with four 
 
 ### Evaluation results
 
-The following are sample files (trimmed to fit) that have been obtained running Sierra Nevada on a RaspberryPi 3.
+The following are sample files that have been obtained running Sierra Nevada on a RaspberryPi 3.
 
 
 **latency_all.txt**:
@@ -81,9 +81,28 @@ received[#]     late[#]     late[%]     too_late[#]     too_late[%]     lost[#] 
 63250           10924       17.27       5               0.007905        0           0      
 ```
 
-There are different message classifications depending on their latency. A message is classified as **too_late** when its latency is greater than `min(period, 50ms)`, where `period` is the publishing period of that particular topic. A message is classified as **late** if it's not classified as **too_late** but its latency is greater than `min(0.2*period, 5ms)`. The idea is that a real system could still work with a few **late** messages but not **too_late** messages. Note that there are CL options to change these thresholds (for more info: `./sierra_nevada --help`). A **lost** message is a message that never arrived. We can detect a lost message when the subscriber receives a message with a tracking number greater than the one expected. The assumption here is that the messages always arrive in chronological order, i.e., a message A sent before a message B will either arrive before B or get lost, but will never arrive after B.
+There are different message classifications depending on their latency. A message is classified as **too_late** when its latency is greater than `min(period, 50ms)`, where `period` is the publishing period of that particular topic. A message is classified as **late** if it's not classified as **too_late** but its latency is greater than `min(0.2*period, 5ms)`. The idea is that a real system could still work with a few **late** messages but not **too_late** messages. Note that there are CL options to change these thresholds (for more info: `./sierra_nevada --help`). A **lost** message is a message that never arrived. We can detect a lost message when the subscriber receives a message with a tracking number greater than the one expected. The assumption here is that the messages always arrive in chronological order, i.e., a message A sent before a message B will either arrive before B or get lost, but will never arrive after B. The rest of the messages are classified as **on_time**.
 
-**resources.txt**:
+```
+Message classifications by their latency
+
+
++                               +                               +
+|                               |                               |
+|                               |                               |
+|                               |                               |
+|                               |                               |
+|                               |                               |
++-------------------------------+-------------------------------+
+
+<--------><---------------------><----------------------------------->
+ on_time           late                          too_late
+
+<------------------------------->
+             period
+```
+
+**resources.txt** (trimmed to fit):
 ```
 time[ms]     cpu[%]  arena[KB]      in_use[KB]     mmap[KB]       rss[KB]        vsz[KB]        
 0            0       0              0              0              0              0              
@@ -131,7 +150,7 @@ time[ms]     cpu[%]  arena[KB]      in_use[KB]     mmap[KB]       rss[KB]       
 
 The resources utilization are sampled periodically every 0.5 seconds (can be changed with the option `--sampling`). The utilization of the CPU is measured over the total cores, i.e., a 100% CPU utilization on a 4-core platform means that all 4 cores are 100% busy. The fields **arena**, **in_use** (uordblks) and **mmap** (hblkhd) are obtained by calling [mallinfo](http://man7.org/linux/man-pages/man3/mallinfo.3.html). These fields represent the total memory allocated by the `sbrk()` and `mmap()` system calls. The field **rss** is the actual allocated memory that was mapped into physical memory. Note that an allocated memory page is not mapped into physical memory until the executing process demands it ([demand paging](https://en.wikipedia.org/wiki/Demand_paging)). **vsz** represents the size of the virtual memory space. For our benchmark, **rss** is the most important memory metric. 
 
-**events.txt**
+**events.txt** (trimmed to fit):
 ```
 Time[ms]    Caller                   Code  Description         
 61          SYSTEM                   0     [discovery] PDP completed
@@ -181,7 +200,7 @@ This file stores special events with their associated timestamp, such as:
 - late message
 - too late message
 - lost message
-- system nodes discovery time
+- system nodes discovery
 
 ### Target performace
 

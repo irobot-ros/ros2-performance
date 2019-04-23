@@ -4,12 +4,12 @@
 
 For each ROS2 core concept, we developed several tests for evaluating its performances.
 
-[iRobot ROS2 Performance Evaluation Framework](performance_test)
+[iRobot ROS2 Performance Evaluation Framework](performances/performance_test)
 
 
 For a whole system performance evaluation, we have developed benchmark applications
 
-[iRobot ROS2 Benchmark applications](benchmark)
+[iRobot ROS2 Benchmark applications](performances/benchmark)
 
 
 These are the main metrics that we are interested in:
@@ -22,7 +22,7 @@ These are the main metrics that we are interested in:
 Due to our specific application scenario and to the new ROS2 multithread capabilities, we made most of the evaluations running all nodes in a single process.
 Evaluations have been performed on standard x86_64 laptops as well as on embedded platforms.
 
-If you want to repeat the experiments, eventually with different parameters, follow the [Build Instructions](performance_test/README.md).
+If you want to repeat the experiments, eventually with different parameters, follow the [Build Instructions](performances/performance_test/README.md).
 
 ##### Motivations
 
@@ -42,7 +42,14 @@ Early results are suggesting us that this is the correct way to go, as we are sp
 We tested ROS2 on many different systems.
 In order to do that we implemented tools that allow users to easily create any number of nodes with the same characteristics as well as tools for manually crafting your own graph topology and measure its performances.
 
-##### Experiments
+## Cross-Compilation
+
+This repository also contains some Docker-based tools for cross-compiling ROS2 SDK and single packages for RaspberryPi.
+
+You can find detailed instructions in the [cross-compiling directory](cross-compiling).
+
+
+## Experiments
 
 Here you find links to the experiments for the most recent ROS2 distribution.
 Each `README` file contains a description of the experiment, instructions for reproducing it and the results obtained.
@@ -51,14 +58,14 @@ Each `README` file contains a description of the experiment, instructions for re
 
 | Experiment | README |
 | ------------- | ------------- |
-| Benchmarking applications | [README.md](benchmark)
-| Discovery time | [README.md](experiments/crystal/discovery_time) |
-| Pub/Sub Latency | [README.md](experiments/crystal/pub_sub_latency) |
-| Pub/Sub Reliability | [README.md](experiments/crystal/pub_sub_reliability) |
-| Pub/Sub Memory usage | [README.md](experiments/crystal/pub_sub_memory) |
-| Pub/Sub CPU usage | [README.md](experiments/crystal/pub_sub_cpu) |
-| Client/Service systems | [README.md](experiments/crystal/client_service) |
-| Bouncy-Crystal regression test | [README.md](experiments/crystal/regression) |
+| Benchmarking applications | [README.md](performances/benchmark)
+| Discovery time | [README.md](performances/experiments/crystal/discovery_time) |
+| Pub/Sub Latency | [README.md](performances/experiments/crystal/pub_sub_latency) |
+| Pub/Sub Reliability | [README.md](performances/experiments/crystal/pub_sub_reliability) |
+| Pub/Sub Memory usage | [README.md](performances/experiments/crystal/pub_sub_memory) |
+| Pub/Sub CPU usage | [README.md](performances/experiments/crystal/pub_sub_cpu) |
+| Client/Service systems | [README.md](performances/experiments/crystal/client_service) |
+| Bouncy-Crystal regression test | [README.md](performances/experiments/crystal/regression) |
 
 
 ## External tools an resources

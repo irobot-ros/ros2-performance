@@ -33,6 +33,9 @@ public:
 
     ResourceUsageLogger(std::string filename) : _filename(filename)
     {
+        _log = false;
+        _done = true;
+
         _pid = getpid();
         _pagesize = getpagesize();
     };

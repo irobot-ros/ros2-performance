@@ -37,7 +37,7 @@ cd performances_ws/src/install/lib/benchmark
 ./sierra_nevada -t 60 --ipc on
 ```
 
-This will run Sierra Nevada for 60 seconds and with *Inter-Process-Communication* activated. For more options, run `./sierra_nevada --help`.
+This will run Sierra Nevada for 60 seconds and with *Intra-Process-Communication* activated. For more options, run `./sierra_nevada --help`.
 
 ### Output
 

@@ -29,15 +29,16 @@ def parse_total_latency_csv(file_path):
     f = StringIO(csv_file)
     reader = csv.DictReader(f, delimiter='\t')
 
-
-
     data = {}
 
     for row_dict in reader:
         for key, value in row_dict.items():
-            data[key] = value
+            if not key:
+                continue
+            data[key] = float(value)
 
     return data
+
 
 def main(argv):
 
@@ -62,23 +63,30 @@ def main(argv):
     latency = parse_total_latency_csv(latency_path)
 
     barWidth = 0.3
-    bars_separator = 0.4
-    groups_separator = bars_separator*2
 
     # Create plots
-    current_val = [];
+    current_val = []
     target_val = []
+    texts = []
+    units = []
 
-    for key in ["cpu[%]", "rss[KB]"]:
-        current_val.append(common.get_plot_data({'0':average_resources}, key)[0])
-        target_val.append(common.get_plot_data({'0':target_resources}, key)[0])
+    for key, _ in target_resources.items():
+        current_val.append(common.get_plot_data(average_resources, key)[0])
+        target_val.append(common.get_plot_data(target_resources, key)[0])
+        label = common.get_label(key)
+        unit = common.get_unit_of_measure(label)
+        texts.append(label)
+        units.append(unit)
 
-    for key in ["late[%]", "too_late[%]", "lost[%]"]:
-        current_val.append(float(latency[key]))
+
+    for key, _ in target_latency.items():
+        current_val.append(latency[key])
         target_val.append(target_latency[key])
+        label = common.get_label(key)
+        unit = common.get_unit_of_measure(label)
+        texts.append(label)
+        units.append(unit)
 
-    text = ['CPU Utilization', 'RSS', 'late', 'too_late', 'lost']
-    unit = ['%', 'MB', '%', '%', '%']
 
     fig, axs = matplotlib.pyplot.subplots(1, len(current_val), figsize=(11, 3))
 
@@ -86,7 +94,7 @@ def main(argv):
         current_rect = axs[i].bar(0, current_val[i], barWidth, color='SkyBlue', label='current')[0]
         height_current = current_rect.get_height()
         axs[i].text(current_rect.get_x() + current_rect.get_width()/2.0, height_current, str(round(current_val[i], 2)), ha='center', va='bottom')
-        
+
         target_rect = axs[i].bar(barWidth, target_val[i], barWidth, color='IndianRed', label='target')[0]
         height_target = target_rect.get_height()
         axs[i].text(target_rect.get_x() + target_rect.get_width()/2.0, height_target, str(round(target_val[i], 2)), ha='center', va='bottom')
@@ -97,8 +105,8 @@ def main(argv):
         else:
             color = "green"
 
-        axs[i].set_ylabel(unit[i])
-        axs[i].set_title(text[i], color=color)
+        axs[i].set_ylabel(units[i])
+        axs[i].set_title(texts[i], color=color)
         if(i == 0):
             axs[i].legend(framealpha=0.5, loc="lower left", fontsize="small")
         axs[i].grid(axis='y')

@@ -19,7 +19,7 @@ public:
     if (_n == 0) {
       _max = x;
       _min = x;
-      K = 0;
+      K = x;
     }
 
     if (x > _max) {
@@ -51,7 +51,7 @@ public:
     if (_n == 1) {
       return 0;
     }
-    return std::sqrt((Ex2 - (Ex * Ex) / _n) / (_n - 1));
+    return std::sqrt((Ex2 - (Ex * Ex) / _n) / (_n));
   }
 
   double max() const

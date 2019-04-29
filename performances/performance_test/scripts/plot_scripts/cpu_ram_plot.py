@@ -37,7 +37,7 @@ def parse_csv(file_path, skip = 0):
         'vsz[KB]' : [],
         'pubs': 0,
         'subs': 0,
-        'msg_size[KB]': '',
+        'msg_size': '',
         'send_frequency': -1,
         'num_experiments': 1
     }
@@ -62,7 +62,7 @@ def parse_csv(file_path, skip = 0):
         data['vsz[KB]'].append(int(row_dict.get('vsz[KB]', 0)))
         data['pubs'] = int(row_dict.get('pubs', 0))
         data['subs'] = int(row_dict.get('subs', 0))
-        data['msg_size[KB]'] = int(row_dict.get('msg_size[KB]', 0))
+        data['msg_size'] = int(row_dict.get('msg_size', 0))
         data['send_frequency'] = int(row_dict.get('pub_freq', 0))
 
     return data
@@ -85,7 +85,7 @@ def split_csv(data):
             'vsz[KB]' : data['vsz[KB]'][i],
             'pubs': data['pubs'],
             'subs': data['subs'],
-            'msg_size[KB]': data['msg_size[KB]'],
+            'msg_size': data['msg_size'],
             'send_frequency': data['send_frequency'],
             'num_experiments': data['num_experiments']  # is this value always 1?
         }
@@ -117,7 +117,7 @@ def aggregate_csv(data):
         'vsz[KB]' : sum(data['vsz[KB]']),
         'pubs': data['pubs'],
         'subs': data['subs'],
-        'msg_size[KB]': data['msg_size[KB]'],
+        'msg_size': data['msg_size'],
         'send_frequency': data['send_frequency'],
         'num_experiments': num_experiments
     }
@@ -150,7 +150,7 @@ def main(argv):
     parser.add_argument('--x', type=str,default='time', choices=['time', 'pubs', 'subs', 'msg_size'], help='value to display on x axis')
     parser.add_argument('--y', type=str, nargs='+', default=["cpu"], choices=['cpu', 'rss', 'vsz'], help='value to display on y axis')
     parser.add_argument('--y2', type=str, nargs='+', default=[], choices=['cpu', 'rss', 'vsz'], help='value to display on an additional y axis')
-    parser.add_argument('--separator', nargs='+', default=[], choices=['send_frequency', 'directory', 'pubs', 'subs'], help='if not set all data are aggregated together, else aggregates only data which have the same value for the separator keys')
+    parser.add_argument('--separator', nargs='+', default=[], choices=['send_frequency', 'directory', 'pubs', 'subs', 'msg_size'], help='if not set all data are aggregated together, else aggregates only data which have the same value for the separator keys')
     parser.add_argument('--target', type=str, default="", help='Pass a target json file to evaluate current plot')
     parser.add_argument('--skip', type=int, default=0, help='Skip the first N seconds of each test')
 
@@ -163,7 +163,7 @@ def main(argv):
     separator = args.separator
     skip = args.skip
 
-    __UNCOUNTABLE_DATA__ = ['time', 'send_frequency', 'msg_size', 'pubs', 'subs', 'separator']
+    __UNCOUNTABLE_DATA__ = ['directory', 'time', 'send_frequency', 'msg_size', 'pubs', 'subs', 'separator']
 
     # Get all files in folders in alphabetic order
     list_dir = common.get_files_from_paths(dir_paths)

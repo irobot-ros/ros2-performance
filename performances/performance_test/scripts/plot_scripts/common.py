@@ -43,13 +43,18 @@ def get_files_from_paths(paths):
     return file_paths_list
 
 
-def parse_target_json(target_file, experiment_type):
-    '''experiment_type can be "resources" or "latency total"'''
+def parse_target_json(target_file, experiment_type = ""):
+    '''experiment_type can be "resources" or "latency_total"'''
 
     json_data = open(target_file)
     parsed_json = json.load(json_data)
 
-    return parsed_json[experiment_type]
+    if experiment_type:
+        return parsed_json[experiment_type]
+
+    merged_target = {**parsed_json["resources"], **parsed_json["latency_total"]}
+
+    return merged_target
 
 
 def merge_dictionaries(dict1, dict2, uncountable_data=[]):
@@ -91,6 +96,26 @@ def merge_dictionaries(dict1, dict2, uncountable_data=[]):
     return merged_dict
 
 
+def depth(d, level=0):
+    if not isinstance(d, dict) or not d:
+        return level
+    return max(depth(d[k], level + 1) for k in d)
+
+
+def get_unit_of_measure(label):
+    # NOTE: this assumes that unit of measures is within square brackets at the end of the key
+    search_result = re.search('\[(.+)\]$', label)
+    if search_result:
+        return search_result.group(1)
+    else:
+        return ""
+
+
+def remove_unit_of_measure(label):
+    # NOTE: this assumes that unit of measures is within square brackets at the end of the key
+    new_label = re.sub('\[(.+)\]$', '', label)
+    return new_label
+
 
 def organize_data(data_samples, x_key, separator, uncountable_data):
     '''
@@ -102,7 +127,6 @@ def organize_data(data_samples, x_key, separator, uncountable_data):
     separator adds an additional level to the structure
     e.g.    separator = "msg_size", x_key = "subs"
             -> collected_data = {10b: {1:{values for 1 subs, 10b experiments}, 5:{values for 5 subs, 10b experiments}}, 100b {...}, ..}
-
     '''
 
     collected_data = defaultdict(dict)
@@ -132,7 +156,6 @@ def organize_data(data_samples, x_key, separator, uncountable_data):
             plot_data = next(iter(collected_data.values()))
             plot_data[x_val] = merge_dictionaries(new_data, plot_data.get(x_val, {}), uncountable_data)
 
-
     return collected_data
 
 
@@ -154,12 +177,14 @@ def get_ax_ticks(key, min_v, max_v):
     # remove duplicate elements from default ticks for better visualization
     default_ticks = list(OrderedDict.fromkeys(default_ticks))
 
-
     return switcher.get(key, default_ticks)
 
 
 def get_label(key):
     '''Convert a command line key key into a human readable label'''
+
+    # if the provided key contains the unit of measure, remove it
+    key = remove_unit_of_measure(key)
 
     switcher = {
         'pubs' : 'Publisher nodes [#]',
@@ -167,8 +192,11 @@ def get_label(key):
         'reliability_sub': 'Reliability subscriber [%]',
         'reliability_pub': 'Reliability publisher  [%]',
         'reliability_tot': 'Total Reliability [%]',
+        'lost': "Lost msgs [%]",
         'max_frequency': 'Maximum Frequency [Hz]',
         'latency': 'Latency [us]',
+        'late': "Late msgs [%]",
+        'too_late': "Too late msgs [%]",
         'msg_size': 'Message Size [KB]',
         'msg_type': 'Message Size [KB]',
         'time': 'Time [ms]',
@@ -177,8 +205,7 @@ def get_label(key):
         'usedmem': 'RAM [%]',
         'avg_cpu': 'CPU [%]',
         'inst_cpu': 'CPU [%]',
-        'cpu': 'CPU [%]',
-
+        'cpu': 'CPU usage [%]'
     }
 
     label = switcher.get(key)
@@ -246,8 +273,11 @@ def get_plot_data(data, key):
     # with srv sent_count would already contain the total number of requests received by the server
 
     # if the provided key contains the unit of measure, remove it
-    # NOTE: this assumes that unit of measures is within square brackets at the end of the key
-    key = re.sub('\[(.)+\]$', '', key)
+    key = remove_unit_of_measure(key)
+
+    # this allows to pass single csv to this function
+    if depth(data) == 1:
+        data = {'0': data}
 
     switcher = {
         # general

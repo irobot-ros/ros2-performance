@@ -202,9 +202,6 @@ def get_label(key):
         'time': 'Time [ms]',
         'rss': 'Physical RAM (RSS) [Mb]',
         'vsz': 'Virtual RAM (VSZ) [Mb]',
-        'usedmem': 'RAM [%]',
-        'avg_cpu': 'CPU [%]',
-        'inst_cpu': 'CPU [%]',
         'cpu': 'CPU usage [%]'
     }
 
@@ -233,34 +230,6 @@ def get_title(x_key, y1_keys, y2_keys, separator):
             title += ' and ' + sep
 
     return title
-
-
-def convert_to_size(msg_type):
-    ''' utility for converting a msg_type (e.g. 1mb) into a numeric msg size'''
-
-    if msg_type == '10b':
-        return 10
-    elif msg_type == '100b':
-        return 100
-    elif msg_type == '250b':
-        return 250
-    elif msg_type == '1kb':
-        return 1024
-    elif msg_type == '10kb':
-        return 10240
-    elif msg_type == '100kb':
-        return 102400
-    elif msg_type == '250kb':
-        return 256000
-    elif msg_type == '1mb':
-        return 1048576
-    elif msg_type == '4mb':
-        return 4194304
-    elif msg_type == '8mb':
-        return 8388608
-    else:
-        raise ValueError("Unknown msg_type provided to 'convert_to_size': %s ... consider adding new filed" % (msg_type))
-
 
 
 def get_plot_data(data, key):

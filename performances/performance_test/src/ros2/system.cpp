@@ -6,11 +6,8 @@
 #include "performance_test/ros2/names_utilities.hpp"
 
 
-performance_test::System::System(int duration_sec, int executor_id)
+performance_test::System::System(int executor_id)
 {
-
-    _experiment_duration_sec = duration_sec;
-
     //TODO here implement also multi thread executor, or maybe allow user to pass its custom executor
     if (executor_id == 1){
         _executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
@@ -47,8 +44,10 @@ void performance_test::System::add_node(std::shared_ptr<Node> node)
 
 
 // TODO: Is it worth to spin each node in a different thread?
-void performance_test::System::spin(bool wait_for_discovery)
+void performance_test::System::spin(int duration_sec, bool wait_for_discovery)
 {
+    _experiment_duration_sec = duration_sec;
+
     // Store the instant when the experiment started
     _start_time = std::chrono::high_resolution_clock::now();
 

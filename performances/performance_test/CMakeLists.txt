@@ -13,15 +13,18 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(performance_test_msgs REQUIRED)
+find_package(benchmark_msgs REQUIRED)
 
 include_directories(
   include
-  cxxopts-2.1.2/include
+  external/cxxopts-2.1.2/include
+  external/json/single_include
 )
 
 set (LIBRARY_DEPENDENCIES
   rclcpp
   performance_test_msgs
+  benchmark_msgs
 )
 
 set(LIBRARY_SRC
@@ -42,7 +45,10 @@ install(TARGETS
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
-install(DIRECTORY include/ cxxopts-2.1.2/include/
+install(DIRECTORY
+  include/
+  external/cxxopts-2.1.2/include/
+  external/json/single_include/
   DESTINATION include/
 )
 

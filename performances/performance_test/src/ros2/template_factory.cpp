@@ -15,14 +15,22 @@
 
 #include "performance_test_msgs/srv/stamped10b.hpp"
 
+#include "benchmark_msgs/msg/stamped3_float32.hpp"
+#include "benchmark_msgs/msg/stamped4_float32.hpp"
+#include "benchmark_msgs/msg/stamped4_int32.hpp"
+#include "benchmark_msgs/msg/stamped9_float32.hpp"
+#include "benchmark_msgs/msg/stamped12_float32.hpp"
+#include "benchmark_msgs/msg/stamped_int64.hpp"
+
 #include "performance_test/ros2/template_factory.hpp"
 #include "performance_test/ros2/node.hpp"
 #include "performance_test/ros2/names_utilities.hpp"
 
 using namespace std::chrono_literals;
+using json = nlohmann::json;
 
 
-std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateFactory::create_subscribers(
+std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateFactory::create_subscriber_nodes(
     int start_id,
     int end_id,
     int n_publishers,
@@ -61,7 +69,7 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
 }
 
 
-std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateFactory::create_periodic_publishers(
+std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateFactory::create_periodic_publisher_nodes(
     int start_id,
     int end_id,
     float frequency,
@@ -87,9 +95,9 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
         std::string topic_name = id_to_topic_name(topic_id);
 
         int period = (1000/frequency);
-        std::chrono::milliseconds ms_period = std::chrono::milliseconds(period);
+        std::chrono::milliseconds period_ms = std::chrono::milliseconds(period);
 
-        this->add_periodic_publisher_from_strings(node, msg_type, topic_name, custom_qos_profile, ms_period, msg_size);
+        this->add_periodic_publisher_from_strings(node, msg_type, topic_name, custom_qos_profile, period_ms, msg_size);
 
         nodes_vector.push_back(node);
     }
@@ -98,7 +106,7 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
 }
 
 
-std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateFactory::create_periodic_clients(
+std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateFactory::create_periodic_client_nodes(
     int start_id,
     int end_id,
     int n_services,
@@ -121,14 +129,14 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
         }
 
         int period = (1000/frequency);
-        std::chrono::milliseconds ms_period = std::chrono::milliseconds(period);
+        std::chrono::milliseconds period_ms = std::chrono::milliseconds(period);
 
         for (int k = 0; k < n_services; k ++){
 
             int service_id = k + end_id;
             std::string service_name = id_to_service_name(service_id);
 
-            this->add_periodic_client_from_strings(node, srv_type, service_name, custom_qos_profile, ms_period);
+            this->add_periodic_client_from_strings(node, srv_type, service_name, custom_qos_profile, period_ms);
 
         }
 
@@ -140,7 +148,7 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
 }
 
 
-std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateFactory::create_servers(
+std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateFactory::create_server_nodes(
     int start_id,
     int end_id,
     std::string srv_type,
@@ -192,6 +200,12 @@ void performance_test::TemplateFactory::add_subscriber_from_strings(
         {"1mb",    [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped1mb>(topic_name), tracking_options, custom_qos_profile); } },
         {"4mb",    [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped4mb>(topic_name), tracking_options, custom_qos_profile); } },
         {"8mb",    [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped8mb>(topic_name), tracking_options, custom_qos_profile); } },
+        {"3float32",    [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped3Float32>(topic_name), tracking_options, custom_qos_profile); } },
+        {"4float32",   [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped4Float32>(topic_name), tracking_options, custom_qos_profile); } },
+        {"4int32",   [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped4Int32>(topic_name), tracking_options, custom_qos_profile); } },
+        {"9float32",    [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped9Float32>(topic_name), tracking_options, custom_qos_profile); } },
+        {"12float32",   [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped12Float32>(topic_name), tracking_options, custom_qos_profile); } },
+        {"int64",  [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::StampedInt64>(topic_name), tracking_options, custom_qos_profile); } },
         {"vector", [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::StampedVector>(topic_name), tracking_options, custom_qos_profile); } }
     };
 
@@ -209,22 +223,28 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_strings(
     std::string msg_type,
     std::string topic_name,
     rmw_qos_profile_t custom_qos_profile,
-    std::chrono::milliseconds ms_period,
+    std::chrono::milliseconds period_ms,
     size_t msg_size)
 {
 
     static const std::map<std::string, std::function<void()>>  publishers_factory{
-        {"10b",    [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped10b>(topic_name), ms_period, custom_qos_profile); } },
-        {"100b",   [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped100b>(topic_name), ms_period, custom_qos_profile); } },
-        {"250b",   [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped250b>(topic_name), ms_period, custom_qos_profile); } },
-        {"1kb",    [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped1kb>(topic_name), ms_period, custom_qos_profile); } },
-        {"10kb",   [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped10kb>(topic_name), ms_period, custom_qos_profile); } },
-        {"100kb",  [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped100kb>(topic_name), ms_period, custom_qos_profile); } },
-        {"250kb",  [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped250kb>(topic_name), ms_period, custom_qos_profile); } },
-        {"1mb",    [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped1mb>(topic_name), ms_period, custom_qos_profile); } },
-        {"4mb",    [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped4mb>(topic_name), ms_period, custom_qos_profile); } },
-        {"8mb",    [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped8mb>(topic_name), ms_period, custom_qos_profile); } },
-        {"vector", [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::StampedVector>(topic_name), ms_period, custom_qos_profile, msg_size); } }
+        {"10b",    [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped10b>(topic_name), period_ms, custom_qos_profile); } },
+        {"100b",   [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped100b>(topic_name), period_ms, custom_qos_profile); } },
+        {"250b",   [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped250b>(topic_name), period_ms, custom_qos_profile); } },
+        {"1kb",    [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped1kb>(topic_name), period_ms, custom_qos_profile); } },
+        {"10kb",   [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped10kb>(topic_name), period_ms, custom_qos_profile); } },
+        {"100kb",  [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped100kb>(topic_name), period_ms, custom_qos_profile); } },
+        {"250kb",  [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped250kb>(topic_name), period_ms, custom_qos_profile); } },
+        {"1mb",    [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped1mb>(topic_name), period_ms, custom_qos_profile); } },
+        {"4mb",    [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped4mb>(topic_name), period_ms, custom_qos_profile); } },
+        {"8mb",    [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped8mb>(topic_name), period_ms, custom_qos_profile); } },
+        {"3float32",    [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped3Float32>(topic_name), period_ms, custom_qos_profile); } },
+        {"4float32",   [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped4Float32>(topic_name), period_ms, custom_qos_profile); } },
+        {"4int32",   [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped4Int32>(topic_name), period_ms, custom_qos_profile); } },
+        {"9float32",    [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped9Float32>(topic_name), period_ms, custom_qos_profile); } },
+        {"12float32",   [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped12Float32>(topic_name), period_ms, custom_qos_profile); } },
+        {"int64",  [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::StampedInt64>(topic_name), period_ms, custom_qos_profile); } },
+        {"vector", [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::StampedVector>(topic_name), period_ms, custom_qos_profile, msg_size); } }
     };
 
     if (publishers_factory.find(msg_type) == publishers_factory.end()){
@@ -259,11 +279,11 @@ void performance_test::TemplateFactory::add_periodic_client_from_strings(
     std::string srv_type,
     std::string service_name,
     rmw_qos_profile_t custom_qos_profile,
-    std::chrono::milliseconds ms_period)
+    std::chrono::milliseconds period_ms)
 {
 
     static const std::map<std::string, std::function<void()>>  clients_factory{
-        {"10b",    [&] { n->add_periodic_client(performance_test::Service<performance_test_msgs::srv::Stamped10b>(service_name), ms_period, custom_qos_profile); } }
+        {"10b",    [&] { n->add_periodic_client(performance_test::Service<performance_test_msgs::srv::Stamped10b>(service_name), period_ms, custom_qos_profile); } }
     };
 
     if (clients_factory.find(srv_type) == clients_factory.end()){
@@ -295,4 +315,151 @@ size_t performance_test::TemplateFactory::get_msg_size(std::string msg_type, siz
     }
 
     return msg_factory.at(msg_type);
+}
+
+
+std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateFactory::parse_nodes_from_json(
+    std::string json_path)
+{
+
+    std::vector<std::shared_ptr<performance_test::Node>> nodes_vec;
+
+    std::ifstream ifs(json_path);
+    json j = json::parse(ifs);
+
+    if (j.find("nodes") == j.end()){
+        std::cout<<"ERROR! the provided json does not contain a nodes field"<<std::endl;
+        return nodes_vec;
+    }
+
+    auto nodes_json = j["nodes"];
+
+    for (auto n_json : nodes_json)
+    {
+        auto node = create_node_from_json(n_json);
+
+        if (n_json.find("publishers") != n_json.end()) {
+            // if there is at least 1 publisher, add each of them
+            for(auto p_json : n_json["publishers"]){
+                this->add_periodic_publisher_from_json(node, p_json);
+            }
+        }
+
+        if (n_json.find("subscribers") != n_json.end()) {
+            // if there is at least 1 subscriber, add each of them
+            for(auto s_json : n_json["subscribers"]){
+                this->add_subscriber_from_json(node, s_json);
+            }
+        }
+
+        if (n_json.find("clients") != n_json.end()) {
+            // if there is at least 1 client, add each of them
+            for(auto c_json : n_json["clients"]){
+                this->add_periodic_client_from_json(node, c_json);
+            }
+        }
+
+        if (n_json.find("servers") != n_json.end()) {
+            // if there is at least 1 server, add each of them
+            for(auto s_json : n_json["servers"]){
+                this->add_server_from_json(node, s_json);
+            }
+        }
+
+        nodes_vec.push_back(node);
+    }
+
+
+    return nodes_vec;
+}
+
+
+std::shared_ptr<performance_test::Node> performance_test::TemplateFactory::create_node_from_json(
+    const json node_json)
+{
+
+    std::string node_name = node_json["node_name"];
+    bool use_ipc = true;
+    auto node = std::make_shared<performance_test::Node>(node_name, _ros2_namespace, use_ipc);
+
+    return node;
+}
+
+
+void performance_test::TemplateFactory::add_periodic_publisher_from_json(
+    std::shared_ptr<performance_test::Node> node, const json pub_json)
+{
+
+    std::string topic_name = pub_json["topic_name"];
+    std::string msg_type = pub_json["msg_type"];
+    auto period_ms = std::chrono::milliseconds(pub_json["period_ms"]);
+    size_t msg_size = 0;
+    if (msg_type == "vector"){
+        msg_size = pub_json["msg_size"];
+    }
+
+    rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
+
+    this->add_periodic_publisher_from_strings(
+        node,
+        msg_type,
+        topic_name,
+        custom_qos_profile,
+        period_ms,
+        msg_size);
+
+}
+
+
+void performance_test::TemplateFactory::add_subscriber_from_json(
+    std::shared_ptr<performance_test::Node> node, const json sub_json)
+{
+
+    std::string topic_name = sub_json["topic_name"];
+    std::string msg_type = sub_json["msg_type"];
+    Tracker::TrackingOptions t_options;
+    rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
+
+    this->add_subscriber_from_strings(
+        node,
+        msg_type,
+        topic_name,
+        t_options,
+        custom_qos_profile);
+
+}
+
+
+void performance_test::TemplateFactory::add_periodic_client_from_json(
+    std::shared_ptr<performance_test::Node> node, const json client_json)
+{
+
+    std::string service_name = client_json["service_name"];
+    std::string srv_type = client_json["srv_type"];
+    auto period_ms = std::chrono::milliseconds(client_json["period_ms"]);
+    rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
+
+    this->add_periodic_client_from_strings(
+        node,
+        srv_type,
+        service_name,
+        custom_qos_profile,
+        period_ms);
+
+}
+
+
+void performance_test::TemplateFactory::add_server_from_json(
+    std::shared_ptr<performance_test::Node> node, const json server_json)
+{
+    std::string service_name = server_json["service_name"];
+    std::string srv_type = server_json["srv_type"];
+    rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
+
+    this->add_server_from_strings(
+        node,
+        srv_type,
+        service_name,
+        custom_qos_profile);
+
 }

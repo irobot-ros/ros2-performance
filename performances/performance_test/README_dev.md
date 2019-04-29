@@ -47,10 +47,10 @@ Once you have defined all your nodes, you have to start them. We provide the `pe
 ```
 #include "performance_test/ros2/system.hpp"
 int experiment_duration_sec = 10;
-System ros2_system(experiment_duration_sec);
+System ros2_system();
 ros2_system.add_node(pub_node);
 ros2_system.add_node(sub_node);
-ros2_system.spin();
+ros2_system.spin(experiment_duration_sec);
 ```
 
 This is enough for running your nodes.
@@ -131,7 +131,7 @@ float frequency = 10;
 std::string msg_type = "10kb";
 
 std::vector<std::shared_ptr<performance_test::Node>> pub_nodes =
-     factory.create_periodic_publishers(
+     factory.create_periodic_publisher_nodes(
           n_subscribers,
           n_subscribers + n_publishers,
           frequency,
@@ -140,18 +140,18 @@ std::vector<std::shared_ptr<performance_test::Node>> pub_nodes =
 ros2_system.add_node(pub_nodes);
 
 std::vector<std::shared_ptr<performance_test::Node>> sub_nodes =
-     factory.create_subscribers(
+     factory.create_subscriber_nodes(
           0,
           n_subscribers,
           n_publishers,
           msg_type);
 
 int experiment_duration_sec = 10;
-System ros2_system(experiment_duration_sec);
+System ros2_system();
 
 ros2_system.add_node(pub_nodes);
 ros2_system.add_node(sub_nodes);
-ros2_system.spin();
+ros2_system.spin(experiment_duration_sec);
 ```
 
 **NOTE**: even if this is not currently enforced, by design `node_I` will be the only node which should publish to `topic_I` and which can provide `service_I`.
@@ -160,7 +160,7 @@ These are just conventions useful to make the code and the output more readable.
 
 **NOTE:** At the moment, the factory methods for creating subscribers and clients in a node will create all the possible ones, according to the specified number of publishers/servers.
 This means that using these methods, if there are 2 publishers they will publish on 2 different topics and every subscriber node will subscribe to all the available topics.
-It is possible to manually create systems with a different topology by not using the `TemplateFactory::create_subscribers` and `TemplateFactory::create_periodic_publishers` methods.
+It is possible to manually create systems with a different topology by not using the `TemplateFactory::create_subscriber_nodes` and `TemplateFactory::create_periodic_publisher_nodes` methods.
 
 
 #### C++ executables

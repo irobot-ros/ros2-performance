@@ -51,6 +51,13 @@ install(DIRECTORY include/ cxxopts-2.1.2/include/
 ##
 add_subdirectory(examples)
 
+##
+## build the unit tests
+##
+if(BUILD_TESTING)
+  add_subdirectory(test)
+endif()
+
 
 ament_export_include_directories(include)
 ament_export_libraries(${LIBRARY_NAME})

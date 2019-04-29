@@ -51,7 +51,10 @@ void performance_test::System::spin(bool wait_for_discovery)
 {
     // Store the instant when the experiment started
     _start_time = std::chrono::high_resolution_clock::now();
-    _events_logger->set_start_time(_start_time);
+
+    if (_events_logger != nullptr){
+        _events_logger->set_start_time(_start_time);
+    }
 
     if (wait_for_discovery){
         // wait until PDP and EDP are finished before starting
@@ -125,12 +128,14 @@ void performance_test::System::wait_discovery()
         rate.sleep();
     }
 
-    // Create an event for PDP completed
-    EventsLogger::Event pdp_ev;
-    pdp_ev.caller_name = "SYSTEM";
-    pdp_ev.code = EventsLogger::EventCode::discovery;
-    pdp_ev.description = "[discovery] PDP completed";
-    _events_logger->write_event(pdp_ev);
+    if (_events_logger != nullptr){
+        // Create an event for PDP completed
+        EventsLogger::Event pdp_ev;
+        pdp_ev.caller_name = "SYSTEM";
+        pdp_ev.code = EventsLogger::EventCode::discovery;
+        pdp_ev.description = "[discovery] PDP completed";
+        _events_logger->write_event(pdp_ev);
+    }
 
     /**
      * Check EDP
@@ -170,12 +175,14 @@ void performance_test::System::wait_discovery()
         rate.sleep();
     }
 
-    // Create an event for EDP completed
-    EventsLogger::Event edp_ev;
-    edp_ev.caller_name = "SYSTEM";
-    edp_ev.code = EventsLogger::EventCode::discovery;
-    edp_ev.description = "[discovery] EDP completed";
-    _events_logger->write_event(edp_ev);
+    if (_events_logger != nullptr){
+        // Create an event for EDP completed
+        EventsLogger::Event edp_ev;
+        edp_ev.caller_name = "SYSTEM";
+        edp_ev.code = EventsLogger::EventCode::discovery;
+        edp_ev.description = "[discovery] EDP completed";
+        _events_logger->write_event(edp_ev);
+    }
 }
 
 

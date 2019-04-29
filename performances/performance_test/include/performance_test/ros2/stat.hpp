@@ -75,7 +75,7 @@ public:
   double last() const { return _last; }
 
 private:
-  double _last = -1;
+  double _last = std::nan("");
   double _max;
   double _min;
   double  K;

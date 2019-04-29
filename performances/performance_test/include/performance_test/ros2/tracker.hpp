@@ -16,6 +16,10 @@ class Tracker
 {
 public:
   struct TrackingOptions {
+
+      TrackingOptions(bool enable = true) : is_enabled(enable){};
+
+      bool is_enabled = true;
       int late_percentage = 20;
       int late_absolute_us = 5000;
       int too_late_percentage = 100;

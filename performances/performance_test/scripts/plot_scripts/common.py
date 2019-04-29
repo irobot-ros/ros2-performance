@@ -418,4 +418,5 @@ def plot_function(data_dict, x_key, y1_keys, y2_keys, separator, target = {}):
     ax1.legend(loc='upper left')
 
     fig.tight_layout()
+    matplotlib.pyplot.grid()
     matplotlib.pyplot.show()

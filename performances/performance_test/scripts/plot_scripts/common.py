@@ -198,6 +198,8 @@ def get_title(x_key, y1_keys, y2_keys, separator):
     title += ' vs ' + x_key
 
     for i, sep in enumerate(separator):
+        if sep == 'directory':
+            continue
         if i is 0:
             title += ' for different values of ' + sep
         else:
@@ -314,7 +316,7 @@ def plot_function(data_dict, x_key, y1_keys, y2_keys, separator, target = {}):
             if separator:
                 separator_key = next(iter(data.values()))['separator']
                 if separator_key != 'directory':
-                    # TODO: is this extra check needed? I do not like to print `bouncy_directory_cpu`, I prefer `bouncy_cpu`
+                    # I don't want to print `bouncy_directory_cpu`, I prefer `bouncy_cpu`
                     plot_label = str(label) + '_' + separator_key + '_' + plot_label
                 else:
                     plot_label = str(label) + '_' + plot_label
@@ -353,7 +355,11 @@ def plot_function(data_dict, x_key, y1_keys, y2_keys, separator, target = {}):
             plot_label = y2_key
             if separator:
                 separator_key = next(iter(data.values()))['separator']
-                plot_label = str(label) + '_' + separator_key + '_' + plot_label
+                if separator_key != 'directory':
+                    # I don't want to print `bouncy_directory_cpu`, I prefer `bouncy_cpu`
+                    plot_label = str(label) + '_' + separator_key + '_' + plot_label
+                else:
+                    plot_label = str(label) + '_' + plot_label
 
             # Create a fake line in ax1, to display legend properly
             fake_plot = ax1.plot(np.nan,linestyle='-', label=plot_label)

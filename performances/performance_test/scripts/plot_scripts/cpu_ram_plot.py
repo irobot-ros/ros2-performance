@@ -49,12 +49,15 @@ def parse_csv(file_path, skip = 0):
     f = StringIO(csv_file)
     reader = csv.DictReader(f, delimiter='\t')
 
+    rows_number = 0
     for i, row_dict in enumerate(reader):
 
         # used to skip the first seconds if requested
         time = int(row_dict['time[ms]']) + 1
         if time < skip:
             continue
+
+        rows_number += 1
 
         data['time'].append(time)
         data['cpu[%]'].append(float(row_dict.get('cpu[%]', 0)))
@@ -64,6 +67,9 @@ def parse_csv(file_path, skip = 0):
         data['subs'] = int(row_dict.get('subs', 0))
         data['msg_size'] = int(row_dict.get('msg_size', 0))
         data['send_frequency'] = int(row_dict.get('pub_freq', 0))
+
+    if rows_number < 1:
+        return {}
 
     return data
 
@@ -173,6 +179,9 @@ def main(argv):
     for file_path in list_dir:
 
         parsed_csv = parse_csv(file_path, skip)
+
+        if not parsed_csv:
+            continue
 
         # given a parsed_csv, I can split all its lines into several csv or average them
         if x_key == "time":

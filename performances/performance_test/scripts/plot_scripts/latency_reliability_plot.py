@@ -65,7 +65,10 @@ def parse_csv(file_path):
     f = StringIO(csv_file)
     reader = csv.DictReader(f, delimiter='\t')
 
+    rows_number = 0
     for row_dict in reader:
+        rows_number += 1
+
         # store the fields of the current csv row into variables, adjustind their data type
         node_name = row_dict['node']
         topic = row_dict['topic']
@@ -97,6 +100,9 @@ def parse_csv(file_path):
                 data['valid_subscribers'] += 1
                 data['send_frequency'] = send_frequency
                 data['th_count'] = send_frequency * experiment_duration
+
+    if rows_number < 1:
+        return {}
 
     data['pubs'] = len(pubs_ids)
     data['subs'] = len(subs_ids)
@@ -138,6 +144,9 @@ def main(argv):
     for file_path in list_dir:
 
         parsed_csv = parse_csv(file_path)
+
+        if not parsed_csv:
+            continue
 
         parsed_list.append(parsed_csv)
 

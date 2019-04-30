@@ -42,6 +42,8 @@ private:
   std::vector<std::shared_ptr<Node>> _nodes;
 
   rclcpp::executor::Executor::SharedPtr _executor;
+  std::vector<rclcpp::executors::SingleThreadedExecutor::SharedPtr> _executors_vec;
+
 
   std::shared_ptr<EventsLogger> _events_logger;
 

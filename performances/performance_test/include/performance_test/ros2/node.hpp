@@ -30,13 +30,13 @@ public:
 // in ROS2 D release the rclcpp::Node constructor has changed to use the new class rclcpp::NodeOptions
 // https://github.com/ros2/rclcpp/blob/master/rclcpp/include/rclcpp/node_options.hpp
 #ifdef RCLCPP__NODE_OPTIONS_HPP_
-  Node(const std::string& name, const std::string& ros2_namespace, bool ipc = true)
+  Node(const std::string& name, const std::string& ros2_namespace = "", bool ipc = true)
     : rclcpp::Node(name, ros2_namespace, rclcpp::NodeOptions().use_intra_process_comms(ipc))
   {
     RCLCPP_INFO(this->get_logger(), "Node %s created", name.c_str());
   }
 #else
-  Node(const std::string& name, const std::string& ros2_namespace, bool ipc = true)
+  Node(const std::string& name, const std::string& ros2_namespace = "", bool ipc = true)
     : rclcpp::Node(name, ros2_namespace, ipc)
   {
     RCLCPP_INFO(this->get_logger(), "Node %s created", name.c_str());

@@ -21,12 +21,12 @@ TEST(TrackerTest, TrackerInitTest)
   ASSERT_EQ((unsigned long int)0, tracker.late());
   ASSERT_EQ((unsigned long int)0, tracker.too_late());
   ASSERT_EQ((unsigned long int)0, tracker.received());
+  ASSERT_EQ((unsigned long int)0, tracker.last());
 
   EXPECT_TRUE(std::isnan(tracker.stat().mean()));
   EXPECT_TRUE(std::isnan(tracker.stat().stddev()));
   EXPECT_TRUE(std::isnan(tracker.stat().min()));
   EXPECT_TRUE(std::isnan(tracker.stat().max()));
-  EXPECT_TRUE(std::isnan(tracker.stat().last()));
   ASSERT_EQ((unsigned long int)0, tracker.stat().n());
 }
 
@@ -46,7 +46,7 @@ TEST(TrackerTest, TrackerScanTest)
   ASSERT_DOUBLE_EQ((double)0, tracker.stat().stddev());
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(10), tracker.stat().min());
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(10), tracker.stat().max());
-  ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(10), tracker.stat().last());
+  ASSERT_EQ((unsigned long int)RCL_NS_TO_US(10), tracker.last());
 
   rclcpp::Time t_now2(0, 200, RCL_ROS_TIME);
   tracker.scan(header, t_now2, nullptr);
@@ -55,7 +55,7 @@ TEST(TrackerTest, TrackerScanTest)
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(95), tracker.stat().stddev());
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(10), tracker.stat().min());
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(200), tracker.stat().max());
-  ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(200), tracker.stat().last());
+  ASSERT_EQ((unsigned long int)RCL_NS_TO_US(200), tracker.last());
 
   // This is 1e9 nanoseconds
   rclcpp::Time t_now3(1, 0, RCL_ROS_TIME);
@@ -65,7 +65,7 @@ TEST(TrackerTest, TrackerScanTest)
   EXPECT_NEAR((double)RCL_NS_TO_US(471404471.29356), tracker.stat().stddev(), 1e-1);
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(10), tracker.stat().min());
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(1e9), tracker.stat().max());
-  ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(1e9),tracker.stat().last());
+  ASSERT_EQ((unsigned long int)RCL_NS_TO_US(1e9),tracker.last());
 }
 
 

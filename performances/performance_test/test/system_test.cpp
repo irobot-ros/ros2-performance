@@ -18,21 +18,19 @@ TEST(SystemTest, SystemAddNodesTest)
 {
     rclcpp::init(0, nullptr);
 
-    int duration_sec = 0;
-
     auto node_1 = std::make_shared<performance_test::Node>("node_1");
     auto node_2 = std::make_shared<performance_test::Node>("node_2");
     auto node_3 = std::make_shared<performance_test::Node>("node_3");
     std::vector<std::shared_ptr<performance_test::Node>> nodes_vec = {node_2, node_3};
 
     int executors = 0;
-    performance_test::System separate_threads_system(duration_sec, executors);
+    performance_test::System separate_threads_system(executors);
 
     separate_threads_system.add_node(node_1);
     separate_threads_system.add_node(nodes_vec);
 
     executors = 1;
-    performance_test::System single_executor_system(duration_sec, executors);
+    performance_test::System single_executor_system(executors);
 
     single_executor_system.add_node(node_1);
     single_executor_system.add_node(nodes_vec);
@@ -51,7 +49,7 @@ TEST(SystemTest, SystemPubSubTest)
     auto topic = performance_test::Topic<performance_test_msgs::msg::Stamped10b>("my_topic");
 
     int duration_sec = 1;
-    performance_test::System ros2_system(duration_sec);
+    performance_test::System ros2_system;
 
     // Create 1 pulisher node and 1 subscriber node
     auto pub_node = std::make_shared<performance_test::Node>("pub_node");
@@ -62,7 +60,7 @@ TEST(SystemTest, SystemPubSubTest)
     sub_node->add_subscriber(topic, performance_test::Tracker::TrackingOptions(), rmw_qos_profile_default);
     ros2_system.add_node(sub_node);
 
-    ros2_system.spin();
+    ros2_system.spin(duration_sec);
 
     rclcpp::shutdown();
 
@@ -84,7 +82,7 @@ TEST(SystemTest, SystemClientServerTest)
     auto service = performance_test::Topic<performance_test_msgs::srv::Stamped10b>("my_service");
 
     int duration_sec = 1;
-    performance_test::System ros2_system(duration_sec);
+    performance_test::System ros2_system;
 
     // Create 1 client node and 1 server node
     auto client_node = std::make_shared<performance_test::Node>("client_node");
@@ -96,7 +94,7 @@ TEST(SystemTest, SystemClientServerTest)
     ros2_system.add_node(server_node);
 
     // discovery check does not work with client/server yet
-    ros2_system.spin(false);
+    ros2_system.spin(duration_sec, false);
 
     rclcpp::shutdown();
 
@@ -118,7 +116,7 @@ TEST(SystemTest, SystemDifferentQoSTest)
     auto topic = performance_test::Topic<performance_test_msgs::msg::Stamped10b>("my_topic");
 
     int duration_sec = 1;
-    performance_test::System ros2_system(duration_sec);
+    performance_test::System ros2_system;
     rmw_qos_profile_t qos_profile = rmw_qos_profile_default;
 
     // Create 1 pulisher node and 1 subscriber node
@@ -132,7 +130,7 @@ TEST(SystemTest, SystemDifferentQoSTest)
     sub_node->add_subscriber(topic, performance_test::Tracker::TrackingOptions(), qos_profile);
     ros2_system.add_node(sub_node);
 
-    ros2_system.spin();
+    ros2_system.spin(duration_sec);
 
     rclcpp::shutdown();
 

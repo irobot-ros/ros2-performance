@@ -47,6 +47,8 @@ void performance_test::Tracker::scan(
     rclcpp::Time stamp(header.stamp.sec, header.stamp.nanosec, RCL_ROS_TIME);
     auto lat = std::chrono::nanoseconds((now - stamp).nanoseconds());
     unsigned long lat_us = lat.count() / 1000;
+    // store the last latency to be read from node
+    _last_latency = lat_us;
 
     bool late = false;
     bool too_late = false;

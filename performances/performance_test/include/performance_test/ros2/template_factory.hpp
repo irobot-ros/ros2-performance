@@ -97,12 +97,13 @@ class TemplateFactory {
 
 
         /**
-         * Helper functions that, given a given a json file describing a system,
-         * create the nodes accordingly
+         * Helper function that, given a given a json file describing a system,
+         * parses it and creates the nodes accordingly
          */
 
+        std::vector<std::shared_ptr<Node>> parse_topology_from_json(std::string json_path);
 
-        std::vector<std::shared_ptr<Node>> parse_nodes_from_json(std::string json_path);
+    private:
 
         std::shared_ptr<Node> create_node_from_json(const nlohmann::json node_json);
 
@@ -114,7 +115,6 @@ class TemplateFactory {
 
         void add_server_from_json(std::shared_ptr<Node> node, const nlohmann::json server_json);
 
-    private:
 
         std::string _ros2_namespace;
 };

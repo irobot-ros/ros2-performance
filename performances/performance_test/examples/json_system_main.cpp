@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 
     performance_test::TemplateFactory factory = performance_test::TemplateFactory();
 
-    auto nodes_vec = factory.parse_nodes_from_json(json_path);
+    auto nodes_vec = factory.parse_topology_from_json(json_path);
 
     ros2_system.add_node(nodes_vec);
 

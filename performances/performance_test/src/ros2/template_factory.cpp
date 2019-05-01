@@ -190,23 +190,23 @@ void performance_test::TemplateFactory::add_subscriber_from_strings(
 {
 
     static const std::map<std::string, std::function<void()>>  subscribers_factory{
-        {"10b",    [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped10b>(topic_name), tracking_options, custom_qos_profile); } },
-        {"100b",   [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped100b>(topic_name), tracking_options, custom_qos_profile); } },
-        {"250b",   [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped250b>(topic_name), tracking_options, custom_qos_profile); } },
-        {"1kb",    [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped1kb>(topic_name), tracking_options, custom_qos_profile); } },
-        {"10kb",   [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped10kb>(topic_name), tracking_options, custom_qos_profile); } },
-        {"100kb",  [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped100kb>(topic_name), tracking_options, custom_qos_profile); } },
-        {"250kb",  [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped250kb>(topic_name), tracking_options, custom_qos_profile); } },
-        {"1mb",    [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped1mb>(topic_name), tracking_options, custom_qos_profile); } },
-        {"4mb",    [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped4mb>(topic_name), tracking_options, custom_qos_profile); } },
-        {"8mb",    [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped8mb>(topic_name), tracking_options, custom_qos_profile); } },
+        {"10b",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped10b>(topic_name), tracking_options, custom_qos_profile); } },
+        {"100b",        [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped100b>(topic_name), tracking_options, custom_qos_profile); } },
+        {"250b",        [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped250b>(topic_name), tracking_options, custom_qos_profile); } },
+        {"1kb",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped1kb>(topic_name), tracking_options, custom_qos_profile); } },
+        {"10kb",        [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped10kb>(topic_name), tracking_options, custom_qos_profile); } },
+        {"100kb",       [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped100kb>(topic_name), tracking_options, custom_qos_profile); } },
+        {"250kb",       [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped250kb>(topic_name), tracking_options, custom_qos_profile); } },
+        {"1mb",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped1mb>(topic_name), tracking_options, custom_qos_profile); } },
+        {"4mb",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped4mb>(topic_name), tracking_options, custom_qos_profile); } },
+        {"8mb",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped8mb>(topic_name), tracking_options, custom_qos_profile); } },
         {"3float32",    [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped3Float32>(topic_name), tracking_options, custom_qos_profile); } },
-        {"4float32",   [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped4Float32>(topic_name), tracking_options, custom_qos_profile); } },
-        {"4int32",   [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped4Int32>(topic_name), tracking_options, custom_qos_profile); } },
+        {"4float32",    [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped4Float32>(topic_name), tracking_options, custom_qos_profile); } },
+        {"4int32",      [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped4Int32>(topic_name), tracking_options, custom_qos_profile); } },
         {"9float32",    [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped9Float32>(topic_name), tracking_options, custom_qos_profile); } },
         {"12float32",   [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped12Float32>(topic_name), tracking_options, custom_qos_profile); } },
-        {"int64",  [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::StampedInt64>(topic_name), tracking_options, custom_qos_profile); } },
-        {"vector", [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::StampedVector>(topic_name), tracking_options, custom_qos_profile); } }
+        {"int64",       [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::StampedInt64>(topic_name), tracking_options, custom_qos_profile); } },
+        {"vector",      [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::StampedVector>(topic_name), tracking_options, custom_qos_profile); } }
     };
 
     if (subscribers_factory.find(msg_type) == subscribers_factory.end()){
@@ -228,23 +228,23 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_strings(
 {
 
     static const std::map<std::string, std::function<void()>>  publishers_factory{
-        {"10b",    [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped10b>(topic_name), period_ms, custom_qos_profile); } },
-        {"100b",   [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped100b>(topic_name), period_ms, custom_qos_profile); } },
-        {"250b",   [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped250b>(topic_name), period_ms, custom_qos_profile); } },
-        {"1kb",    [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped1kb>(topic_name), period_ms, custom_qos_profile); } },
-        {"10kb",   [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped10kb>(topic_name), period_ms, custom_qos_profile); } },
-        {"100kb",  [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped100kb>(topic_name), period_ms, custom_qos_profile); } },
-        {"250kb",  [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped250kb>(topic_name), period_ms, custom_qos_profile); } },
-        {"1mb",    [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped1mb>(topic_name), period_ms, custom_qos_profile); } },
-        {"4mb",    [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped4mb>(topic_name), period_ms, custom_qos_profile); } },
-        {"8mb",    [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped8mb>(topic_name), period_ms, custom_qos_profile); } },
+        {"10b",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped10b>(topic_name), period_ms, custom_qos_profile); } },
+        {"100b",        [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped100b>(topic_name), period_ms, custom_qos_profile); } },
+        {"250b",        [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped250b>(topic_name), period_ms, custom_qos_profile); } },
+        {"1kb",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped1kb>(topic_name), period_ms, custom_qos_profile); } },
+        {"10kb",        [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped10kb>(topic_name), period_ms, custom_qos_profile); } },
+        {"100kb",       [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped100kb>(topic_name), period_ms, custom_qos_profile); } },
+        {"250kb",       [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped250kb>(topic_name), period_ms, custom_qos_profile); } },
+        {"1mb",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped1mb>(topic_name), period_ms, custom_qos_profile); } },
+        {"4mb",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped4mb>(topic_name), period_ms, custom_qos_profile); } },
+        {"8mb",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped8mb>(topic_name), period_ms, custom_qos_profile); } },
         {"3float32",    [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped3Float32>(topic_name), period_ms, custom_qos_profile); } },
-        {"4float32",   [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped4Float32>(topic_name), period_ms, custom_qos_profile); } },
-        {"4int32",   [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped4Int32>(topic_name), period_ms, custom_qos_profile); } },
+        {"4float32",    [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped4Float32>(topic_name), period_ms, custom_qos_profile); } },
+        {"4int32",      [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped4Int32>(topic_name), period_ms, custom_qos_profile); } },
         {"9float32",    [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped9Float32>(topic_name), period_ms, custom_qos_profile); } },
         {"12float32",   [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped12Float32>(topic_name), period_ms, custom_qos_profile); } },
-        {"int64",  [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::StampedInt64>(topic_name), period_ms, custom_qos_profile); } },
-        {"vector", [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::StampedVector>(topic_name), period_ms, custom_qos_profile, msg_size); } }
+        {"int64",       [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::StampedInt64>(topic_name), period_ms, custom_qos_profile); } },
+        {"vector",      [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::StampedVector>(topic_name), period_ms, custom_qos_profile, msg_size); } }
     };
 
     if (publishers_factory.find(msg_type) == publishers_factory.end()){
@@ -297,17 +297,23 @@ void performance_test::TemplateFactory::add_periodic_client_from_strings(
 size_t performance_test::TemplateFactory::get_msg_size(std::string msg_type, size_t msg_size)
 {
     static const std::map<std::string, size_t>  msg_factory{
-        {"10b",    sizeof(performance_test_msgs::msg::Stamped10b().data) },
-        {"100b",   sizeof(performance_test_msgs::msg::Stamped100b().data) },
-        {"250b",   sizeof(performance_test_msgs::msg::Stamped250b().data) },
-        {"1kb",    sizeof(performance_test_msgs::msg::Stamped1kb().data) },
-        {"10kb",   sizeof(performance_test_msgs::msg::Stamped10kb().data) },
-        {"100kb",  sizeof(performance_test_msgs::msg::Stamped100kb().data) },
-        {"250kb",  sizeof(performance_test_msgs::msg::Stamped250kb().data) },
-        {"1mb",    sizeof(performance_test_msgs::msg::Stamped1mb().data) },
-        {"4mb",    sizeof(performance_test_msgs::msg::Stamped4mb().data) },
-        {"8mb",    sizeof(performance_test_msgs::msg::Stamped8mb().data) },
-        {"vector", msg_size }
+        {"10b",         sizeof(performance_test_msgs::msg::Stamped10b().data) },
+        {"100b",        sizeof(performance_test_msgs::msg::Stamped100b().data) },
+        {"250b",        sizeof(performance_test_msgs::msg::Stamped250b().data) },
+        {"1kb",         sizeof(performance_test_msgs::msg::Stamped1kb().data) },
+        {"10kb",        sizeof(performance_test_msgs::msg::Stamped10kb().data) },
+        {"100kb",       sizeof(performance_test_msgs::msg::Stamped100kb().data) },
+        {"250kb",       sizeof(performance_test_msgs::msg::Stamped250kb().data) },
+        {"1mb",         sizeof(performance_test_msgs::msg::Stamped1mb().data) },
+        {"4mb",         sizeof(performance_test_msgs::msg::Stamped4mb().data) },
+        {"8mb",         sizeof(performance_test_msgs::msg::Stamped8mb().data) },
+        {"3float32",    sizeof(benchmark_msgs::msg::Stamped3Float32().data) },
+        {"4float32",    sizeof(benchmark_msgs::msg::Stamped4Float32().data) },
+        {"4int32",      sizeof(benchmark_msgs::msg::Stamped4Int32().data) },
+        {"9float32",    sizeof(benchmark_msgs::msg::Stamped9Float32().data) },
+        {"12float32",   sizeof(benchmark_msgs::msg::Stamped12Float32().data) },
+        {"int64",       sizeof(benchmark_msgs::msg::StampedInt64().data) },
+        {"vector",      msg_size }
     };
 
     if (msg_factory.find(msg_type) == msg_factory.end()){
@@ -318,7 +324,7 @@ size_t performance_test::TemplateFactory::get_msg_size(std::string msg_type, siz
 }
 
 
-std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateFactory::parse_nodes_from_json(
+std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateFactory::parse_topology_from_json(
     std::string json_path)
 {
 

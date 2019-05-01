@@ -27,7 +27,7 @@ class TemplateFactory {
             int end_id,
             int n_publishers,
             std::string msg_type,
-            Tracker::TrackingOptions tracking_options,
+            Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
             rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default,
             bool use_ipc = true,
             bool verbose = false);

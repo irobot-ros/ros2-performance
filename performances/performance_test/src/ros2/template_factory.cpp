@@ -189,7 +189,7 @@ void performance_test::TemplateFactory::add_subscriber_from_strings(
     rmw_qos_profile_t custom_qos_profile)
 {
 
-    static const std::map<std::string, std::function<void()>>  subscribers_factory{
+    const std::map<std::string, std::function<void()>>  subscribers_factory{
         {"10b",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped10b>(topic_name), tracking_options, custom_qos_profile); } },
         {"100b",        [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped100b>(topic_name), tracking_options, custom_qos_profile); } },
         {"250b",        [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped250b>(topic_name), tracking_options, custom_qos_profile); } },
@@ -227,7 +227,7 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_strings(
     size_t msg_size)
 {
 
-    static const std::map<std::string, std::function<void()>>  publishers_factory{
+    const std::map<std::string, std::function<void()>>  publishers_factory{
         {"10b",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped10b>(topic_name), period_ms, custom_qos_profile); } },
         {"100b",        [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped100b>(topic_name), period_ms, custom_qos_profile); } },
         {"250b",        [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped250b>(topic_name), period_ms, custom_qos_profile); } },
@@ -262,7 +262,7 @@ void performance_test::TemplateFactory::add_server_from_strings(
     rmw_qos_profile_t custom_qos_profile)
 {
 
-    static const std::map<std::string, std::function<void()>>  servers_factory{
+    const std::map<std::string, std::function<void()>>  servers_factory{
         {"10b",    [&] { n->add_server(performance_test::Service<performance_test_msgs::srv::Stamped10b>(service_name), custom_qos_profile); } }
     };
 
@@ -282,7 +282,7 @@ void performance_test::TemplateFactory::add_periodic_client_from_strings(
     std::chrono::milliseconds period_ms)
 {
 
-    static const std::map<std::string, std::function<void()>>  clients_factory{
+    const std::map<std::string, std::function<void()>>  clients_factory{
         {"10b",    [&] { n->add_periodic_client(performance_test::Service<performance_test_msgs::srv::Stamped10b>(service_name), period_ms, custom_qos_profile); } }
     };
 
@@ -296,7 +296,7 @@ void performance_test::TemplateFactory::add_periodic_client_from_strings(
 
 size_t performance_test::TemplateFactory::get_msg_size(std::string msg_type, size_t msg_size)
 {
-    static const std::map<std::string, size_t>  msg_factory{
+    const std::map<std::string, size_t>  msg_factory{
         {"10b",         sizeof(performance_test_msgs::msg::Stamped10b().data) },
         {"100b",        sizeof(performance_test_msgs::msg::Stamped100b().data) },
         {"250b",        sizeof(performance_test_msgs::msg::Stamped250b().data) },

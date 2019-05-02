@@ -41,6 +41,14 @@ private:
 
   void wait_discovery();
 
+  void wait_pdp_discovery(
+    std::chrono::milliseconds rate_ms = std::chrono::milliseconds(20),
+    std::chrono::milliseconds max_pdp_time_ms = std::chrono::milliseconds(30 * 1000));
+
+  void wait_edp_discovery(
+    std::chrono::milliseconds rate_ms = std::chrono::milliseconds(20),
+    std::chrono::milliseconds max_edp_time_ms = std::chrono::milliseconds(30 * 1000));
+
   void log_latency_all_stats(std::ostream& stream);
   void log_latency_total_stats(std::ostream& stream);
 

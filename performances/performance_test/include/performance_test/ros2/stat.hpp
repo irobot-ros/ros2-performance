@@ -14,8 +14,6 @@ public:
   void add_sample(T x)
   {
 
-    _last = x;
-
     if (_n == 0) {
       _max = x;
       _min = x;
@@ -72,10 +70,7 @@ public:
 
   unsigned long int n() const { return _n; }
 
-  double last() const { return _last; }
-
 private:
-  double _last = std::nan("");
   double _max;
   double _min;
   double  K;

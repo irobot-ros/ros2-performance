@@ -54,12 +54,14 @@ public:
 
   void set_frequency(float f) { _frequency = f; }
 
+  unsigned long int last() const { return _last_latency; }
 
 private:
 
   std::string _node_name;
   std::string _topic_srv_name;
 
+  unsigned long int _last_latency = 0;
   unsigned long int _lost_messages = 0;
   unsigned long int _received_messages = 0;
   unsigned long int _late_messages = 0;

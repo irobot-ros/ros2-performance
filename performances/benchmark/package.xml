@@ -1,28 +1,25 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
-<package format="3">
+<package format="2">
   <name>benchmark</name>
   <version>0.1.0</version>
   <description>Benchmark applications to test ros2 performance</description>
   <maintainer email="joxoby@irobot.com">Juan Oxoby</maintainer>
   <author>Juan Oxoby</author>
-  <license>Apache License 2.0</license>
+  <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <buildtool_depend>rosidl_default_generators</buildtool_depend>
 
   <build_depend>rclcpp</build_depend>
-  <build_depend>performance_test</build_depend>
-  <build_depend>std_msgs</build_depend>
+  <build_depend>benchmark_msgs</build_depend>
   <build_depend>performance_test_msgs</build_depend>
+  <build_depend>performance_test</build_depend>
 
   <exec_depend>rclcpp</exec_depend>
-  <exec_depend>performance_test</exec_depend>
-  <exec_depend>rosidl_default_runtime</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>benchmark_msgs</exec_depend>
   <exec_depend>performance_test_msgs</exec_depend>
+  <exec_depend>performance_test</exec_depend>
 
-  <member_of_group>rosidl_interface_packages</member_of_group>
 
   <export>
     <build_type>ament_cmake</build_type>

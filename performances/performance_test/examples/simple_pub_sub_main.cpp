@@ -52,7 +52,7 @@ int main(int argc, char ** argv)
         cxxopts::value<int>(use_ipc)->default_value(std::to_string(use_ipc)))
     ("ros_namespace", "Create every node under this namespace",
         cxxopts::value<std::string>(ros_namespace)->default_value(ros_namespace))
-    ("duration", "Duration in seconds",
+    ("t, duration", "Duration in seconds",
         cxxopts::value<int>(experiment_duration)->default_value(std::to_string(experiment_duration)))
     ("monitor_stats", "Monitor CPU, RAM and events and print them to file (0 or 1 accepted arguments)",
         cxxopts::value<int>(monitor_stats)->default_value(std::to_string(monitor_stats)))
@@ -90,11 +90,11 @@ int main(int argc, char ** argv)
     rclcpp::init(argc, argv);
 
     performance_test::TemplateFactory factory(ros_namespace);
-    performance_test::System ros2_system(experiment_duration, executors);
+    performance_test::System ros2_system(executors);
     ros2_system.enable_events_logger(events_file_path);
 
     std::vector<std::shared_ptr<performance_test::Node>> pub_nodes =
-        factory.create_periodic_publishers(
+        factory.create_periodic_publisher_nodes(
             n_subscribers,
             n_subscribers + n_publishers,
             frequency,
@@ -109,7 +109,7 @@ int main(int argc, char ** argv)
     std::cout<<"Publishers created!"<<std::endl;
 
     std::vector<std::shared_ptr<performance_test::Node>> sub_nodes =
-        factory.create_subscribers(
+        factory.create_subscriber_nodes(
             0,
             n_subscribers,
             n_publishers,
@@ -124,7 +124,7 @@ int main(int argc, char ** argv)
     std::cout<<"Subscribers created!"<<std::endl;
 
     bool wait_discovery = true;
-    ros2_system.spin(wait_discovery);
+    ros2_system.spin(experiment_duration, wait_discovery);
 
     rclcpp::shutdown();
 

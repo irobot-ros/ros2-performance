@@ -6,11 +6,8 @@
 #include "performance_test/ros2/names_utilities.hpp"
 
 
-performance_test::System::System(int duration_sec, int executor_id)
+performance_test::System::System(int executor_id)
 {
-
-    _experiment_duration_sec = duration_sec;
-
     //TODO here implement also multi thread executor, or maybe allow user to pass its custom executor
     if (executor_id == 1){
         _executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
@@ -47,8 +44,10 @@ void performance_test::System::add_node(std::shared_ptr<Node> node)
 
 
 // TODO: Is it worth to spin each node in a different thread?
-void performance_test::System::spin(bool wait_for_discovery)
+void performance_test::System::spin(int duration_sec, bool wait_for_discovery)
 {
+    _experiment_duration_sec = duration_sec;
+
     // Store the instant when the experiment started
     _start_time = std::chrono::high_resolution_clock::now();
 
@@ -62,30 +61,41 @@ void performance_test::System::spin(bool wait_for_discovery)
         this->wait_discovery();
     }
 
-    // Add nodes to the executor or create their threads
-    for (const auto& n : _nodes)
-    {
-        if (_executor != nullptr){
-            // Add each node to the executor
+    if (_executor != nullptr){
+        // a main executor has been defined, so add all nodes to it
+        for (const auto& n : _nodes){
             _executor->add_node(n);
         }
-        else{
-            // Spin each node in a different thread
-            std::thread a([=]() { rclcpp::spin(n); });
-            a.detach();
-        }
-
-    }
-
-    if (_executor != nullptr){
+        // create a separate thread for the executor to spin
         std::thread thread([&](){
             _executor->spin();
         });
         thread.detach();
     }
+    else{
+        // Create a different executor for each node
+        for (const auto& n : _nodes){
+            auto ex = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+            ex->add_node(n);
+            // Spin each executor in a different thread
+            std::thread a([=]() { ex->spin(); });
+            a.detach();
+            _executors_vec.push_back(ex);
+        }
+    }
 
-    // let the system run for the specified amount of time
+    // let the nodes spin for the specified amount of time
     std::this_thread::sleep_for(std::chrono::seconds(_experiment_duration_sec));
+
+    // after the timer, stop all the spin functions
+    if (_executor != nullptr){
+        _executor->cancel();
+    }
+    else{
+        for (auto& ex : _executors_vec){
+            ex->cancel();
+        }
+    }
 }
 
 

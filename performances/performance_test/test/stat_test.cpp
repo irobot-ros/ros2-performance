@@ -21,7 +21,6 @@ TEST(StatTest, StatInitTest)
   EXPECT_TRUE(std::isnan(stat.stddev()));
   EXPECT_TRUE(std::isnan(stat.min()));
   EXPECT_TRUE(std::isnan(stat.max()));
-  EXPECT_TRUE(std::isnan(stat.last()));
   ASSERT_EQ((unsigned long int)0, stat.n());
 }
 
@@ -42,7 +41,6 @@ TEST(StatTest, StatAddSamplesTest)
   ASSERT_DOUBLE_EQ((double)0, stat.stddev());
   ASSERT_DOUBLE_EQ((double)s1, stat.min());
   ASSERT_DOUBLE_EQ((double)s1, stat.max());
-  ASSERT_DOUBLE_EQ((double)s1, stat.last());
 
   stat.add_sample(s2);
 
@@ -50,7 +48,6 @@ TEST(StatTest, StatAddSamplesTest)
   ASSERT_DOUBLE_EQ((double)49500, stat.stddev());
   ASSERT_DOUBLE_EQ((double)s2, stat.min());
   ASSERT_DOUBLE_EQ((double)s1, stat.max());
-  ASSERT_DOUBLE_EQ((double)s2, stat.last());
 
   stat.add_sample(s3);
 
@@ -58,7 +55,6 @@ TEST(StatTest, StatAddSamplesTest)
   EXPECT_NEAR((double)44698.993277254, stat.stddev(), 1e-5);
   ASSERT_DOUBLE_EQ((double)s2, stat.min());
   ASSERT_DOUBLE_EQ((double)s1, stat.max());
-  ASSERT_DOUBLE_EQ((double)s3,stat.last());
 
   stat.add_sample(s4);
 
@@ -66,5 +62,4 @@ TEST(StatTest, StatAddSamplesTest)
   EXPECT_NEAR((double)41894.95793052, stat.stddev(), 1e-5);
   ASSERT_DOUBLE_EQ((double)s4, stat.min());
   ASSERT_DOUBLE_EQ((double)s1, stat.max());
-  ASSERT_DOUBLE_EQ((double)s4, stat.last());
 }

@@ -12,37 +12,18 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(rosidl_default_generators REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(performance_test REQUIRED)
+find_package(benchmark_msgs REQUIRED)
 find_package(performance_test_msgs REQUIRED)
+find_package(performance_test REQUIRED)
 
 
 include_directories(
   include
 )
 
-set(msg_files
-  "interfaces/msg/Amazon.msg"
-  "interfaces/msg/Ganges.msg"
-  "interfaces/msg/Nile.msg"
-  "interfaces/msg/Danube.msg"
-  "interfaces/msg/Volga.msg"
-  "interfaces/msg/Tigris.msg"
-  "interfaces/msg/Salween.msg"
-  "interfaces/msg/Arkansas.msg"
-  "interfaces/msg/Parana.msg"
-  "interfaces/msg/Congo.msg"
-)
-
-rosidl_generate_interfaces(${PROJECT_NAME}
-  ${msg_files}
-  DEPENDENCIES std_msgs performance_test_msgs
-)
-
 add_executable(sierra_nevada src/sierra_nevada.cpp)
-ament_target_dependencies(sierra_nevada rclcpp performance_test performance_test_msgs)
-rosidl_target_interfaces(sierra_nevada ${PROJECT_NAME} "rosidl_typesupport_cpp")
+ament_target_dependencies(sierra_nevada rclcpp performance_test performance_test_msgs benchmark_msgs)
+
 
 install(TARGETS
   sierra_nevada

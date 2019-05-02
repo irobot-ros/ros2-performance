@@ -49,7 +49,7 @@ int main(int argc, char ** argv)
         cxxopts::value<int>(use_ipc)->default_value(std::to_string(use_ipc)))
     ("ros_namespace", "Create every node under this namespace",
         cxxopts::value<std::string>(ros_namespace)->default_value(ros_namespace))
-    ("duration", "Duration in seconds",
+    ("t, duration", "Duration in seconds",
         cxxopts::value<int>(experiment_duration)->default_value(std::to_string(experiment_duration)))
     ("monitor_stats", "Monitor CPU, RAM and events and print them to file (0 or 1 accepted arguments)",
         cxxopts::value<int>(monitor_stats)->default_value(std::to_string(monitor_stats)))
@@ -87,11 +87,11 @@ int main(int argc, char ** argv)
     rclcpp::init(argc, argv);
 
     performance_test::TemplateFactory factory(ros_namespace);
-    performance_test::System ros2_system(experiment_duration, executors);
+    performance_test::System ros2_system(executors);
     ros2_system.enable_events_logger(events_file_path);
 
     std::vector<std::shared_ptr<performance_test::Node>> client_nodes =
-        factory.create_periodic_clients(
+        factory.create_periodic_client_nodes(
             0,
             n_clients,
             n_services,
@@ -109,7 +109,7 @@ int main(int argc, char ** argv)
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     bool wait_discovery = false;
-    ros2_system.spin(wait_discovery);
+    ros2_system.spin(experiment_duration, wait_discovery);
 
     rclcpp::shutdown();
 

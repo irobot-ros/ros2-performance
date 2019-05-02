@@ -12,13 +12,13 @@ class System
 {
 public:
 
-  System(int duration_sec, int executor_id = 0);
+  System(int executor_id = 0);
 
   void add_node(std::vector<std::shared_ptr<Node>> nodes);
 
   void add_node(std::shared_ptr<Node> node);
 
-  void spin(bool wait_for_discovery = true);
+  void spin(int duration_sec, bool wait_for_discovery = true);
 
   void enable_events_logger(std::string events_logger_path);
 
@@ -42,6 +42,8 @@ private:
   std::vector<std::shared_ptr<Node>> _nodes;
 
   rclcpp::executor::Executor::SharedPtr _executor;
+  std::vector<rclcpp::executors::SingleThreadedExecutor::SharedPtr> _executors_vec;
+
 
   std::shared_ptr<EventsLogger> _events_logger;
 

@@ -1,3 +1,12 @@
+/* Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2019, iRobot ROS
+ *  All rights reserved.
+ *
+ *  This file is part of ros2-performance, which is released under BSD-3-Clause.
+ *  You may use, distribute and modify this code under the BSD-3-Clause license.
+ */
+
 #pragma once
 
 #include <chrono>
@@ -49,7 +58,7 @@ public:
                       rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
 
-    std::function<void(const typename Msg::SharedPtr msg)> callback_function = std::bind(
+    std::function<void(const typename std::shared_ptr<const Msg> msg)> callback_function = std::bind(
       &Node::_topic_callback<Msg>,
       this,
       topic.name,
@@ -264,7 +273,7 @@ private:
 
 
   template <typename Msg>
-  void _topic_callback(const std::string& name, const typename Msg::SharedPtr msg)
+  void _topic_callback(const std::string& name, const typename std::shared_ptr<const Msg> msg)
   {
     // Scan new message's header
     auto& tracker = _subs.at(name).second;

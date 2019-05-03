@@ -1,3 +1,12 @@
+/* Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2019, iRobot ROS
+ *  All rights reserved.
+ *
+ *  This file is part of ros2-performance, which is released under BSD-3-Clause.
+ *  You may use, distribute and modify this code under the BSD-3-Clause license.
+ */
+
 #pragma once
 
 #include <chrono>
@@ -42,13 +51,13 @@ public:
       ("t,time", "test duration", cxxopts::value<int>(duration_sec)->default_value(std::to_string(duration_sec)),"sec")
       ("s, sampling", "resources sampling period",
         cxxopts::value<int>(resources_sampling_per_ms)->default_value(std::to_string(resources_sampling_per_ms)),"msec")
-      ("late-percentage", "a msg with greater latency than this percentage of the msg publishing period is considered late", 
+      ("late-percentage", "a msg with greater latency than this percentage of the msg publishing period is considered late",
         cxxopts::value<int>(tracking_options.late_percentage)->default_value(std::to_string(tracking_options.late_percentage)),"%")
-      ("late-absolute", "a msg with greater latency than this is considered late", 
+      ("late-absolute", "a msg with greater latency than this is considered late",
         cxxopts::value<int>(tracking_options.late_absolute_us)->default_value(std::to_string(tracking_options.late_absolute_us)),"usec")
-      ("too-late-percentage", "a msg with greater latency than this percentage of the msg publishing period is considered lost", 
+      ("too-late-percentage", "a msg with greater latency than this percentage of the msg publishing period is considered lost",
         cxxopts::value<int>(tracking_options.too_late_percentage)->default_value(std::to_string(tracking_options.too_late_percentage)),"%")
-      ("too-late-absolute", "a msg with greater latency than this is considered lost", 
+      ("too-late-absolute", "a msg with greater latency than this is considered lost",
         cxxopts::value<int>(tracking_options.too_late_absolute_us)->default_value(std::to_string(tracking_options.too_late_absolute_us)),"usec");
 
         try {

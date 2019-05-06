@@ -21,14 +21,17 @@ include_directories(
   include
 )
 
-add_executable(sierra_nevada src/sierra_nevada.cpp)
-ament_target_dependencies(sierra_nevada rclcpp performance_test performance_test_msgs benchmark_msgs)
-
+add_executable(benchmark src/benchmark.cpp)
+ament_target_dependencies(benchmark rclcpp performance_test performance_test_msgs benchmark_msgs)
 
 install(TARGETS
-  sierra_nevada
+  benchmark
   DESTINATION lib/${PROJECT_NAME}
 )
+
+install(FILES
+  topology/sierra_nevada.json
+  DESTINATION lib/${PROJECT_NAME}/topology)
 
 ament_package()
 

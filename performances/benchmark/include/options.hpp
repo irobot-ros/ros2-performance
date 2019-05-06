@@ -11,6 +11,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <string>
 #include "performance_test/ros2/tracker.hpp"
 
 #include "cxxopts.hpp"
@@ -22,6 +23,7 @@ class Options {
 public:
     Options()
     {
+        topology_json_path = "topology/sierra_nevada.json";
         ipc = true;
         duration_sec = 5;
         resources_sampling_per_ms = 500;
@@ -46,6 +48,8 @@ public:
 
       options.add_options()
       ("h,help", "print help")
+      ("topology", "json file describing the topology of the system",
+        cxxopts::value<std::string>(topology_json_path)->default_value(topology_json_path),"FILE")
       ("ipc", "intra-process-communication",
         cxxopts::value<std::string>(ipc_option)->default_value(ipc ? "on" : "off"),"on/off")
       ("t,time", "test duration", cxxopts::value<int>(duration_sec)->default_value(std::to_string(duration_sec)),"sec")
@@ -83,6 +87,7 @@ public:
     bool ipc;
     int duration_sec;
     int resources_sampling_per_ms;
+    std::string topology_json_path;
     performance_test::Tracker::TrackingOptions tracking_options;
 };
 }

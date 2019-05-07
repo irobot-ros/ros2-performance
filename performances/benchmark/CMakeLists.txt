@@ -31,6 +31,7 @@ install(TARGETS
 
 install(FILES
   topology/sierra_nevada.json
+  topology/mont_blanc.json
   DESTINATION lib/${PROJECT_NAME}/topology)
 
 ament_package()

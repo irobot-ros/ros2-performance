@@ -1,11 +1,11 @@
 {
-    "executable": "sierra_nevada",
+    "topology": "Mont Blanc",
     "platform": "rpi3 b 1.2",
     "options": "-t 600 --ipc on -s 1000 --late-percentage 20 --late-absolute 5000 --too-late-percentage 100 --too-late-absolute 50000",
     "comments": "scaling governor should be set to 'performance' at 800MHz",
     "resources": {
-        "cpu[%]":   15,
-        "rss[KB]":  10240
+        "cpu[%]":   20,
+        "rss[KB]":  20480
     },
     "latency_total": {
         "late[%]":      1.9,

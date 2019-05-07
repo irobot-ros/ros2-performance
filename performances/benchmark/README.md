@@ -1,10 +1,10 @@
-# Benchmarking Applications
+# Benchmark Application
 
-This repository contains benchmarking applications to test the performance of a ROS2 system. These applications do not perform extra computation besides dummy-message passing between the nodes and data collection. They will run for a user-specified amount of time collecting data, and will output the usage of resources (such as CPU utilization and RAM consumption) and latency statistics.
+This repository contains a benchmark application to test the performance of a ROS2 system. To run this benchmark, the user needs to provide as an input a specific topology to simulate, in the form of a .json file. The application will load the complete ROS2 system from the topology file and will start doing dummy-message passing between the different nodes. Meanwhile, statistical data will be collected, such as the usage of resources (such as CPU utilization and RAM consumption) and message latencies. The application will run for a user-specified amount of time, and will output the results as human-readable log files. Tools to plot these results are provided.
 
-## Sierra Nevada
+## Topologies
 
-For now, only a light ROS2 system application is available called *Sierra Nevada*. Sierra Nevada is a ten-node system. [This pdf](sierra_nevada.pdf) illustrates the topology.
+Two default topologies are provided in the [topology](topology) folder, called [Sierra Nevada](topology/sierra_nevada.pdf) and [Mont Blanc](topology/mont_blanc.pdf). Sierra Nevada is light 10-node system while Mont Blanc is a heavier 20-node system.
 
 ### Building
 
@@ -34,10 +34,10 @@ Run:
 
 ```
 cd performances_ws/src/install/lib/benchmark
-./sierra_nevada -t 60 --ipc on
+./benchmark --topology=topology/sierra_nevada.json -t 60 --ipc on
 ```
 
-This will run Sierra Nevada for 60 seconds and with *Intra-Process-Communication* activated. For more options, run `./sierra_nevada --help`.
+This will run Sierra Nevada (default) for 60 seconds and with *Intra-Process-Communication* activated. For more options, run `./sierra_nevada --help`.
 
 ### Output
 
@@ -204,11 +204,11 @@ This file stores special events with their associated timestamp, such as:
 
 ### Target performace
 
-The target performance of these applications on different platforms can be found in the file **perf_taget.json**.
+The target performance for different topologies on specific platforms can be found in the folder [performance_target](performance_target). For example, [performance_target/sierra_nevada_rpi3.json](sierra_nevada_rpi3.json):
 
 ```
 {
-    "executable": "sierra_nevada",
+    "topology": "Sierra Nevada",
     "platform": "rpi3 b 1.2",
     "options": "-t 600 --ipc on -s 1000 --late-percentage 20 --late-absolute 5000 --too-late-percentage 100 --too-late-absolute 50000",
     "comments": "scaling governor should be set to 'performance' at 800MHz",
@@ -228,19 +228,19 @@ The target performance of these applications on different platforms can be found
 
 After you have run the application, you can plot the results using the plot scripts described in the [performance_test](../performance_test) library.
 
-Moreover, it is possible to directly compare the results with the target performances defined in the **perf_taget.json** file.
+Moreover, it is possible to directly compare the results with the target performances defined in the *.json* file inside the [performance_target](performance_target) folder.
 
 
 To get a general comparison of all the quantities of interest, you can run:
 
 ```
-python3 <path_to_performance_test_pkg>/scripts/plot_scripts/benchmark_app_evaluation.py --target <path_to_benchmark_pkg>/perf_target.json --resources log/resources.txt --latency log/latency_total.txt
+python3 <path_to_performance_test_pkg>/scripts/plot_scripts/benchmark_app_evaluation.py --target <path_to_benchmark_pkg>/performance_target/sierra_nevada_rpi3.json --resources log/resources.txt --latency log/latency_total.txt
 ```
 
 ![Plot](target_bar_plot.png)
 
 
-Moreover, you can use the **perf_taget.json** file also together with the `cpu_ram_plot.py` script
+Moreover, you can use the performance target *.json* file also together with the `cpu_ram_plot.py` script
 
 ```
 python3 <path_to_performance_test_pkg>/scripts/plot_scripts/cpu_ram_plot.py log/resources.txt --x time --y cpu --y2 rss --target <path_to_benchmark_pkg>/perf_target.json

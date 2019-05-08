@@ -1,6 +1,6 @@
 # Benchmark Application
 
-This repository contains a benchmark application to test the performance of a ROS2 system. To run this benchmark, the user needs to provide a specific topology to simulate, in the form of a .json file. The application will load the complete ROS2 system from the topology file and will start doing dummy-message passing between the different nodes. Meanwhile, statistical data will be collected, such as the usage of resources (such as CPU utilization and RAM consumption) and message latencies. The application will run for a user-specified amount of time, and will output the results as human-readable log files. Tools to plot these results are provided.
+This repository contains a benchmark application to test the performance of a ROS2 system. To run this benchmark, the user needs to provide a specific topology to simulate, in the form of a .json file. The application will load the complete ROS2 system from the topology file and will start doing dummy-message passing between the different nodes. Meanwhile, statistical data will be collected, such as the usage of resources (CPU utilization and RAM consumption) and message latencies. The application will run for a user-specified amount of time, and will output the results as human-readable log files. Tools to plot these results are provided.
 
 ### Topologies
 

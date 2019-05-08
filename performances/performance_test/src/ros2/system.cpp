@@ -143,7 +143,15 @@ void performance_test::System::wait_pdp_discovery(
     // create a vector with all the names of the nodes to be discovered
     std::vector<std::string> reference_names;
     for (const auto& n : _nodes){
-        reference_names.push_back(n->get_fully_qualified_name());
+        // `get_fully_qualified_name` is not available before D-release.
+        // as in node.hpp we check for the existance of this definition to understand in which release we are
+        // https://github.com/ros2/rclcpp/blob/master/rclcpp/include/rclcpp/node_options.hpp
+#ifdef RCLCPP__NODE_OPTIONS_HPP_
+        std::string node_name = n->get_fully_qualified_name();
+#else
+        std::string node_name = n->get_name();
+#endif
+        reference_names.push_back(node_name);
     }
 
     // count the total number of nodes

@@ -1,10 +1,11 @@
 # Benchmark Application
 
-This repository contains a benchmark application to test the performance of a ROS2 system. To run this benchmark, the user needs to provide as an input a specific topology to simulate, in the form of a .json file. The application will load the complete ROS2 system from the topology file and will start doing dummy-message passing between the different nodes. Meanwhile, statistical data will be collected, such as the usage of resources (such as CPU utilization and RAM consumption) and message latencies. The application will run for a user-specified amount of time, and will output the results as human-readable log files. Tools to plot these results are provided.
+This repository contains a benchmark application to test the performance of a ROS2 system. To run this benchmark, the user needs to provide a specific topology to simulate, in the form of a .json file. The application will load the complete ROS2 system from the topology file and will start doing dummy-message passing between the different nodes. Meanwhile, statistical data will be collected, such as the usage of resources (such as CPU utilization and RAM consumption) and message latencies. The application will run for a user-specified amount of time, and will output the results as human-readable log files. Tools to plot these results are provided.
 
-## Topologies
+### Topologies
 
-Two default topologies are provided in the [topology](topology) folder, called [Sierra Nevada](topology/sierra_nevada.pdf) and [Mont Blanc](topology/mont_blanc.pdf). Sierra Nevada is light 10-node system while Mont Blanc is a heavier 20-node system.
+Two default topologies are provided in the [topology](topology) folder, called [Sierra Nevada](topology/sierra_nevada.pdf) and [Mont Blanc](topology/mont_blanc.pdf). Sierra Nevada is light 10-node system while Mont Blanc is a heavier and more complex 20-node system.
+
 
 ### Building
 
@@ -22,6 +23,7 @@ colcon build --merge-install
 It's possible to build and run this application on standard laptops as well as on embedded platforms.
 You can follow these instructions for cross-compiling for RaspberryPi [cross-compiling](../../cross-compiling).
 
+
 ### Running
 
 First, source the environment:
@@ -37,7 +39,8 @@ cd performances_ws/src/install/lib/benchmark
 ./benchmark --topology=topology/sierra_nevada.json -t 60 --ipc on
 ```
 
-This will run Sierra Nevada (default) for 60 seconds and with *Intra-Process-Communication* activated. For more options, run `./sierra_nevada --help`.
+This will run Sierra Nevada (default) for 60 seconds and with *Intra-Process-Communication* activated. For more options, run `./benchmark --help`.
+
 
 ### Output
 
@@ -81,7 +84,7 @@ received[#]     late[#]     late[%]     too_late[#]     too_late[%]     lost[#] 
 63250           10924       17.27       5               0.007905        0           0      
 ```
 
-There are different message classifications depending on their latency. A message is classified as **too_late** when its latency is greater than `min(period, 50ms)`, where `period` is the publishing period of that particular topic. A message is classified as **late** if it's not classified as **too_late** but its latency is greater than `min(0.2*period, 5ms)`. The idea is that a real system could still work with a few **late** messages but not **too_late** messages. Note that there are CL options to change these thresholds (for more info: `./sierra_nevada --help`). A **lost** message is a message that never arrived. We can detect a lost message when the subscriber receives a message with a tracking number greater than the one expected. The assumption here is that the messages always arrive in chronological order, i.e., a message A sent before a message B will either arrive before B or get lost, but will never arrive after B. The rest of the messages are classified as **on_time**.
+There are different message classifications depending on their latency. A message is classified as **too_late** when its latency is greater than `min(period, 50ms)`, where `period` is the publishing period of that particular topic. A message is classified as **late** if it's not classified as **too_late** but its latency is greater than `min(0.2*period, 5ms)`. The idea is that a real system could still work with a few **late** messages but not **too_late** messages. Note that there are CL options to change these thresholds (for more info: `./benchmark --help`). A **lost** message is a message that never arrived. We can detect a lost message when the subscriber receives a message with a tracking number greater than the one expected. The assumption here is that the messages always arrive in chronological order, i.e., a message A sent before a message B will either arrive before B or get lost, but will never arrive after B. The rest of the messages are classified as **on_time**.
 
 ```
 Message classifications by their latency
@@ -204,13 +207,13 @@ This file stores special events with their associated timestamp, such as:
 
 ### Target performace
 
-The target performance for different topologies on specific platforms can be found in the folder [performance_target](performance_target). For example, [performance_target/sierra_nevada_rpi3.json](sierra_nevada_rpi3.json):
+The target performance for different topologies on specific platforms can be found in the folder [performance_target](performance_target). For example, [sierra_nevada_rpi3.json](performance_target/sierra_nevada_rpi3.json):
 
 ```
 {
-    "topology": "Sierra Nevada",
+    "topology_file": "sierra_nevada.json",
     "platform": "rpi3 b 1.2",
-    "options": "-t 600 --ipc on -s 1000 --late-percentage 20 --late-absolute 5000 --too-late-percentage 100 --too-late-absolute 50000",
+    "additional_options": "-t 600 --ipc on -s 1000 --late-percentage 20 --late-absolute 5000 --too-late-percentage 100 --too-late-absolute 50000",
     "comments": "scaling governor should be set to 'performance' at 800MHz",
     "resources": {
         "cpu[%]":   15,
@@ -228,20 +231,24 @@ The target performance for different topologies on specific platforms can be fou
 
 After you have run the application, you can plot the results using the plot scripts described in the [performance_test](../performance_test) library.
 
-Moreover, it is possible to directly compare the results with the target performances defined in the *.json* file inside the [performance_target](performance_target) folder.
-
-
-To get a general comparison of all the quantities of interest, you can run:
+Moreover, it's possible to directly compare the results with a performance target defined in a *.json* file. For example, you can run:
 
 ```
 python3 <path_to_performance_test_pkg>/scripts/plot_scripts/benchmark_app_evaluation.py --target <path_to_benchmark_pkg>/performance_target/sierra_nevada_rpi3.json --resources log/resources.txt --latency log/latency_total.txt
 ```
 
-![Plot](target_bar_plot.png)
-
-
-Moreover, you can use the performance target *.json* file also together with the `cpu_ram_plot.py` script
+Also, you can use the performance target *.json* file together with the `cpu_ram_plot.py` script
 
 ```
 python3 <path_to_performance_test_pkg>/scripts/plot_scripts/cpu_ram_plot.py log/resources.txt --x time --y cpu --y2 rss --target <path_to_benchmark_pkg>/perf_target.json
 ```
+
+### Results
+
+For reference only, these are the results obtained by running the default topologies on an RPi3 using ROS2 Crystal.
+
+#### Sierra Nevada
+![Plot](sierra_nevada_bar_plot.png)
+
+#### Mont Blanc
+![Plot](mont_blanc_bar_plot.png)

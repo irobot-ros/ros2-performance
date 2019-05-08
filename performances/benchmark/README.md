@@ -36,10 +36,10 @@ Run:
 
 ```
 cd performances_ws/src/install/lib/benchmark
-./benchmark --topology=topology/sierra_nevada.json -t 60 --ipc on
+./benchmark topology/sierra_nevada.json -t 60 --ipc on
 ```
 
-This will run Sierra Nevada (default) for 60 seconds and with *Intra-Process-Communication* activated. For more options, run `./benchmark --help`.
+This will run Sierra Nevada for 60 seconds and with *Intra-Process-Communication* activated. For more options, run `./benchmark --help`.
 
 
 ### Output

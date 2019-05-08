@@ -58,7 +58,7 @@ Each `README` file contains a description of the experiment, instructions for re
 
 | Experiment | README |
 | ------------- | ------------- |
-| Benchmarking applications | [README.md](performances/benchmark)
+| Benchmark application | [README.md](performances/benchmark)
 | Discovery time | [README.md](performances/experiments/crystal/discovery_time) |
 | Pub/Sub Latency | [README.md](performances/experiments/crystal/pub_sub_latency) |
 | Pub/Sub Reliability | [README.md](performances/experiments/crystal/pub_sub_reliability) |

@@ -20,14 +20,6 @@
 #include "performance_test/ros2/resource_usage_logger.hpp"
 #include "performance_test/ros2/template_factory.hpp"
 
-#include "performance_test_msgs/msg/stamped_vector.hpp"
-#include "benchmark_msgs/msg/stamped3_float32.hpp"
-#include "benchmark_msgs/msg/stamped4_float32.hpp"
-#include "benchmark_msgs/msg/stamped4_int32.hpp"
-#include "benchmark_msgs/msg/stamped9_float32.hpp"
-#include "benchmark_msgs/msg/stamped12_float32.hpp"
-#include "benchmark_msgs/msg/stamped_int64.hpp"
-
 #include "options.hpp"
 
 using namespace std::chrono_literals;
@@ -36,6 +28,7 @@ int main(int argc, char** argv)
 {
     auto options = benchmark::Options(argc, argv);
 
+    std::cout << "Topology file: " << options.topology_json_path << std::endl;
     std::cout << "Intra-process-communication: " << (options.ipc ? "on" : "off") << std::endl;
     std::cout << "Run test for: " << options.duration_sec << " seconds" << std::endl;
     std::cout << "Sampling resources every " << options.resources_sampling_per_ms << "ms" << std::endl;

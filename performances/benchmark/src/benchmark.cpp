@@ -53,18 +53,11 @@ int main(int argc, char** argv)
     // Load topology from json file
     performance_test::TemplateFactory factory = performance_test::TemplateFactory();
 
-    // Check if file exists
-    std::ifstream f(options.topology_json_path.c_str());
-    if(!f.good()) {
-        std::cout << "Can't find file: " << options.topology_json_path.c_str() << std::endl;
-        exit(1);
-    }
-
     auto nodes_vec = factory.parse_topology_from_json(options.topology_json_path);
 
     // Check if file contained a valid topology
     if(nodes_vec.empty()) {
-        std::cout << "Invalid topology format." << std::endl;
+        std::cout << "Error reading topology file." << std::endl;
         exit(1);
     }
 

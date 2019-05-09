@@ -11,6 +11,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <string>
 #include "performance_test/ros2/tracker.hpp"
 
 #include "cxxopts.hpp"
@@ -43,9 +44,12 @@ public:
       cxxopts::Options options(argv[0], "ROS2 performance benchmark");
 
       std::string ipc_option;
-
+      options.positional_help("FILE").show_positional_help();
+      options.parse_positional({"topology"});
       options.add_options()
       ("h,help", "print help")
+      ("topology", "json file describing the topology of the system",
+        cxxopts::value<std::string>(topology_json_path),"FILE")
       ("ipc", "intra-process-communication",
         cxxopts::value<std::string>(ipc_option)->default_value(ipc ? "on" : "off"),"on/off")
       ("t,time", "test duration", cxxopts::value<int>(duration_sec)->default_value(std::to_string(duration_sec)),"sec")
@@ -68,6 +72,11 @@ public:
           exit(0);
         }
 
+        if(result.count("topology") == 0) {
+          std::cout << "Please specify a json topology file" << std::endl;
+          exit(1);
+        }
+
         if (ipc_option != "off" && ipc_option != "on") {
           throw cxxopts::argument_incorrect_type(ipc_option);
         }
@@ -83,6 +92,7 @@ public:
     bool ipc;
     int duration_sec;
     int resources_sampling_per_ms;
+    std::string topology_json_path;
     performance_test::Tracker::TrackingOptions tracking_options;
 };
 }

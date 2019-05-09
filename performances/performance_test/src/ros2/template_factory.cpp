@@ -340,10 +340,17 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
     std::vector<std::shared_ptr<performance_test::Node>> nodes_vec;
 
     std::ifstream ifs(json_path);
+
+    // Check if file exists
+    if(!ifs.good()) {
+        std::cout << "ERROR. Can't find file: " << json_path << std::endl;
+        return nodes_vec;
+    }
+
     json j = json::parse(ifs);
 
     if (j.find("nodes") == j.end()){
-        std::cout<<"ERROR! the provided json does not contain a nodes field"<<std::endl;
+        std::cout<<"ERROR. The provided json does not contain a nodes field"<<std::endl;
         return nodes_vec;
     }
 

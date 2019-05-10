@@ -63,5 +63,8 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get update && apt-get install -y \
   libpcl-dev
 
+# required by rcl_logging
+RUN apt-get install -y liblog4cxx-dev
+
 # transform absolute simbolic links into relative ones
 RUN apt-get install -y symlinks && symlinks -cr /lib /etc /opt /usr

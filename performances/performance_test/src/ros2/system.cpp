@@ -110,22 +110,22 @@ void performance_test::System::spin(int duration_sec, bool wait_for_discovery)
 void performance_test::System::wait_discovery()
 {
     // period at which PDP and EDP are checked
-    std::chrono::milliseconds rate_ms = 20ms;
+    std::chrono::milliseconds period = 20ms;
     // maximum discovery time, after which the experiment is shut down
-    std::chrono::milliseconds max_discovery_ms = 30s;
+    std::chrono::milliseconds max_discovery_time = 30s;
 
-    wait_pdp_discovery(rate_ms, max_discovery_ms);
+    wait_pdp_discovery(period, max_discovery_time);
 
-    wait_edp_discovery(rate_ms, max_discovery_ms);
+    wait_edp_discovery(period, max_discovery_time);
 }
 
 
 void performance_test::System::wait_pdp_discovery(
-    std::chrono::milliseconds rate_ms,
-    std::chrono::milliseconds max_pdp_time_ms)
+    std::chrono::milliseconds period,
+    std::chrono::milliseconds max_pdp_time)
 {
     // period at which PDP is checked
-    rclcpp::WallRate rate(rate_ms);
+    rclcpp::WallRate rate(period);
 
     auto pdp_start_time = std::chrono::high_resolution_clock::now();
 
@@ -173,7 +173,7 @@ void performance_test::System::wait_pdp_discovery(
         // check if maximum discovery time exceeded
         auto t = std::chrono::high_resolution_clock::now();
         auto duration =
-            std::chrono::duration_cast<std::chrono::milliseconds>(t - pdp_start_time - max_pdp_time_ms).count();
+            std::chrono::duration_cast<std::chrono::milliseconds>(t - pdp_start_time - max_pdp_time).count();
         if (duration > 0){
             assert(0 && "[discovery] PDP took more than maximum discovery time");
         }
@@ -194,11 +194,11 @@ void performance_test::System::wait_pdp_discovery(
 
 
 void performance_test::System::wait_edp_discovery(
-    std::chrono::milliseconds rate_ms,
-    std::chrono::milliseconds max_edp_time_ms)
+    std::chrono::milliseconds period,
+    std::chrono::milliseconds max_edp_time)
 {
     // period at which EDP is checked
-    rclcpp::WallRate rate(rate_ms);
+    rclcpp::WallRate rate(period);
 
     auto edp_start_time = std::chrono::high_resolution_clock::now();
 
@@ -228,7 +228,7 @@ void performance_test::System::wait_edp_discovery(
         // check if maximum discovery time exceeded
         auto t = std::chrono::high_resolution_clock::now();
         auto duration =
-            std::chrono::duration_cast<std::chrono::milliseconds>(t - edp_start_time - max_edp_time_ms).count();
+            std::chrono::duration_cast<std::chrono::milliseconds>(t - edp_start_time - max_edp_time).count();
         if (duration > 0){
             assert(0 && "[discovery] EDP took more than maximum discovery time");
         }

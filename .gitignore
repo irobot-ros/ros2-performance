@@ -33,3 +33,6 @@
 
 # Compiled Python
 *.pyc
+
+# visual studio code settings
+.vscode

@@ -110,13 +110,49 @@ void performance_test::System::spin(int duration_sec, bool wait_for_discovery)
 void performance_test::System::wait_discovery()
 {
     // period at which PDP and EDP are checked
-    rclcpp::WallRate rate(20ms);
+    std::chrono::milliseconds period = 20ms;
     // maximum discovery time, after which the experiment is shut down
-    std::chrono::milliseconds max_discovery_ms = 60s;
+    std::chrono::milliseconds max_discovery_time = 30s;
 
-    /**
-     * Check PDP
-     */
+    wait_pdp_discovery(period, max_discovery_time);
+
+    wait_edp_discovery(period, max_discovery_time);
+}
+
+
+void performance_test::System::wait_pdp_discovery(
+    std::chrono::milliseconds period,
+    std::chrono::milliseconds max_pdp_time)
+{
+    // period at which PDP is checked
+    rclcpp::WallRate rate(period);
+
+    auto pdp_start_time = std::chrono::high_resolution_clock::now();
+
+    auto get_intersection_size = [=] (std::vector<std::string> A, std::vector<std::string> B) {
+        // returns how many values are present in both A and B
+        std::sort(A.begin(), A.end());
+        std::sort(B.begin(), B.end());
+        std::vector<std::string> v_intersection;
+        std::set_intersection ( A.begin(), A.end(),
+                                B.begin(), B.end(),
+                                std::back_inserter(v_intersection));
+        return v_intersection.size();
+    };
+
+    // create a vector with all the names of the nodes to be discovered
+    std::vector<std::string> reference_names;
+    for (const auto& n : _nodes){
+        // `get_fully_qualified_name` is not available before D-release.
+        // as in node.hpp we check for the existance of this definition to understand in which release we are
+        // https://github.com/ros2/rclcpp/blob/master/rclcpp/include/rclcpp/node_options.hpp
+#ifdef RCLCPP__NODE_OPTIONS_HPP_
+        std::string node_name = n->get_fully_qualified_name();
+#else
+        std::string node_name = n->get_name();
+#endif
+        reference_names.push_back(node_name);
+    }
 
     // count the total number of nodes
     size_t num_nodes = _nodes.size();
@@ -124,9 +160,8 @@ void performance_test::System::wait_discovery()
     bool pdp_ok = false;
     while (!pdp_ok){
         for (const auto& n : _nodes){
-            // dividing by 2 because half of the entries are empty
-            // TODO check if it is always true
-            auto discovered_participants = n->get_node_names().size()/2;
+
+            size_t discovered_participants = get_intersection_size(n->get_node_names(), reference_names);
 
             pdp_ok = (discovered_participants == num_nodes);
 
@@ -138,7 +173,7 @@ void performance_test::System::wait_discovery()
         // check if maximum discovery time exceeded
         auto t = std::chrono::high_resolution_clock::now();
         auto duration =
-            std::chrono::duration_cast<std::chrono::milliseconds>(t - _start_time - max_discovery_ms).count();
+            std::chrono::duration_cast<std::chrono::milliseconds>(t - pdp_start_time - max_pdp_time).count();
         if (duration > 0){
             assert(0 && "[discovery] PDP took more than maximum discovery time");
         }
@@ -155,9 +190,17 @@ void performance_test::System::wait_discovery()
         _events_logger->write_event(pdp_ev);
     }
 
-    /**
-     * Check EDP
-     */
+}
+
+
+void performance_test::System::wait_edp_discovery(
+    std::chrono::milliseconds period,
+    std::chrono::milliseconds max_edp_time)
+{
+    // period at which EDP is checked
+    rclcpp::WallRate rate(period);
+
+    auto edp_start_time = std::chrono::high_resolution_clock::now();
 
     // count the number of subscribers for each topic
     std::map<std::string, int> subs_per_topic;
@@ -185,7 +228,7 @@ void performance_test::System::wait_discovery()
         // check if maximum discovery time exceeded
         auto t = std::chrono::high_resolution_clock::now();
         auto duration =
-            std::chrono::duration_cast<std::chrono::milliseconds>(t - _start_time - max_discovery_ms).count();
+            std::chrono::duration_cast<std::chrono::milliseconds>(t - edp_start_time - max_edp_time).count();
         if (duration > 0){
             assert(0 && "[discovery] EDP took more than maximum discovery time");
         }

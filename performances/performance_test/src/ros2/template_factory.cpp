@@ -39,27 +39,38 @@ using namespace std::chrono_literals;
 using json = nlohmann::json;
 
 
+std::shared_ptr<performance_test::Node> performance_test::TemplateFactory::create_node(
+    std::string name,
+    bool use_ipc,
+    bool verbose,
+    std::string ros2_namespace)
+{
+
+    auto node = std::make_shared<performance_test::Node>(name, ros2_namespace, use_ipc);
+
+    if (verbose){
+        auto ret = rcutils_logging_set_logger_level(node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+        if (ret != RCUTILS_RET_OK) { assert(0 && "Error setting logger verbosity"); }
+    }
+
+    return node;
+}
+
+
 std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateFactory::create_subscriber_nodes(
     int start_id,
     int end_id,
     int n_publishers,
     std::string msg_type,
     Tracker::TrackingOptions tracking_options,
-    rmw_qos_profile_t custom_qos_profile,
-    bool use_ipc,
-    bool verbose)
+    rmw_qos_profile_t custom_qos_profile)
 {
     std::vector<std::shared_ptr<performance_test::Node>> nodes_vector;
 
     for (int node_id = start_id; node_id < end_id; node_id ++){
 
         std::string node_name = id_to_node_name(node_id);
-        auto node = std::make_shared<performance_test::Node>(node_name, _ros2_namespace, use_ipc);
-
-        if (verbose){
-            auto ret = rcutils_logging_set_logger_level(node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-            if (ret != RCUTILS_RET_OK) { assert(0 && "Error setting logger verbosity"); }
-        }
+        auto node = this->create_node(node_name, _use_ipc, _verbose_mode, _ros2_namespace);
 
         // TODO: pass publisher list instead of n_publishers, to select the IDs (
         // default is a list from 0 to n_pubs or directly from n_subs to n_pubs)
@@ -84,21 +95,14 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
     float frequency,
     std::string msg_type,
     size_t msg_size,
-    rmw_qos_profile_t custom_qos_profile,
-    bool use_ipc,
-    bool verbose)
+    rmw_qos_profile_t custom_qos_profile)
 {
     std::vector<std::shared_ptr<performance_test::Node>> nodes_vector;
 
     for (int node_id = start_id; node_id < end_id; node_id++){
 
         std::string node_name = id_to_node_name(node_id);
-        auto node = std::make_shared<performance_test::Node>(node_name, _ros2_namespace, use_ipc);
-
-        if (verbose){
-            auto ret = rcutils_logging_set_logger_level(node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-            if (ret != RCUTILS_RET_OK) { assert(0 && "Error setting logger verbosity"); }
-        }
+        auto node = this->create_node(node_name, _use_ipc, _verbose_mode, _ros2_namespace);
 
         int topic_id = node_id;
         std::string topic_name = id_to_topic_name(topic_id);
@@ -121,21 +125,14 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
     int n_services,
     float frequency,
     std::string srv_type,
-    rmw_qos_profile_t custom_qos_profile,
-    bool use_ipc,
-    bool verbose)
+    rmw_qos_profile_t custom_qos_profile)
 {
     std::vector<std::shared_ptr<performance_test::Node>> nodes_vector;
 
     for (int node_id = start_id; node_id < end_id; node_id++){
 
         std::string node_name = id_to_node_name(node_id);
-        auto node = std::make_shared<performance_test::Node>(node_name, _ros2_namespace, use_ipc);
-
-        if (verbose){
-            auto ret = rcutils_logging_set_logger_level(node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-            if (ret != RCUTILS_RET_OK) { assert(0 && "Error setting logger verbosity"); }
-        }
+        auto node = this->create_node(node_name, _use_ipc, _verbose_mode, _ros2_namespace);
 
         int period = (1000/frequency);
         std::chrono::milliseconds period_ms = std::chrono::milliseconds(period);
@@ -161,21 +158,14 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
     int start_id,
     int end_id,
     std::string srv_type,
-    rmw_qos_profile_t custom_qos_profile,
-    bool use_ipc,
-    bool verbose)
+    rmw_qos_profile_t custom_qos_profile)
 {
     std::vector<std::shared_ptr<performance_test::Node>> nodes_vector;
 
     for (int node_id = start_id; node_id < end_id; node_id++){
 
         std::string node_name = id_to_node_name(node_id);
-        auto node = std::make_shared<performance_test::Node>(node_name, _ros2_namespace, use_ipc);
-
-        if (verbose){
-            auto ret = rcutils_logging_set_logger_level(node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-            if (ret != RCUTILS_RET_OK) { assert(0 && "Error setting logger verbosity"); }
-        }
+        auto node = this->create_node(node_name, _use_ipc, _verbose_mode, _ros2_namespace);
 
         int service_id = node_id;
         std::string service_name = id_to_service_name(service_id);
@@ -401,8 +391,7 @@ std::shared_ptr<performance_test::Node> performance_test::TemplateFactory::creat
 {
 
     std::string node_name = node_json["node_name"];
-    bool use_ipc = true;
-    auto node = std::make_shared<performance_test::Node>(node_name, _ros2_namespace, use_ipc);
+    auto node = this->create_node(node_name, _use_ipc, _verbose_mode, _ros2_namespace);
 
     return node;
 }

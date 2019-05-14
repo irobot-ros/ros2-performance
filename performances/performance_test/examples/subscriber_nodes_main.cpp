@@ -98,7 +98,7 @@ int main(int argc, char ** argv)
 
     rclcpp::init(argc, argv);
 
-    performance_test::TemplateFactory factory(ros_namespace);
+    performance_test::TemplateFactory factory(use_ipc, verbose, ros_namespace);
     performance_test::System ros2_system(executors);
     ros2_system.enable_events_logger(events_file_path);
 
@@ -109,9 +109,7 @@ int main(int argc, char ** argv)
             n_publishers,
             msg_type,
             performance_test::Tracker::TrackingOptions(),
-            rmw_qos_profile_default,
-            use_ipc,
-            verbose);
+            rmw_qos_profile_default);
 
     ros2_system.add_node(sub_nodes);
 

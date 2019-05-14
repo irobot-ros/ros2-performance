@@ -51,7 +51,7 @@ int main(int argc, char** argv)
     ros2_system.enable_events_logger(events_output_path);
 
     // Load topology from json file
-    performance_test::TemplateFactory factory = performance_test::TemplateFactory();
+    performance_test::TemplateFactory factory = performance_test::TemplateFactory(options.ipc);
 
     auto nodes_vec = factory.parse_topology_from_json(options.topology_json_path);
 

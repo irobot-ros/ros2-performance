@@ -318,7 +318,6 @@ void performance_test::System::log_latency_total_stats(std::ostream& stream)
 {
     const char separator = ' ';
     const int name_width = 12;
-    const int num_width = 10;
 
     unsigned long int total_received = 0;
     unsigned long int total_lost = 0;

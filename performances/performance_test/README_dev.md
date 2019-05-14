@@ -101,7 +101,7 @@ These strings can be passed as Command Line Arguments.
 ```
 #include "performance_test/ros2/template_factory.hpp"
 #include "performance_test/ros2/node.hpp"
-performance_test::TemplateFactory factory();
+performance_test::TemplateFactory factory;
 auto sub_node = std::make_shared<performance_test::Node>("my_sub_node");
 std::string msg_type = "10kb";
 std::string topic_name = "my_topic";
@@ -123,7 +123,7 @@ Then remember to add the nodes to the `performance_test::System` in order to run
 #include "performance_test/ros2/node.hpp"
 #include "performance_test/ros2/system.hpp"
 
-performance_test::TemplateFactory factory();
+performance_test::TemplateFactory factory;
 
 int n_publishers = 2;
 int n_subscribers = 10;

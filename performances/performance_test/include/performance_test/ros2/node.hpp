@@ -247,7 +247,7 @@ private:
     //attach the timestamp as last operation before publishing
     msg->header.stamp = this->now();
 
-    pub->publish(msg);
+    pub->publish(*msg);
     // increase the tracker count (with 0 latency as this is the publisher)
     tracker.scan(msg->header, msg->header.stamp, _events_logger);
     RCLCPP_DEBUG(this->get_logger(), "Publishing to %s msg number %d", name.c_str(), msg->header.tracking_number);

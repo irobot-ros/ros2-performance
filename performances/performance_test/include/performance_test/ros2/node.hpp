@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp/qos.hpp"
 
 #include "performance_test/ros2/communication.hpp"
 #include "performance_test/ros2/tracker.hpp"
@@ -67,8 +68,8 @@ public:
 
     typename rclcpp::Subscription<Msg>::SharedPtr sub =
       this->create_subscription<Msg>(topic.name,
-                                     callback_function,
-                                     qos_profile);
+                                     rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile),
+                                     callback_function);
 
     _subs.insert({ topic.name, { sub, Tracker(this->get_name(), topic.name, tracking_options) } });
 
@@ -104,7 +105,9 @@ public:
   void add_publisher(const Topic<Msg>& topic, rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
 
-    typename rclcpp::Publisher<Msg>::SharedPtr pub = this->create_publisher<Msg>(topic.name, qos_profile);
+    typename rclcpp::Publisher<Msg>::SharedPtr pub =
+                                      this->create_publisher<Msg>(topic.name,
+                                      rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile));
 
     _pubs.insert({ topic.name, { pub, Tracker(this->get_name(), topic.name, Tracker::TrackingOptions()) } });
 

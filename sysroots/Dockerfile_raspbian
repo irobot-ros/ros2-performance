@@ -9,6 +9,7 @@ WORKDIR $HOME
 # minimal ROS2 dependencies
 # libc6 is requried because raspbian stretch lite lacks some pthread support
 RUN apt-get update && apt-get install -y \
+  liblog4cxx-dev \
   libtinyxml2-dev \
   libc6-dev
 
@@ -62,9 +63,6 @@ RUN apt-get update && apt-get install -y \
   libopenjp2-7-dev
 RUN apt-get update && apt-get install -y \
   libpcl-dev
-
-# required by rcl_logging
-RUN apt-get install -y liblog4cxx-dev
 
 # transform absolute simbolic links into relative ones
 RUN apt-get install -y symlinks && symlinks -cr /lib /etc /opt /usr

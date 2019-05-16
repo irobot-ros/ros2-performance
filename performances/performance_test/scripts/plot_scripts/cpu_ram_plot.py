@@ -17,19 +17,15 @@
 # Usage example:
 # python3 cpu_ram_plot.py <RESULT_DIRECTORY>
 
-import numpy as np
-import csv
-import sys
-import os
 import argparse
-import re
-from io import StringIO
-from collections import defaultdict, OrderedDict
+import os
+import sys
 
 import matplotlib.pyplot
 import matplotlib.ticker
 
-import common
+import data_utils
+import plot_common
 
 def parse_csv(file_path, skip = 0):
     '''parses a csv into a dictionary structure, given its filepath'''
@@ -51,19 +47,14 @@ def parse_csv(file_path, skip = 0):
         'num_experiments': 1
     }
 
-    # the input is not a csv so I have to convert it
-    with open(file_path, 'r') as file:
-        file_string = file.read()
-    csv_file = re.sub('[ ]+', '\t', file_string)
-    f = StringIO(csv_file)
-    reader = csv.DictReader(f, delimiter='\t')
+    reader = data_utils.parse_csv_dict(file_path)
 
     rows_number = 0
     for i, row_dict in enumerate(reader):
 
         # used to skip the first seconds if requested
-        time = int(row_dict['time[ms]']) + 1
-        if time < skip:
+        time = int(row_dict['time[ms]'])
+        if time < skip*1000:
             continue
 
         rows_number += 1
@@ -78,6 +69,7 @@ def parse_csv(file_path, skip = 0):
         data['send_frequency'] = int(row_dict.get('pub_freq', 0))
 
     if rows_number < 1:
+        print("Warning. Nothing parsed from ", file_path, " after skipping ", skip, " sec.")
         return {}
 
     return data
@@ -181,7 +173,7 @@ def main(argv):
     __UNCOUNTABLE_DATA__ = ['directory', 'time', 'send_frequency', 'msg_size', 'pubs', 'subs', 'separator']
 
     # Get all files in folders in alphabetic order
-    list_dir = common.get_files_from_paths(dir_paths)
+    list_dir = data_utils.get_files_from_paths(dir_paths)
 
     parsed_list = []
     # Collect data from csv files
@@ -203,14 +195,14 @@ def main(argv):
             parsed_list.append(dict_)
 
 
-    data = common.organize_data(parsed_list, x_key, separator, __UNCOUNTABLE_DATA__)
+    data = plot_common.organize_data(parsed_list, x_key, separator, __UNCOUNTABLE_DATA__)
 
     parsed_target_json = {}
     if args.target:
-        parsed_target_json = common.parse_target_json(args.target, "resources")
+        parsed_target_json = plot_common.parse_target_json(args.target, "resources")
         parsed_target_json = fix_target_names(parsed_target_json)
 
-    common.plot_function(data, x_key, y1_keys, y2_keys, separator, parsed_target_json)
+    plot_common.plot_function(data, x_key, y1_keys, y2_keys, separator, parsed_target_json)
 
 
 if __name__ == '__main__':

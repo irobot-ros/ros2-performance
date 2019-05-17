@@ -9,6 +9,7 @@ WORKDIR $HOME
 # minimal ROS2 dependencies
 # libc6 is requried because raspbian stretch lite lacks some pthread support
 RUN apt-get update && apt-get install -y \
+  liblog4cxx-dev \
   libtinyxml2-dev \
   libc6-dev
 

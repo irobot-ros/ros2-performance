@@ -23,7 +23,3 @@ target_link_libraries(system_test ${LIBRARY_NAME})
 ament_add_gtest(factory_test factory_test.cpp)
 ament_target_dependencies(factory_test performance_test_msgs ${LIBRARY_NAME})
 target_link_libraries(factory_test ${LIBRARY_NAME})
-
-ament_add_pytest_test(dummy_pytest
-    dummy_test.py
-)

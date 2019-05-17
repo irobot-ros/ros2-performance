@@ -89,7 +89,7 @@ TEST(SystemTest, SystemClientServerTest)
 
     auto service = performance_test::Topic<performance_test_msgs::srv::Stamped10b>("my_service");
 
-    int duration_sec = 1;
+    int duration_sec = 2;
     performance_test::System ros2_system;
 
     // Create 1 client node and 1 server node

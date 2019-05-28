@@ -333,8 +333,7 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
 
     // Check if file exists
     if(!ifs.good()) {
-        std::cout << "ERROR. Can't find file: " << json_path << std::endl;
-        return nodes_vec;
+        assert(0 && "Error. Can't find json file passed to TemplateFactory::parse_topology_from_json.");
     }
 
     json j = json::parse(ifs);

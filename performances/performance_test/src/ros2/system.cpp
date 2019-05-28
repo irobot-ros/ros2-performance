@@ -51,13 +51,16 @@ void performance_test::System::add_node(std::shared_ptr<Node> node)
 }
 
 
-// TODO: Is it worth to spin each node in a different thread?
 void performance_test::System::spin(int duration_sec, bool wait_for_discovery)
 {
     _experiment_duration_sec = duration_sec;
-
     // Store the instant when the experiment started
     _start_time = std::chrono::high_resolution_clock::now();
+
+    // Check if some nodes have been added to this System
+    if(_nodes.empty()) {
+        assert(0 && "Error. Calling performance_test::System::spin when no nodes have been added.");
+    }
 
     if (_events_logger != nullptr){
         _events_logger->set_start_time(_start_time);
@@ -110,7 +113,7 @@ void performance_test::System::spin(int duration_sec, bool wait_for_discovery)
 void performance_test::System::wait_discovery()
 {
     // period at which PDP and EDP are checked
-    std::chrono::milliseconds period = 20ms;
+    std::chrono::milliseconds period = 30ms;
     // maximum discovery time, after which the experiment is shut down
     std::chrono::milliseconds max_discovery_time = 30s;
 
@@ -153,11 +156,9 @@ void performance_test::System::wait_pdp_discovery(
     bool pdp_ok = false;
     while (!pdp_ok){
         for (const auto& n : _nodes){
-
+            // we use the intersection to avoid counting nodes discovered from other processes
             size_t discovered_participants = get_intersection_size(n->get_node_names(), reference_names);
-
             pdp_ok = (discovered_participants == num_nodes);
-
             if (!pdp_ok) break;
         }
 
@@ -204,16 +205,27 @@ void performance_test::System::wait_edp_discovery(
         }
     }
 
+    // TODO: the EDP should also take into account if subscriptions have been matched with publishers
+    // This is needed in case of processes with only subscriptions
     bool edp_ok = false;
     while (!edp_ok){
         for (const auto& n : _nodes){
+            // if the node has no publishers, it will be skipped.
+            // however, the boolean flag has to be set to true.
+            if (n->_pubs.empty()){
+                edp_ok = true;
+                continue;
+            }
             for (const auto& pub_tracker : n->_pubs){
                 std::string topic_name = pub_tracker.first;
                 int discovered_endpoints = n->count_subscribers(topic_name);
-                edp_ok = (discovered_endpoints == subs_per_topic[topic_name]);
+                // we check greater or equal to take into account for other processes
+                edp_ok = (discovered_endpoints >= subs_per_topic[topic_name]);
 
                 if (!edp_ok) break;
             }
+
+            if (!edp_ok) break;
         }
 
         if (edp_ok) break;

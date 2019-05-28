@@ -54,17 +54,11 @@ int main(int argc, char** argv)
     performance_test::TemplateFactory factory = performance_test::TemplateFactory(options.ipc);
 
     auto nodes_vec = factory.parse_topology_from_json(options.topology_json_path);
-
-    // Check if file contained a valid topology
-    if(nodes_vec.empty()) {
-        std::cout << "Error reading topology file." << std::endl;
-        exit(1);
-    }
-
     ros2_system.add_node(nodes_vec);
 
     // now the system is complete and we can make it spin for the requested duration
-    ros2_system.spin(options.duration_sec);
+    bool wait_for_discovery = true;
+    ros2_system.spin(options.duration_sec, wait_for_discovery);
 
     // terminate the experiment
     ru_logger.stop();

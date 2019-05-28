@@ -29,9 +29,15 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME}
 )
 
-install(FILES
+set(TOPOLOGY_FILES
   topology/sierra_nevada.json
   topology/mont_blanc.json
+  topology/debug_sierra_nevada.json
+  topology/debug_mont_blanc.json
+)
+
+install(FILES
+  ${TOPOLOGY_FILES}
   DESTINATION lib/${PROJECT_NAME}/topology)
 
 ament_package()

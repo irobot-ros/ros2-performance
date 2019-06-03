@@ -347,9 +347,52 @@ The proposed implementation can handle all the different QoS.
 
 ## Perfomance evaluation
 
-The following results have been obtained running our benchmark application with the topologies Sierra Nevada and Mont Blanc.
-Sierra Nevada is a 10-node topology and it contains 10 publishers and 13 subscriptions. One topic has a message size of
-10KB, while all the others have message sizes between 10 and 100 bytes.
+This section contains experimental results obtained comparing the current IPC implementation with an initial
+implementation of the proposed one. The tests span multiple ROS2 applications and use-cases and have been
+validated on different machines.
+
+All the following experiments have been run using the ROS2 Master branch (20th May 2019) and with `-O2`
+optimization enabled.
+
+```
+colcon build --cmake-args  -DCMAKE_CXX_FLAGS="-O2" -DCMAKE_C_FLAGS="-O2"
+```
+
+The first test has been carried out using the `image_pipeline_all_in_one` application that is contained in the
+[ROS2 demos repository](https://github.com/ros2/demos).
+This is a simple application with 3 nodes, where the fist one publishes a `unique_ptr<Image>` message.
+A second node subscribes to the topic and republishes the image after modifying it on a new topic.
+A third node subscribes to to this last topic.
+
+Also a variant of the application has been tested: it's `image_pipeline_with_two_image_view`, where there are
+2 consumers at the end of the pipeline.
+
+In these tests the latency is computed as the total pipeline duration, i.e. the time from when the first
+node publishes the image to when the last node receives it.
+The CPU usage and the latency have been obtained from `top` command and averaged over the experiment duration.
+
+Performance evaluation on a laptop computer with Intel i7-6600U CPU @ 2.60GHz.
+
+| ROS2 system                         |  IPC     |    DDS        | Latency [us] | CPU [%] | RAM [Mb] |
+| -------------                       |  -----   | ------------- | ------------ | ------- | -------- |
+| image_pipeline_all_in_one           |   off    | Fast-RTPS     |     1800     |   23    |    90    |
+| image_pipeline_all_in_one           | standard | Fast-RTPS     |      920     |   20    |    90    |
+| image_pipeline_all_in_one           |   new    | Fast-RTPS     |      600     |   17    |    90    |
+| image_pipeline_with_two_image_view  |   off    | Fast-RTPS     |     2900     |   24    |    94    |
+| image_pipeline_with_two_image_view  | standard | Fast-RTPS     |     2000     |   20    |    95    |
+| image_pipeline_with_two_image_view  |   new    | Fast-RTPS     |     1400     |   18    |    94    |
+
+In this simple demo the proposed implementation performs better than the current one even if the messages
+stored in the buffers are of type `std::shared_ptr<MessageT>` and so a copy of the message is required before
+handling them to the `Subscription` callback.
+
+The next results have been obtained running the iRobot benchmark application. This allows the user to
+specify the topology of a ROS2 graph that will be entirely run in a single process.
+The purpose of these tests is to show how IPC behaves in case of real applications, rather than in a simple demo.
+
+The application has been run with the topologies Sierra Nevada and Mont Blanc.
+Sierra Nevada is a 10-node topology and it contains 10 publishers and 13 subscriptions. One topic has a
+message size of 10KB, while all the others have message sizes between 10 and 100 bytes.
 
 Mont Blanc is a bigger 20-node topology, containing 23 publishers and 35
 subscriptions. Two topics have a message size of 250KB, three topics have message sizes between
@@ -358,12 +401,8 @@ subscriptions. Two topics have a message size of 250KB, three topics have messag
 A detailed description and the source code for these application and topologies can be found
 [here](https://github.com/irobot-ros/ros2-performance/tree/master/performances/benchmark).
 
-All the following experiments have been run using the ROS2 Master branch (20th May 2019) and with `-O2`
-optimization enabled.
-
-```
-colcon build --cmake-args  -DCMAKE_CXX_FLAGS="-O2" -DCMAKE_C_FLAGS="-O2"
-```
+Note that, differently from the previous experiment where the ownership of the messages was moved from the
+publisher to the subscription, here nodes use `const std::shared_ptr<const MessageT>` messages.
 
 Performance evaluation on a laptop computer with Intel i7-6600U CPU @ 2.60GHz.
 
@@ -388,9 +427,9 @@ The following results have been obtained on a RaspberryPi 2.
 | Mont Blanc                    | standard | Fast-RTPS     |      950     |   26    | 154->159 |
 | Mont Blanc                    |   new    | Fast-RTPS     |      220     |   14    |   130    |
 
-For what concerns latency and CPU usage, Sierra Nevada behaves almost the same regardless if standard IPC is enabled or not.
-This is due to the fact that most of its messages are very small in size. On the other hand, there are noticeable improvements in Mont
-Blanc, where several messages of non-negligible size are used.
+For what concerns latency and CPU usage, Sierra Nevada behaves almost the same regardless if standard IPC is
+enabled or not. This is due to the fact that most of its messages are very small in size. On the other hand,
+there are noticeable improvements in Mont Blanc, where several messages of non-negligible size are used.
 
 From the memory point of view, there is an almost constant increase in the utilization
 during the execution of the program when standard IPC mechanism is used. Since the experiments have been run for
@@ -435,6 +474,14 @@ proposed one.
    for eventual late-joiners.
 
 ## Future works
+
+ - Since there is one ring buffer per `Subscription` and each `Subscription` has only a callback that does not
+   change, it is possible, while creating the `Subscription`, to choose whether the ring buffer has to store
+   `std::shared_ptr<MessageT>` or `std::unique_ptr<MessageT>`. This allows to improve the performances in
+   cases when a `Publisher` with `volatile` durability publishes a message giving up its ownership. In the
+   proposed implementation only `std::shared_ptr<MessageT>` are stored, so each `Subscription` that wants
+   ownership requires to create a new message.
+   On the other hand, directly storing `std::unique_ptr<MessageT>` for these `Subscription`s allows to move the ownership of the published message to one of the `Subscription`, thus saving a copy of the message.
 
  - Depending on the size of `MessageT`, storing a `std::shared_ptr<MessageT>` may not be the most efficient
    solution: if the message size is very small, it should be possible to directly store copies of the messages

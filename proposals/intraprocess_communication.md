@@ -11,7 +11,7 @@ This design document presents a new implementation for the intra-process communi
 
 ## Motivations for a new implementation
 
-ROS2 Dashing release will be the first ROS2 release featuring a working intra-process communication mechanism.
+ROS2 Dashing release is the first ROS2 release featuring a working intra-process communication mechanism.
 
 It is based on the creation of a ring buffer for each publisher and on the publication of meta-messages through
 the middleware layer. When a `Publisher` has to publish in-process, it will pass the message to the
@@ -136,18 +136,25 @@ the message from the buffer and trigger the callback of the `Subscription`.
 
 ![Proposed IPC Block Diagram](new_ipc.png)
 
+There are three possible data-types that can be stored in the buffer:
 
-The buffers store elements of type `std::shared_ptr<const MessageT>`. If the history QoS is set to `keep all`,
-the buffers are dynamically allocated. On the other hand, if the history QoS is set to `keep last`, the
-buffers have a size equal to the depth of the history and they act as ring buffers (overwriting the oldest
-data when trying to push while its full). Ring buffers are not only used in `Subscription`s but also in each
-`Publisher` with a durability QoS of type `transient local`.
+- `MessageT`
+- `shared_ptr<const MessageT>`
+- `unique_ptr<MessageT>`
 
-The `IntraProcessManager` class stores all the ring buffers and also information about which `Publisher`s and
+The choice is left to the user. By default a `Subscription` will use the type between `shared_ptr<constMessageT>`
+and `unique_ptr<MessageT>` that better fits with its callback type.
+
+If the history QoS is set to `keep all`, the buffers are dynamically allocated. On the other hand, if the
+history QoS is set to `keep last`, the buffers have a size equal to the depth of the history and they act as
+ring buffers (overwriting the oldest data when trying to push while its full). Ring buffers are not only used
+in `Subscription`s but also in each `Publisher` with a durability QoS of type `transient local`.
+
+The `IntraProcessManager` class has access to all the ring buffers and has also information about which `Publisher`s and
 `Subscription`s are connected to each other.
 
-A new class derived from `rclcpp::Waitable` is defined, denominated from hereafter `IPCWaitable`. An object of
-this type is created by each `Subscription` with IPC turned on and it is used to notify the `Subscription`
+A new class derived from `rclcpp::Waitable` is defined, denominated `IPCWaitable`. An object of
+this type is created by each `Subscription` with IPC enabled and it is used to notify the `Subscription`
 that a new message has been pushed into its ring buffer and that it needs to be processed.
 
 The decision whether to publish inter-process, intra-process or both is made every time the
@@ -156,7 +163,7 @@ enabled and all the known `Subscription`s are in the same process, then the mess
 intra-process. This remains identical to the current implementation.
 
 An initial, simplified implementation of the new IPC is hosted on [GitHub
-here](https://github.com/alsora/rclcpp/tree/alsora/rebase_ipc).
+here](https://github.com/alsora/rclcpp/tree/alsora/new_ipc_proposal).
 
 ### Creating a publisher
 
@@ -164,12 +171,12 @@ here](https://github.com/alsora/rclcpp/tree/alsora/rebase_ipc).
 2. If IPC is enabled, this boils down to
    `IntraProcessManager::add_publisher(PublisherBase::SharedPtr publisher, PublisherOptions options)`.
 3. `IntraProcessManager::add_publisher(...)` stores the `Publisher` information in an internal structure of
-   type `IPCPublisher_info_t`. The structure contains information about the `Publisher` such as its QoS. If
+   type `PublisherInfo`. The structure contains information about the `Publisher` such as its QoS. If
    the `Publisher` QoS is set to `transient local`, then the structure will also contain a ring buffer of the
    size specified by the depth from the QoS. The `IntraProcessManager` contains a
-   `std::map<std::string, std::vector<IPCPublisher_info_t>>` object where
-   it is possible to retrieve all the `IPCPublisher_info_t` related to a specific topic.
-   The function returns an integer `pub_id` that allows to retrieve the `IPCPublisher_info_t` and that is stored
+   `std::map<std::string, std::vector<PublisherInfo>>` object where
+   it is possible to retrieve all the `PublisherInfo` related to a specific topic.
+   The function returns an integer `pub_id` that allows to retrieve the `PublisherInfo` and that is stored
    within the `Publisher`.
 
 ### Creating a subscription
@@ -178,10 +185,10 @@ here](https://github.com/alsora/rclcpp/tree/alsora/rebase_ipc).
 2. If IPC is enabled, this boils down to
    `IntraProcessManager::add_subscription(SubscriptionBase::SharedPtr subscription, SubscriptionOptions options)`.
 3. `IntraProcessManager::add_subscription(...)` stores the `Subscription` information in an internal structure
-   of type `IPCSubscription_info_t`. The structure will always contain a ring buffer of the size specified by
+   of type `SubscriptionInfo`. The structure will always contain a ring buffer of the size specified by
    the depth from the QoS. The `IntraProcessManager` contains a
-   `std::map<std::string, std::vector<IPCSubscription_info_t>>` object where
-   it is possible to retrieve all the `IPCSubscription_info_t` related to a specific topic.
+   `std::map<std::string, std::vector<SubscriptionInfo>>` object where
+   it is possible to retrieve all the `SubscriptionInfo` related to a specific topic.
 4. If IPC is enabled, `Node::create_subscription<MessageT>(...)` also creates a new `IPCWaitable : Waitable`
    object associated with the new `Subscription`. The `IPCWaitable` needs to have access to the ring buffer
    and to the `Subscription::any_callback` function pointer. It has an associated `rcl_guard_condition_t`
@@ -193,8 +200,8 @@ The following steps will be executed if the `Subscription` QoS is set to `Transi
 In this case the `IntraProcessManager` has to check if the recently created `Subscription` is a late-joiner, and in that case,
 retrieve messages from the `Transient Local` `Publisher`s.
 
-6. Call `IntraProcessManager::find_matching_publishers(IPCSubscription_info_t sub_info)` that returns a list
-   of stored `IPCPublisher_info_t` that have a QoS compatible for sending messages to this new `Subscription`.
+6. Call `IntraProcessManager::find_matching_publishers(SubscriptionInfo sub_info)` that returns a list
+   of stored `PublisherInfo` that have a QoS compatible for sending messages to this new `Subscription`.
 7. Check if any of these `Publisher` have a transient local QoS. If this is the case, they will have a ring
    buffer.
 8. Copy messages from all the ring buffers found into the ring buffer of the new `Subscription`. **TODO:** are
@@ -202,9 +209,6 @@ retrieve messages from the `Transient Local` `Publisher`s.
    time; all the firsts of each publisher, then all the seconds ...).
 9. If at least 1 message was present, trigger the `rcl_guard_condition_t` member of the `IPCWaitable`
    associated with the new `Subscription`.
-   **TODO:**: is this necessary? When a `Node` starts to spin all the `IPCWaitable` objects are checked, so,
-   if the subscription is created during the `Node` constructor this last step would not be needed. Moreover,
-   there should also be a guard condition that awakes `rclcpp::spin` every time a new entity is added.
 
 
 ### Publishing only intra-process
@@ -213,32 +217,45 @@ retrieve messages from the `Transient Local` `Publisher`s.
 
 1. User calls `Publisher::publish(std::unique_ptr<MessageT> msg)`.
 2. `Publisher::publish(std::unique_ptr<MessageT> msg)` calls
-   `IntraProcessManager::do_intra_process_publish(int pub_id, std::shared_ptr<MessageT> shared_msg)`, where
-   `std::shared_ptr<MessageT> shared_msg = std::move(msg)`.
+   `IntraProcessManager::do_intra_process_publish(int pub_id, void* uncasted_msg)`, where
+   `void* uncasted_msg = msg.release()`.
 3. `IntraProcessManager::do_intra_process_publish(...)` uses the `int pub_id` to select the
-   `IPCPublisher_info_t` structure associated with this publisher. Then it calls
-   `IntraProcessManager::find_matching_subscriptions(IPCPublisher_info_t pub_info)`. This returns a list of
-   stored `IPCSubscription_info_t` that have a QoS compatible for receiving the message.
-4. If the `Publisher` QoS is set to transient local, its `IPCPublisher_info_t` is also added to the list.
-5. A copy of the `std::shared_ptr<MessageT> msg` is pushed to the ring buffer of all the items in the list.
+   `PublisherInfo` structure associated with this publisher. Then it calls
+   `IntraProcessManager::find_matching_subscriptions(PublisherInfo pub_info)`. This returns a list of
+   stored `SubscriptionInfo` that have a QoS compatible for receiving the message.
+4. If the `Publisher` QoS is set to transient local, its `PublisherInfo` is also added to the list.
+5. The message is "added" to the ring buffer of all the items in the list (so also the `Publisher` itself
+   receives one if set to transient local).
    The `rcl_guard_condition_t` member of `IPCWaitable` of each `Subscription` is triggered (this wakes up
    `rclcpp::spin`).
 
-This mechanism requires to copy the `MessageT` smart pointer N+1 times, where N is the number of
-`Subscription`s.
+The way in which the `void*` message is "added" to a buffer, depends on the type of the buffer.
+
+ - `BufferT = unique_ptr<MessageT>`
+   The buffer receives a copy of `MessageT` and has ownership on it. For the last buffer, a copy is not
+   necessary as ownership can be transferred.
+ - `BufferT = shared_ptr<const MessageT>`
+   Every buffer receives a shared pointer of the same `MessageT`. No copies are required.
+ - `BufferT = MessageT`
+   A copy of the message is added to every buffer.
+
 
 ##### shared_ptr case
 
 1. User calls `Publisher::publish(std::shared_ptr<MessageT> msg)`.
 2. `Publisher::publish(std::shared_ptr<MessageT> msg)` calls
-   `IntraProcessManager::do_intra_process_publish(int pub_id, std::shared_ptr<MessageT> shared_msg)`, where
-   `std::shared_ptr<MessageT> shared_msg = std::make_shared(*msg)`.
+   `IntraProcessManager::do_intra_process_publish(int pub_id, std::shared_ptr<const void> shared_msg)`.
 
 Then apply steps 3, 4 and 5 as seen above.
 
-This mechanism requires to copy the `MessageT` once and its smart pointer N+1 times, where N is the number of
-`Subscription`s.
+The way in which the `std::shared_ptr<const void>` message is "added" to a buffer, depends on the type of the buffer.
 
+ - `BufferT = unique_ptr<MessageT>`
+   The buffer receives a copy of `MessageT` and has ownership on it.
+ - `BufferT = shared_ptr<const MessageT>`
+   Every buffer receives a shared pointer of the same `MessageT`. No copies are required.
+ - `BufferT = MessageT`
+   A copy of the message is added to every buffer.
 
 ### Receiving intra-process messages
 
@@ -252,12 +269,46 @@ its related `Subscription`.
 1. The guard condition linked with the `IPCWaitable` object awakes `rclcpp::spin`.
 2. The `IPCWaitable::is_ready()` condition is checked. This has to ensure that the ring buffer is not empty.
 3. The `IPCWaitable::execute()` function is triggered. Here the first message is extracted from the buffer and
-   then the `IPCWaitable` calls the `AnySubscriptionCallback::dispatch(std::shared_ptr<MessageT> msg)` method.
-4. Depending on the type of the callback associated with the `AnySubscriptionCallback` object, the
-   message may be copied or not. This is the case in which the callback requires a
-   `std::unique_ptr<MessageT> msg`.
-   In all the other cases it is sufficient to pass the `std::shared_ptr<MessageT> msg` extracted from the queue.
+   then the `IPCWaitable` calls the `AnySubscriptionCallback::dispatch_intra_process(...)` method.
+   There are different implementations for this method, depending on the data-type stored in the buffer.
+4. The `AnySubscriptionCallback::dispatch_intra_process(...)` method triggers the associated callback.
+   Note that in this step, if the type of the buffer is a smart pointer one, no message copies occurr, as
+   ownership has been already taken into account when pushing a message into the queue.
 
+
+### Number of message copies
+
+The following tables show a recap of when the proposed implementation has to create a new copy of a message.
+The notation `@` indicates a memory address where the message is stored, different memory addresses correspond
+to different copies of the message.
+
+<table>
+<tr><th>Publishing unique_ptr </th><th>Publishing shared_ptr</th></tr>
+<tr><td>
+
+| publish\<T\>                     | BufferT                |    Results         |
+| -------------                    |  -----                    | -------------      |
+| unique_ptr\<MessageT\> @1        |   <ul><li>unique_ptr\<MessageT\></li></ul>   |    <ul><li>@1</li></ul>       |
+| unique_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>unique_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@2</li></ul>      |
+| unique_ptr\<MessageT\> @1        |   <ul><li>shared_ptr\<MessageT\></li></ul>   |    <ul><li>@1</li></ul>       |
+| unique_ptr\<MessageT\> @1        | <ul><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@1</li></ul>      |
+| unique_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@2</li></ul>      |
+| unique_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@2</li><li>@2</li></ul>      |
+| unique_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@2</li><li>@3</li><li>@3</li></ul>      |
+
+</td><td>
+
+| publish\<T\>                     |  BufferT                |    Results         |
+| -------------                  |  -----                    | -------------      |
+| shared_ptr\<MessageT\> @1        |   <ul><li>unique_ptr\<MessageT\></li></ul>   |    <ul><li>@2</li></ul>    |
+| shared_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>unique_ptr\<MessageT\></li></ul>  |    <ul><li>@2</li><li>@3</li></ul>      |
+| shared_ptr\<MessageT\> @1        |   <ul><li>shared_ptr\<MessageT\></li></ul>   |    <ul><li>@1</li></ul>       |
+| shared_ptr\<MessageT\> @1        | <ul><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@1</li></ul>      |
+| shared_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@2</li><li>@1</li></ul>      |
+| shared_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@2</li><li>@1</li><li>@1</li></ul>      |
+| shared_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@2</li><li>@3</li><li>@1</li><li>@1</li></ul>      |
+
+</td></tr> </table>
 
 ### Handling intra and inter-process communications
 
@@ -276,6 +327,9 @@ One of the main obstacles in implementing an intra-process discovery is that in 
 implementations currently available for ROS2, the discovery is not triggered by the user, but simply
 starts as soon as a node is created. Moreover, even if a `Publisher` and a `Subscription` are in the same process,
 it is not guaranteed that both will have intra-process communication enabled.
+
+Given the fact that the proposed implementation does not use the RMW at all, there is much more freedom for
+eventually disconnecting nodes.
 
 The proposed solution is to declare two new functions in the `rmw_implementation` layer:
  - `rmw_ret_t disconnect_remote_publisher(rmw_node_t node, rmw_subscription_t sub, rmw_publisher_t remote_pub)`
@@ -312,13 +366,16 @@ These functions perform exactly what is needed: they disconnect a remote `Publis
 The following steps are identical to steps 3, 4 and 5 applied when publishing only intra-processs.
 
 4. `IntraProcessManager::do_intra_process_publish(...)` uses the `int pub_id` to select the
-   `IPCPublisher_info_t` structure associated with this publisher. Then it calls
-   `IntraProcessManager::find_matching_subscriptions(IPCPublisher_info_t pub_info)`. This returns a list of
-   stored `IPCSubscription_info_t` that have a QoS compatible for receiving the message.
-5. If the `Publisher` QoS is set to transient local, its `IPCPublisher_info_t` is also added to the list.
-6. A copy of the `std::shared_ptr<MessageT> msg` is pushed to the ring buffer of all the items in the list.
+   `PublisherInfo` structure associated with this publisher. Then it calls
+   `IntraProcessManager::find_matching_subscriptions(PublisherInfo pub_info)`. This returns a list of
+   stored `SubscriptionInfo` that have a QoS compatible for receiving the message.
+5. If the `Publisher` QoS is set to transient local, its `PublisherInfo` is also added to the list.
+6. The message is "added" to the ring buffer of all the items in the list (so also the `Publisher` itself
+   receives one if set to transient local).
    The `rcl_guard_condition_t` member of `IPCWaitable` of each `Subscription` is triggered (this wakes up
    `rclcpp::spin`).
+
+Note that in this case, the number of copies of the message required is the same as when publishing a `std::shared_ptr<const MessageT>`.
 
 After the intra-process publication, the inter-process one takes place.
 
@@ -326,8 +383,9 @@ After the intra-process publication, the inter-process one takes place.
    `Publisher::do_inter_process_publish(const MessageT * msg_ptr)`.
    Where `MessageT * msg_ptr = shared_msg.get()`.
 
-This does not require any further message copies compared to the only intra-process case. This is also true
-when calling `Publisher::publish(std::shared_ptr<MessageT> msg)`.
+This does not require any further message copies compared to the only intra-process case.
+
+The same applies when calling `Publisher::publish(std::shared_ptr<MessageT> msg)`.
 
 
 ##### QoS features
@@ -351,16 +409,16 @@ This section contains experimental results obtained comparing the current IPC im
 implementation of the proposed one. The tests span multiple ROS2 applications and use-cases and have been
 validated on different machines.
 
-All the following experiments have been run using the ROS2 Master branch (20th May 2019) and with `-O2`
+All the following experiments have been run using the ROS2 Dashing and with `-O2`
 optimization enabled.
 
 ```
 colcon build --cmake-args  -DCMAKE_CXX_FLAGS="-O2" -DCMAKE_C_FLAGS="-O2"
 ```
 
-The first test has been carried out using the `image_pipeline_all_in_one` application that is contained in the
+The first test has been carried out using the `intra_process_demo` package contained in the
 [ROS2 demos repository](https://github.com/ros2/demos).
-This is a simple application with 3 nodes, where the fist one publishes a `unique_ptr<Image>` message.
+A first application, called `image_pipeline_all_in_one`, is made of 3 nodes, where the fist one publishes a `unique_ptr<Image>` message.
 A second node subscribes to the topic and republishes the image after modifying it on a new topic.
 A third node subscribes to to this last topic.
 
@@ -377,18 +435,17 @@ Performance evaluation on a laptop computer with Intel i7-6600U CPU @ 2.60GHz.
 | -------------                       |  -----   | ------------- | ------------ | ------- | -------- |
 | image_pipeline_all_in_one           |   off    | Fast-RTPS     |     1800     |   23    |    90    |
 | image_pipeline_all_in_one           | standard | Fast-RTPS     |      920     |   20    |    90    |
-| image_pipeline_all_in_one           |   new    | Fast-RTPS     |      600     |   17    |    90    |
+| image_pipeline_all_in_one           |   new    | Fast-RTPS     |      350     |   15    |    90    |
 | image_pipeline_with_two_image_view  |   off    | Fast-RTPS     |     2900     |   24    |    94    |
 | image_pipeline_with_two_image_view  | standard | Fast-RTPS     |     2000     |   20    |    95    |
-| image_pipeline_with_two_image_view  |   new    | Fast-RTPS     |     1400     |   18    |    94    |
+| image_pipeline_with_two_image_view  |   new    | Fast-RTPS     |     1400     |   16    |    94    |
 
-In this simple demo the proposed implementation performs better than the current one even if the messages
-stored in the buffers are of type `std::shared_ptr<MessageT>` and so a copy of the message is required before
-handling them to the `Subscription` callback.
+From this simple experiment is immediately possible to see the improvement in the latency when using the
+proposed intra-process communication.
+However, an even bigger improvement is present when analyzing the results from more complex applications.
 
 The next results have been obtained running the iRobot benchmark application. This allows the user to
 specify the topology of a ROS2 graph that will be entirely run in a single process.
-The purpose of these tests is to show how IPC behaves in case of real applications, rather than in a simple demo.
 
 The application has been run with the topologies Sierra Nevada and Mont Blanc.
 Sierra Nevada is a 10-node topology and it contains 10 publishers and 13 subscriptions. One topic has a
@@ -472,17 +529,3 @@ proposed one.
    different process joins. Initially, published messages are not passed to the middleware, since all the
    `Subscription`s are in the same process. This means that the middleware is not able to store old messages
    for eventual late-joiners.
-
-## Future works
-
- - Since there is one ring buffer per `Subscription` and each `Subscription` has only a callback that does not
-   change, it is possible, while creating the `Subscription`, to choose whether the ring buffer has to store
-   `std::shared_ptr<MessageT>` or `std::unique_ptr<MessageT>`. This allows to improve the performances in
-   cases when a `Publisher` with `volatile` durability publishes a message giving up its ownership. In the
-   proposed implementation only `std::shared_ptr<MessageT>` are stored, so each `Subscription` that wants
-   ownership requires to create a new message.
-   On the other hand, directly storing `std::unique_ptr<MessageT>` for these `Subscription`s allows to move the ownership of the published message to one of the `Subscription`, thus saving a copy of the message.
-
- - Depending on the size of `MessageT`, storing a `std::shared_ptr<MessageT>` may not be the most efficient
-   solution: if the message size is very small, it should be possible to directly store copies of the messages
-   in the intra-process ring buffers for improved performance.

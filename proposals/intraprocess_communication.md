@@ -49,13 +49,19 @@ More details [here](https://index.ros.org/doc/ros2/Concepts/About-Quality-of-Ser
 
 ### Dependent on the RMW
 
-The current implementation has to send meta-messages from the `Publisher` to the `Subscription`s. This is done
-using the `rmw_publish` function, the implementation of which depends on the chosen middleware. This results
-in having the performance of a ROS2 application with intra-process communication enabled to still heavily
-depend on the chosen RMW implementation.
+The current implementation of intra-process communication has to send meta-messages from the `Publisher` to
+the `Subscription`s. This is done using the `rmw_publish` function, the implementation of which depends on the
+chosen middleware. This results in the performance of a ROS2 application with intra-process communication
+enabled being heavily dependent on the chosen RMW implementation.
 
-At the moment, this results in a relevant impact on the performance of the application for
-all the ROS2 supported middlewares (Fast-RTPS, OpenSplice, Connext, DPS).
+Given the fact that these meta-messages have only to be received from entities within the same process, there
+is space for optimizing how they are transmitted by each RMW.
+However, at the moment none of the supported RMW is actively tackling this issue.
+This results in that the performance of a single process ROS2 application with intra-process communication
+enabled are still worst than what you could expect from a non-ROS application sharing memory between its
+components.
+
+In the following some experimental evidences are quickly presented.
 
 ##### Memory requirement
 
@@ -75,7 +81,7 @@ However, comparing the publication/reception of an intra and an inter-process me
 several additional operations: it has to store the message in the ring buffer, monitor the number of
 `Subscription`s, and extract the message.
 
-The result is that from the latency and CPU utilization point of view, it is convenient to use inter-process
+The result is that from the latency and CPU utilization point of view, it is convenient to use intra-process
 communication only when the message size is at least 5KB.
 
 
@@ -162,7 +168,7 @@ in `Subscription`s but also in each `Publisher` with a durability QoS of type `t
 The `IntraProcessManager` class has access to all the ring buffers and has also information about which `Publisher`s and
 `Subscription`s are connected to each other.
 
-A new class derived from `rclcpp::Waitable` is defined, denominated `IPCWaitable`. An object of this type is
+A new class derived from `rclcpp::Waitable` is defined, denominated `IntraProcessWaitable`. An object of this type is
 created by each `Subscription` with intra-process communication enabled and it is used to notify the
 `Subscription` that a new message has been pushed into its ring buffer and that it needs to be processed.
 
@@ -199,10 +205,10 @@ here](https://github.com/alsora/rclcpp/tree/alsora/new_ipc_proposal).
    `std::map<std::string, std::vector<SubscriptionInfo>>` object where
    it is possible to retrieve all the `SubscriptionInfo` related to a specific topic.
 4. If intra-process communication is enabled, `Node::create_subscription<MessageT>(...)` also creates a new
-   `IPCWaitable : Waitable` object associated with the new `Subscription`. The `IPCWaitable` needs to have
+   `IntraProcessWaitable : Waitable` object associated with the new `Subscription`. The `IntraProcessWaitable` needs to have
    access to the ring buffer and to the `Subscription::any_callback` function pointer. It has an associated
    `rcl_guard_condition_t` object that can be triggered from the `IntraProcessManager`.
-5. The new `IPCWaitable` object is added to the list of Waitable interfaces of the node through
+5. The new `IntraProcessWaitable` object is added to the list of Waitable interfaces of the node through
    `node_interfaces::NodeWaitablesInterface::add_waitable(...)`.
 
 The following steps will be executed if the `Subscription` QoS is set to `Transient Local`.
@@ -216,7 +222,7 @@ retrieve messages from the `Transient Local` `Publisher`s.
 8. Copy messages from all the ring buffers found into the ring buffer of the new `Subscription`. **TODO:** are
    there any constraints on the order in which old messages have to be retrieved? (i.e. 1 publisher at the
    time; all the firsts of each publisher, then all the seconds ...).
-9. If at least 1 message was present, trigger the `rcl_guard_condition_t` member of the `IPCWaitable`
+9. If at least 1 message was present, trigger the `rcl_guard_condition_t` member of the `IntraProcessWaitable`
    associated with the new `Subscription`.
 
 
@@ -235,7 +241,7 @@ retrieve messages from the `Transient Local` `Publisher`s.
 4. If the `Publisher` QoS is set to transient local, its `PublisherInfo` is also added to the list.
 5. The message is "added" to the ring buffer of all the items in the list (so also the `Publisher` itself
    receives one if set to transient local).
-   The `rcl_guard_condition_t` member of `IPCWaitable` of each `Subscription` is triggered (this wakes up
+   The `rcl_guard_condition_t` member of `IntraProcessWaitable` of each `Subscription` is triggered (this wakes up
    `rclcpp::spin`).
 
 The way in which the `void*` message is "added" to a buffer, depends on the type of the buffer.
@@ -268,13 +274,13 @@ As previously described, whenever messages are added to the ring buffer of a `Su
 variable specific to the `Subscription` is triggered. This condition variable has been added to the `Node` waitset
 so it is being monitored by the `rclcpp::spin`
 
-Remember that the `IPCWaitable` object has access to the ring buffer and to the callback function pointer of
+Remember that the `IntraProcessWaitable` object has access to the ring buffer and to the callback function pointer of
 its related `Subscription`.
 
-1. The guard condition linked with the `IPCWaitable` object awakes `rclcpp::spin`.
-2. The `IPCWaitable::is_ready()` condition is checked. This has to ensure that the ring buffer is not empty.
-3. The `IPCWaitable::execute()` function is triggered. Here the first message is extracted from the buffer and
-   then the `IPCWaitable` calls the `AnySubscriptionCallback::dispatch_intra_process(...)` method.
+1. The guard condition linked with the `IntraProcessWaitable` object awakes `rclcpp::spin`.
+2. The `IntraProcessWaitable::is_ready()` condition is checked. This has to ensure that the ring buffer is not empty.
+3. The `IntraProcessWaitable::execute()` function is triggered. Here the first message is extracted from the buffer and
+   then the `IntraProcessWaitable` calls the `AnySubscriptionCallback::dispatch_intra_process(...)` method.
    There are different implementations for this method, depending on the data-type stored in the buffer.
 4. The `AnySubscriptionCallback::dispatch_intra_process(...)` method triggers the associated callback.
    Note that in this step, if the type of the buffer is a smart pointer one, no message copies occurr, as
@@ -361,7 +367,7 @@ The following steps are identical to steps 3, 4 and 5 applied when publishing on
 5. If the `Publisher` QoS is set to transient local, its `PublisherInfo` is also added to the list.
 6. The message is "added" to the ring buffer of all the items in the list (so also the `Publisher` itself
    receives one if set to transient local).
-   The `rcl_guard_condition_t` member of `IPCWaitable` of each `Subscription` is triggered (this wakes up
+   The `rcl_guard_condition_t` member of `IntraProcessWaitable` of each `Subscription` is triggered (this wakes up
    `rclcpp::spin`).
 
 After the intra-process publication, the inter-process one takes place.

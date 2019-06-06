@@ -93,7 +93,8 @@ has intra-process communication disabled.
 In this case, the `Publisher` in the first process will publish both inter and intra-process. The
 intra-process communication meta-message will only be delivered to the `Subscription` within the same process
 through the `/MyTopic/_intra` topic. However, the real message used for inter-process communication will be
-handed to the RMW which currently does not care about whether intra-process communication is enabled or not.
+handed to the RMW for inter-process publishing.
+Currently the RMW does not use the information about whether intra-process communication is enabled or not.
 Consequently, the real message will be delivered to both `Subscription`s present in the system. The
 `Subscription` that is in the same process as the `Publisher` will actually discard the message, but it will
 be able to do that only after receiving and deserializing it.

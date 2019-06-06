@@ -4,22 +4,27 @@
 
 The subscriptions and publications mechanisms in ROS2 fall in two categories:
 
-* intra-process: messages are sent from a publication to subscription via in-process memory
-* inter-process: messages are serialized and sent via the underlying middleware.
+* intra-process: messages are sent from a publication to subscription via in-process memory.
+* inter-process: messages are sent via the underlying ROS2 middleware layer. The specifics of how this happens
+depend on the chosen middleware implementation and may involve serialization steps.
 
 This design document presents a new implementation for the intra-process communication.
 
 ## Motivations for a new implementation
 
-ROS2 Dashing release is the first ROS2 release featuring a working intra-process communication mechanism.
+Even if ROS2 supports intra-process communication, the implementation of this mechanism has still much space for improvement.
+Until ROS2 Crystal, major performance issues and the lack of support for shared pointer messages were preventing the use of this feature in real applications.
 
-It is based on the creation of a ring buffer for each publisher and on the publication of meta-messages through
-the middleware layer. When a `Publisher` has to publish in-process, it will pass the message to the
-`IntraProcessManager`. Here the message will be stored in the ring buffer associated with the
-`Publisher`. In order to retrieve a message, the `IntraProcessManager` needs two pieces of information:
-the id of the publisher (in order to select the correct ring buffer) and the position of the message within
-the ring buffer. A meta-message with this information is created and sent through the ROS2 middleware to all
-the `Subscription`s, which can then retrieve the original message from the `IntraProcessManager`.
+With the ROS2 Dashing release, most of these issues have been addressed and the intra-process communication behavior has improved greatly ([see ticket](https://github.com/ros2/ros2/issues/649)).
+
+The current implementation is based on the creation of a ring buffer for each `Publisher` and on the
+publication of meta-messages through the middleware layer. When a `Publisher` has to publish intra-process, it
+will pass the message to the `IntraProcessManager`. Here the message will be stored in the ring buffer
+associated with the `Publisher`. In order to extract a message from the `IntraProcessManager` two pieces of
+information are needed: the id of the `Publisher` (in order to select the correct ring buffer) and the
+position of the message within its ring buffer. A meta-message with this information is created and sent
+through the ROS2 middleware to all the `Subscription`s, which can then retrieve the original message from the
+`IntraProcessManager`.
 
 ![Current IPC Block Diagram](old_ipc.png)
 
@@ -44,19 +49,18 @@ More details [here](https://index.ros.org/doc/ros2/Concepts/About-Quality-of-Ser
 
 ### Dependent on the RMW
 
-The current implementation has to send meta-messages from the `Publisher` to the `Subscription`s. This
-is done using the `rmw_publish` function, the implementation of which depends on the chosen middleware. This
-results in having the performance of a ROS2 application with IPC enabled to still heavily depend on the chosen
-RMW implementation.
+The current implementation has to send meta-messages from the `Publisher` to the `Subscription`s. This is done
+using the `rmw_publish` function, the implementation of which depends on the chosen middleware. This results
+in having the performance of a ROS2 application with intra-process communication enabled to still heavily
+depend on the chosen RMW implementation.
 
-At the moment, all the ROS2 supported middlewares (Fast-RTPS, OpenSplice, Connext, DPS) do not make
-distinctions whether the `Publisher` and the `Subscription` are in the same process or not. In consequence,
-the use of meta-messages has an impact on the performance of the application.
+At the moment, this results in a relevant impact on the performance of the application for
+all the ROS2 supported middlewares (Fast-RTPS, OpenSplice, Connext, DPS).
 
 ##### Memory requirement
 
-When a `Node` creates a `Publisher` or a `Subscription` to a topic `\MyTopic`, it will also create an
-additional one to the topic `\MyTopic\intra_`. The second topic is the one where meta-messages travel. Our
+When a `Node` creates a `Publisher` or a `Subscription` to a topic `/MyTopic`, it will also create an
+additional one to the topic `/MyTopic/_intra`. The second topic is the one where meta-messages travel. Our
 [experimental results](https://github.com/irobot-ros/ros2-performance/tree/master/performances/experiments/crystal/pub_sub_memory#adding-more-nodes-x86_64)
 show that creating a `Publisher` or a `Subscription` has a non-negligible memory cost.
 
@@ -82,35 +86,38 @@ inter and intra-process. The following two scenarios illustrate this problem.
 
 ##### Scenario 1
 
-There are two processes. In the first process there are a `Publisher` and a `Subscription` to `\MyTopic`.
-Both have IPC enabled. In the second process there is a `Subscription` to `\MyTopic`. It has IPC disabled.
+There are two processes. In the first process there are a `Publisher` and a `Subscription` to `/MyTopic`. Both
+have intra-process communication enabled. In the second process there is a `Subscription` to `/MyTopic`. It
+has intra-process communication disabled.
 
-In this case, the `Publisher` in the first process will publish both inter and intra-process. The IPC
-meta-message will only be delivered to the `Subscription` within the same process through the
-`\MyTopic\intra_` topic. However, the real message used for inter-process communication will be handled to the
-RMW which does not have a notion of inter and intra-process communication. Consequently, the real message will
-be delivered to both `Subscription`s present in the system. The `Subscription` that is in the same process as
-the `Publisher` will actually discard the message, but it will be able to do that only after receiving and
-deserializing it.
+In this case, the `Publisher` in the first process will publish both inter and intra-process. The
+intra-process communication meta-message will only be delivered to the `Subscription` within the same process
+through the `/MyTopic/_intra` topic. However, the real message used for inter-process communication will be
+handed to the RMW which currently does not care about whether intra-process communication is enabled or not.
+Consequently, the real message will be delivered to both `Subscription`s present in the system. The
+`Subscription` that is in the same process as the `Publisher` will actually discard the message, but it will
+be able to do that only after receiving and deserializing it.
 
 ##### Scenario 2
 
-There are two processes. In the first process there are a `Publisher` and a `Subscription` to `\MyTopic`.
-Both have IPC enabled. In the second process there is a `Subscription` to `\MyTopic` and it has IPC enabled.
+There are two processes. In the first process there are a `Publisher` and a `Subscription` to `/MyTopic`. Both
+have intra-process communication enabled. In the second process there is a `Subscription` to `/MyTopic` and it
+has intra-process communication enabled.
 
-The difference with the first scenario is that now both `Subscription`s have IPC enabled.
+The difference with the first scenario is that now both `Subscription`s have intra-process communication enabled.
 
 The same phenomenon described before will still happen, i.e., the `Subscription` in the same process will
 receive both the meta-message and the real message, and will discard the latter.
 
 However, this time there is an additional problem: the meta-message is sent through the RMW on the
-`\MyTopic\intra_` topic. Also, the `Subscription` in the second process will be listening to that topic. This
+`/MyTopic/_intra` topic. Also, the `Subscription` in the second process will be listening to that topic. This
 results in that the meta-message will be delivered to both `Subscription`s. The one in the second topic will
 still try to use the meta-message to retrieve something from the `IntraProcessManager`. In this simple
 scenario it will not be able to find anything and this will only result in a warning message. However, if some
-`Publisher` with IPC ON happens to be present also in that process, then the `Subscription` will end up
-extracting something from the ring buffer. This is due to the fact that the id of the publisher contained in
-the meta-message is just an integer value guaranteed to be unique only within the process that generated it.
+`Publisher` with intra-process communication enabled happens to be present also in that process, then the
+`Subscription` will end up extracting something from the ring buffer. This is due to the fact that the id of
+the publisher contained in the meta-message is just an integer value guaranteed to be unique only within the
+process that generated it.
 
 This situation has two possible outcomes: if the `Publisher` from which the message is extracted has the same
 message type as the `Subscription`, then the problem will not be noticed, even if the `Subscription` is taking
@@ -153,22 +160,22 @@ in `Subscription`s but also in each `Publisher` with a durability QoS of type `t
 The `IntraProcessManager` class has access to all the ring buffers and has also information about which `Publisher`s and
 `Subscription`s are connected to each other.
 
-A new class derived from `rclcpp::Waitable` is defined, denominated `IPCWaitable`. An object of
-this type is created by each `Subscription` with IPC enabled and it is used to notify the `Subscription`
-that a new message has been pushed into its ring buffer and that it needs to be processed.
+A new class derived from `rclcpp::Waitable` is defined, denominated `IPCWaitable`. An object of this type is
+created by each `Subscription` with intra-process communication enabled and it is used to notify the
+`Subscription` that a new message has been pushed into its ring buffer and that it needs to be processed.
 
 The decision whether to publish inter-process, intra-process or both is made every time the
 `Publisher::publish()` method is called. For example, if the `NodeOptions::use_intra_process_comms_` is
 enabled and all the known `Subscription`s are in the same process, then the message is only published
 intra-process. This remains identical to the current implementation.
 
-An initial, simplified implementation of the new IPC is hosted on [GitHub
+An initial, simplified implementation of the new intra-process communication is hosted on [GitHub
 here](https://github.com/alsora/rclcpp/tree/alsora/new_ipc_proposal).
 
 ### Creating a publisher
 
 1. User calls `Node::create_publisher<MessageT>(...)`.
-2. If IPC is enabled, this boils down to
+2. If intra-process communication is enabled, this boils down to
    `IntraProcessManager::add_publisher(PublisherBase::SharedPtr publisher, PublisherOptions options)`.
 3. `IntraProcessManager::add_publisher(...)` stores the `Publisher` information in an internal structure of
    type `PublisherInfo`. The structure contains information about the `Publisher` such as its QoS. If
@@ -182,17 +189,17 @@ here](https://github.com/alsora/rclcpp/tree/alsora/new_ipc_proposal).
 ### Creating a subscription
 
 1. User calls `Node::create_subscription<MessageT>(...)`.
-2. If IPC is enabled, this boils down to
+2. If intra-process communication is enabled, this boils down to
    `IntraProcessManager::add_subscription(SubscriptionBase::SharedPtr subscription, SubscriptionOptions options)`.
 3. `IntraProcessManager::add_subscription(...)` stores the `Subscription` information in an internal structure
    of type `SubscriptionInfo`. The structure will always contain a ring buffer of the size specified by
    the depth from the QoS. The `IntraProcessManager` contains a
    `std::map<std::string, std::vector<SubscriptionInfo>>` object where
    it is possible to retrieve all the `SubscriptionInfo` related to a specific topic.
-4. If IPC is enabled, `Node::create_subscription<MessageT>(...)` also creates a new `IPCWaitable : Waitable`
-   object associated with the new `Subscription`. The `IPCWaitable` needs to have access to the ring buffer
-   and to the `Subscription::any_callback` function pointer. It has an associated `rcl_guard_condition_t`
-   object that can be triggered from the `IntraProcessManager`.
+4. If intra-process communication is enabled, `Node::create_subscription<MessageT>(...)` also creates a new
+   `IPCWaitable : Waitable` object associated with the new `Subscription`. The `IPCWaitable` needs to have
+   access to the ring buffer and to the `Subscription::any_callback` function pointer. It has an associated
+   `rcl_guard_condition_t` object that can be triggered from the `IntraProcessManager`.
 5. The new `IPCWaitable` object is added to the list of Waitable interfaces of the node through
    `node_interfaces::NodeWaitablesInterface::add_waitable(...)`.
 
@@ -405,9 +412,9 @@ The proposed implementation can handle all the different QoS.
 
 ## Perfomance evaluation
 
-This section contains experimental results obtained comparing the current IPC implementation with an initial
-implementation of the proposed one. The tests span multiple ROS2 applications and use-cases and have been
-validated on different machines.
+This section contains experimental results obtained comparing the current intra-process communication
+implementation with an initial implementation of the proposed one. The tests span multiple ROS2 applications
+and use-cases and have been validated on different machines.
 
 All the following experiments have been run using the ROS2 Dashing and with `-O2`
 optimization enabled.
@@ -431,7 +438,7 @@ The CPU usage and the latency have been obtained from `top` command and averaged
 
 Performance evaluation on a laptop computer with Intel i7-6600U CPU @ 2.60GHz.
 
-| ROS2 system                         |  IPC     |    DDS        | Latency [us] | CPU [%] | RAM [Mb] |
+| ROS2 system                         |  IPC     |    RMW        | Latency [us] | CPU [%] | RAM [Mb] |
 | -------------                       |  -----   | ------------- | ------------ | ------- | -------- |
 | image_pipeline_all_in_one           |   off    | Fast-RTPS     |     1800     |   23    |    90    |
 | image_pipeline_all_in_one           | standard | Fast-RTPS     |      920     |   20    |    90    |
@@ -463,7 +470,7 @@ publisher to the subscription, here nodes use `const std::shared_ptr<const Messa
 
 Performance evaluation on a laptop computer with Intel i7-6600U CPU @ 2.60GHz.
 
-| ROS2 system                   |  IPC     |    DDS        | Latency [us] | CPU [%] | RAM [Mb] |
+| ROS2 system                   |  IPC     |    RMW        | Latency [us] | CPU [%] | RAM [Mb] |
 | -------------                 |  -----   | ------------- | ------------ | ------- | -------- |
 | Sierra Nevada                 |   off    | Fast-RTPS     |      600     |   14    |    63    |
 | Sierra Nevada                 | standard | Fast-RTPS     |      650     |   16    |  73->79  |
@@ -475,7 +482,7 @@ Performance evaluation on a laptop computer with Intel i7-6600U CPU @ 2.60GHz.
 A similar behavior can be observed also running the application on resource constrained platforms.
 The following results have been obtained on a RaspberryPi 2.
 
-| ROS2 system                   |  IPC     |    DDS        | Latency [us] | CPU [%] | RAM [Mb] |
+| ROS2 system                   |  IPC     |    RMW        | Latency [us] | CPU [%] | RAM [Mb] |
 | -------------                 |  -----   | ------------- | ------------ | ------- | -------- |
 | Sierra Nevada                 |   off    | Fast-RTPS     |      800     |   18    |    47    |
 | Sierra Nevada                 | standard | Fast-RTPS     |      725     |   20    |  54->58  |
@@ -488,19 +495,19 @@ For what concerns latency and CPU usage, Sierra Nevada behaves almost the same r
 enabled or not. This is due to the fact that most of its messages are very small in size. On the other hand,
 there are noticeable improvements in Mont Blanc, where several messages of non-negligible size are used.
 
-From the memory point of view, there is an almost constant increase in the utilization
-during the execution of the program when standard IPC mechanism is used. Since the experiments have been run for
-120 seconds, there is an increase of approximately 60KB per second. However, even considering
-the initial memory usage, it is possible to see how it is affected from the presence of the additional publishers and
-subscriptions needed for intra-process communication. There is a difference of 10MB in Sierra Nevada and
-of 33MB in Mont Blanc between standard IPC on and off.
+From the memory point of view, there is an almost constant increase in the utilization during the execution of
+the program when standard intra-process communication mechanism is used. Since the experiments have been run
+for 120 seconds, there is an increase of approximately 60KB per second. However, even considering the initial
+memory usage, it is possible to see how it is affected from the presence of the additional publishers and
+subscriptions needed for intra-process communication. There is a difference of 10MB in Sierra Nevada and of
+33MB in Mont Blanc between standard intra-process communication on and off.
 
 The last experiment show how the current implementation performs in the case that both intra and
 inter-process communication are needed. The test consists of running Sierra Nevada on RaspberryPi 2, and,
 in a separate desktop machine, a single node subscribing to all the available topics coming from Sierra Nevada.
 This use-case is common when using tools such as `rosbag` or `rviz`.
 
-| ROS2 system                   |  IPC     |    DDS        | Latency [us] | CPU [%] | RAM [Mb] |
+| ROS2 system                   |  IPC     |    RMW        | Latency [us] | CPU [%] | RAM [Mb] |
 | -------------                 |  -----   | ------------- | ------------ | ------- | -------- |
 | Sierra Nevada + debug node    |   off    | Fast-RTPS     |      800     |   22    |    50    |
 | Sierra Nevada + debug node    | standard | Fast-RTPS     |     1100     |   35    |  60->65  |

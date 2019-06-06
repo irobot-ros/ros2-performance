@@ -20,20 +20,15 @@
 # Usage example:
 # python3 ros_performance_plot.py <OUTPUT_DIRECTORY> --x subs --y reliability_sub --y2 latency
 
-
-import numpy as np
-import csv
-import sys
-import os
 import argparse
-import re
-from io import StringIO
-from collections import defaultdict, OrderedDict
+import os
+import sys
 
 import matplotlib.pyplot
 import matplotlib.ticker
 
-import common
+import data_utils
+import plot_common
 
 
 def parse_csv(file_path):
@@ -67,12 +62,7 @@ def parse_csv(file_path):
     # moreover this will be required once there is support for different frequencies.
     # TODO: some values (spin and send frequencies, msg_size, duration) should be equal among all lines. The check has been removed now
 
-    # the input is not a csv so I have to convert it
-    with open(file_path, 'r') as file:
-        file_string = file.read()
-    csv_file = re.sub('[ ]+', '\t', file_string)
-    f = StringIO(csv_file)
-    reader = csv.DictReader(f, delimiter='\t')
+    reader = data_utils.parse_csv_dict(file_path)
 
     rows_number = 0
     for row_dict in reader:
@@ -146,7 +136,7 @@ def main(argv):
     __UNCOUNTABLE_DATA__ = ['directory', 'pubs', 'subs', 'spin_frequency', 'send_frequency', 'msg_size', 'separator']
 
     # Get all files in folders in alphabetic order
-    list_dir = common.get_files_from_paths(dir_paths)
+    list_dir = data_utils.get_files_from_paths(dir_paths)
 
     parsed_list = []
     # Collect data from csv files
@@ -160,9 +150,9 @@ def main(argv):
         parsed_list.append(parsed_csv)
 
 
-    data = common.organize_data(parsed_list, x_axis, separator, __UNCOUNTABLE_DATA__)
+    data = plot_common.organize_data(parsed_list, x_axis, separator, __UNCOUNTABLE_DATA__)
 
-    common.plot_function(data, x_axis, y1_axis, y2_axis, separator)
+    plot_common.plot_function(data, x_axis, y1_axis, y2_axis, separator)
 
 
 if __name__ == '__main__':

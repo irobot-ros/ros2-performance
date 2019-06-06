@@ -136,6 +136,10 @@ int main(int argc, char ** argv)
     }
 
     ros2_system.print_latency_all_stats();
+    std::cout << std::endl;
+    std::cout << "System total:" << std::endl;
+    ros2_system.print_latency_total_stats();
+    ros2_system.save_latency_all_stats(latency_file_path);
 
     return 0;
 }

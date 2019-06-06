@@ -309,22 +309,23 @@ void performance_test::System::print_latency_total_stats()
 void performance_test::System::log_latency_all_stats(std::ostream& stream)
 {
     const char separator = ' ';
-    const int name_width = 12;
-    const int num_width = 10;
+    const int wide_space = 15;
+    const int narrow_space = 10;
 
-    stream << std::left << std::setw(name_width) << std::setfill(separator) << "node";
-    stream << std::left << std::setw(name_width) << std::setfill(separator) << "topic";
-    stream << std::left << std::setw(num_width) << std::setfill(separator) << "size[b]";
-    stream << std::left << std::setw(num_width+4) << std::setfill(separator) << "received[#]";
-    stream << std::left << std::setw(num_width) << std::setfill(separator) << "late[#]";
-    stream << std::left << std::setw(num_width+2) << std::setfill(separator) << "too_late[#]";
-    stream << std::left << std::setw(num_width) << std::setfill(separator) << "lost[#]";
-    stream << std::left << std::setw(num_width) << std::setfill(separator) << "mean[us]";
-    stream << std::left << std::setw(num_width) << std::setfill(separator) << "sd[us]";
-    stream << std::left << std::setw(num_width) << std::setfill(separator) << "min[us]";
-    stream << std::left << std::setw(num_width) << std::setfill(separator) << "max[us]";
-    stream << std::left << std::setw(num_width+2) << std::setfill(separator) << "freq[hz]";
-    stream << std::left << std::setw(num_width) << std::setfill(separator) << "duration[s]";
+    // log header
+    stream << std::left << std::setw(wide_space) << std::setfill(separator) << "node";
+    stream << std::left << std::setw(wide_space) << std::setfill(separator) << "topic";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "size[b]";
+    stream << std::left << std::setw(wide_space) << std::setfill(separator) << "received[#]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[#]";
+    stream << std::left << std::setw(wide_space) << std::setfill(separator) << "too_late[#]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[#]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "mean[us]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "sd[us]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "min[us]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "max[us]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "freq[hz]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "duration[s]";
 
     stream << std::endl;
 
@@ -344,19 +345,19 @@ void performance_test::System::log_latency_all_stats(std::ostream& stream)
             total_late += tracker.second.late();
             total_too_late += tracker.second.too_late();
 
-            stream << std::left << std::setw(name_width) << std::setfill(separator) << n->get_name();
-            stream << std::left << std::setw(name_width) << std::setfill(separator) << tracker.first;
-            stream << std::left << std::setw(num_width) << std::setfill(separator) << tracker.second.size();
-            stream << std::left << std::setw(num_width+4) << std::setfill(separator) << tracker.second.received();
-            stream << std::left << std::setw(num_width) << std::setfill(separator) << tracker.second.late();
-            stream << std::left << std::setw(num_width+2) << std::setfill(separator) << tracker.second.too_late();
-            stream << std::left << std::setw(num_width) << std::setfill(separator) << tracker.second.lost();
-            stream << std::left << std::setw(num_width) << std::setfill(separator) << std::round(tracker.second.stat().mean());
-            stream << std::left << std::setw(num_width) << std::setfill(separator) << std::round(tracker.second.stat().stddev());
-            stream << std::left << std::setw(num_width) << std::setfill(separator) << std::round(tracker.second.stat().min());
-            stream << std::left << std::setw(num_width) << std::setfill(separator) << std::round(tracker.second.stat().max());
-            stream << std::left << std::setw(num_width+2) << std::setfill(separator) << std::round(tracker.second.frequency());
-            stream << std::left << std::setw(num_width) << std::setfill(separator) << _experiment_duration_sec;
+            stream << std::left << std::setw(wide_space) << std::setfill(separator) << n->get_name();
+            stream << std::left << std::setw(wide_space) << std::setfill(separator) << tracker.first;
+            stream << std::left << std::setw(narrow_space) << std::setfill(separator) << tracker.second.size();
+            stream << std::left << std::setw(wide_space) << std::setfill(separator) << tracker.second.received();
+            stream << std::left << std::setw(narrow_space) << std::setfill(separator) << tracker.second.late();
+            stream << std::left << std::setw(wide_space) << std::setfill(separator) << tracker.second.too_late();
+            stream << std::left << std::setw(narrow_space) << std::setfill(separator) << tracker.second.lost();
+            stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.stat().mean());
+            stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.stat().stddev());
+            stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.stat().min());
+            stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.stat().max());
+            stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.frequency());
+            stream << std::left << std::setw(narrow_space) << std::setfill(separator) << _experiment_duration_sec;
             stream << std::endl;
         }
     }
@@ -365,14 +366,16 @@ void performance_test::System::log_latency_all_stats(std::ostream& stream)
 void performance_test::System::log_latency_total_stats(std::ostream& stream)
 {
     const char separator = ' ';
-    const int name_width = 12;
+    const int wide_space = 15;
+    const int narrow_space = 10;
 
     unsigned long int total_received = 0;
     unsigned long int total_lost = 0;
     unsigned long int total_late = 0;
     unsigned long int total_too_late = 0;
+    double total_latency = 0;
 
-    // Print all
+    // collect total data
     for (const auto& n : _nodes)
     {
         auto trackers = n->all_trackers();
@@ -382,26 +385,32 @@ void performance_test::System::log_latency_total_stats(std::ostream& stream)
             total_lost += tracker.second.lost();
             total_late += tracker.second.late();
             total_too_late += tracker.second.too_late();
+            total_latency += tracker.second.received() * tracker.second.stat().mean();
         }
     }
 
     double total_lost_percentage = (double)total_lost / (total_received + total_lost) * 100;
     double total_late_percentage = (double)total_late / total_received * 100;
     double total_too_late_percentage = (double)total_too_late / total_received * 100;
+    double average_latency = std::round(total_latency / total_received);
 
-    stream << std::left << std::setw(name_width+4) << std::setfill(separator) << "received[#]";
-    stream << std::left << std::setw(name_width) << std::setfill(separator) << "late[#]";
-    stream << std::left << std::setw(name_width) << std::setfill(separator) << "late[%]";
-    stream << std::left << std::setw(name_width+4) << std::setfill(separator) << "too_late[#]";
-    stream << std::left << std::setw(name_width+4) << std::setfill(separator) << "too_late[%]";
-    stream << std::left << std::setw(name_width) << std::setfill(separator) << "lost[#]";
-    stream << std::left << std::setw(name_width) << std::setfill(separator) << "lost[%]" << std::endl;
+    // log header
+    stream << std::left << std::setw(wide_space) << std::setfill(separator) << "received[#]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "mean[us]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[#]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[%]";
+    stream << std::left << std::setw(wide_space) << std::setfill(separator) << "too_late[#]";
+    stream << std::left << std::setw(wide_space) << std::setfill(separator) << "too_late[%]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[#]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[%]" << std::endl;
 
-    stream << std::left << std::setw(name_width+4) << std::setfill(separator) << total_received;
-    stream << std::left << std::setw(name_width) << std::setfill(separator) << total_late ;
-    stream << std::left << std::setw(name_width) << std::setfill(separator) << std::setprecision(4) << total_late_percentage;
-    stream << std::left << std::setw(name_width+4) << std::setfill(separator) << total_too_late ;
-    stream << std::left << std::setw(name_width+4) << std::setfill(separator) << std::setprecision(4) << total_too_late_percentage;
-    stream << std::left << std::setw(name_width) << std::setfill(separator) << total_lost;
-    stream << std::left << std::setw(name_width) << std::setfill(separator) << std::setprecision(4) << total_lost_percentage << std::endl;
+    // log total values
+    stream << std::left << std::setw(wide_space) << std::setfill(separator) << total_received;
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << average_latency;
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << total_late ;
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::setprecision(4) << total_late_percentage;
+    stream << std::left << std::setw(wide_space) << std::setfill(separator) << total_too_late ;
+    stream << std::left << std::setw(wide_space) << std::setfill(separator) << std::setprecision(4) << total_too_late_percentage;
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << total_lost;
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::setprecision(4) << total_lost_percentage << std::endl;
 }

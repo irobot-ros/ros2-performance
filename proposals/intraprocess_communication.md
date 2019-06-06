@@ -249,22 +249,18 @@ The way in which the `void*` message is "added" to a buffer, depends on the type
    A copy of the message is added to every buffer.
 
 
-##### shared_ptr case
+#### Other message types
 
-1. User calls `Publisher::publish(std::shared_ptr<MessageT> msg)`.
-2. `Publisher::publish(std::shared_ptr<MessageT> msg)` calls
-   `IntraProcessManager::do_intra_process_publish(int pub_id, std::shared_ptr<const void> shared_msg)`.
+The `Publisher::publish(...)` method is overloaded to support different message types.
 
-Then apply steps 3, 4 and 5 as seen above.
+ - `unique_ptr<MessageT>`
+ - `MessageT &`
+ - `MessageT*`
+ - `const shared_ptr<const MessageT>`
 
-The way in which the `std::shared_ptr<const void>` message is "added" to a buffer, depends on the type of the buffer.
-
- - `BufferT = unique_ptr<MessageT>`
-   The buffer receives a copy of `MessageT` and has ownership on it.
- - `BufferT = shared_ptr<const MessageT>`
-   Every buffer receives a shared pointer of the same `MessageT`. No copies are required.
- - `BufferT = MessageT`
-   A copy of the message is added to every buffer.
+The last two of them are actually deprecated since ROS2 Dashing.
+All these methods ends up creating a `unique_ptr`
+and calling the `Publisher::publish(std::unique_ptr<MessageT> msg)` described above.
 
 ### Receiving intra-process messages
 
@@ -291,9 +287,6 @@ The following tables show a recap of when the proposed implementation has to cre
 The notation `@` indicates a memory address where the message is stored, different memory addresses correspond
 to different copies of the message.
 
-<table>
-<tr><th>Publishing unique_ptr </th><th>Publishing shared_ptr</th></tr>
-<tr><td>
 
 | publish\<T\>                     | BufferT                |    Results         |
 | -------------                    |  -----                    | -------------      |
@@ -305,19 +298,6 @@ to different copies of the message.
 | unique_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@2</li><li>@2</li></ul>      |
 | unique_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@2</li><li>@3</li><li>@3</li></ul>      |
 
-</td><td>
-
-| publish\<T\>                     |  BufferT                |    Results         |
-| -------------                  |  -----                    | -------------      |
-| shared_ptr\<MessageT\> @1        |   <ul><li>unique_ptr\<MessageT\></li></ul>   |    <ul><li>@2</li></ul>    |
-| shared_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>unique_ptr\<MessageT\></li></ul>  |    <ul><li>@2</li><li>@3</li></ul>      |
-| shared_ptr\<MessageT\> @1        |   <ul><li>shared_ptr\<MessageT\></li></ul>   |    <ul><li>@1</li></ul>       |
-| shared_ptr\<MessageT\> @1        | <ul><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@1</li></ul>      |
-| shared_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@2</li><li>@1</li></ul>      |
-| shared_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@2</li><li>@1</li><li>@1</li></ul>      |
-| shared_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@2</li><li>@3</li><li>@1</li><li>@1</li></ul>      |
-
-</td></tr> </table>
 
 ### Handling intra and inter-process communications
 
@@ -384,17 +364,22 @@ The following steps are identical to steps 3, 4 and 5 applied when publishing on
    The `rcl_guard_condition_t` member of `IPCWaitable` of each `Subscription` is triggered (this wakes up
    `rclcpp::spin`).
 
-Note that in this case, the number of copies of the message required is the same as when publishing a `std::shared_ptr<const MessageT>`.
-
 After the intra-process publication, the inter-process one takes place.
 
 7. `Publisher::publish(std::unique_ptr<MessageT> msg)` calls
    `Publisher::do_inter_process_publish(const MessageT * msg_ptr)`.
    Where `MessageT * msg_ptr = shared_msg.get()`.
 
-This does not require any further message copies compared to the only intra-process case.
+The difference from the previous case is that here a `std::shared_ptr<const void>` is being "added" to the
+buffers. Note that this `std::shared_ptr` has been just created from a `std::unique_ptr` and its only used by
+the `IntraProcessManager` and by the RMW. The main ROS2 application has not access to it.
 
-The same applies when calling `Publisher::publish(std::shared_ptr<MessageT> msg)`.
+ - `BufferT = unique_ptr<MessageT>`
+   The buffer receives a copy of `MessageT` and has ownership on it.
+ - `BufferT = shared_ptr<const MessageT>`
+   Every buffer receives a shared pointer of the same `MessageT`. No copies are required.
+ - `BufferT = MessageT`
+   A copy of the message is added to every buffer.
 
 
 ##### QoS features
@@ -468,7 +453,7 @@ A detailed description and the source code for these application and topologies 
 [here](https://github.com/irobot-ros/ros2-performance/tree/master/performances/benchmark).
 
 Note that, differently from the previous experiment where the ownership of the messages was moved from the
-publisher to the subscription, here nodes use `const std::shared_ptr<const MessageT>` messages.
+publisher to the subscription, here nodes use `const std::shared_ptr<const MessageT>` messages for the callbacks.
 
 Performance evaluation on a laptop computer with Intel i7-6600U CPU @ 2.60GHz.
 

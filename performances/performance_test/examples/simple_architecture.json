@@ -22,6 +22,14 @@
             "clients": [
                 {"service_name": "service_2", "srv_type": "10b", "period_ms": 10}
               ]
+        },
+
+        {
+            "node_name": "multi_node",
+            "subscribers":[
+                {"topic_name":"topic_1", "msg_type":"10b"}
+             ],
+             "number": 5
         }
     ]
  }

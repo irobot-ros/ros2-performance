@@ -116,7 +116,9 @@ class TemplateFactory {
 
     private:
 
-        std::shared_ptr<Node> create_node_from_json(const nlohmann::json node_json);
+        std::shared_ptr<Node> create_node_from_json(const nlohmann::json node_json, std::string suffix = "");
+
+        void create_node_endpoints_from_json(std::shared_ptr<Node> node, const nlohmann::json node_json);
 
         void add_periodic_publisher_from_json(std::shared_ptr<Node> node, const nlohmann::json pub_json);
 

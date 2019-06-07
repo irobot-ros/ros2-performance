@@ -348,54 +348,75 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
 
     for (auto n_json : nodes_json)
     {
-        auto node = create_node_from_json(n_json);
 
-        if (n_json.find("publishers") != n_json.end()) {
-            // if there is at least 1 publisher, add each of them
-            for(auto p_json : n_json["publishers"]){
-                this->add_periodic_publisher_from_json(node, p_json);
+        if (n_json.find("number") != n_json.end())
+        {
+            int number_of_nodes = n_json["number"];
+
+            for(int node_number = 1 ; node_number <= number_of_nodes ; ++node_number)
+            {
+                std::string node_name_suffix = '_' + std::to_string(node_number);
+                auto node = create_node_from_json(n_json, node_name_suffix);
+                create_node_endpoints_from_json(node, n_json);
+                nodes_vec.push_back(node);
             }
         }
-
-        if (n_json.find("subscribers") != n_json.end()) {
-            // if there is at least 1 subscriber, add each of them
-            for(auto s_json : n_json["subscribers"]){
-                this->add_subscriber_from_json(node, s_json);
-            }
+        else
+        {
+            auto node = create_node_from_json(n_json);
+            create_node_endpoints_from_json(node, n_json);
+            nodes_vec.push_back(node);
         }
 
-        if (n_json.find("clients") != n_json.end()) {
-            // if there is at least 1 client, add each of them
-            for(auto c_json : n_json["clients"]){
-                this->add_periodic_client_from_json(node, c_json);
-            }
-        }
-
-        if (n_json.find("servers") != n_json.end()) {
-            // if there is at least 1 server, add each of them
-            for(auto s_json : n_json["servers"]){
-                this->add_server_from_json(node, s_json);
-            }
-        }
-
-        nodes_vec.push_back(node);
     }
-
 
     return nodes_vec;
 }
 
 
 std::shared_ptr<performance_test::Node> performance_test::TemplateFactory::create_node_from_json(
-    const json node_json)
+    const json node_json, std::string suffix)
 {
 
-    std::string node_name = node_json["node_name"];
+    auto node_name = std::string(node_json["node_name"]) + suffix;
     auto node = this->create_node(node_name, _use_ipc, _verbose_mode, _ros2_namespace);
 
     return node;
 }
 
+void performance_test::TemplateFactory::create_node_endpoints_from_json(
+    std::shared_ptr<performance_test::Node> node, const json node_json)
+{
+
+    if (node_json.find("publishers") != node_json.end()) {
+        // if there is at least 1 publisher, add each of them
+        for(auto p_json : node_json["publishers"]){
+            this->add_periodic_publisher_from_json(node, p_json);
+        }
+    }
+
+    if (node_json.find("subscribers") != node_json.end()) {
+        // if there is at least 1 subscriber, add each of them
+        for(auto s_json : node_json["subscribers"]){
+            this->add_subscriber_from_json(node, s_json);
+        }
+    }
+
+    if (node_json.find("clients") != node_json.end()) {
+        // if there is at least 1 client, add each of them
+        for(auto c_json : node_json["clients"]){
+            this->add_periodic_client_from_json(node, c_json);
+        }
+    }
+
+    if (node_json.find("servers") != node_json.end()) {
+        // if there is at least 1 server, add each of them
+        for(auto s_json : node_json["servers"]){
+            this->add_server_from_json(node, s_json);
+        }
+    }
+
+}
 
 void performance_test::TemplateFactory::add_periodic_publisher_from_json(
     std::shared_ptr<performance_test::Node> node, const json pub_json)

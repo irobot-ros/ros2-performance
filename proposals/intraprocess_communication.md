@@ -228,7 +228,7 @@ retrieve messages from the `Transient Local` `Publisher`s.
 
 ### Publishing only intra-process
 
-##### unique_ptr case
+##### Publishing unique_ptr
 
 1. User calls `Publisher::publish(std::unique_ptr<MessageT> msg)`.
 2. `Publisher::publish(std::unique_ptr<MessageT> msg)` calls
@@ -255,7 +255,7 @@ The way in which the `void*` message is "added" to a buffer, depends on the type
    A copy of the message is added to every buffer.
 
 
-#### Other message types
+#### Publishing other message types
 
 The `Publisher::publish(...)` method is overloaded to support different message types.
 
@@ -265,7 +265,7 @@ The `Publisher::publish(...)` method is overloaded to support different message 
  - `const shared_ptr<const MessageT>`
 
 The last two of them are actually deprecated since ROS2 Dashing.
-All these methods ends up creating a `unique_ptr`
+All these methods are unchanged with respect to the current implementation: they end up creating a `unique_ptr`
 and calling the `Publisher::publish(std::unique_ptr<MessageT> msg)` described above.
 
 ### Receiving intra-process messages
@@ -285,24 +285,6 @@ its related `Subscription`.
 4. The `AnySubscriptionCallback::dispatch_intra_process(...)` method triggers the associated callback.
    Note that in this step, if the type of the buffer is a smart pointer one, no message copies occurr, as
    ownership has been already taken into account when pushing a message into the queue.
-
-
-### Number of message copies
-
-The following tables show a recap of when the proposed implementation has to create a new copy of a message.
-The notation `@` indicates a memory address where the message is stored, different memory addresses correspond
-to different copies of the message.
-
-
-| publish\<T\>                     | BufferT                |    Results         |
-| -------------                    |  -----                    | -------------      |
-| unique_ptr\<MessageT\> @1        |   <ul><li>unique_ptr\<MessageT\></li></ul>   |    <ul><li>@1</li></ul>       |
-| unique_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>unique_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@2</li></ul>      |
-| unique_ptr\<MessageT\> @1        |   <ul><li>shared_ptr\<MessageT\></li></ul>   |    <ul><li>@1</li></ul>       |
-| unique_ptr\<MessageT\> @1        | <ul><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@1</li></ul>      |
-| unique_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@2</li></ul>      |
-| unique_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@2</li><li>@2</li></ul>      |
-| unique_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@2</li><li>@3</li><li>@3</li></ul>      |
 
 
 ### Handling intra and inter-process communications
@@ -388,7 +370,61 @@ the `IntraProcessManager` and by the RMW. The main ROS2 application has not acce
    A copy of the message is added to every buffer.
 
 
-##### QoS features
+### Number of message copies
+
+
+In the previous sections, it has been briefly described how a message can be added to a buffer, i.e. if it is
+necessary to copy it or not.
+
+Here some details about how this proposal adresses some more complex cases.
+
+As previously stated, regardless of the data-type published by the user, the flow always goes towards
+`Publisher::publish(std::unique_ptr<MessageT> msg)`.
+
+The `std::unique_ptr<MessageT> msg` is passed to the `IntraProcessManger` that decides how to add this message
+to the buffers. The decision is taken looking at the number and the type, i.e. if they want ownership on
+messages or not, of the `Subscription`s.
+
+If all the `Subscription`s want ownership of the message, then a total of `N-1` copies of the message are
+required, where `N` is the number of `Subscription`s. The last one will receive ownership of the published
+message, thus saving a copy.
+
+If none of the `Subscription`s want ownership of the message, `0` copies are required.
+It is possible to convert the message into a `std::shared_ptr<MessageT> msg` and to add it to every buffer.
+
+If there is 1 `Subscription` that does not want ownership while the others want it, the situation is
+equivalent to the case of everyone requesting ownership:`N-1` copies of the message are required. As before
+the last `Subscription` will receive ownership.
+
+If there is more than 1 `Subscription` that do not want ownership while the others want it, a total of `M`
+copies of the message are required, where `M` is the number of `Subscription`s that want ownership. `1` copy
+will be shared among all the `Subscription`s that do not want ownership, while `M-1` copies are for the others.
+
+
+As in the current implementation, if both inter and intra-process communication are needed, the
+`std::unique_ptr<MessageT> msg` will be converted into a `std::shared_ptr<MessageT> msg` and passed
+respectively to the `do_intra_process_publish` and `do_inter_process_publish` functions.
+
+A copy of the message will be given to all the `Subscription`s requesting ownership, while the others can
+copy the published shared pointer.
+
+The following tables show a recap of when the proposed implementation has to create a new copy of a message.
+The notation `@` indicates a memory address where the message is stored, different memory addresses correspond
+to different copies of the message.
+
+
+| publish\<T\>                     | BufferT                |    Results         |
+| -------------                    |  -----                    | -------------      |
+| unique_ptr\<MessageT\> @1        |   <ul><li>unique_ptr\<MessageT\></li></ul>   |    <ul><li>@1</li></ul>       |
+| unique_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>unique_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@2</li></ul>      |
+| unique_ptr\<MessageT\> @1        |   <ul><li>shared_ptr\<MessageT\></li></ul>   |    <ul><li>@1</li></ul>       |
+| unique_ptr\<MessageT\> @1        | <ul><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@1</li></ul>      |
+| unique_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@2</li></ul>      |
+| unique_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@2</li><li>@2</li></ul>      |
+| unique_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@2</li><li>@3</li><li>@3</li></ul>      |
+
+
+### QoS features
 
 The proposed implementation can handle all the different QoS.
 

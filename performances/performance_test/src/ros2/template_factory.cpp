@@ -357,14 +357,14 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
             {
                 std::string node_name_suffix = '_' + std::to_string(node_number);
                 auto node = create_node_from_json(n_json, node_name_suffix);
-                create_node_endpoints_from_json(node, n_json);
+                create_node_entities_from_json(node, n_json);
                 nodes_vec.push_back(node);
             }
         }
         else
         {
             auto node = create_node_from_json(n_json);
-            create_node_endpoints_from_json(node, n_json);
+            create_node_entities_from_json(node, n_json);
             nodes_vec.push_back(node);
         }
 
@@ -384,7 +384,7 @@ std::shared_ptr<performance_test::Node> performance_test::TemplateFactory::creat
     return node;
 }
 
-void performance_test::TemplateFactory::create_node_endpoints_from_json(
+void performance_test::TemplateFactory::create_node_entities_from_json(
     std::shared_ptr<performance_test::Node> node, const json node_json)
 {
 

@@ -91,7 +91,7 @@ public:
 
     void set_system_info(int pubs, int subs, float frequency, size_t msg_size)
     {
-        if (_log){
+        if (_log == true){
             std::cout<<"[ResourceUsageLogger]: You have to set system info before starting the logger!"<<std::endl;
             return;
         }

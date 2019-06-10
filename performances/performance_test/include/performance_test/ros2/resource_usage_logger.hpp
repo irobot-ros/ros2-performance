@@ -44,6 +44,9 @@ public:
     {
         _pid = getpid();
         _pagesize = getpagesize();
+
+        _log = false;
+        _done = true;
     };
 
     void start(std::chrono::milliseconds period = std::chrono::milliseconds(1000))

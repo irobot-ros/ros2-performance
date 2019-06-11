@@ -66,8 +66,8 @@ In the following some experimental evidences are quickly presented.
 ##### Memory requirement
 
 When a `Node` creates a `Publisher` or a `Subscription` to a topic `/MyTopic`, it will also create an
-additional one to the topic `/MyTopic/_intra`. The second topic is the one where meta-messages travel. Our
-[experimental results](https://github.com/irobot-ros/ros2-performance/tree/master/performances/experiments/crystal/pub_sub_memory#adding-more-nodes-x86_64)
+additional one to the topic `/MyTopic/_intra`. The second topic is the one where meta-messages travel.
+Our [experimental results](https://github.com/irobot-ros/ros2-performance/tree/master/performances/experiments/crystal/pub_sub_memory#adding-more-nodes-x86_64)
 show that creating a `Publisher` or a `Subscription` has a non-negligible memory cost.
 
 Moreover, when using the default RMW implementation, Fast-RTPS, the memory consumed by a ROS2 application
@@ -157,72 +157,84 @@ There are three possible data-types that can be stored in the buffer:
 - `shared_ptr<const MessageT>`
 - `unique_ptr<MessageT>`
 
-The choice is left to the user. By default a `Subscription` will use the type between `shared_ptr<constMessageT>`
-and `unique_ptr<MessageT>` that better fits with its callback type.
+The choice of the buffer data-type is controlled through an additional field in the `SubscriptionOptions`. The
+default value for this option is `CallbackDefault`, which corresponds to selecting the type between
+`shared_ptr<constMessageT>` and `unique_ptr<MessageT>` that better fits with its callback type. This is
+deduced looking at the output of `AnySubscriptionCallback::use_take_shared_method()`.
 
 If the history QoS is set to `keep all`, the buffers are dynamically allocated. On the other hand, if the
 history QoS is set to `keep last`, the buffers have a size equal to the depth of the history and they act as
 ring buffers (overwriting the oldest data when trying to push while its full). Ring buffers are not only used
 in `Subscription`s but also in each `Publisher` with a durability QoS of type `transient local`.
 
-The `IntraProcessManager` class has access to all the ring buffers and has also information about which `Publisher`s and
-`Subscription`s are connected to each other.
+A new class derived from `rclcpp::Waitable` is defined, denominated `SubscriptionIntraProcessWaitable`.
+An object of this type is created by each `Subscription` with intra-process communication enabled and it is used
+to notify the `Subscription` that a new message has been pushed into its ring buffer and that it needs to be
+processed.
 
-A new class derived from `rclcpp::Waitable` is defined, denominated `IntraProcessWaitable`. An object of this type is
-created by each `Subscription` with intra-process communication enabled and it is used to notify the
-`Subscription` that a new message has been pushed into its ring buffer and that it needs to be processed.
+The `IntraProcessManager` class stores information about each `Publisher` and each `Subscription`, together with
+pointers to these structures.
+This allows to know which entities can communicate with each other and to have access to methods for pushing
+data into the buffers.
 
 The decision whether to publish inter-process, intra-process or both is made every time the
 `Publisher::publish()` method is called. For example, if the `NodeOptions::use_intra_process_comms_` is
 enabled and all the known `Subscription`s are in the same process, then the message is only published
 intra-process. This remains identical to the current implementation.
 
-An initial, simplified implementation of the new intra-process communication is hosted on [GitHub
-here](https://github.com/alsora/rclcpp/tree/alsora/new_ipc_proposal).
-
 ### Creating a publisher
 
 1. User calls `Node::create_publisher<MessageT>(...)`.
-2. If intra-process communication is enabled, this boils down to
+2. This boils down to `NodeTopics::create_publisher(...)`, where a `Publisher` is created through the factory.
+3. Here, if intra-process communication is enabled, eventual intra-process related variables are initialized through the
+   `Publisher::SetupIntraProcess(...)` method.
+4. Then the `IntraProcessManager` is notified about the existence of the new `Publisher` through the method
    `IntraProcessManager::add_publisher(PublisherBase::SharedPtr publisher, PublisherOptions options)`.
-3. `IntraProcessManager::add_publisher(...)` stores the `Publisher` information in an internal structure of
-   type `PublisherInfo`. The structure contains information about the `Publisher` such as its QoS. If
-   the `Publisher` QoS is set to `transient local`, then the structure will also contain a ring buffer of the
-   size specified by the depth from the QoS. The `IntraProcessManager` contains a
-   `std::map<std::string, std::vector<PublisherInfo>>` object where
-   it is possible to retrieve all the `PublisherInfo` related to a specific topic.
-   The function returns an integer `pub_id` that allows to retrieve the `PublisherInfo` and that is stored
-   within the `Publisher`.
+5. `IntraProcessManager::add_publisher(...)` stores the `Publisher` information in an internal structure of
+   type `PublisherInfo`. The structure contains information about the `Publisher`, such as its QoS and its topic name, and
+   a weak pointer for the `Publisher` object.
+   An `uint64_t pub_id` unique within the `rclcpp::context` is assigned to the `Publisher`.
+   The `IntraProcessManager` contains a `std::map<uint64_t, PublisherInfo>` object where
+   it is possible to retrieve the `PublisherInfo` of a specific `Publisher` given its id.
+   The function returns the `pub_id`, that is stored within the `Publisher`.
+
+If the `Publisher` QoS is set to `transient local`, then the `Publisher::SetupIntraProcess(...)` method will also create
+a ring buffer of the size specified by the depth from the QoS.
 
 ### Creating a subscription
 
 1. User calls `Node::create_subscription<MessageT>(...)`.
-2. If intra-process communication is enabled, this boils down to
+2. This boils down to `NodeTopics::create_subscription(...)`, where a `Subscription` is created through the factory.
+3. Here, if intra-process communication is enabled, intra-process related variables are initialized through the
+   `Subscription::SetupIntraProcess(...)` method. The most relevant ones being the ring buffer and the waitable object.
+4. Then the `IntraProcessManager` is notified about the existence of the new `Subscription` through the method
    `IntraProcessManager::add_subscription(SubscriptionBase::SharedPtr subscription, SubscriptionOptions options)`.
-3. `IntraProcessManager::add_subscription(...)` stores the `Subscription` information in an internal structure
-   of type `SubscriptionInfo`. The structure will always contain a ring buffer of the size specified by
-   the depth from the QoS. The `IntraProcessManager` contains a
-   `std::map<std::string, std::vector<SubscriptionInfo>>` object where
-   it is possible to retrieve all the `SubscriptionInfo` related to a specific topic.
-4. If intra-process communication is enabled, `Node::create_subscription<MessageT>(...)` also creates a new
-   `IntraProcessWaitable : Waitable` object associated with the new `Subscription`. The `IntraProcessWaitable` needs to have
-   access to the ring buffer and to the `Subscription::any_callback` function pointer. It has an associated
-   `rcl_guard_condition_t` object that can be triggered from the `IntraProcessManager`.
-5. The new `IntraProcessWaitable` object is added to the list of Waitable interfaces of the node through
+5. `IntraProcessManager::add_subscription(...)` stores the `Subscription` information in an internal structure
+   of type `SubscriptionInfo`. The structure contains information about the `Subscription`, such as its QoS, its topic name
+   and the type of its callback, and a weak pointer for the `Subscription` object.
+   An `uint64_t sub_id` unique within the `rclcpp::context` is assigned to the `Subscription`.
+   The `IntraProcessManager` contains a `std::map<uint64_t, SubscriptionInfo>` object where
+   it is possible to retrieve the `SubscriptionInfo` of a specific `Subscription` given its id.
+   There is also an additional structure `std::map<uint64_t, std::pair<std::set<uint64_t>, std::set<uint64_t>>>`.
+   The key of the map is the unique id of a `Publisher`. The value of the map is a pair of sets of ids. These
+   sets contain the ids of the `Subscription`s that can communicate with the `Publisher`. We have two
+   different sets because we want to differentiate the `Subscription`s depending on whether they request
+   ownership of the received messages or not.
+6. The `SubscriptionIntraProcessWaitable` object is added to the list of Waitable interfaces of the node through
    `node_interfaces::NodeWaitablesInterface::add_waitable(...)`.
 
 The following steps will be executed if the `Subscription` QoS is set to `Transient Local`.
 In this case the `IntraProcessManager` has to check if the recently created `Subscription` is a late-joiner, and in that case,
 retrieve messages from the `Transient Local` `Publisher`s.
 
-6. Call `IntraProcessManager::find_matching_publishers(SubscriptionInfo sub_info)` that returns a list
+7. Call `IntraProcessManager::find_matching_publishers(SubscriptionInfo sub_info)` that returns a list
    of stored `PublisherInfo` that have a QoS compatible for sending messages to this new `Subscription`.
-7. Check if any of these `Publisher` have a transient local QoS. If this is the case, they will have a ring
+8. Check if any of these `Publisher` have a transient local QoS. If this is the case, they will have a ring
    buffer.
-8. Copy messages from all the ring buffers found into the ring buffer of the new `Subscription`. **TODO:** are
+9. Copy messages from all the ring buffers found into the ring buffer of the new `Subscription`. **TODO:** are
    there any constraints on the order in which old messages have to be retrieved? (i.e. 1 publisher at the
    time; all the firsts of each publisher, then all the seconds ...).
-9. If at least 1 message was present, trigger the `rcl_guard_condition_t` member of the `IntraProcessWaitable`
+10. If at least 1 message was present, trigger the `rcl_guard_condition_t` member of the `SubscriptionIntraProcessWaitable`
    associated with the new `Subscription`.
 
 
@@ -241,7 +253,7 @@ retrieve messages from the `Transient Local` `Publisher`s.
 4. If the `Publisher` QoS is set to transient local, its `PublisherInfo` is also added to the list.
 5. The message is "added" to the ring buffer of all the items in the list (so also the `Publisher` itself
    receives one if set to transient local).
-   The `rcl_guard_condition_t` member of `IntraProcessWaitable` of each `Subscription` is triggered (this wakes up
+   The `rcl_guard_condition_t` member of `SubscriptionIntraProcessWaitable` of each `Subscription` is triggered (this wakes up
    `rclcpp::spin`).
 
 The way in which the `void*` message is "added" to a buffer, depends on the type of the buffer.
@@ -274,13 +286,13 @@ As previously described, whenever messages are added to the ring buffer of a `Su
 variable specific to the `Subscription` is triggered. This condition variable has been added to the `Node` waitset
 so it is being monitored by the `rclcpp::spin`
 
-Remember that the `IntraProcessWaitable` object has access to the ring buffer and to the callback function pointer of
+Remember that the `SubscriptionIntraProcessWaitable` object has access to the ring buffer and to the callback function pointer of
 its related `Subscription`.
 
-1. The guard condition linked with the `IntraProcessWaitable` object awakes `rclcpp::spin`.
-2. The `IntraProcessWaitable::is_ready()` condition is checked. This has to ensure that the ring buffer is not empty.
-3. The `IntraProcessWaitable::execute()` function is triggered. Here the first message is extracted from the buffer and
-   then the `IntraProcessWaitable` calls the `AnySubscriptionCallback::dispatch_intra_process(...)` method.
+1. The guard condition linked with the `SubscriptionIntraProcessWaitable` object awakes `rclcpp::spin`.
+2. The `SubscriptionIntraProcessWaitable::is_ready()` condition is checked. This has to ensure that the ring buffer is not empty.
+3. The `SubscriptionIntraProcessWaitable::execute()` function is triggered. Here the first message is extracted from the buffer and
+   then the `SubscriptionIntraProcessWaitable` calls the `AnySubscriptionCallback::dispatch_intra_process(...)` method.
    There are different implementations for this method, depending on the data-type stored in the buffer.
 4. The `AnySubscriptionCallback::dispatch_intra_process(...)` method triggers the associated callback.
    Note that in this step, if the type of the buffer is a smart pointer one, no message copies occurr, as
@@ -349,7 +361,7 @@ The following steps are identical to steps 3, 4 and 5 applied when publishing on
 5. If the `Publisher` QoS is set to transient local, its `PublisherInfo` is also added to the list.
 6. The message is "added" to the ring buffer of all the items in the list (so also the `Publisher` itself
    receives one if set to transient local).
-   The `rcl_guard_condition_t` member of `IntraProcessWaitable` of each `Subscription` is triggered (this wakes up
+   The `rcl_guard_condition_t` member of `SubscriptionIntraProcessWaitable` of each `Subscription` is triggered (this wakes up
    `rclcpp::spin`).
 
 After the intra-process publication, the inter-process one takes place.
@@ -441,9 +453,12 @@ The proposed implementation can handle all the different QoS.
 
 ## Perfomance evaluation
 
+The implementation of the presented new intra-process communication mechanism is hosted on [GitHub
+here](https://github.com/alsora/rclcpp/tree/alsora/new_ipc_proposal).
+
 This section contains experimental results obtained comparing the current intra-process communication
-implementation with an initial implementation of the proposed one. The tests span multiple ROS2 applications
-and use-cases and have been validated on different machines.
+implementation with an initial implementation of the proposed one.
+The tests span multiple ROS2 applications and use-cases and have been validated on different machines.
 
 All the following experiments have been run using the ROS2 Dashing and with `-O2`
 optimization enabled.

@@ -226,12 +226,11 @@ retrieve messages from the `Transient Local` `Publisher`s.
 
 7. Call `IntraProcessManager::find_matching_publishers(SubscriptionInfo sub_info)` that returns a list
    of stored `PublisherInfo` that have a QoS compatible for sending messages to this new `Subscription`.
-8. Check if any of these `Publisher` have a transient local QoS. If this is the case, they will have a ring
-   buffer.
-9. Copy messages from all the ring buffers found into the ring buffer of the new `Subscription`. **TODO:** are
+   These will be all `Transient Local` `Publisher`s, so they have a ring buffer.
+8. Copy messages from all the ring buffers found into the ring buffer of the new `Subscription`. **TODO:** are
    there any constraints on the order in which old messages have to be retrieved? (i.e. 1 publisher at the
    time; all the firsts of each publisher, then all the seconds ...).
-10. If at least 1 message was present, trigger the `rcl_guard_condition_t` member of the `SubscriptionIntraProcessWaitable`
+9. If at least 1 message was present, trigger the `rcl_guard_condition_t` member of the `SubscriptionIntraProcessWaitable`
    associated with the new `Subscription`.
 
 

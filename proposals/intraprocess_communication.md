@@ -100,11 +100,16 @@ In this case, the `Publisher` in the first process will publish both inter and i
 intra-process communication meta-message will only be delivered to the `Subscription` within the same process
 through the `/MyTopic/_intra` topic. However, the real message used for inter-process communication will be
 handed to the RMW for inter-process publishing.
+
 Currently the RMW can understand whether a `Publisher` and a `Subscription` are in the same process or context or node.
 However, it does not know whether the entities have intra-process communication enabled or not.
-Consequently, the real message will be delivered to both `Subscription`s present in the system. The
-`Subscription` that is in the same process as the `Publisher` will actually discard the message, but it will
-be able to do that only after receiving and deserializing it.
+The consequence is that, with the current RMW implementation, the real message will be delivered to both
+`Subscription`s present in the system. The `Subscription` that is in the same process as the `Publisher` will
+actually discard the message, but it will be able to do that after receiving and deserializing it.
+
+The DDS specification provides ways for potentially fixing this problem, i.e. with the `ignore_participant`,
+`ignore_publication` and `ignore_subscription`operations. Each of these can be used to ignore a remote
+participant or entity, allowing to behave as that remote participant did not exist.
 
 ##### Scenario 2
 
@@ -119,21 +124,13 @@ receive both the meta-message and the real message, and will discard the latter.
 
 However, this time there is an additional problem: the meta-message is sent through the RMW on the
 `/MyTopic/_intra` topic. Also, the `Subscription` in the second process will be listening to that topic. This
-results in that the meta-message will be delivered to both `Subscription`s. The one in the second topic will
-still try to use the meta-message to retrieve something from the `IntraProcessManager`. In this simple
-scenario it will not be able to find anything and this will only result in a warning message. However, if some
-`Publisher` with intra-process communication enabled happens to be present also in that process, then the
-`Subscription` will end up extracting something from the ring buffer. This is due to the fact that the id of
-the publisher contained in the meta-message is just an integer value guaranteed to be unique only within the
-process that generated it.
+results in that the meta-message will be delivered to both `Subscription`s.
 
-This situation has two possible outcomes: if the `Publisher` from which the message is extracted has the same
-message type as the `Subscription`, then the problem will not be noticed, even if the `Subscription` is taking
-a message that can potentially be old or destinated to a different consumer. On the other hand, if the
-`Publisher` from which the message is extracted has a different message type from the one of the
-`Subscription`, the `static_cast` operations performed by the `IntraProcessManager` will cause an access
-violation error.
+Note that the `Subscription` in the second process will discard the meta-message since it does not come from
+any `Publisher` within the same context.
 
+The overhead caused by the additional publication of meta-messages can be potentially reduced by appending to
+the intra-process topic names a process specific identifier.
 
 ## Proposed implementation
 
@@ -193,7 +190,7 @@ intra-process. This remains identical to the current implementation.
 5. `IntraProcessManager::add_publisher(...)` stores the `Publisher` information in an internal structure of
    type `PublisherInfo`. The structure contains information about the `Publisher`, such as its QoS and its topic name, and
    a weak pointer for the `Publisher` object.
-   An `uint64_t pub_id` unique within the `rclcpp::context` is assigned to the `Publisher`.
+   An `uint64_t pub_id` unique within the `rclcpp::Context` is assigned to the `Publisher`.
    The `IntraProcessManager` contains a `std::map<uint64_t, PublisherInfo>` object where
    it is possible to retrieve the `PublisherInfo` of a specific `Publisher` given its id.
    The function returns the `pub_id`, that is stored within the `Publisher`.
@@ -212,7 +209,7 @@ a ring buffer of the size specified by the depth from the QoS.
 5. `IntraProcessManager::add_subscription(...)` stores the `Subscription` information in an internal structure
    of type `SubscriptionInfo`. The structure contains information about the `Subscription`, such as its QoS, its topic name
    and the type of its callback, and a weak pointer for the `Subscription` object.
-   An `uint64_t sub_id` unique within the `rclcpp::context` is assigned to the `Subscription`.
+   An `uint64_t sub_id` unique within the `rclcpp::Context` is assigned to the `Subscription`.
    The `IntraProcessManager` contains a `std::map<uint64_t, SubscriptionInfo>` object where
    it is possible to retrieve the `SubscriptionInfo` of a specific `Subscription` given its id.
    There is also an additional structure `std::map<uint64_t, std::pair<std::set<uint64_t>, std::set<uint64_t>>>`.
@@ -244,8 +241,7 @@ retrieve messages from the `Transient Local` `Publisher`s.
 
 1. User calls `Publisher::publish(std::unique_ptr<MessageT> msg)`.
 2. `Publisher::publish(std::unique_ptr<MessageT> msg)` calls
-   `IntraProcessManager::do_intra_process_publish(int pub_id, void* uncasted_msg)`, where
-   `void* uncasted_msg = msg.release()`.
+   `IntraProcessManager::do_intra_process_publish(int pub_id, std::unique_ptr<MessageT> msg)`.
 3. `IntraProcessManager::do_intra_process_publish(...)` uses the `int pub_id` to select the
    `PublisherInfo` structure associated with this publisher. Then it calls
    `IntraProcessManager::find_matching_subscriptions(PublisherInfo pub_info)`. This returns a list of
@@ -256,7 +252,7 @@ retrieve messages from the `Transient Local` `Publisher`s.
    The `rcl_guard_condition_t` member of `SubscriptionIntraProcessWaitable` of each `Subscription` is triggered (this wakes up
    `rclcpp::spin`).
 
-The way in which the `void*` message is "added" to a buffer, depends on the type of the buffer.
+The way in which the `std::unique_ptr<MessageT>` message is "added" to a buffer, depends on the type of the buffer.
 
  - `BufferT = unique_ptr<MessageT>`
    The buffer receives a copy of `MessageT` and has ownership on it. For the last buffer, a copy is not
@@ -284,7 +280,7 @@ and calling the `Publisher::publish(std::unique_ptr<MessageT> msg)` described ab
 
 As previously described, whenever messages are added to the ring buffer of a `Subscription`, a condition
 variable specific to the `Subscription` is triggered. This condition variable has been added to the `Node` waitset
-so it is being monitored by the `rclcpp::spin`
+so it is being monitored by the `rclcpp::spin`.
 
 Remember that the `SubscriptionIntraProcessWaitable` object has access to the ring buffer and to the callback function pointer of
 its related `Subscription`.
@@ -367,12 +363,12 @@ The following steps are identical to steps 3, 4 and 5 applied when publishing on
 After the intra-process publication, the inter-process one takes place.
 
 7. `Publisher::publish(std::unique_ptr<MessageT> msg)` calls
-   `Publisher::do_inter_process_publish(const MessageT * msg_ptr)`.
-   Where `MessageT * msg_ptr = shared_msg.get()`.
+   `Publisher::do_inter_process_publish(const MessageT & inter_process_msg)`.
+   Where `MessageT inter_process_msg = *shared_msg`.
 
-The difference from the previous case is that here a `std::shared_ptr<const void>` is being "added" to the
+The difference from the previous case is that here a `std::shared_ptr<const MessageT>` is being "added" to the
 buffers. Note that this `std::shared_ptr` has been just created from a `std::unique_ptr` and its only used by
-the `IntraProcessManager` and by the RMW. The main ROS2 application has not access to it.
+the `IntraProcessManager` and by the RMW. The user application has not access to it.
 
  - `BufferT = unique_ptr<MessageT>`
    The buffer receives a copy of `MessageT` and has ownership on it.
@@ -565,18 +561,21 @@ the same process when it is required to publish also inter process, potentially 
 overhead with respect to the only intra-process case.
 
 
-## Open Issues
+## Open Issues and Future Works
 
 There are some open issues that are not addressed neither on the current implementation nor on the
 proposed one.
 
  - The proposal does not take into account the problem of having a queue with twice the size when both inter
-   and intra-process communication are used. A node with a history depth of 10 will be able to store up to
-   20 messages without processing them (10 intra-process and 10 inter-process). This issue
-   is also present in the current implementation, since each `Subscription` is doubled.
+   and intra-process communication are used. A `Publisher` or a `Subscription` with a history depth of 10 will
+   be able to store up to 20 messages without processing them (10 intra-process and 10 inter-process). This
+   issue is also present in the current implementation, since each `Subscription` is doubled.
 
  - The proposal does not allow to handle the scenario in which a `transient local` `Publisher` has only
    intra-process `Subscription`s when it is created, but, eventually, a `transient local` `Subscription` in a
    different process joins. Initially, published messages are not passed to the middleware, since all the
    `Subscription`s are in the same process. This means that the middleware is not able to store old messages
    for eventual late-joiners.
+
+ - The intra-process communication mechanism can be further improved by allowing similar `Subscription` to
+   share the same ring buffer, thus reducing the number of pointer copies needed.

@@ -42,6 +42,14 @@ depending on the frequency at which messages are published and callbacks are tri
 meta-message processed from the `Subscription` does not correspond anymore to a valid message in the ring
 buffer, because it has been already overwritten.
 
+Moreover, even if the use of meta-messages allows to deleagate the enforcement of other QoS settings to the
+RMW layer, every time a message is added to the ring buffer the `IntraProcessManager` has to compute how many
+`Subscription`s will need it. This potentially breaks the advantage of having the meta-messages. For example,
+the `IntraProcessManager` has to take into account that potentially all the known `Subscription`s will take
+the message, regardless of their reliability QoS. If a `Publisher` or a `Subscription` are best-effort, they
+may not receive the meta-message thus preventing the `IntraProcessManager` from releasing the memory in the
+buffer.
+
 More details [here](https://index.ros.org/doc/ros2/Concepts/About-Quality-of-Service-Settings/).
 
 **TODO:** take into account also new QoS: Deadline, Liveliness and Lifespan
@@ -69,9 +77,7 @@ When a `Node` creates a `Publisher` or a `Subscription` to a topic `/MyTopic`, i
 additional one to the topic `/MyTopic/_intra`. The second topic is the one where meta-messages travel.
 Our [experimental results](https://github.com/irobot-ros/ros2-performance/tree/master/performances/experiments/crystal/pub_sub_memory#adding-more-nodes-x86_64)
 show that creating a `Publisher` or a `Subscription` has a non-negligible memory cost.
-
-Moreover, when using the default RMW implementation, Fast-RTPS, the memory consumed by a ROS2 application
-increases almost exponentially with the number of `Publisher` and `Subscriptions`.
+This is particularly true for the default RMW implementation, Fast-RTPS, where the memory requirement increases almost expontentially with the number of participants and entities.
 
 ##### Latency and CPU utilization
 
@@ -87,48 +93,26 @@ communication only when the message size is at least 5KB.
 
 ### Problems when both inter and intra-process communication are needed
 
-The current implementation does not handle properly the situation in which it is necessary to publish both
-inter and intra-process. The following two scenarios illustrate this problem.
+Currently, ROS2 does not provide any API for making nodes or `Publisher` and `Subscription` to ignore each other.
+This feature woudl be useful when both inter and intra-process communication are needed.
 
-##### Scenario 1
-
-There are two processes. In the first process there are a `Publisher` and a `Subscription` to `/MyTopic`. Both
-have intra-process communication enabled. In the second process there is a `Subscription` to `/MyTopic`. It
-has intra-process communication disabled.
-
-In this case, the `Publisher` in the first process will publish both inter and intra-process. The
-intra-process communication meta-message will only be delivered to the `Subscription` within the same process
-through the `/MyTopic/_intra` topic. However, the real message used for inter-process communication will be
-handed to the RMW for inter-process publishing.
-
-Currently the RMW can understand whether a `Publisher` and a `Subscription` are in the same process or context or node.
-However, it does not know whether the entities have intra-process communication enabled or not.
-The consequence is that, with the current RMW implementation, the real message will be delivered to both
-`Subscription`s present in the system. The `Subscription` that is in the same process as the `Publisher` will
-actually discard the message, but it will be able to do that after receiving and deserializing it.
+The reason is that the current implementation of the ROS2 middleware will try to deliver inter-process
+messages also to the nodes within the same process of the `Publisher`, even if they should have received an
+intra-process message.
+Note that these messages will be discarded, but they will still cause an overhead.
 
 The DDS specification provides ways for potentially fixing this problem, i.e. with the `ignore_participant`,
 `ignore_publication` and `ignore_subscription`operations. Each of these can be used to ignore a remote
 participant or entity, allowing to behave as that remote participant did not exist.
 
-##### Scenario 2
+The current intra-process communication uses meta-messages that are sent through the RMW between nodes in the
+same process. This has two consequences: first it does not allow to directly "ignore" participants in the same
+process, because they still have to communicate in order to send and receive meta-messages, thus requiring a
+more fine-grained control ignoring specific `Publisher`s and `Subscription`s.
 
-There are two processes. In the first process there are a `Publisher` and a `Subscription` to `/MyTopic`. Both
-have intra-process communication enabled. In the second process there is a `Subscription` to `/MyTopic` and it
-has intra-process communication enabled.
-
-The difference with the first scenario is that now both `Subscription`s have intra-process communication enabled.
-
-The same phenomenon described before will still happen, i.e., the `Subscription` in the same process will
-receive both the meta-message and the real message, and will discard the latter.
-
-However, this time there is an additional problem: the meta-message is sent through the RMW on the
-`/MyTopic/_intra` topic. Also, the `Subscription` in the second process will be listening to that topic. This
-results in that the meta-message will be delivered to both `Subscription`s.
-
-Note that the `Subscription` in the second process will discard the meta-message since it does not come from
-any `Publisher` within the same context.
-
+Moreover, the meta-messages could be delivered also to nodes in different processes if they have intra-process
+communication enabled.
+As before, the messages would be discarded immediately after being received, but they would still affect the performances.
 The overhead caused by the additional publication of meta-messages can be potentially reduced by appending to
 the intra-process topic names a process specific identifier.
 
@@ -148,6 +132,17 @@ the message from the buffer and trigger the callback of the `Subscription`.
 
 ![Proposed IPC Block Diagram](new_ipc.png)
 
+The choice of having independent buffers for each `Subscription` leads to the following advantages:
+ - It is easy to support different QoS for each `Subscription`, while, at the same time, simplifying the implementation.
+ - Multiple `Subscription`s can extract messages from their own buffer in parallel without blocking each other,
+   thus providing an higher throughput.
+
+The only drawback is that the system is not reusing as much resources as possible, compared to sharing buffers
+between entities. However, from a practical point of view, the memory overhead caused by the proposed
+implementation with respect to the current one, will always be only a tiny delta compared to the overall
+memory usage of the application.
+
+
 There are three possible data-types that can be stored in the buffer:
 
 - `MessageT`
@@ -155,14 +150,16 @@ There are three possible data-types that can be stored in the buffer:
 - `unique_ptr<MessageT>`
 
 The choice of the buffer data-type is controlled through an additional field in the `SubscriptionOptions`. The
-default value for this option is `CallbackDefault`, which corresponds to selecting the type between
+default value for this option is denominated `CallbackDefault`, which corresponds to selecting the type between
 `shared_ptr<constMessageT>` and `unique_ptr<MessageT>` that better fits with its callback type. This is
 deduced looking at the output of `AnySubscriptionCallback::use_take_shared_method()`.
 
 If the history QoS is set to `keep all`, the buffers are dynamically allocated. On the other hand, if the
 history QoS is set to `keep last`, the buffers have a size equal to the depth of the history and they act as
-ring buffers (overwriting the oldest data when trying to push while its full). Ring buffers are not only used
-in `Subscription`s but also in each `Publisher` with a durability QoS of type `transient local`.
+ring buffers (overwriting the oldest data when trying to push while its full).
+
+Buffers are not only used in `Subscription`s but also in each `Publisher` with a durability QoS of type `transient local`.
+The data-type stored in the `Publisher` buffer is always `shared_ptr<const MessageT>`.
 
 A new class derived from `rclcpp::Waitable` is defined, denominated `SubscriptionIntraProcessWaitable`.
 An object of this type is created by each `Subscription` with intra-process communication enabled and it is used
@@ -220,20 +217,6 @@ a ring buffer of the size specified by the depth from the QoS.
 6. The `SubscriptionIntraProcessWaitable` object is added to the list of Waitable interfaces of the node through
    `node_interfaces::NodeWaitablesInterface::add_waitable(...)`.
 
-The following steps will be executed if the `Subscription` QoS is set to `Transient Local`.
-In this case the `IntraProcessManager` has to check if the recently created `Subscription` is a late-joiner, and in that case,
-retrieve messages from the `Transient Local` `Publisher`s.
-
-7. Call `IntraProcessManager::find_matching_publishers(SubscriptionInfo sub_info)` that returns a list
-   of stored `PublisherInfo` that have a QoS compatible for sending messages to this new `Subscription`.
-   These will be all `Transient Local` `Publisher`s, so they have a ring buffer.
-8. Copy messages from all the ring buffers found into the ring buffer of the new `Subscription`. **TODO:** are
-   there any constraints on the order in which old messages have to be retrieved? (i.e. 1 publisher at the
-   time; all the firsts of each publisher, then all the seconds ...).
-9. If at least 1 message was present, trigger the `rcl_guard_condition_t` member of the `SubscriptionIntraProcessWaitable`
-   associated with the new `Subscription`.
-
-
 ### Publishing only intra-process
 
 ##### Publishing unique_ptr
@@ -245,9 +228,7 @@ retrieve messages from the `Transient Local` `Publisher`s.
    `PublisherInfo` structure associated with this publisher. Then it calls
    `IntraProcessManager::find_matching_subscriptions(PublisherInfo pub_info)`. This returns a list of
    stored `SubscriptionInfo` that have a QoS compatible for receiving the message.
-4. If the `Publisher` QoS is set to transient local, its `PublisherInfo` is also added to the list.
-5. The message is "added" to the ring buffer of all the items in the list (so also the `Publisher` itself
-   receives one if set to transient local).
+5. The message is "added" to the ring buffer of all the items in the list.
    The `rcl_guard_condition_t` member of `SubscriptionIntraProcessWaitable` of each `Subscription` is triggered (this wakes up
    `rclcpp::spin`).
 
@@ -294,52 +275,6 @@ its related `Subscription`.
    ownership has been already taken into account when pushing a message into the queue.
 
 
-### Handling intra and inter-process communications
-
-### Setting up the middleware
-
-In order to avoid the issue previously described, i.e., that a `Subscription` would receive both inter and
-intra-process messages, it is necessary to inform the underlying middleware that some "connections" will be
-handled at the `rclcpp` level, enabling the RMW to neglect them.
-
-This could be implemented alongside some sort of intra-process discovery. When a `Publisher` and a
-`Subscription` to the same topic with compatible QoS are added to the `IntraProcessManager`, it is not
-necessary for them to be also connected at the ROS2 middleware level. They are supposed to communicate
-only intra-process.
-
-One of the main obstacles in implementing an intra-process discovery is that in all the middleware
-implementations currently available for ROS2, the discovery is not triggered by the user, but simply
-starts as soon as a node is created. Moreover, even if a `Publisher` and a `Subscription` are in the same process,
-it is not guaranteed that both will have intra-process communication enabled.
-
-Given the fact that the proposed implementation does not use the RMW at all, there is much more freedom for
-eventually disconnecting nodes.
-
-The proposed solution is to declare two new functions in the `rmw_implementation` layer:
- - `rmw_ret_t disconnect_remote_publisher(rmw_node_t node, rmw_subscription_t sub, rmw_publisher_t remote_pub)`
- - `rmw_ret_t disconnect_remote_subscription(rmw_node_t node, rmw_publisher_t pub, rmw_subscription_t remote_sub)`
-
-These will be called from the `IntraProcessManager` on each matching of a `Publisher` and a `Subscription`.
-Then, each RMW can implement them in order to improve the performance for this particular situation.
-
-The following is an example of how they could be implemented.
-
-##### Fast-RTPS
-
-Each of the following classes, `rmw_node_t`, `rmw_publisher_t` and `rmw_subscription_t` contain a pointer to
-the underlying RTPS object that is implementing.
-
-The `EDP` class in Fast-RTPS provides the following functions:
-
- - `bool EDP::unpairWriterProxy(const GUID_t& participant_guid, const GUID_t& writer_guid)`
- - `bool EDP::unpairReaderProxy(const GUID_t& participant_guid, const GUID_t& reader_guid)`
-
-These functions perform exactly what is needed: they disconnect a remote `Publisher` or a remote
-`Subscription` from a `Node`. The arguments needed can be easily obtained at the `rmw_fastrtps` layer:
-`rmw_node_t` contains the `participant_guid`, while `rmw_publisher_t` and `rmw_subscription_t` contain the
-`writer_guid` and the `reader_guid`.
-
-
 ### Publishing intra and inter-process
 
 1. User calls `Publisher::publish(std::unique_ptr<MessageT> msg)`.
@@ -375,6 +310,47 @@ the `IntraProcessManager` and by the RMW. The user application has not access to
    Every buffer receives a shared pointer of the same `MessageT`. No copies are required.
  - `BufferT = MessageT`
    A copy of the message is added to every buffer.
+
+
+### QoS features
+
+The proposed implementation can handle all the different QoS.
+
+ - If the history is set to `keep_last`, then the depth of the history corresponds to the size of the ring
+   buffer. On the other hand, if the history is set to `keep_all`, the buffer becomes a standard FIFO queue
+   with an unbounded size.
+ - The reliability is only checked by the `IntraProcessManager` in order to understand if a `Publisher` and a
+   `Subscription` are compatible. The use of buffers ensures that all the messages are delivered without
+   the need to resend them. Thus, both options, `reliable` and `best-effort`, are satisfied.
+ - The durability QoS is used to understand if a `Publisher` and a `Subscription` are compatible.
+  How this QoS is handled is described in details in the following paragraph.
+
+##### Handling Transient Local
+
+If the `Publisher` durability is set to `transient_local` an additional buffer on the `Publisher` side is used
+to store the sent intra-process messages.
+
+Late-joiner `Subscription`s will have to extract messages from this buffer once they are added to the `IntraProcessManager`.
+In this case the `IntraProcessManager` has to check if the recently created `Subscription` is a late-joiner, and in that case,
+retrieve messages from the `Transient Local` `Publisher`s.
+
+1. Call `IntraProcessManager::find_matching_publishers(SubscriptionInfo sub_info)` that returns a list
+   of stored `PublisherInfo` that have a QoS compatible for sending messages to this new `Subscription`.
+   These will be all `Transient Local` `Publisher`s, so they have a ring buffer.
+2. Copy messages from all the ring buffers found into the ring buffer of the new `Subscription`. **TODO:** are
+   there any constraints on the order in which old messages have to be retrieved? (i.e. 1 publisher at the
+   time; all the firsts of each publisher, then all the seconds ...).
+3. If at least 1 message was present, trigger the `rcl_guard_condition_t` member of the `SubscriptionIntraProcessWaitable`
+   associated with the new `Subscription`.
+
+However, this is not enough as it does not allow to handle the scenario in which a `transient local`
+`Publisher` has only intra-process `Subscription`s when it is created, but, eventually, a `transient local`
+`Subscription` in a different process joins. Initially, published messages are not passed to the middleware,
+since all the `Subscription`s are in the same process. This means that the middleware is not able to store old
+messages for eventual late-joiners.
+
+The solution to this issue consists in always publishing both intra and inter-process when a `Publisher` has
+`transient local` durability.
 
 
 ### Number of message copies
@@ -431,20 +407,28 @@ to different copies of the message.
 | unique_ptr\<MessageT\> @1        | <ul><li>unique_ptr\<MessageT\></li><li>unique_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li><li>shared_ptr\<MessageT\></li></ul>  |    <ul><li>@1</li><li>@2</li><li>@3</li><li>@3</li></ul>      |
 
 
-### QoS features
+The possibility of setting the data-type stored in each buffer becomes helpful when dealing with more particular scenarios.
 
-The proposed implementation can handle all the different QoS.
+Considering a scenario with N `Subscription`s all taking a unique pointer. If the `Subscription`s don't
+actually take the message (e.g. they are busy and the message is being overwritten due to QoS settings) the
+default buffer type (`unique_ptr` since the callbacks require ownership) would result in the copy taking place anyway.
+By setting the buffer type to `shared_ptr`, no copies are needed when the `Publisher` pushes messages into the buffers.
+Eventually, the `Subscription`s will copy the data only when they are ready to process it.
 
- - If the history is set to `keep_last`, then the depth of the history corresponds to the size of the ring
-   buffer. On the other hand, if the history is set to `keep_all`, the buffer becomes a standard FIFO queue
-   with an unbounded size.
- - The reliability is only checked by the `IntraProcessManager` in order to understand if a `Publisher` and a
-   `Subscription` are compatible. The use of buffers ensures that all the messages are delivered without
-   the need to resend them. Thus, both options, `reliable` and `best-effort`, are satisfied.
- - If the `Publisher` durability is set to `transient_local` an additional buffer on the `Publisher` side
-   is used to store the sent messages.
-   Besides this, the durability QoS is used to understand if a `Publisher` and a `Subscription` are compatible.
+On the other hand, if the published data are very small, it can be advantageous to do not use C++ smart
+pointers, but to directly store the data into the buffers.
 
+In all this situations, the number of copies is always smaller or equal than the one required for the current
+intra-process implementation.
+
+However, there is a particular scenario where having multiple buffers makes much more difficult saving a copy.
+There are two `Subscription`s, one taking a shared pointer and the other taking a unique pointer. With a more
+centralized system, if the first `Subscription` requests its shared pointer and releases it before the second
+`Subscription` takes the message, it is potentially possible to optimize the system to manage this situation
+without needing any copy.
+On the other hand the proposed implementation will immediately create one copy of the message for the
+`Subscription` requiring ownership.
+Even in case of using a `shared_ptr` buffer as previously described, it becomes much more difficult to ensure that the other `Subscription` is not using the pointer anymore.
 
 ## Perfomance evaluation
 
@@ -560,7 +544,7 @@ the same process when it is required to publish also inter process, potentially 
 overhead with respect to the only intra-process case.
 
 
-## Open Issues and Future Works
+## Open Issues
 
 There are some open issues that are not addressed neither on the current implementation nor on the
 proposed one.
@@ -569,12 +553,3 @@ proposed one.
    and intra-process communication are used. A `Publisher` or a `Subscription` with a history depth of 10 will
    be able to store up to 20 messages without processing them (10 intra-process and 10 inter-process). This
    issue is also present in the current implementation, since each `Subscription` is doubled.
-
- - The proposal does not allow to handle the scenario in which a `transient local` `Publisher` has only
-   intra-process `Subscription`s when it is created, but, eventually, a `transient local` `Subscription` in a
-   different process joins. Initially, published messages are not passed to the middleware, since all the
-   `Subscription`s are in the same process. This means that the middleware is not able to store old messages
-   for eventual late-joiners.
-
- - The intra-process communication mechanism can be further improved by allowing similar `Subscription` to
-   share the same ring buffer, thus reducing the number of pointer copies needed.

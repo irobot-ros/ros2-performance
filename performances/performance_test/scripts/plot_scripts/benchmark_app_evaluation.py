@@ -9,34 +9,18 @@
 
 ## Create a bar plots.
 
-
-import numpy as np
-import csv
-import sys
-import os
 import argparse
-import re
-from io import StringIO
-from collections import defaultdict, OrderedDict
-
 import matplotlib.pyplot
-import matplotlib.ticker
+import sys
 
-import common
 import cpu_ram_plot
-import latency_reliability_plot
-
+import data_utils
+import plot_common
 
 def parse_total_latency_csv(file_path):
     '''parses a csv into a dictionary structure, given its filepath'''
 
-    # the input is not a csv so I have to convert it
-    with open(file_path, 'r') as file:
-        file_string = file.read()
-        file.close()
-    csv_file = re.sub('[ ]+', '\t', file_string)
-    f = StringIO(csv_file)
-    reader = csv.DictReader(f, delimiter='\t')
+    reader = data_utils.parse_csv_dict(file_path)
 
     data = {}
 
@@ -55,7 +39,7 @@ def main(argv):
     parser.add_argument('--resources', type=str, help='Pass the resources txt file')
     parser.add_argument('--latency', type=str, help='Pass the latency_total txt file')
     parser.add_argument('--target', type=str, help='Pass a target json file to evaluate current plot')
-    parser.add_argument('--skip', type=int, default=2, help='Skip the first N seconds of each test')
+    parser.add_argument('--skip', type=int, default=10, help='Skip the first N seconds of each test')
 
     args = parser.parse_args()
 
@@ -64,8 +48,8 @@ def main(argv):
     target = args.target
     skip = args.skip
 
-    target_resources = common.parse_target_json(args.target, "resources")
-    target_latency = common.parse_target_json(args.target, "latency_total")
+    target_resources = data_utils.parse_target_json(args.target, "resources")
+    target_latency = data_utils.parse_target_json(args.target, "latency_total")
 
     resources = cpu_ram_plot.parse_csv(resources_path, skip)
     average_resources = cpu_ram_plot.aggregate_csv(resources)
@@ -79,20 +63,20 @@ def main(argv):
     texts = []
     units = []
 
-    for key, _ in target_resources.items():
-        current_val.append(common.get_plot_data(average_resources, key)[0])
-        target_val.append(common.get_plot_data(target_resources, key)[0])
-        label = common.get_label(key)
-        unit = common.get_unit_of_measure(label)
+    for key, _ in sorted(target_resources.items()):
+        current_val.append(plot_common.get_plot_data(average_resources, key)[0])
+        target_val.append(plot_common.get_plot_data(target_resources, key)[0])
+        label = plot_common.get_label(key)
+        unit = data_utils.get_unit_of_measure(label)
         texts.append(label)
         units.append(unit)
 
 
-    for key, _ in target_latency.items():
+    for key, val in sorted(target_latency.items()):
         current_val.append(latency[key])
-        target_val.append(target_latency[key])
-        label = common.get_label(key)
-        unit = common.get_unit_of_measure(label)
+        target_val.append(val)
+        label = plot_common.get_label(key)
+        unit = data_utils.get_unit_of_measure(label)
         texts.append(label)
         units.append(unit)
 

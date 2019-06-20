@@ -3,14 +3,36 @@
         {
           "node_name": "node_1",
           "publishers": [
-                {"topic_name": "topic_1", "msg_type": "10b", "period_ms": 10}
+                {"topic_name": "topic_1", "msg_type": "10b", "period_ms": 10},
+                {"topic_name": "topic_2", "msg_type": "4mb", "period_ms": 1000,
+                    "qos_depth":                           10,
+                    "qos_history":                         "RMW_QOS_POLICY_HISTORY_KEEP_LAST",
+                    "qos_reliability":                     "RMW_QOS_POLICY_RELIABILITY_RELIABLE",
+                    "qos_durability":                      "RMW_QOS_POLICY_DURABILITY_VOLATILE",
+                    "qos_deadline":                        "RMW_QOS_DEADLINE_DEFAULT",
+                    "qos_lifespan":                        "RMW_QOS_LIFESPAN_DEFAULT",
+                    "qos_liveliness":                      "RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT",
+                    "qos_liveliness_lease_duration":       "RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT",
+                    "qos_avoid_ros_namespace_conventions": "false"
+                }
               ]
         },
 
         {
             "node_name": "node_2",
             "subscribers":[
-                {"topic_name":"topic_1", "msg_type":"10b"}
+                {"topic_name":"topic_1", "msg_type":"10b"},
+                {"topic_name": "topic_2", "msg_type": "4mb",
+                    "qos_depth":                           10,
+                    "qos_history":                         "RMW_QOS_POLICY_HISTORY_KEEP_LAST",
+                    "qos_reliability":                     "RMW_QOS_POLICY_RELIABILITY_RELIABLE",
+                    "qos_durability":                      "RMW_QOS_POLICY_DURABILITY_VOLATILE",
+                    "qos_deadline":                        "RMW_QOS_DEADLINE_DEFAULT",
+                    "qos_lifespan":                        "RMW_QOS_LIFESPAN_DEFAULT",
+                    "qos_liveliness":                      "RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT",
+                    "qos_liveliness_lease_duration":       "RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT",
+                    "qos_avoid_ros_namespace_conventions": "false"
+                }
               ],
             "servers": [
                 {"service_name": "service_2", "srv_type": "10b"}

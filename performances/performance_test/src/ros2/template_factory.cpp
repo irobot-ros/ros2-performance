@@ -430,7 +430,7 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_json(
         msg_size = pub_json["msg_size"];
     }
 
-    rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
+    rmw_qos_profile_t custom_qos_profile = get_qos_from_json(pub_json);
 
     this->add_periodic_publisher_from_strings(
         node,
@@ -442,7 +442,6 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_json(
 
 }
 
-
 void performance_test::TemplateFactory::add_subscriber_from_json(
     std::shared_ptr<performance_test::Node> node, const json sub_json)
 {
@@ -450,7 +449,7 @@ void performance_test::TemplateFactory::add_subscriber_from_json(
     std::string topic_name = sub_json["topic_name"];
     std::string msg_type = sub_json["msg_type"];
     Tracker::TrackingOptions t_options;
-    rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
+    rmw_qos_profile_t custom_qos_profile = get_qos_from_json(sub_json);
 
     this->add_subscriber_from_strings(
         node,
@@ -469,7 +468,7 @@ void performance_test::TemplateFactory::add_periodic_client_from_json(
     std::string service_name = client_json["service_name"];
     std::string srv_type = client_json["srv_type"];
     auto period_ms = std::chrono::milliseconds(client_json["period_ms"]);
-    rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
+    rmw_qos_profile_t custom_qos_profile = get_qos_from_json(client_json);
 
     this->add_periodic_client_from_strings(
         node,
@@ -486,7 +485,7 @@ void performance_test::TemplateFactory::add_server_from_json(
 {
     std::string service_name = server_json["service_name"];
     std::string srv_type = server_json["srv_type"];
-    rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
+    rmw_qos_profile_t custom_qos_profile = get_qos_from_json(server_json);
 
     this->add_server_from_strings(
         node,
@@ -494,4 +493,86 @@ void performance_test::TemplateFactory::add_server_from_json(
         service_name,
         custom_qos_profile);
 
+}
+
+
+rmw_qos_profile_t performance_test::TemplateFactory::get_qos_from_json(
+    const json qos_json)
+{
+    rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
+
+    std::map<std::string, int> qos_map{
+        {"RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT",     RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT},
+        {"RMW_QOS_POLICY_HISTORY_KEEP_LAST",          RMW_QOS_POLICY_HISTORY_KEEP_LAST},
+        {"RMW_QOS_POLICY_HISTORY_KEEP_ALL",           RMW_QOS_POLICY_HISTORY_KEEP_ALL},
+        {"RMW_QOS_POLICY_HISTORY_UNKNOWN",            RMW_QOS_POLICY_HISTORY_UNKNOWN},
+        {"RMW_QOS_POLICY_RELIABILITY_SYSTEM_DEFAULT", RMW_QOS_POLICY_RELIABILITY_SYSTEM_DEFAULT},
+        {"RMW_QOS_POLICY_RELIABILITY_RELIABLE",       RMW_QOS_POLICY_RELIABILITY_RELIABLE},
+        {"RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT",    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT},
+        {"RMW_QOS_POLICY_RELIABILITY_UNKNOWN",        RMW_QOS_POLICY_RELIABILITY_UNKNOWN},
+        {"RMW_QOS_POLICY_DURABILITY_SYSTEM_DEFAULT",  RMW_QOS_POLICY_DURABILITY_SYSTEM_DEFAULT},
+        {"RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL", RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL},
+        {"RMW_QOS_POLICY_DURABILITY_VOLATILE",        RMW_QOS_POLICY_DURABILITY_VOLATILE},
+        {"RMW_QOS_POLICY_DURABILITY_UNKNOWN",         RMW_QOS_POLICY_DURABILITY_UNKNOWN},
+        {"RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT",  RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT},
+        {"RMW_QOS_POLICY_LIVELINESS_AUTOMATIC",       RMW_QOS_POLICY_LIVELINESS_AUTOMATIC},
+        {"RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_NODE",  RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_NODE},
+        {"RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_TOPIC", RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_TOPIC},
+        {"RMW_QOS_POLICY_LIVELINESS_UNKNOWN",         RMW_QOS_POLICY_LIVELINESS_UNKNOWN},
+        {"false", false},
+        {"true",  true}
+    };
+
+    std::map<std::string, struct rmw_time_t> qos_map_time{
+        {"RMW_QOS_DEADLINE_DEFAULT",                  RMW_QOS_DEADLINE_DEFAULT},
+        {"RMW_QOS_LIFESPAN_DEFAULT",                  RMW_QOS_LIFESPAN_DEFAULT},
+        {"RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT", RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT}
+    };
+
+    if (qos_json.find("qos_history") != qos_json.end())
+    {
+        custom_qos_profile.history = (rmw_qos_history_policy_t) qos_map[qos_json["qos_history"]];
+    }
+
+    if (qos_json.find("qos_depth") != qos_json.end())
+    {
+        custom_qos_profile.depth = (size_t) qos_json["qos_depth"];
+    }
+
+    if (qos_json.find("qos_reliability") != qos_json.end())
+    {
+        custom_qos_profile.reliability = (rmw_qos_reliability_policy_t) qos_map[qos_json["qos_reliability"]];
+    }
+
+    if (qos_json.find("qos_durability") != qos_json.end())
+    {
+        custom_qos_profile.durability = (rmw_qos_durability_policy_t) qos_map[qos_json["qos_durability"]];
+    }
+
+    if (qos_json.find("qos_liveliness") != qos_json.end())
+    {
+        custom_qos_profile.liveliness = (rmw_qos_liveliness_policy_t) qos_map[qos_json["qos_liveliness"]];
+    }
+
+    if (qos_json.find("qos_avoid_ros_namespace_conventions") != qos_json.end())
+    {
+        custom_qos_profile.avoid_ros_namespace_conventions = (bool) qos_map[qos_json["qos_avoid_ros_namespace_conventions"]];
+    }
+
+    if (qos_json.find("qos_deadline") != qos_json.end())
+    {
+        custom_qos_profile.deadline = qos_map_time[qos_json["qos_deadline"]];
+    }
+
+    if (qos_json.find("qos_lifespan") != qos_json.end())
+    {
+        custom_qos_profile.lifespan = qos_map_time[qos_json["qos_lifespan"]];
+    }
+
+    if (qos_json.find("qos_liveliness_lease_duration") != qos_json.end())
+    {
+      custom_qos_profile.liveliness_lease_duration = qos_map_time[qos_json["qos_liveliness_lease_duration"]];
+    }
+
+    return custom_qos_profile;
 }

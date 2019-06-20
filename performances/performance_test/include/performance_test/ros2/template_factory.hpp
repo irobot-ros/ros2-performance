@@ -128,6 +128,7 @@ class TemplateFactory {
 
         void add_server_from_json(std::shared_ptr<Node> node, const nlohmann::json server_json);
 
+        rmw_qos_profile_t get_qos_from_json(const nlohmann::json qos_json);
 
         bool _use_ipc;
         bool _verbose_mode;

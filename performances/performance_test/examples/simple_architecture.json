@@ -11,7 +11,7 @@
                     "qos_durability":                      "volatile",
                     "qos_deadline":                        "default",
                     "qos_lifespan":                        "default",
-                    "qos_liveliness":                      "default",
+                    "qos_liveliness":                      "system_default",
                     "qos_liveliness_lease_duration":       "default",
                     "qos_avoid_ros_namespace_conventions": "false"
                 }

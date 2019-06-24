@@ -497,81 +497,104 @@ void performance_test::TemplateFactory::add_server_from_json(
 
 
 rmw_qos_profile_t performance_test::TemplateFactory::get_qos_from_json(
-    const json qos_json)
+    const json entity_json)
 {
+    // Create custom QoS profile with default values
     rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
 
-    std::map<std::string, int> qos_map{
-        {"RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT",     RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT},
-        {"RMW_QOS_POLICY_HISTORY_KEEP_LAST",          RMW_QOS_POLICY_HISTORY_KEEP_LAST},
-        {"RMW_QOS_POLICY_HISTORY_KEEP_ALL",           RMW_QOS_POLICY_HISTORY_KEEP_ALL},
-        {"RMW_QOS_POLICY_HISTORY_UNKNOWN",            RMW_QOS_POLICY_HISTORY_UNKNOWN},
-        {"RMW_QOS_POLICY_RELIABILITY_SYSTEM_DEFAULT", RMW_QOS_POLICY_RELIABILITY_SYSTEM_DEFAULT},
-        {"RMW_QOS_POLICY_RELIABILITY_RELIABLE",       RMW_QOS_POLICY_RELIABILITY_RELIABLE},
-        {"RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT",    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT},
-        {"RMW_QOS_POLICY_RELIABILITY_UNKNOWN",        RMW_QOS_POLICY_RELIABILITY_UNKNOWN},
-        {"RMW_QOS_POLICY_DURABILITY_SYSTEM_DEFAULT",  RMW_QOS_POLICY_DURABILITY_SYSTEM_DEFAULT},
-        {"RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL", RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL},
-        {"RMW_QOS_POLICY_DURABILITY_VOLATILE",        RMW_QOS_POLICY_DURABILITY_VOLATILE},
-        {"RMW_QOS_POLICY_DURABILITY_UNKNOWN",         RMW_QOS_POLICY_DURABILITY_UNKNOWN},
-        {"RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT",  RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT},
-        {"RMW_QOS_POLICY_LIVELINESS_AUTOMATIC",       RMW_QOS_POLICY_LIVELINESS_AUTOMATIC},
-        {"RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_NODE",  RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_NODE},
-        {"RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_TOPIC", RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_TOPIC},
-        {"RMW_QOS_POLICY_LIVELINESS_UNKNOWN",         RMW_QOS_POLICY_LIVELINESS_UNKNOWN},
+    // Crete map for each QoS
+    std::map<std::string, rmw_qos_history_policy_t> history_qos_map{
+        {"system_default", RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT},
+        {"keep_last",      RMW_QOS_POLICY_HISTORY_KEEP_LAST},
+        {"keep_all",       RMW_QOS_POLICY_HISTORY_KEEP_ALL},
+        {"unknown",        RMW_QOS_POLICY_HISTORY_UNKNOWN}
+    };
+
+    std::map<std::string, rmw_qos_reliability_policy_t> reliability_qos_map{
+        {"system_default", RMW_QOS_POLICY_RELIABILITY_SYSTEM_DEFAULT},
+        {"reliable",       RMW_QOS_POLICY_RELIABILITY_RELIABLE},
+        {"best_effort",    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT},
+        {"unknown",        RMW_QOS_POLICY_RELIABILITY_UNKNOWN}
+    };
+
+    std::map<std::string, rmw_qos_durability_policy_t> durability_qos_map{
+        {"system_default",  RMW_QOS_POLICY_DURABILITY_SYSTEM_DEFAULT},
+        {"transient_local", RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL},
+        {"volatile",        RMW_QOS_POLICY_DURABILITY_VOLATILE},
+        {"unknown",         RMW_QOS_POLICY_DURABILITY_UNKNOWN},
+    };
+
+    std::map<std::string, rmw_qos_liveliness_policy_t> liveliness_qos_map{
+        {"system_default",  RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT},
+        {"automatic",       RMW_QOS_POLICY_LIVELINESS_AUTOMATIC},
+        {"manual_by_node",  RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_NODE},
+        {"manual_by_topic", RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_TOPIC},
+        {"unknown",         RMW_QOS_POLICY_LIVELINESS_UNKNOWN}
+    };
+
+    std::map<std::string, bool> namespace_conventions_qos_map{
         {"false", false},
         {"true",  true}
     };
 
-    std::map<std::string, struct rmw_time_t> qos_map_time{
-        {"RMW_QOS_DEADLINE_DEFAULT",                  RMW_QOS_DEADLINE_DEFAULT},
-        {"RMW_QOS_LIFESPAN_DEFAULT",                  RMW_QOS_LIFESPAN_DEFAULT},
-        {"RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT", RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT}
+    std::map<std::string, struct rmw_time_t> deadline_qos_map{
+        {"default", RMW_QOS_DEADLINE_DEFAULT}
     };
 
-    if (qos_json.find("qos_history") != qos_json.end())
+    std::map<std::string, struct rmw_time_t> lifespan_qos_map{
+        {"default", RMW_QOS_LIFESPAN_DEFAULT}
+    };
+
+    std::map<std::string, struct rmw_time_t> liveliness_lease_duration_qos_map{
+        {"default", RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT}
+    };
+
+    // Look in the entity json file for QoS settings
+    if (entity_json.find("qos_history") != entity_json.end())
     {
-        custom_qos_profile.history = (rmw_qos_history_policy_t) qos_map[qos_json["qos_history"]];
+        custom_qos_profile.history = history_qos_map[entity_json["qos_history"]];
     }
 
-    if (qos_json.find("qos_depth") != qos_json.end())
+    if (entity_json.find("qos_depth") != entity_json.end())
     {
-        custom_qos_profile.depth = (size_t) qos_json["qos_depth"];
+        custom_qos_profile.depth = (size_t) entity_json["qos_depth"];
     }
 
-    if (qos_json.find("qos_reliability") != qos_json.end())
+    if (entity_json.find("qos_reliability") != entity_json.end())
     {
-        custom_qos_profile.reliability = (rmw_qos_reliability_policy_t) qos_map[qos_json["qos_reliability"]];
+        custom_qos_profile.reliability = reliability_qos_map[entity_json["qos_reliability"]];
     }
 
-    if (qos_json.find("qos_durability") != qos_json.end())
+    if (entity_json.find("qos_durability") != entity_json.end())
     {
-        custom_qos_profile.durability = (rmw_qos_durability_policy_t) qos_map[qos_json["qos_durability"]];
+        custom_qos_profile.durability = durability_qos_map[entity_json["qos_durability"]];
     }
 
-    if (qos_json.find("qos_liveliness") != qos_json.end())
+    if (entity_json.find("qos_liveliness") != entity_json.end())
     {
-        custom_qos_profile.liveliness = (rmw_qos_liveliness_policy_t) qos_map[qos_json["qos_liveliness"]];
+        custom_qos_profile.liveliness = liveliness_qos_map[entity_json["qos_liveliness"]];
     }
 
-    if (qos_json.find("qos_avoid_ros_namespace_conventions") != qos_json.end())
+    if (entity_json.find("qos_avoid_ros_namespace_conventions") != entity_json.end())
     {
-        custom_qos_profile.avoid_ros_namespace_conventions = (bool) qos_map[qos_json["qos_avoid_ros_namespace_conventions"]];
+        custom_qos_profile.avoid_ros_namespace_conventions = \
+            namespace_conventions_qos_map[entity_json["qos_avoid_ros_namespace_conventions"]];
     }
 
-    if (qos_json.find("qos_deadline") != qos_json.end())
+    if (entity_json.find("qos_deadline") != entity_json.end())
     {
-        custom_qos_profile.deadline = qos_map_time[qos_json["qos_deadline"]];
+        custom_qos_profile.deadline = deadline_qos_map[entity_json["qos_deadline"]];
     }
 
-    if (qos_json.find("qos_lifespan") != qos_json.end())
+    if (entity_json.find("qos_lifespan") != entity_json.end())
     {
-        custom_qos_profile.lifespan = qos_map_time[qos_json["qos_lifespan"]];
+        custom_qos_profile.lifespan = lifespan_qos_map[entity_json["qos_lifespan"]];
     }
 
-    if (qos_json.find("qos_liveliness_lease_duration") != qos_json.end())
+    if (entity_json.find("qos_liveliness_lease_duration") != entity_json.end())
     {
-      custom_qos_profile.liveliness_lease_duration = qos_map_time[qos_json["qos_liveliness_lease_duration"]];
+      custom_qos_profile.liveliness_lease_duration = \
+          liveliness_lease_duration_qos_map[entity_json["qos_liveliness_lease_duration"]];
     }
 
     return custom_qos_profile;

@@ -46,6 +46,7 @@ class TemplateFactory {
             int end_id,
             int n_publishers,
             std::string msg_type,
+            std::string msg_receiving_type,
             Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
             rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default);
 
@@ -82,6 +83,7 @@ class TemplateFactory {
         void add_subscriber_from_strings(
             std::shared_ptr<Node> n,
             std::string msg_type,
+            std::string msg_receiving_type,
             std::string topic_name,
             Tracker::TrackingOptions tracking_options,
             rmw_qos_profile_t qos_profile = rmw_qos_profile_default);

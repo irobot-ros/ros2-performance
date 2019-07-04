@@ -45,23 +45,42 @@ public:
 
 
   template <typename Msg>
-  void add_subscriber(const Topic<Msg>& topic, Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
+  void add_subscriber(const Topic<Msg>& topic,
+                      std::string msg_receiving_type,
+                      Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
                       rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
+    if (msg_receiving_type == "shared_ptr")
+    {
+      std::function<void(const typename std::shared_ptr<const Msg> msg)> callback_function = std::bind(
+        &Node::_topic_callback<Msg, const typename std::shared_ptr<const Msg>>,
+        this,
+        topic.name,
+        std::placeholders::_1
+      );
 
-    std::function<void(const typename std::shared_ptr<const Msg> msg)> callback_function = std::bind(
-      &Node::_topic_callback<Msg>,
-      this,
-      topic.name,
-      std::placeholders::_1
-    );
+      typename rclcpp::Subscription<Msg>::SharedPtr sub =
+        this->create_subscription<Msg>(topic.name,
+                                       rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile),
+                                       callback_function);
+      _subs.insert({ topic.name, { sub, Tracker(this->get_name(), topic.name, tracking_options) } });
+    }
+    else
+    {
+      std::function<void(typename std::unique_ptr<Msg> msg)> callback_function = std::bind(
+        &Node::_topic_callback<Msg, typename std::unique_ptr<Msg>>,
+        this,
+        topic.name,
+        std::placeholders::_1
+      );
 
-    typename rclcpp::Subscription<Msg>::SharedPtr sub =
-      this->create_subscription<Msg>(topic.name,
-                                     rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile),
-                                     callback_function);
+      typename rclcpp::Subscription<Msg>::SharedPtr sub =
+        this->create_subscription<Msg>(topic.name,
+                                       rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile),
+                                       callback_function);
+      _subs.insert({ topic.name, { sub, Tracker(this->get_name(), topic.name, tracking_options) } });
+    }
 
-    _subs.insert({ topic.name, { sub, Tracker(this->get_name(), topic.name, tracking_options) } });
 
     RCLCPP_INFO(this->get_logger(), "Subscriber to %s created", topic.name.c_str());
   }
@@ -298,8 +317,8 @@ private:
       return msg;
   }
 
-  template <typename Msg>
-  void _topic_callback(const std::string& name, const typename std::shared_ptr<const Msg> msg)
+  template <typename Msg, typename SmartPtr>
+  void _topic_callback(const std::string& name, SmartPtr msg)
   {
     // Scan new message's header
     auto& tracker = _subs.at(name).second;
@@ -307,7 +326,6 @@ private:
 
     RCLCPP_DEBUG(this->get_logger(), "Received on %s msg number %d after %lu us", name.c_str(), msg->header.tracking_number, tracker.last());
   }
-
 
   template <typename Srv>
   void _request(const std::string& name, size_t size)

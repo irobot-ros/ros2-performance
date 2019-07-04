@@ -27,6 +27,7 @@ int main(int argc, char ** argv)
     int n_subscribers = 2;
     int n_publishers = 1;
     std::string msg_type = "10b";
+    std::string msg_receiving_type = "shared_ptr";
     int msg_size = 0;
     float frequency = 10;
     int executors = 0;
@@ -108,6 +109,7 @@ int main(int argc, char ** argv)
             n_subscribers,
             n_publishers,
             msg_type,
+            msg_receiving_type,
             performance_test::Tracker::TrackingOptions(),
             rmw_qos_profile_default);
 

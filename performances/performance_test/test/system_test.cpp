@@ -65,7 +65,7 @@ TEST(SystemTest, SystemPubSubTest)
     ros2_system.add_node(pub_node);
 
     auto sub_node = std::make_shared<performance_test::Node>("sub_node");
-    sub_node->add_subscriber(topic, performance_test::Tracker::TrackingOptions(), rmw_qos_profile_default);
+    sub_node->add_subscriber(topic, "shared_ptr", performance_test::Tracker::TrackingOptions(), rmw_qos_profile_default);
     ros2_system.add_node(sub_node);
 
     ros2_system.spin(duration_sec);
@@ -135,7 +135,7 @@ TEST(SystemTest, SystemDifferentQoSTest)
 
     auto sub_node = std::make_shared<performance_test::Node>("sub_node");
     qos_profile.reliability = rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_RELIABLE;
-    sub_node->add_subscriber(topic, performance_test::Tracker::TrackingOptions(), qos_profile);
+    sub_node->add_subscriber(topic, "unique_ptr", performance_test::Tracker::TrackingOptions(), qos_profile);
     ros2_system.add_node(sub_node);
 
     ros2_system.spin(duration_sec);

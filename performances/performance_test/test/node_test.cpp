@@ -51,8 +51,9 @@ TEST(NodeTest, NodeAddItemsTest)
   auto node = std::make_shared<performance_test::Node>("node_name");
 
   std::string msg_passing_type = "unique_ptr";
+  std::string msg_receiving_type = "shared_ptr";
 
-  node->add_subscriber(topic);
+  node->add_subscriber(topic, msg_receiving_type);
   node->add_periodic_publisher(topic, std::chrono::milliseconds(10), msg_passing_type);
   node->add_server(service);
   node->add_periodic_client(service, std::chrono::milliseconds(10));

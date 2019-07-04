@@ -70,6 +70,7 @@ public:
   template <typename Msg>
   void add_periodic_publisher(const Topic<Msg>& topic,
                               std::chrono::milliseconds period,
+                              std::string msg_passing_type,
                               rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
                               size_t size = 0)
   {
@@ -80,6 +81,7 @@ public:
       &Node::_publish<Msg>,
       this,
       topic.name,
+      msg_passing_type,
       size
     );
 
@@ -87,7 +89,6 @@ public:
     _pubs.at(topic.name).second.set_frequency(1000 / period.count());
 
     this->add_timer(period, publisher_task);
-
   }
 
 
@@ -219,7 +220,7 @@ public:
 private:
 
   template <typename Msg>
-  void _publish(const std::string& name, size_t size)
+  void _publish(const std::string& name, std::string msg_passing_type,  size_t size)
   {
     // Get publisher and tracking count from map
     auto& pub_pair = _pubs.at(name);
@@ -227,43 +228,75 @@ private:
     auto& tracker = pub_pair.second;
 
     // Create message
-    auto msg = std::make_shared<Msg>();
-    // eventually resize the message (if it is dynamic) and measure its size
-    _resize(msg, size);
-    // get the frequency value that we stored when creating the publisher
-    msg->header.frequency = tracker.frequency();
-    // set the tracking count for this message
-    msg->header.tracking_number = tracker.stat().n();
-    //attach the timestamp as last operation before publishing
-    msg->header.stamp = this->now();
+    if (msg_passing_type != "unique_ptr")
+    {
+        auto msg = get_resized_message_in_shared_ptr<Msg>(size);
+        msg->header.size = sizeof(msg->data);
+        // get the frequency value that we stored when creating the publisher
+        msg->header.frequency = tracker.frequency();
+        // set the tracking count for this message
+        msg->header.tracking_number = tracker.stat().n();
+        //attach the timestamp as last operation before publishing
+        msg->header.stamp = this->now();
 
-    pub->publish(*msg);
-    // increase the tracker count (with 0 latency as this is the publisher)
-    tracker.scan(msg->header, msg->header.stamp, _events_logger);
-    RCLCPP_DEBUG(this->get_logger(), "Publishing to %s msg number %d", name.c_str(), msg->header.tracking_number);
+        pub->publish(*msg);
+    }
+    else
+    {
+        auto msg = get_resized_message_in_unique_ptr<Msg>(size);
+        msg->header.size = sizeof(msg->data);
+        msg->header.frequency = tracker.frequency();
+        msg->header.tracking_number = tracker.stat().n();
+        msg->header.stamp = this->now();
+
+        pub->publish(std::move(msg));
+    }
+
+    RCLCPP_DEBUG(this->get_logger(), "Publishing to %s msg number %d", name.c_str(), tracker.stat().n());
+
+    tracker.increment_tracking_number_count();
   }
 
   // Only resize if it is a dynamic message
   template <typename Msg>
   typename std::enable_if<
-    (!std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value)>::type
-  _resize(std::shared_ptr<Msg> msg, size_t size)
+    (!std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::unique_ptr<Msg>>::type
+  get_resized_message_in_unique_ptr(size_t size)
   {
-    (void)size;
-    msg->header.size = sizeof(msg->data);
-    return;
+      (void)size;
+      auto msg = std::make_unique<Msg>();
+      return msg;
   }
 
   template <typename Msg>
   typename std::enable_if<
-    (std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value)>::type
-  _resize(std::shared_ptr<Msg> msg, size_t size)
+    (std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::unique_ptr<Msg>>::type
+  get_resized_message_in_unique_ptr(size_t size)
   {
-    msg->data.resize(size);
-    msg->header.size = size;
-    return;
+      auto msg = std::make_unique<Msg>();
+      msg->data.resize(size);
+      return msg;
   }
 
+  template <typename Msg>
+  typename std::enable_if<
+    (!std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::shared_ptr<Msg>>::type
+  get_resized_message_in_shared_ptr(size_t size)
+  {
+      (void)size;
+      auto msg = std::make_shared<Msg>();
+      return msg;
+  }
+
+  template <typename Msg>
+  typename std::enable_if<
+    (std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::shared_ptr<Msg>>::type
+  get_resized_message_in_shared_ptr(size_t size)
+  {
+      auto msg = std::make_shared<Msg>();
+      msg->data.resize(size);
+      return msg;
+  }
 
   template <typename Msg>
   void _topic_callback(const std::string& name, const typename std::shared_ptr<const Msg> msg)

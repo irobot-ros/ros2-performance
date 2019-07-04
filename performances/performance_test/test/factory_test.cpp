@@ -35,7 +35,7 @@ TEST(FactoryTest, FactoryCreateFromStringTest)
   auto node = std::make_shared<performance_test::Node>("node_name");
 
   factory.add_subscriber_from_strings(node, "10b", "my_topic", performance_test::Tracker::TrackingOptions());
-  factory.add_periodic_publisher_from_strings(node, "10b", "my_topic");
+  factory.add_periodic_publisher_from_strings(node, "10b", "unique_ptr", "my_topic");
   factory.add_server_from_strings(node, "10b", "my_service");
   factory.add_periodic_client_from_strings(node, "10b", "my_service");
 
@@ -57,6 +57,7 @@ TEST(FactoryTest, FactoryCreateFromIndicesTest)
   int n_subscriber_nodes = 2;
   int n_publisher_nodes = 2;
   std::string msg_type = "10b";
+  std::string transport_type = "unique_ptr";
   float frequency = 1;
 
   int subscriber_start_index = 0;
@@ -76,7 +77,8 @@ TEST(FactoryTest, FactoryCreateFromIndicesTest)
         publisher_start_index,
         publisher_end_index,
         frequency,
-        msg_type);
+        msg_type,
+        transport_type);
 
 
   ASSERT_EQ((size_t)2, sub_nodes.size());

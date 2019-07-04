@@ -77,6 +77,11 @@ public:
     return _min;
   }
 
+  void increment_tracking_number(void)
+  {
+     _n++;
+  }
+
   unsigned long int n() const { return _n; }
 
 private:

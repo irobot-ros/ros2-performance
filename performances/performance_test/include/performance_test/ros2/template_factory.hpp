@@ -54,6 +54,7 @@ class TemplateFactory {
             int end_id,
             float frequency,
             std::string msg_type,
+            std::string msg_passing_type,
             size_t msg_size = 0,
             rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default);
 
@@ -88,6 +89,7 @@ class TemplateFactory {
         void add_periodic_publisher_from_strings(
             std::shared_ptr<Node> n,
             std::string msg_type,
+            std::string msg_passing_type,
             std::string topic_name,
             rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
             std::chrono::milliseconds period_ms = std::chrono::milliseconds(10),

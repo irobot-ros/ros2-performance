@@ -12,6 +12,11 @@
 #include "performance_test/ros2/tracker.hpp"
 
 
+void performance_test::Tracker::increment_tracking_number_count(void)
+{
+    _stat.increment_tracking_number();
+}
+
 void performance_test::Tracker::scan(
     const performance_test_msgs::msg::PerformanceHeader& header,
     const rclcpp::Time& now,
@@ -109,7 +114,7 @@ void performance_test::Tracker::scan(
     }
 
     if(!too_late) {
-        // Compute statistics with new sample. Don't add to this set the msgs
+        // Compute statistics with new sample. Don't add to this the msgs
         // that arrived too late.
         _stat.add_sample(lat_us);
     }

@@ -13,7 +13,8 @@
                     "qos_lifespan":                        "default",
                     "qos_liveliness":                      "system_default",
                     "qos_liveliness_lease_duration":       "default",
-                    "qos_avoid_ros_namespace_conventions": "false"
+                    "qos_avoid_ros_namespace_conventions": "false",
+                    "msg_passing_type":                     "unique_ptr"
                 }
               ]
         },

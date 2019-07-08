@@ -34,7 +34,8 @@ int main(int argc, char** argv)
     std::cout << "Sampling resources every " << options.resources_sampling_per_ms << "ms" << std::endl;
     std::cout << "Start test" << std::endl;
 
-    system("mkdir -p log");
+    const auto ret = system("mkdir -p log");
+    static_cast<void>(ret);
     std::string resources_output_path = "log/resources.txt";
     std::string events_output_path = "log/events.txt";
     std::string latency_all_output_path = "log/latency_all.txt";

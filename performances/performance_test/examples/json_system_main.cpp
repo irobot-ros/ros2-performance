@@ -66,7 +66,8 @@ int main(int argc, char** argv)
 
 
     std::string create_output_dir_command = std::string("mkdir -p ") + experiment_path + std::string("/log");
-    system(create_output_dir_command.c_str());
+    auto ret = system(create_output_dir_command.c_str());
+    static_cast<void>(ret);
     std::string resources_output_path = experiment_path + std::string("/log/resources.txt");
     std::string events_output_path = experiment_path + std::string("/log/events.txt");
     std::string latency_all_output_path = experiment_path + std::string("/log/latency_all.txt");

@@ -438,6 +438,10 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_json(
     auto period_ms = std::chrono::milliseconds(pub_json["period_ms"]);
     size_t msg_size = 0;
     if (msg_type == "vector"){
+        if (pub_json.find("msg_size") == pub_json.end())
+        {
+            assert(0 && "size of vector message not specified");
+        }
         msg_size = pub_json["msg_size"];
     }
 

@@ -70,8 +70,8 @@ void performance_test::Tracker::scan(
         const unsigned int latency_too_late_threshold_us = std::min(_tracking_options.too_late_absolute_us,
                                                                 _tracking_options.too_late_percentage * period_us / 100);
 
-        too_late = lat_us > latency_too_late_threshold_us;
-        late = lat_us > latency_late_threshold_us && !too_late;
+        too_late = static_cast<long>(lat_us) > latency_too_late_threshold_us;
+        late = static_cast<long>(lat_us) > latency_late_threshold_us && !too_late;
 
         if(late) {
             if (elog != nullptr){

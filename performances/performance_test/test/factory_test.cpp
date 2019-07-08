@@ -34,8 +34,8 @@ TEST(FactoryTest, FactoryCreateFromStringTest)
 
   auto node = std::make_shared<performance_test::Node>("node_name");
 
-  factory.add_subscriber_from_strings(node, "10b", "shared_ptr", "my_topic", performance_test::Tracker::TrackingOptions());
-  factory.add_periodic_publisher_from_strings(node, "10b", "unique_ptr", "my_topic");
+  factory.add_subscriber_from_strings(node, "10b", "my_topic", performance_test::Tracker::TrackingOptions());
+  factory.add_periodic_publisher_from_strings(node, "10b", "my_topic");
   factory.add_server_from_strings(node, "10b", "my_service");
   factory.add_periodic_client_from_strings(node, "10b", "my_service");
 

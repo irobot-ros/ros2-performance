@@ -83,16 +83,16 @@ class TemplateFactory {
         void add_subscriber_from_strings(
             std::shared_ptr<Node> n,
             std::string msg_type,
-            std::string msg_receiving_type,
             std::string topic_name,
             Tracker::TrackingOptions tracking_options,
+            std::string msg_receiving_type = "shared_ptr",
             rmw_qos_profile_t qos_profile = rmw_qos_profile_default);
 
         void add_periodic_publisher_from_strings(
             std::shared_ptr<Node> n,
             std::string msg_type,
-            std::string msg_passing_type,
             std::string topic_name,
+            std::string msg_passing_type = "unique_ptr",
             rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
             std::chrono::milliseconds period_ms = std::chrono::milliseconds(10),
             size_t msg_size = 0);

@@ -80,7 +80,7 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
             int topic_id = k + end_id;
             std::string topic_name = id_to_topic_name(topic_id);
 
-            this->add_subscriber_from_strings(node, msg_type, msg_receiving_type, topic_name, tracking_options, custom_qos_profile);
+            this->add_subscriber_from_strings(node, msg_type, topic_name, tracking_options, msg_receiving_type, custom_qos_profile);
         }
 
         nodes_vector.push_back(node);
@@ -112,7 +112,7 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
         int period = (1000/frequency);
         std::chrono::milliseconds period_ms = std::chrono::milliseconds(period);
 
-        this->add_periodic_publisher_from_strings(node, msg_type, msg_passing_type, topic_name, custom_qos_profile, period_ms, msg_size);
+        this->add_periodic_publisher_from_strings(node, msg_type, topic_name, msg_passing_type, custom_qos_profile, period_ms, msg_size);
 
         nodes_vector.push_back(node);
     }
@@ -185,9 +185,9 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
 void performance_test::TemplateFactory::add_subscriber_from_strings(
     std::shared_ptr<performance_test::Node> n,
     std::string msg_type,
-    std::string msg_receiving_type,
     std::string topic_name,
     Tracker::TrackingOptions tracking_options,
+    std::string msg_receiving_type,
     rmw_qos_profile_t custom_qos_profile)
 {
 
@@ -223,8 +223,8 @@ void performance_test::TemplateFactory::add_subscriber_from_strings(
 void performance_test::TemplateFactory::add_periodic_publisher_from_strings(
     std::shared_ptr<performance_test::Node> n,
     std::string msg_type,
-    std::string msg_passing_type,
     std::string topic_name,
+    std::string msg_passing_type,
     rmw_qos_profile_t custom_qos_profile,
     std::chrono::milliseconds period_ms,
     size_t msg_size)
@@ -446,8 +446,8 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_json(
     this->add_periodic_publisher_from_strings(
         node,
         msg_type,
-        msg_passing_type,
         topic_name,
+        msg_passing_type,
         custom_qos_profile,
         period_ms,
         msg_size);
@@ -473,9 +473,9 @@ void performance_test::TemplateFactory::add_subscriber_from_json(
     this->add_subscriber_from_strings(
         node,
         msg_type,
-        msg_receiving_type,
         topic_name,
         t_options,
+        msg_receiving_type,
         custom_qos_profile);
 
 }

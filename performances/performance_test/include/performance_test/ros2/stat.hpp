@@ -77,7 +77,7 @@ public:
     return _min;
   }
 
-  void increment_tracking_number(void)
+  void increment_tracking_number()
   {
      _n++;
   }

@@ -12,7 +12,7 @@
 #include "performance_test/ros2/tracker.hpp"
 
 
-void performance_test::Tracker::increment_tracking_number_count(void)
+void performance_test::Tracker::increment_tracking_number_count()
 {
     _stat.increment_tracking_number();
 }

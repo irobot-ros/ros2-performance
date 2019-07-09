@@ -16,7 +16,7 @@ To build:
 ```
 mkdir -p performances_ws/src
 cp -R <path to performances> performances_ws/src
-cd performances_ws/src
+cd performances_ws
 colcon build --merge-install
 ```
 
@@ -29,13 +29,13 @@ You can follow these instructions for cross-compiling for RaspberryPi [cross-com
 First, source the environment:
 
 ```
-source performances_ws/src/install/local_setup.bash
+source performances_ws/install/local_setup.bash
 ```
 
 Run:
 
 ```
-cd performances_ws/src/install/lib/benchmark
+cd performances_ws/install/lib/benchmark
 ./benchmark topology/sierra_nevada.json -t 60 --ipc on
 ```
 

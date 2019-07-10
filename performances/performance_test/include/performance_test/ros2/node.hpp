@@ -248,7 +248,7 @@ private:
     // Create message
     if (msg_passing_type == "shared_ptr")
     {
-        auto msg = get_resized_message_in_shared_ptr<Msg>(size);
+        auto msg = get_resized_message_as_shared_ptr<Msg>(size);
         // get the frequency value that we stored when creating the publisher
         msg->header.frequency = tracker.frequency();
         // set the tracking count for this message
@@ -260,7 +260,7 @@ private:
     }
     else
     {
-        auto msg = get_resized_message_in_unique_ptr<Msg>(size);
+        auto msg = get_resized_message_as_unique_ptr<Msg>(size);
         msg->header.frequency = tracker.frequency();
         msg->header.tracking_number = tracker.stat().n();
         msg->header.stamp = this->now();
@@ -277,7 +277,7 @@ private:
   template <typename Msg>
   typename std::enable_if<
     (!std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::unique_ptr<Msg>>::type
-  get_resized_message_in_unique_ptr(size_t size)
+  get_resized_message_as_unique_ptr(size_t size)
   {
       (void)size;
       auto msg = std::make_unique<Msg>();
@@ -288,7 +288,7 @@ private:
   template <typename Msg>
   typename std::enable_if<
     (std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::unique_ptr<Msg>>::type
-  get_resized_message_in_unique_ptr(size_t size)
+  get_resized_message_as_unique_ptr(size_t size)
   {
       auto msg = std::make_unique<Msg>();
       msg->data.resize(size);
@@ -299,7 +299,7 @@ private:
   template <typename Msg>
   typename std::enable_if<
     (!std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::shared_ptr<Msg>>::type
-  get_resized_message_in_shared_ptr(size_t size)
+  get_resized_message_as_shared_ptr(size_t size)
   {
       (void)size;
       auto msg = std::make_shared<Msg>();
@@ -310,7 +310,7 @@ private:
   template <typename Msg>
   typename std::enable_if<
     (std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::shared_ptr<Msg>>::type
-  get_resized_message_in_shared_ptr(size_t size)
+  get_resized_message_as_shared_ptr(size_t size)
   {
       auto msg = std::make_shared<Msg>();
       msg->data.resize(size);

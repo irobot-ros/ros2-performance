@@ -428,12 +428,6 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_json(
 
     std::string topic_name = pub_json["topic_name"];
     std::string msg_type = pub_json["msg_type"];
-    msg_pass_by_t msg_pass_by = UNIQUE_PTR;
-
-    if (pub_json.find("msg_pass_by") != pub_json.end())
-    {
-        msg_pass_by = map_msg_pass_by[pub_json["msg_pass_by"]];
-    }
 
     auto period_ms = std::chrono::milliseconds(pub_json["period_ms"]);
     size_t msg_size = 0;
@@ -446,6 +440,8 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_json(
     }
 
     rmw_qos_profile_t custom_qos_profile = get_qos_from_json(pub_json);
+
+    msg_pass_by_t msg_pass_by = get_msg_pass_by_from_json(pub_json);
 
     this->add_periodic_publisher_from_strings(
         node,
@@ -464,15 +460,11 @@ void performance_test::TemplateFactory::add_subscriber_from_json(
 
     std::string topic_name = sub_json["topic_name"];
     std::string msg_type = sub_json["msg_type"];
-    msg_pass_by_t msg_pass_by = SHARED_PTR;
-
-    if (sub_json.find("msg_pass_by") != sub_json.end())
-    {
-        msg_pass_by = map_msg_pass_by[sub_json["msg_pass_by"]];
-    }
 
     Tracker::TrackingOptions t_options;
     rmw_qos_profile_t custom_qos_profile = get_qos_from_json(sub_json);
+
+    msg_pass_by_t msg_pass_by = get_msg_pass_by_from_json(sub_json);
 
     this->add_subscriber_from_strings(
         node,
@@ -622,4 +614,22 @@ rmw_qos_profile_t performance_test::TemplateFactory::get_qos_from_json(
     }
 
     return custom_qos_profile;
+}
+
+msg_pass_by_t performance_test::TemplateFactory::get_msg_pass_by_from_json(
+    const json entity_json)
+{
+    msg_pass_by_t msg_pass_by;
+
+    std::map<std::string, msg_pass_by_t> map_msg_pass_by{
+        {"unique_ptr", PASS_BY_UNIQUE_PTR},
+        {"shared_ptr", PASS_BY_SHARED_PTR}
+    };
+
+    if (entity_json.find("msg_pass_by") != entity_json.end())
+    {
+        msg_pass_by = map_msg_pass_by[entity_json["msg_pass_by"]];
+    }
+
+    return msg_pass_by;
 }

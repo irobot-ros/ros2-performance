@@ -15,7 +15,6 @@
 #include "nlohmann/json.hpp"
 
 #include "performance_test/ros2/node.hpp"
-#include "performance_test/ros2/msg_passing.hpp"
 
 namespace performance_test {
 
@@ -86,14 +85,14 @@ class TemplateFactory {
             std::string msg_type,
             std::string topic_name,
             Tracker::TrackingOptions tracking_options,
-            msg_pass_by_t msg_pass_by = SHARED_PTR,
+            msg_pass_by_t msg_pass_by = PASS_BY_SHARED_PTR,
             rmw_qos_profile_t qos_profile = rmw_qos_profile_default);
 
         void add_periodic_publisher_from_strings(
             std::shared_ptr<Node> n,
             std::string msg_type,
             std::string topic_name,
-            msg_pass_by_t msg_pass_by = UNIQUE_PTR,
+            msg_pass_by_t msg_pass_by = PASS_BY_UNIQUE_PTR,
             rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
             std::chrono::milliseconds period_ms = std::chrono::milliseconds(10),
             size_t msg_size = 0);
@@ -134,6 +133,8 @@ class TemplateFactory {
         void add_server_from_json(std::shared_ptr<Node> node, const nlohmann::json server_json);
 
         rmw_qos_profile_t get_qos_from_json(const nlohmann::json entity_json);
+
+        msg_pass_by_t get_msg_pass_by_from_json(const nlohmann::json entity_json);
 
         bool _use_ipc;
         bool _verbose_mode;

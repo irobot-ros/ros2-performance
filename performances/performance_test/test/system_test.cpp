@@ -61,11 +61,11 @@ TEST(SystemTest, SystemPubSubTest)
 
     // Create 1 pulisher node and 1 subscriber node
     auto pub_node = std::make_shared<performance_test::Node>("pub_node");
-    pub_node->add_periodic_publisher(topic, 10ms, UNIQUE_PTR, rmw_qos_profile_default);
+    pub_node->add_periodic_publisher(topic, 10ms, PASS_BY_UNIQUE_PTR, rmw_qos_profile_default);
     ros2_system.add_node(pub_node);
 
     auto sub_node = std::make_shared<performance_test::Node>("sub_node");
-    sub_node->add_subscriber(topic, SHARED_PTR, performance_test::Tracker::TrackingOptions(), rmw_qos_profile_default);
+    sub_node->add_subscriber(topic, PASS_BY_SHARED_PTR, performance_test::Tracker::TrackingOptions(), rmw_qos_profile_default);
     ros2_system.add_node(sub_node);
 
     ros2_system.spin(duration_sec);
@@ -130,12 +130,12 @@ TEST(SystemTest, SystemDifferentQoSTest)
     // Create 1 pulisher node and 1 subscriber node
     auto pub_node = std::make_shared<performance_test::Node>("pub_node");
     qos_profile.reliability = rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
-    pub_node->add_periodic_publisher(topic, 10ms, UNIQUE_PTR, qos_profile);
+    pub_node->add_periodic_publisher(topic, 10ms, PASS_BY_UNIQUE_PTR, qos_profile);
     ros2_system.add_node(pub_node);
 
     auto sub_node = std::make_shared<performance_test::Node>("sub_node");
     qos_profile.reliability = rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_RELIABLE;
-    sub_node->add_subscriber(topic, SHARED_PTR, performance_test::Tracker::TrackingOptions(), qos_profile);
+    sub_node->add_subscriber(topic, PASS_BY_SHARED_PTR, performance_test::Tracker::TrackingOptions(), qos_profile);
     ros2_system.add_node(sub_node);
 
     ros2_system.spin(duration_sec);

@@ -70,7 +70,7 @@ TEST(FactoryTest, FactoryCreateFromIndicesTest)
       subscriber_end_index,
       n_publisher_nodes,
       msg_type,
-      SHARED_PTR);
+      PASS_BY_SHARED_PTR);
 
   auto pub_nodes =
     factory.create_periodic_publisher_nodes(
@@ -78,7 +78,7 @@ TEST(FactoryTest, FactoryCreateFromIndicesTest)
         publisher_end_index,
         frequency,
         msg_type,
-        UNIQUE_PTR);
+        PASS_BY_UNIQUE_PTR);
 
 
   ASSERT_EQ((size_t)2, sub_nodes.size());

@@ -108,7 +108,7 @@ int main(int argc, char ** argv)
             n_subscribers + n_publishers,
             frequency,
             msg_type,
-            UNIQUE_PTR,
+            PASS_BY_UNIQUE_PTR,
             msg_size,
             rmw_qos_profile_default);
 

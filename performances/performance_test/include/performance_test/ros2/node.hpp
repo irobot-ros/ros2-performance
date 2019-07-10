@@ -23,11 +23,16 @@
 #include "performance_test/ros2/communication.hpp"
 #include "performance_test/ros2/tracker.hpp"
 #include "performance_test/ros2/events_logger.hpp"
-#include "performance_test/ros2/msg_passing.hpp"
 
 #include "performance_test_msgs/msg/stamped_vector.hpp"
 
 using namespace std::chrono_literals;
+
+typedef enum
+{
+   PASS_BY_UNIQUE_PTR,
+   PASS_BY_SHARED_PTR
+} msg_pass_by_t;
 
 namespace performance_test {
 
@@ -55,7 +60,7 @@ public:
 
     switch (msg_pass_by)
     {
-      case SHARED_PTR:
+      case PASS_BY_SHARED_PTR:
       {
         std::function<void(const typename std::shared_ptr<const Msg> msg)> callback_function = std::bind(
           &Node::_topic_callback<const typename std::shared_ptr<const Msg>>,
@@ -71,7 +76,7 @@ public:
         break;
       }
 
-      case UNIQUE_PTR:
+      case PASS_BY_UNIQUE_PTR:
       {
         std::function<void(typename std::unique_ptr<Msg> msg)> callback_function = std::bind(
           &Node::_topic_callback<typename std::unique_ptr<Msg>>,
@@ -256,7 +261,7 @@ private:
 
     switch (msg_pass_by)
     {
-      case SHARED_PTR:
+      case PASS_BY_SHARED_PTR:
       {
           auto msg = get_resized_message_as_shared_ptr<Msg>(size);
           // get the frequency value that we stored when creating the publisher
@@ -270,7 +275,7 @@ private:
           break;
       }
 
-      case UNIQUE_PTR:
+      case PASS_BY_UNIQUE_PTR:
       {
           auto msg = get_resized_message_as_unique_ptr<Msg>(size);
           msg->header.frequency = tracker.frequency();

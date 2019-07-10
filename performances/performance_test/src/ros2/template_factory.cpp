@@ -432,7 +432,7 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_json(
 
     if (pub_json.find("msg_pass_by") != pub_json.end())
     {
-        msg_pass_by = _map_msg_pass_by[pub_json["msg_pass_by"]];
+        msg_pass_by = map_msg_pass_by[pub_json["msg_pass_by"]];
     }
 
     auto period_ms = std::chrono::milliseconds(pub_json["period_ms"]);
@@ -468,7 +468,7 @@ void performance_test::TemplateFactory::add_subscriber_from_json(
 
     if (sub_json.find("msg_pass_by") != sub_json.end())
     {
-        msg_pass_by = _map_msg_pass_by[sub_json["msg_pass_by"]];
+        msg_pass_by = map_msg_pass_by[sub_json["msg_pass_by"]];
     }
 
     Tracker::TrackingOptions t_options;

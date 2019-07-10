@@ -139,10 +139,6 @@ class TemplateFactory {
         bool _verbose_mode;
         std::string _ros2_namespace;
 
-        std::map<std::string, msg_pass_by_t> _map_msg_pass_by{
-            {"unique_ptr", UNIQUE_PTR},
-            {"shared_ptr", SHARED_PTR}
-        };
 };
 
 }

@@ -14,3 +14,8 @@ typedef enum
    UNIQUE_PTR,
    SHARED_PTR
 } msg_pass_by_t;
+
+std::map<std::string, msg_pass_by_t> map_msg_pass_by{
+    {"unique_ptr", UNIQUE_PTR},
+    {"shared_ptr", SHARED_PTR}
+};

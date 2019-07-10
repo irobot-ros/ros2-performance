@@ -23,6 +23,7 @@
 #include "performance_test/ros2/communication.hpp"
 #include "performance_test/ros2/tracker.hpp"
 #include "performance_test/ros2/events_logger.hpp"
+#include "performance_test/ros2/msg_passing.hpp"
 
 #include "performance_test_msgs/msg/stamped_vector.hpp"
 
@@ -46,13 +47,13 @@ public:
 
   template <typename Msg>
   void add_subscriber(const Topic<Msg>& topic,
-                      std::string msg_receiving_type,
+                      msg_pass_by_t msg_pass_by,
                       Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
                       rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
     typename rclcpp::Subscription<Msg>::SharedPtr sub;
 
-    if (msg_receiving_type == "shared_ptr")
+    if (msg_pass_by == SHARED_PTR)
     {
       std::function<void(const typename std::shared_ptr<const Msg> msg)> callback_function = std::bind(
         &Node::_topic_callback<const typename std::shared_ptr<const Msg>>,
@@ -88,7 +89,7 @@ public:
   template <typename Msg>
   void add_periodic_publisher(const Topic<Msg>& topic,
                               std::chrono::milliseconds period,
-                              std::string msg_passing_type,
+                              msg_pass_by_t msg_pass_by,
                               rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
                               size_t size = 0)
   {
@@ -99,7 +100,7 @@ public:
       &Node::_publish<Msg>,
       this,
       topic.name,
-      msg_passing_type,
+      msg_pass_by,
       size
     );
 
@@ -238,7 +239,7 @@ public:
 private:
 
   template <typename Msg>
-  void _publish(const std::string& name, std::string msg_passing_type,  size_t size)
+  void _publish(const std::string& name, msg_pass_by_t msg_pass_by, size_t size)
   {
     // Get publisher and tracking count from map
     auto& pub_pair = _pubs.at(name);
@@ -246,7 +247,7 @@ private:
     auto& tracker = pub_pair.second;
 
     // Create message
-    if (msg_passing_type == "shared_ptr")
+    if (msg_pass_by == SHARED_PTR)
     {
         auto msg = get_resized_message_as_shared_ptr<Msg>(size);
         // get the frequency value that we stored when creating the publisher

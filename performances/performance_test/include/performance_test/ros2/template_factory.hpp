@@ -15,6 +15,7 @@
 #include "nlohmann/json.hpp"
 
 #include "performance_test/ros2/node.hpp"
+#include "performance_test/ros2/msg_passing.hpp"
 
 namespace performance_test {
 
@@ -46,7 +47,7 @@ class TemplateFactory {
             int end_id,
             int n_publishers,
             std::string msg_type,
-            std::string msg_receiving_type,
+            msg_pass_by_t msg_pass_by,
             Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
             rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default);
 
@@ -55,7 +56,7 @@ class TemplateFactory {
             int end_id,
             float frequency,
             std::string msg_type,
-            std::string msg_passing_type,
+            msg_pass_by_t msg_pass_by,
             size_t msg_size = 0,
             rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default);
 
@@ -85,14 +86,14 @@ class TemplateFactory {
             std::string msg_type,
             std::string topic_name,
             Tracker::TrackingOptions tracking_options,
-            std::string msg_receiving_type = "shared_ptr",
+            msg_pass_by_t msg_pass_by = SHARED_PTR,
             rmw_qos_profile_t qos_profile = rmw_qos_profile_default);
 
         void add_periodic_publisher_from_strings(
             std::shared_ptr<Node> n,
             std::string msg_type,
             std::string topic_name,
-            std::string msg_passing_type = "unique_ptr",
+            msg_pass_by_t msg_pass_by = UNIQUE_PTR,
             rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
             std::chrono::milliseconds period_ms = std::chrono::milliseconds(10),
             size_t msg_size = 0);
@@ -137,6 +138,11 @@ class TemplateFactory {
         bool _use_ipc;
         bool _verbose_mode;
         std::string _ros2_namespace;
+
+        std::map<std::string, msg_pass_by_t> _map_msg_pass_by{
+            {"unique_ptr", UNIQUE_PTR},
+            {"shared_ptr", SHARED_PTR}
+        };
 };
 
 }

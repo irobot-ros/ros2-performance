@@ -14,7 +14,7 @@
                     "qos_liveliness":                      "system_default",
                     "qos_liveliness_lease_duration":       "default",
                     "qos_avoid_ros_namespace_conventions": "false",
-                    "msg_passing_type":                    "unique_ptr"
+                    "msg_pass_by":                         "unique_ptr"
                 }
               ]
         },
@@ -22,7 +22,7 @@
         {
             "node_name": "node_2",
             "subscribers":[
-                {"topic_name":"topic_1", "msg_type":"10b", "msg_receiving_type":"shared_ptr"}
+                {"topic_name":"topic_1", "msg_type":"10b", "msg_pass_by":"shared_ptr"}
               ],
             "servers": [
                 {"service_name": "service_2", "srv_type": "10b"}

@@ -57,8 +57,6 @@ TEST(FactoryTest, FactoryCreateFromIndicesTest)
   int n_subscriber_nodes = 2;
   int n_publisher_nodes = 2;
   std::string msg_type = "10b";
-  std::string msg_passing_type = "unique_ptr";
-  std::string msg_receiving_type = "shared_ptr";
   float frequency = 1;
 
   int subscriber_start_index = 0;
@@ -72,7 +70,7 @@ TEST(FactoryTest, FactoryCreateFromIndicesTest)
       subscriber_end_index,
       n_publisher_nodes,
       msg_type,
-      msg_receiving_type);
+      SHARED_PTR);
 
   auto pub_nodes =
     factory.create_periodic_publisher_nodes(
@@ -80,7 +78,7 @@ TEST(FactoryTest, FactoryCreateFromIndicesTest)
         publisher_end_index,
         frequency,
         msg_type,
-        msg_passing_type);
+        UNIQUE_PTR);
 
 
   ASSERT_EQ((size_t)2, sub_nodes.size());

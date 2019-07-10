@@ -27,7 +27,6 @@ int main(int argc, char ** argv)
     int n_subscribers = 2;
     int n_publishers = 1;
     std::string msg_type = "10b";
-    std::string msg_passing_type = "unique_ptr";
     int msg_size = 0;
     float frequency = 10;
     int executors = 0;
@@ -109,7 +108,7 @@ int main(int argc, char ** argv)
             n_subscribers + n_publishers,
             frequency,
             msg_type,
-            msg_passing_type,
+            UNIQUE_PTR,
             msg_size,
             rmw_qos_profile_default);
 

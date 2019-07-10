@@ -62,7 +62,7 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
     int end_id,
     int n_publishers,
     std::string msg_type,
-    std::string msg_receiving_type,
+    msg_pass_by_t msg_pass_by,
     Tracker::TrackingOptions tracking_options,
     rmw_qos_profile_t custom_qos_profile)
 {
@@ -80,7 +80,7 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
             int topic_id = k + end_id;
             std::string topic_name = id_to_topic_name(topic_id);
 
-            this->add_subscriber_from_strings(node, msg_type, topic_name, tracking_options, msg_receiving_type, custom_qos_profile);
+            this->add_subscriber_from_strings(node, msg_type, topic_name, tracking_options, msg_pass_by, custom_qos_profile);
         }
 
         nodes_vector.push_back(node);
@@ -95,7 +95,7 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
     int end_id,
     float frequency,
     std::string msg_type,
-    std::string msg_passing_type,
+    msg_pass_by_t msg_pass_by,
     size_t msg_size,
     rmw_qos_profile_t custom_qos_profile)
 {
@@ -112,7 +112,7 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
         int period = (1000/frequency);
         std::chrono::milliseconds period_ms = std::chrono::milliseconds(period);
 
-        this->add_periodic_publisher_from_strings(node, msg_type, topic_name, msg_passing_type, custom_qos_profile, period_ms, msg_size);
+        this->add_periodic_publisher_from_strings(node, msg_type, topic_name, msg_pass_by, custom_qos_profile, period_ms, msg_size);
 
         nodes_vector.push_back(node);
     }
@@ -187,28 +187,28 @@ void performance_test::TemplateFactory::add_subscriber_from_strings(
     std::string msg_type,
     std::string topic_name,
     Tracker::TrackingOptions tracking_options,
-    std::string msg_receiving_type,
+    msg_pass_by_t msg_pass_by,
     rmw_qos_profile_t custom_qos_profile)
 {
 
     const std::map<std::string, std::function<void()>>  subscribers_factory{
-        {"10b",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped10b>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"100b",        [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped100b>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"250b",        [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped250b>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"1kb",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped1kb>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"10kb",        [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped10kb>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"100kb",       [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped100kb>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"250kb",       [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped250kb>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"1mb",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped1mb>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"4mb",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped4mb>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"8mb",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped8mb>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"3float32",    [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped3Float32>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"4float32",    [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped4Float32>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"4int32",      [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped4Int32>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"9float32",    [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped9Float32>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"12float32",   [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped12Float32>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"int64",       [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::StampedInt64>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } },
-        {"vector",      [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::StampedVector>(topic_name), msg_receiving_type, tracking_options, custom_qos_profile); } }
+        {"10b",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped10b>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"100b",        [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped100b>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"250b",        [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped250b>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"1kb",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped1kb>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"10kb",        [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped10kb>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"100kb",       [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped100kb>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"250kb",       [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped250kb>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"1mb",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped1mb>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"4mb",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped4mb>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"8mb",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped8mb>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"3float32",    [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped3Float32>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"4float32",    [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped4Float32>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"4int32",      [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped4Int32>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"9float32",    [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped9Float32>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"12float32",   [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::Stamped12Float32>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"int64",       [&] { n->add_subscriber(performance_test::Topic<benchmark_msgs::msg::StampedInt64>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
+        {"vector",      [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::StampedVector>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } }
     };
 
     if (subscribers_factory.find(msg_type) == subscribers_factory.end()){
@@ -224,30 +224,30 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_strings(
     std::shared_ptr<performance_test::Node> n,
     std::string msg_type,
     std::string topic_name,
-    std::string msg_passing_type,
+    msg_pass_by_t msg_pass_by,
     rmw_qos_profile_t custom_qos_profile,
     std::chrono::milliseconds period_ms,
     size_t msg_size)
 {
 
     const std::map<std::string, std::function<void()>>  publishers_factory{
-        {"10b",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped10b>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"100b",        [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped100b>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"250b",        [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped250b>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"1kb",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped1kb>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"10kb",        [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped10kb>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"100kb",       [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped100kb>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"250kb",       [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped250kb>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"1mb",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped1mb>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"4mb",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped4mb>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"8mb",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped8mb>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"3float32",    [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped3Float32>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"4float32",    [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped4Float32>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"4int32",      [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped4Int32>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"9float32",    [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped9Float32>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"12float32",   [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped12Float32>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"int64",       [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::StampedInt64>(topic_name), period_ms, msg_passing_type, custom_qos_profile); } },
-        {"vector",      [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::StampedVector>(topic_name), period_ms,  msg_passing_type, custom_qos_profile, msg_size); } }
+        {"10b",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped10b>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"100b",        [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped100b>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"250b",        [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped250b>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"1kb",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped1kb>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"10kb",        [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped10kb>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"100kb",       [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped100kb>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"250kb",       [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped250kb>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"1mb",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped1mb>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"4mb",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped4mb>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"8mb",         [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::Stamped8mb>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"3float32",    [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped3Float32>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"4float32",    [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped4Float32>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"4int32",      [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped4Int32>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"9float32",    [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped9Float32>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"12float32",   [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::Stamped12Float32>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"int64",       [&] { n->add_periodic_publisher(performance_test::Topic<benchmark_msgs::msg::StampedInt64>(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },
+        {"vector",      [&] { n->add_periodic_publisher(performance_test::Topic<performance_test_msgs::msg::StampedVector>(topic_name), period_ms,  msg_pass_by, custom_qos_profile, msg_size); } }
     };
 
     if (publishers_factory.find(msg_type) == publishers_factory.end()){
@@ -428,11 +428,11 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_json(
 
     std::string topic_name = pub_json["topic_name"];
     std::string msg_type = pub_json["msg_type"];
-    std::string msg_passing_type = "unique_ptr";
+    msg_pass_by_t msg_pass_by = UNIQUE_PTR;
 
-    if (pub_json.find("msg_passing_type") != pub_json.end())
+    if (pub_json.find("msg_pass_by") != pub_json.end())
     {
-        msg_passing_type = pub_json["msg_passing_type"];
+        msg_pass_by = _map_msg_pass_by[pub_json["msg_pass_by"]];
     }
 
     auto period_ms = std::chrono::milliseconds(pub_json["period_ms"]);
@@ -451,7 +451,7 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_json(
         node,
         msg_type,
         topic_name,
-        msg_passing_type,
+        msg_pass_by,
         custom_qos_profile,
         period_ms,
         msg_size);
@@ -464,11 +464,11 @@ void performance_test::TemplateFactory::add_subscriber_from_json(
 
     std::string topic_name = sub_json["topic_name"];
     std::string msg_type = sub_json["msg_type"];
-    std::string msg_receiving_type = "shared_ptr";
+    msg_pass_by_t msg_pass_by = SHARED_PTR;
 
-    if (sub_json.find("msg_receiving_type") != sub_json.end())
+    if (sub_json.find("msg_pass_by") != sub_json.end())
     {
-        msg_receiving_type = sub_json["msg_receiving_type"];
+        msg_pass_by = _map_msg_pass_by[sub_json["msg_pass_by"]];
     }
 
     Tracker::TrackingOptions t_options;
@@ -479,7 +479,7 @@ void performance_test::TemplateFactory::add_subscriber_from_json(
         msg_type,
         topic_name,
         t_options,
-        msg_receiving_type,
+        msg_pass_by,
         custom_qos_profile);
 
 }

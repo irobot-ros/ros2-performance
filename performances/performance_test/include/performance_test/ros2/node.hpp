@@ -53,31 +53,39 @@ public:
   {
     typename rclcpp::Subscription<Msg>::SharedPtr sub;
 
-    if (msg_pass_by == SHARED_PTR)
+    switch (msg_pass_by)
     {
-      std::function<void(const typename std::shared_ptr<const Msg> msg)> callback_function = std::bind(
-        &Node::_topic_callback<const typename std::shared_ptr<const Msg>>,
-        this,
-        topic.name,
-        std::placeholders::_1
-      );
+      case SHARED_PTR:
+      {
+        std::function<void(const typename std::shared_ptr<const Msg> msg)> callback_function = std::bind(
+          &Node::_topic_callback<const typename std::shared_ptr<const Msg>>,
+          this,
+          topic.name,
+          std::placeholders::_1
+        );
 
-      sub = this->create_subscription<Msg>(topic.name,
-        rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile),
-        callback_function);
-    }
-    else
-    {
-      std::function<void(typename std::unique_ptr<Msg> msg)> callback_function = std::bind(
-        &Node::_topic_callback<typename std::unique_ptr<Msg>>,
-        this,
-        topic.name,
-        std::placeholders::_1
-      );
+        sub = this->create_subscription<Msg>(topic.name,
+          rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile),
+          callback_function);
 
-      sub = this->create_subscription<Msg>(topic.name,
-        rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile),
-        callback_function);
+        break;
+      }
+
+      case UNIQUE_PTR:
+      {
+        std::function<void(typename std::unique_ptr<Msg> msg)> callback_function = std::bind(
+          &Node::_topic_callback<typename std::unique_ptr<Msg>>,
+          this,
+          topic.name,
+          std::placeholders::_1
+        );
+
+        sub = this->create_subscription<Msg>(topic.name,
+          rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile),
+          callback_function);
+
+        break;
+      }
     }
 
     _subs.insert({ topic.name, { sub, Tracker(this->get_name(), topic.name, tracking_options) } });
@@ -246,27 +254,32 @@ private:
     auto pub = std::static_pointer_cast<rclcpp::Publisher<Msg>>(pub_pair.first);
     auto& tracker = pub_pair.second;
 
-    // Create message
-    if (msg_pass_by == SHARED_PTR)
+    switch (msg_pass_by)
     {
-        auto msg = get_resized_message_as_shared_ptr<Msg>(size);
-        // get the frequency value that we stored when creating the publisher
-        msg->header.frequency = tracker.frequency();
-        // set the tracking count for this message
-        msg->header.tracking_number = tracker.stat().n();
-        //attach the timestamp as last operation before publishing
-        msg->header.stamp = this->now();
+      case SHARED_PTR:
+      {
+          auto msg = get_resized_message_as_shared_ptr<Msg>(size);
+          // get the frequency value that we stored when creating the publisher
+          msg->header.frequency = tracker.frequency();
+          // set the tracking count for this message
+          msg->header.tracking_number = tracker.stat().n();
+          //attach the timestamp as last operation before publishing
+          msg->header.stamp = this->now();
 
-        pub->publish(*msg);
-    }
-    else
-    {
-        auto msg = get_resized_message_as_unique_ptr<Msg>(size);
-        msg->header.frequency = tracker.frequency();
-        msg->header.tracking_number = tracker.stat().n();
-        msg->header.stamp = this->now();
+          pub->publish(*msg);
+          break;
+      }
 
-        pub->publish(std::move(msg));
+      case UNIQUE_PTR:
+      {
+          auto msg = get_resized_message_as_unique_ptr<Msg>(size);
+          msg->header.frequency = tracker.frequency();
+          msg->header.tracking_number = tracker.stat().n();
+          msg->header.stamp = this->now();
+
+          pub->publish(std::move(msg));
+          break;
+      }
     }
 
     RCLCPP_DEBUG(this->get_logger(), "Publishing to %s msg number %d", name.c_str(), tracker.stat().n());

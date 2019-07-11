@@ -209,7 +209,7 @@ public:
 
   // Return a vector with all the trackers
   typedef std::vector<std::pair<std::string, Tracker>> Trackers;
-  std::shared_ptr<Trackers> all_trackers(bool all_interfaces = false)
+  std::shared_ptr<Trackers> all_trackers()
   {
     auto trackers = std::make_shared<Trackers>();
     for(const auto& sub : _subs)
@@ -222,17 +222,9 @@ public:
       trackers->push_back({client.first, client.second.second});
     }
 
-    // return also information from pubs and servers
-    if (all_interfaces){
-      // for(const auto& pub : _pubs)
-      // {
-      //   trackers->push_back({pub.first, pub.second.second});
-      // }
-
-      for(const auto& server : _servers)
-      {
-        trackers->push_back({server.first, server.second.second});
-      }
+    for(const auto& server : _servers)
+    {
+      trackers->push_back({server.first, server.second.second});
     }
 
     return trackers;

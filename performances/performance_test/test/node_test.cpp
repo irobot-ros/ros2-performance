@@ -31,7 +31,7 @@ TEST(NodeTest, NodeConstructorTest)
 
   auto node = std::make_shared<performance_test::Node>("node_name", ros2_namespace, use_ipc);
 
-  auto trackers_vector_ptr = node->all_trackers(true);
+  auto trackers_vector_ptr = node->all_trackers();
 
   ASSERT_EQ((size_t)0, trackers_vector_ptr->size());
 
@@ -54,8 +54,7 @@ TEST(NodeTest, NodeAddItemsTest)
   node->add_server(service);
   node->add_periodic_client(service, std::chrono::milliseconds(10));
 
-  ASSERT_EQ((size_t)2, node->all_trackers(false)->size());
-  ASSERT_EQ((size_t)4, node->all_trackers(true)->size());
+  ASSERT_EQ((size_t)3, node->all_trackers()->size());
 
   rclcpp::shutdown();
 }

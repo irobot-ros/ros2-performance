@@ -114,11 +114,9 @@ public:
       this,
       topic.name,
       msg_pass_by,
-      size
+      size,
+      period
     );
-
-    // store the frequency of this publisher task
-    _pubs.at(topic.name).second.set_frequency(1000 / period.count());
 
     this->add_timer(period, publisher_task);
   }
@@ -132,7 +130,7 @@ public:
                                       this->create_publisher<Msg>(topic.name,
                                       rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile));
 
-    _pubs.insert({ topic.name, { pub, Tracker(this->get_name(), topic.name, Tracker::TrackingOptions()) } });
+    _pubs.insert({ topic.name, {pub, 0} });
 
     RCLCPP_INFO(this->get_logger(),"Publisher to %s created", topic.name.c_str());
   }
@@ -226,10 +224,10 @@ public:
 
     // return also information from pubs and servers
     if (all_interfaces){
-      for(const auto& pub : _pubs)
-      {
-        trackers->push_back({pub.first, pub.second.second});
-      }
+      // for(const auto& pub : _pubs)
+      // {
+      //   trackers->push_back({pub.first, pub.second.second});
+      // }
 
       for(const auto& server : _servers)
       {
@@ -252,12 +250,12 @@ public:
 private:
 
   template <typename Msg>
-  void _publish(const std::string& name, msg_pass_by_t msg_pass_by, size_t size)
+  void _publish(const std::string& name, msg_pass_by_t msg_pass_by, size_t size, std::chrono::milliseconds period)
   {
     // Get publisher and tracking count from map
     auto& pub_pair = _pubs.at(name);
     auto pub = std::static_pointer_cast<rclcpp::Publisher<Msg>>(pub_pair.first);
-    auto& tracker = pub_pair.second;
+    auto& tracking_number = pub_pair.second;
 
     switch (msg_pass_by)
     {
@@ -265,9 +263,9 @@ private:
       {
           auto msg = get_resized_message_as_shared_ptr<Msg>(size);
           // get the frequency value that we stored when creating the publisher
-          msg->header.frequency = tracker.frequency();
+          msg->header.frequency = 1000 / period.count();
           // set the tracking count for this message
-          msg->header.tracking_number = tracker.stat().n();
+          msg->header.tracking_number = tracking_number;
           //attach the timestamp as last operation before publishing
           msg->header.stamp = this->now();
 
@@ -278,8 +276,8 @@ private:
       case PASS_BY_UNIQUE_PTR:
       {
           auto msg = get_resized_message_as_unique_ptr<Msg>(size);
-          msg->header.frequency = tracker.frequency();
-          msg->header.tracking_number = tracker.stat().n();
+          msg->header.frequency = 1000 / period.count();
+          msg->header.tracking_number = tracking_number;
           msg->header.stamp = this->now();
 
           pub->publish(std::move(msg));
@@ -287,9 +285,9 @@ private:
       }
     }
 
-    RCLCPP_DEBUG(this->get_logger(), "Publishing to %s msg number %d", name.c_str(), tracker.stat().n());
+    RCLCPP_DEBUG(this->get_logger(), "Publishing to %s msg number %d", name.c_str(), tracking_number);
 
-    tracker.increment_tracking_number_count();
+    tracking_number++;
   }
 
   // Only resize if it is a dynamic message
@@ -446,7 +444,7 @@ private:
 
   // A topic-name indexed map to store the publisher pointers with their
   // trackers.
-  std::map<std::string, std::pair<std::shared_ptr<void>, Tracker>> _pubs;
+  std::map<std::string, std::pair<std::shared_ptr<void>, Tracker::TrackingNumber>> _pubs;
 
   // A topic-name indexed map to store the subscriber pointers with their
   // trackers.

@@ -619,7 +619,7 @@ rmw_qos_profile_t performance_test::TemplateFactory::get_qos_from_json(
 msg_pass_by_t performance_test::TemplateFactory::get_msg_pass_by_from_json(
     const json entity_json)
 {
-    msg_pass_by_t msg_pass_by;
+    msg_pass_by_t msg_pass_by = PASS_BY_UNIQUE_PTR;
 
     std::map<std::string, msg_pass_by_t> map_msg_pass_by{
         {"unique_ptr", PASS_BY_UNIQUE_PTR},

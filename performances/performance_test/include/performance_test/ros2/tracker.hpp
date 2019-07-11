@@ -47,8 +47,6 @@ public:
     const rclcpp::Time& now,
     std::shared_ptr<EventsLogger> elog = nullptr);
 
-  void increment_tracking_number_count();
-
   unsigned long int lost() const { return _lost_messages; }
 
   unsigned long int late() const { return _late_messages; }

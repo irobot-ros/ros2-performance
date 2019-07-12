@@ -20,7 +20,7 @@ fi
 
 if [ -z "$TARGET_ARCHITECTURE" ]; then
     echo "Missing TARGET_ARCHITECTURE environment variables. Please run first"
-    echo "source env.sh";
+    echo "source env.sh <TARGET_ARCHITECTURE_NAME>";
     exit 1;
 fi
 
@@ -37,6 +37,6 @@ docker run -it \
     --volume $TOOLCHAIN_PATH:/root/ws/toolchainfile.cmake \
     --volume $TOOLCHAIN_VARIABLES_PATH:/root/cc_export.sh \
     -w="/root/ws" \
-    ros2_cc \
+    ros2_cc_$TARGET_ARCHITECTURE \
     /bin/bash -c 'source /root/.bashrc; \
         bash /root/compilation_scripts/cross_compile.sh'

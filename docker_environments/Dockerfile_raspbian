@@ -1,0 +1,19 @@
+
+FROM ros2_cc_base
+LABEL maintainer="Alberto Soragna asoragna at irobot dot com"
+
+
+###### INSTALL ROS2 REQUIREMENTS
+
+# TODO: numpy should be installed on the RaspberryPi sysroot (Python3.6 version) but pip and build from sources fail
+RUN pip3 install -U \
+  numpy
+
+
+###### INSTALL RASPBIAN CROSS-COMPILATION REQUIREMENTS
+
+# install gcc6 compiler and toolchain
+RUN apt-get update && apt-get install -y \
+  gcc-6 \
+  g++-6 \
+  g++-6-arm-linux-gnueabihf

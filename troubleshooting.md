@@ -86,7 +86,7 @@ However, you get a Python error similar to this one:
 Failed to load entry point 'launch': No module named 'rclpy._rclpy'
 ```
 
-**Possible reasons:** In order to use the CLI commands you need to have cross-compiled the ROS2 Python packages, that are ignored by the bash script in the `ignore_pkgs` directory since they require Python3.
+**Possible reasons:** In order to use the CLI commands you need to have cross-compiled the ROS2 Python packages, that are ignored by the bash script in the `ignore_pkgs_scripts` directory since they require Python3.
 Note that an alternative cause could be that you cross-compiled all the required packages, but the `PYTHON_SOABI` value specified in the `toolchain.cmake` file is wrong.
 
 **Solution:** Besides cross-compiling all the Python packages and checking the `PYTHON_SOABI` value, there exists a quicker solution, suitable for these platforms where Python3 is not available.
@@ -108,3 +108,10 @@ If you cross-compile the ROS2 SDK multiple times without restoring the sysroot, 
 
 **Solution:** you can generate again the sysroot, create a workspace containing only the [poco_vendor](https://github.com/ros2/poco_vendor) package and cross-compile it. Note that you don't need the ROS2 SDK for this operation.
 Then copy the cross-compiled libraries to the target board.
+
+
+#### SIGBUS error when running application
+
+If your target is a armv7l (i.e. 32-bit Raspberry Pi or similar) there could be a byte alignment error during the cross-compilation.
+This problem was present in the first release of ROS2 Crystal and then it has been addressed by [this PR](https://github.com/ros2/rcl/pull/365), which, after patch 1 has now been merged, so no further actions should be required.
+If you have any problems, ensure that the `src/ros2/rcl` package is checking out version 0.6.4 or above.

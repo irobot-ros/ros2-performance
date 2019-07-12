@@ -8,6 +8,11 @@ prefix="docker_environments/Dockerfile_"
 # Build all the other dockerfiles in the docker_environments directory
 for dockerfile_name in docker_environments/*
 do
+  # Check this is a Dockerfile (i.e. it starts with the prefix)
+  if [[ $dockerfile_name != $prefix* ]]; then
+    continue
+  fi
+
   # Strip the prefix from the dockerfile_name
   platform_name=${dockerfile_name#"$prefix"}
 

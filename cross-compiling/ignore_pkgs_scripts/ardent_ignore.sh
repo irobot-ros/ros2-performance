@@ -11,9 +11,6 @@ fi
 
 echo "Ignoring packages..."
 
-sed -e '/py/ s/^#*/#/' -i src/ros2/rosidl_typesupport/rosidl_default_generators/CMakeLists.txt
-sed -i -r 's/<build(.+?py.+?)/<\!\-\-build\1\-\->/' src/ros2/rosidl_typesupport/rosidl_default_generators/package.xml
-
 touch \
     src/ros/resource_retriever/COLCON_IGNORE \
     src/ros2/demos/COLCON_IGNORE \

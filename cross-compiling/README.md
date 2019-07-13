@@ -11,6 +11,7 @@ The supported ROS2 distributions are:
  - `ardent`
  - `bouncy`
  - `crystal`
+ - `dashing`
 
 
 The supported architectures are:
@@ -34,15 +35,15 @@ This will build the `Dockerfile` which provides a Docker environment with all th
 
 ## How to use it
 
-You can use these tools to cross-compile the ROS2 SDK or specific packages. Note that in the second case, you need an already cross-compiled SDK.
+You can use these tools to cross-compile the ROS2 SDK or specific packages. Note that in the second case, you need an already cross-compiled SDK which will have to be copied to the sysroot of your target platform.
 
 We are currently not able to cross-compile all the ROS2 package, due to their dependencies.
-That's not a problem as the missing ones are mostly Python and visualization packages.
-You can find the list of the packages to ignore for each specific ROS2 release [here](ignore_pkgs).
+That's not a problem as the missing ones are mostly visualization-related packages.
+You can find the list of the packages to ignore for each specific ROS2 release [here](ignore_pkgs_scripts).
 
-**NOTE:** the cross-compilation script mounts the workspace that you want to cross-compile as a Docker volume. This does not go well with symbolic links. For this reason ensure that the workspace contains the whole source code and not a symlink to it.
+**NOTE:** the cross-compilation script mounts the workspace that you want to cross-compile as a Docker volume. This does not go well with symbolic links. For this reason ensure that the workspace contains the whole source code and not a symlink to the repositories.
 
-In the following you can see some examples about how to cross-compile different types of packages.
+In the following sections you can find some examples about how to cross-compile different types of packages.
 Note that no changes are required if you want to cross-compile packages for a different ROS2 distribution.
 However it's recommended to wipe out the sysroot and get a new one when you want to cross-compile for a new distribution.
 
@@ -53,7 +54,7 @@ For example you can run:
 
 ```
 export TARGET=raspbian
-export ROS2_BRANCH=master
+export ROS2_BRANCH=dashing
 bash automatic_cross_compile.sh
 ```
 
@@ -67,9 +68,9 @@ Source the environment variables for this architecture using
 
 If you need a sysroot for the architecture, create it.
 
-    bash sysroots/get-sysroots.sh
+    bash get_sysroot.sh
 
-This command will download a sysroot for the archicture specified by the `TARGET_ARCHITECTURE` environment variable.
+This command will download a sysroot for the archicture specified by the `TARGET_ARCHITECTURE` environment variable (the argument passed to the `env.sh` script above, `raspbian` in this case).
 Note that if you already have a sysroot with the same name inside the `sysroots` directory, it will be overwritten by the new one.
 
 If you want to use your own sysroot, instead of generating a new one, you can skip the last instruction and just place your sysroot in the `sysroots` directory. Your sysroot directory must be renamed to `raspbian` or as the specified `TARGET_ARCHITECTURE` that you passed to `env.sh`.
@@ -84,11 +85,7 @@ Create a ROS2 workspace containing the sources you need
 Ignore some packages and python dependencies (note that there is a different script for each distribution you want to  cross-compile)
 
     cd -
-    bash ignore_pkgs/crystal_ignore.sh ~/ros2_cc_ws
-
-**CRYSTAL ONLY**: The released repositories for ROS2 Crystal Clemmys could not be directly compiled on ARMv7 boards, due to a byte alignment error.
-This is addressed by [this PR](https://github.com/ros2/rcl/pull/365), which, after patch 1 has now been merged, so no further actions should be required.
-If you have any problems, ensure that the `src/ros2/rcl` package is checking out version 0.6.4 or above.
+    bash ignore_pkgs.sh ~/ros2_cc_ws dashing
 
 Cross-compile the workspace
 
@@ -116,7 +113,7 @@ If you have followed the instructions in the previous section, you will already 
 
 If you need a sysroot for the architecture, create it.
 
-    bash sysroots/get-sysroots.sh
+    bash get_sysroot.sh
 
 Note that if you want to use your own sysroot, instead of generating a new one, you can skip the last instruction and just place your sysroot in the `sysroots` directory. The name of the sysroot directory must match the name be `raspbian`.
 
@@ -158,6 +155,22 @@ Note that if you place the libraries in a place different from the `usr/lib` dir
 For example:
 
     export LD_LIBRARY_PATH=~/ros2_crystal:$LD_LIBRARY_PATH
+
+
+## Add support for additional target architectures
+
+One of the goals of this cross-compilation framework is to be quite easy to be extended to new target architectures.
+
+For example, if you want to add a target named `my_architecture` you need the following:
+
+ - A compilation environment for your architecture. You have to create a new Dockerfile named `docker_environments/Dockerfile_my_architecture`. This Dockerfile must begin with the line
+    ```
+    FROM ros2_cc_base
+    ```
+
+    Then it has only to install the compiler for your architecure.
+ - A bash script that sets compilation flags for the toolchain named `toolchains/my_architecture.sh`
+ - A sysroot named `sysroots/my_architecture` or a script `sysroots/my_architecture_get_sysroot.sh` to generate it.
 
 
 ## References

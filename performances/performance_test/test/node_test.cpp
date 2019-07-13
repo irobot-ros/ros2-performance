@@ -14,7 +14,6 @@
 #include "performance_test_msgs/srv/stamped10b.hpp"
 
 
-
 int32_t main(int32_t argc, char ** argv)
 {
   ::testing::InitGoogleTest(&argc, argv);
@@ -32,7 +31,7 @@ TEST(NodeTest, NodeConstructorTest)
 
   auto node = std::make_shared<performance_test::Node>("node_name", ros2_namespace, use_ipc);
 
-  auto trackers_vector_ptr = node->all_trackers(true);
+  auto trackers_vector_ptr = node->all_trackers();
 
   ASSERT_EQ((size_t)0, trackers_vector_ptr->size());
 
@@ -50,13 +49,12 @@ TEST(NodeTest, NodeAddItemsTest)
 
   auto node = std::make_shared<performance_test::Node>("node_name");
 
-  node->add_subscriber(topic);
-  node->add_periodic_publisher(topic, std::chrono::milliseconds(10));
+  node->add_subscriber(topic, PASS_BY_SHARED_PTR);
+  node->add_periodic_publisher(topic, std::chrono::milliseconds(10), PASS_BY_UNIQUE_PTR);
   node->add_server(service);
   node->add_periodic_client(service, std::chrono::milliseconds(10));
 
-  ASSERT_EQ((size_t)2, node->all_trackers(false)->size());
-  ASSERT_EQ((size_t)4, node->all_trackers(true)->size());
+  ASSERT_EQ((size_t)3, node->all_trackers()->size());
 
   rclcpp::shutdown();
 }

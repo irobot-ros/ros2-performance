@@ -28,6 +28,12 @@
 
 using namespace std::chrono_literals;
 
+typedef enum
+{
+   PASS_BY_UNIQUE_PTR,
+   PASS_BY_SHARED_PTR
+} msg_pass_by_t;
+
 namespace performance_test {
 
 class Node : public rclcpp::Node
@@ -45,21 +51,47 @@ public:
 
 
   template <typename Msg>
-  void add_subscriber(const Topic<Msg>& topic, Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
+  void add_subscriber(const Topic<Msg>& topic,
+                      msg_pass_by_t msg_pass_by,
+                      Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
                       rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
+    typename rclcpp::Subscription<Msg>::SharedPtr sub;
 
-    std::function<void(const typename std::shared_ptr<const Msg> msg)> callback_function = std::bind(
-      &Node::_topic_callback<Msg>,
-      this,
-      topic.name,
-      std::placeholders::_1
-    );
+    switch (msg_pass_by)
+    {
+      case PASS_BY_SHARED_PTR:
+      {
+        std::function<void(const typename std::shared_ptr<const Msg> msg)> callback_function = std::bind(
+          &Node::_topic_callback<const typename std::shared_ptr<const Msg>>,
+          this,
+          topic.name,
+          std::placeholders::_1
+        );
 
-    typename rclcpp::Subscription<Msg>::SharedPtr sub =
-      this->create_subscription<Msg>(topic.name,
-                                     rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile),
-                                     callback_function);
+        sub = this->create_subscription<Msg>(topic.name,
+          rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile),
+          callback_function);
+
+        break;
+      }
+
+      case PASS_BY_UNIQUE_PTR:
+      {
+        std::function<void(typename std::unique_ptr<Msg> msg)> callback_function = std::bind(
+          &Node::_topic_callback<typename std::unique_ptr<Msg>>,
+          this,
+          topic.name,
+          std::placeholders::_1
+        );
+
+        sub = this->create_subscription<Msg>(topic.name,
+          rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile),
+          callback_function);
+
+        break;
+      }
+    }
 
     _subs.insert({ topic.name, { sub, Tracker(this->get_name(), topic.name, tracking_options) } });
 
@@ -70,6 +102,7 @@ public:
   template <typename Msg>
   void add_periodic_publisher(const Topic<Msg>& topic,
                               std::chrono::milliseconds period,
+                              msg_pass_by_t msg_pass_by,
                               rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
                               size_t size = 0)
   {
@@ -80,14 +113,12 @@ public:
       &Node::_publish<Msg>,
       this,
       topic.name,
-      size
+      msg_pass_by,
+      size,
+      period
     );
 
-    // store the frequency of this publisher task
-    _pubs.at(topic.name).second.set_frequency(1000 / period.count());
-
     this->add_timer(period, publisher_task);
-
   }
 
 
@@ -99,7 +130,7 @@ public:
                                       this->create_publisher<Msg>(topic.name,
                                       rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile));
 
-    _pubs.insert({ topic.name, { pub, Tracker(this->get_name(), topic.name, Tracker::TrackingOptions()) } });
+    _pubs.insert({ topic.name, {pub, 0} });
 
     RCLCPP_INFO(this->get_logger(),"Publisher to %s created", topic.name.c_str());
   }
@@ -178,7 +209,7 @@ public:
 
   // Return a vector with all the trackers
   typedef std::vector<std::pair<std::string, Tracker>> Trackers;
-  std::shared_ptr<Trackers> all_trackers(bool all_interfaces = false)
+  std::shared_ptr<Trackers> all_trackers()
   {
     auto trackers = std::make_shared<Trackers>();
     for(const auto& sub : _subs)
@@ -191,17 +222,9 @@ public:
       trackers->push_back({client.first, client.second.second});
     }
 
-    // return also information from pubs and servers
-    if (all_interfaces){
-      for(const auto& pub : _pubs)
-      {
-        trackers->push_back({pub.first, pub.second.second});
-      }
-
-      for(const auto& server : _servers)
-      {
-        trackers->push_back({server.first, server.second.second});
-      }
+    for(const auto& server : _servers)
+    {
+      trackers->push_back({server.first, server.second.second});
     }
 
     return trackers;
@@ -219,54 +242,93 @@ public:
 private:
 
   template <typename Msg>
-  void _publish(const std::string& name, size_t size)
+  void _publish(const std::string& name, msg_pass_by_t msg_pass_by, size_t size, std::chrono::milliseconds period)
   {
     // Get publisher and tracking count from map
     auto& pub_pair = _pubs.at(name);
     auto pub = std::static_pointer_cast<rclcpp::Publisher<Msg>>(pub_pair.first);
-    auto& tracker = pub_pair.second;
+    auto& tracking_number = pub_pair.second;
 
-    // Create message
-    auto msg = std::make_shared<Msg>();
-    // eventually resize the message (if it is dynamic) and measure its size
-    _resize(msg, size);
-    // get the frequency value that we stored when creating the publisher
-    msg->header.frequency = tracker.frequency();
-    // set the tracking count for this message
-    msg->header.tracking_number = tracker.stat().n();
-    //attach the timestamp as last operation before publishing
-    msg->header.stamp = this->now();
+    switch (msg_pass_by)
+    {
+      case PASS_BY_SHARED_PTR:
+      {
+          auto msg = get_resized_message_as_shared_ptr<Msg>(size);
+          // get the frequency value that we stored when creating the publisher
+          msg->header.frequency = 1000 / period.count();
+          // set the tracking count for this message
+          msg->header.tracking_number = tracking_number;
+          //attach the timestamp as last operation before publishing
+          msg->header.stamp = this->now();
 
-    pub->publish(*msg);
-    // increase the tracker count (with 0 latency as this is the publisher)
-    tracker.scan(msg->header, msg->header.stamp, _events_logger);
-    RCLCPP_DEBUG(this->get_logger(), "Publishing to %s msg number %d", name.c_str(), msg->header.tracking_number);
+          pub->publish(*msg);
+          break;
+      }
+
+      case PASS_BY_UNIQUE_PTR:
+      {
+          auto msg = get_resized_message_as_unique_ptr<Msg>(size);
+          msg->header.frequency = 1000 / period.count();
+          msg->header.tracking_number = tracking_number;
+          msg->header.stamp = this->now();
+
+          pub->publish(std::move(msg));
+          break;
+      }
+    }
+
+    RCLCPP_DEBUG(this->get_logger(), "Publishing to %s msg number %d", name.c_str(), tracking_number);
+
+    tracking_number++;
   }
 
   // Only resize if it is a dynamic message
   template <typename Msg>
   typename std::enable_if<
-    (!std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value)>::type
-  _resize(std::shared_ptr<Msg> msg, size_t size)
+    (!std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::unique_ptr<Msg>>::type
+  get_resized_message_as_unique_ptr(size_t size)
   {
-    (void)size;
-    msg->header.size = sizeof(msg->data);
-    return;
+      (void)size;
+      auto msg = std::make_unique<Msg>();
+      msg->header.size = sizeof(msg->data);
+      return msg;
   }
 
   template <typename Msg>
   typename std::enable_if<
-    (std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value)>::type
-  _resize(std::shared_ptr<Msg> msg, size_t size)
+    (std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::unique_ptr<Msg>>::type
+  get_resized_message_as_unique_ptr(size_t size)
   {
-    msg->data.resize(size);
-    msg->header.size = size;
-    return;
+      auto msg = std::make_unique<Msg>();
+      msg->data.resize(size);
+      msg->header.size = size;
+      return msg;
   }
 
+  template <typename Msg>
+  typename std::enable_if<
+    (!std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::shared_ptr<Msg>>::type
+  get_resized_message_as_shared_ptr(size_t size)
+  {
+      (void)size;
+      auto msg = std::make_shared<Msg>();
+      msg->header.size = sizeof(msg->data);
+      return msg;
+  }
 
   template <typename Msg>
-  void _topic_callback(const std::string& name, const typename std::shared_ptr<const Msg> msg)
+  typename std::enable_if<
+    (std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::shared_ptr<Msg>>::type
+  get_resized_message_as_shared_ptr(size_t size)
+  {
+      auto msg = std::make_shared<Msg>();
+      msg->data.resize(size);
+      msg->header.size = size;
+      return msg;
+  }
+
+  template <typename MsgType>
+  void _topic_callback(const std::string& name, MsgType msg)
   {
     // Scan new message's header
     auto& tracker = _subs.at(name).second;
@@ -274,7 +336,6 @@ private:
 
     RCLCPP_DEBUG(this->get_logger(), "Received on %s msg number %d after %lu us", name.c_str(), msg->header.tracking_number, tracker.last());
   }
-
 
   template <typename Srv>
   void _request(const std::string& name, size_t size)
@@ -375,7 +436,7 @@ private:
 
   // A topic-name indexed map to store the publisher pointers with their
   // trackers.
-  std::map<std::string, std::pair<std::shared_ptr<void>, Tracker>> _pubs;
+  std::map<std::string, std::pair<std::shared_ptr<void>, Tracker::TrackingNumber>> _pubs;
 
   // A topic-name indexed map to store the subscriber pointers with their
   // trackers.

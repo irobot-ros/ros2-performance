@@ -39,8 +39,7 @@ TEST(FactoryTest, FactoryCreateFromStringTest)
   factory.add_server_from_strings(node, "10b", "my_service");
   factory.add_periodic_client_from_strings(node, "10b", "my_service");
 
-  ASSERT_EQ((size_t)2, node->all_trackers(false)->size());
-  ASSERT_EQ((size_t)4, node->all_trackers(true)->size());
+  ASSERT_EQ((size_t)3, node->all_trackers()->size());
 
   rclcpp::shutdown();
 
@@ -69,14 +68,16 @@ TEST(FactoryTest, FactoryCreateFromIndicesTest)
       subscriber_start_index,
       subscriber_end_index,
       n_publisher_nodes,
-      msg_type);
+      msg_type,
+      PASS_BY_SHARED_PTR);
 
   auto pub_nodes =
     factory.create_periodic_publisher_nodes(
         publisher_start_index,
         publisher_end_index,
         frequency,
-        msg_type);
+        msg_type,
+        PASS_BY_UNIQUE_PTR);
 
 
   ASSERT_EQ((size_t)2, sub_nodes.size());
@@ -84,10 +85,6 @@ TEST(FactoryTest, FactoryCreateFromIndicesTest)
 
   for (const auto& n : sub_nodes){
     ASSERT_EQ((size_t)2, n->all_trackers()->size());
-  }
-
-  for (const auto& n : pub_nodes){
-    ASSERT_EQ((size_t)1, n->all_trackers(true)->size());
   }
 
   rclcpp::shutdown();
@@ -114,9 +111,8 @@ TEST(FactoryTest, FactoryCreateFromJsonTest)
   ASSERT_STREQ("node_1", nodes_vec[1]->get_name());
   ASSERT_STREQ("node_2", nodes_vec[2]->get_name());
 
-  ASSERT_EQ((size_t)2, nodes_vec[0]->all_trackers(true)->size());
-  ASSERT_EQ((size_t)2, nodes_vec[1]->all_trackers(true)->size());
-  ASSERT_EQ((size_t)1, nodes_vec[2]->all_trackers(true)->size());
+  ASSERT_EQ((size_t)2, nodes_vec[1]->all_trackers()->size());
+  ASSERT_EQ((size_t)1, nodes_vec[2]->all_trackers()->size());
 
   rclcpp::shutdown();
 

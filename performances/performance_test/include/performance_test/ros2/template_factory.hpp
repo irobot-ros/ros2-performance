@@ -46,6 +46,7 @@ class TemplateFactory {
             int end_id,
             int n_publishers,
             std::string msg_type,
+            msg_pass_by_t msg_pass_by,
             Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
             rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default);
 
@@ -54,6 +55,7 @@ class TemplateFactory {
             int end_id,
             float frequency,
             std::string msg_type,
+            msg_pass_by_t msg_pass_by,
             size_t msg_size = 0,
             rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default);
 
@@ -83,12 +85,14 @@ class TemplateFactory {
             std::string msg_type,
             std::string topic_name,
             Tracker::TrackingOptions tracking_options,
+            msg_pass_by_t msg_pass_by = PASS_BY_SHARED_PTR,
             rmw_qos_profile_t qos_profile = rmw_qos_profile_default);
 
         void add_periodic_publisher_from_strings(
             std::shared_ptr<Node> n,
             std::string msg_type,
             std::string topic_name,
+            msg_pass_by_t msg_pass_by = PASS_BY_UNIQUE_PTR,
             rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
             std::chrono::milliseconds period_ms = std::chrono::milliseconds(10),
             size_t msg_size = 0);
@@ -130,9 +134,12 @@ class TemplateFactory {
 
         rmw_qos_profile_t get_qos_from_json(const nlohmann::json entity_json);
 
+        msg_pass_by_t get_msg_pass_by_from_json(const nlohmann::json entity_json);
+
         bool _use_ipc;
         bool _verbose_mode;
         std::string _ros2_namespace;
+
 };
 
 }

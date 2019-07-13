@@ -108,6 +108,7 @@ int main(int argc, char ** argv)
             n_subscribers,
             n_publishers,
             msg_type,
+            PASS_BY_SHARED_PTR,
             performance_test::Tracker::TrackingOptions(),
             rmw_qos_profile_default);
 

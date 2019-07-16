@@ -441,7 +441,7 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_json(
 
     rmw_qos_profile_t custom_qos_profile = get_qos_from_json(pub_json);
 
-    msg_pass_by_t msg_pass_by = get_msg_pass_by_from_json(pub_json);
+    msg_pass_by_t msg_pass_by = get_msg_pass_by_from_json(pub_json, PASS_BY_UNIQUE_PTR);
 
     this->add_periodic_publisher_from_strings(
         node,
@@ -464,7 +464,7 @@ void performance_test::TemplateFactory::add_subscriber_from_json(
     Tracker::TrackingOptions t_options;
     rmw_qos_profile_t custom_qos_profile = get_qos_from_json(sub_json);
 
-    msg_pass_by_t msg_pass_by = get_msg_pass_by_from_json(sub_json);
+    msg_pass_by_t msg_pass_by = get_msg_pass_by_from_json(sub_json, PASS_BY_SHARED_PTR);
 
     this->add_subscriber_from_strings(
         node,
@@ -617,9 +617,10 @@ rmw_qos_profile_t performance_test::TemplateFactory::get_qos_from_json(
 }
 
 msg_pass_by_t performance_test::TemplateFactory::get_msg_pass_by_from_json(
-    const json entity_json)
+    const json entity_json,
+    msg_pass_by_t default_value)
 {
-    msg_pass_by_t msg_pass_by = PASS_BY_UNIQUE_PTR;
+    msg_pass_by_t msg_pass_by = default_value;
 
     std::map<std::string, msg_pass_by_t> map_msg_pass_by{
         {"unique_ptr", PASS_BY_UNIQUE_PTR},

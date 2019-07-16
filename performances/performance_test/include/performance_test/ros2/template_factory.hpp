@@ -134,7 +134,7 @@ class TemplateFactory {
 
         rmw_qos_profile_t get_qos_from_json(const nlohmann::json entity_json);
 
-        msg_pass_by_t get_msg_pass_by_from_json(const nlohmann::json entity_json);
+        msg_pass_by_t get_msg_pass_by_from_json(const nlohmann::json entity_json, msg_pass_by_t default_value);
 
         bool _use_ipc;
         bool _verbose_mode;

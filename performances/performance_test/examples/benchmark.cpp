@@ -20,7 +20,7 @@
 #include "performance_test/ros2/resource_usage_logger.hpp"
 #include "performance_test/ros2/template_factory.hpp"
 
-#include "options.hpp"
+#include "benchmark/options.hpp"
 
 using namespace std::chrono_literals;
 
@@ -34,12 +34,15 @@ int main(int argc, char** argv)
     std::cout << "Sampling resources every " << options.resources_sampling_per_ms << "ms" << std::endl;
     std::cout << "Start test" << std::endl;
 
-    const auto ret = system("mkdir -p log");
+    std::string dir_name = options.dir_name;
+    std::string make_dir = "mkdir -p " + dir_name;
+
+    const auto ret = system(make_dir.c_str());
     static_cast<void>(ret);
-    std::string resources_output_path = "log/resources.txt";
-    std::string events_output_path = "log/events.txt";
-    std::string latency_all_output_path = "log/latency_all.txt";
-    std::string latency_total_output_path = "log/latency_total.txt";
+    std::string resources_output_path     = dir_name + "/resources.txt";
+    std::string events_output_path        = dir_name + "/events.txt";
+    std::string latency_all_output_path   = dir_name + "/latency_all.txt";
+    std::string latency_total_output_path = dir_name + "/latency_total.txt";
 
     // Start resources logger
     performance_test::ResourceUsageLogger ru_logger(resources_output_path);

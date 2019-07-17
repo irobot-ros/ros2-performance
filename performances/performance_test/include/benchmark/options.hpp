@@ -30,6 +30,7 @@ public:
         tracking_options.late_absolute_us = 5000;
         tracking_options.too_late_percentage = 100;
         tracking_options.too_late_absolute_us = 50000;
+        dir_name = "log";
     };
 
     Options(int argc, char** argv)
@@ -52,6 +53,7 @@ public:
         cxxopts::value<std::string>(topology_json_path),"FILE")
       ("ipc", "intra-process-communication",
         cxxopts::value<std::string>(ipc_option)->default_value(ipc ? "on" : "off"),"on/off")
+      ("dir_name", "directory to store results", cxxopts::value<std::string>(dir_name))
       ("t,time", "test duration", cxxopts::value<int>(duration_sec)->default_value(std::to_string(duration_sec)),"sec")
       ("s, sampling", "resources sampling period",
         cxxopts::value<int>(resources_sampling_per_ms)->default_value(std::to_string(resources_sampling_per_ms)),"msec")
@@ -93,6 +95,7 @@ public:
     int duration_sec;
     int resources_sampling_per_ms;
     std::string topology_json_path;
+    std::string dir_name;
     performance_test::Tracker::TrackingOptions tracking_options;
 };
 }

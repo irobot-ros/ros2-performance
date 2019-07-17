@@ -16,16 +16,7 @@ find_package(benchmark_msgs REQUIRED)
 find_package(performance_test_msgs REQUIRED)
 find_package(performance_test REQUIRED)
 
-
-include_directories(
-  include
-)
-
-add_executable(benchmark src/benchmark.cpp)
-ament_target_dependencies(benchmark rclcpp performance_test performance_test_msgs benchmark_msgs)
-
 install(TARGETS
-  benchmark
   DESTINATION lib/${PROJECT_NAME}
 )
 

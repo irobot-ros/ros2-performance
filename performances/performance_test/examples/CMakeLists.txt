@@ -30,6 +30,10 @@ add_executable(json_system_main json_system_main.cpp)
 ament_target_dependencies(json_system_main rclcpp performance_test_msgs ${LIBRARY_NAME})
 target_link_libraries(json_system_main ${LIBRARY_NAME})
 
+add_executable(benchmark benchmark.cpp)
+ament_target_dependencies(benchmark rclcpp performance_test_msgs benchmark_msgs ${LIBRARY_NAME})
+target_link_libraries(benchmark ${LIBRARY_NAME})
+
 install(TARGETS
   publisher_nodes_main
   subscriber_nodes_main
@@ -38,5 +42,7 @@ install(TARGETS
   simple_pub_sub_main
   simple_client_service_main
   json_system_main
+  benchmark
+
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )

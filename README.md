@@ -54,7 +54,7 @@ For example you can run:
 
 ```
 export TARGET=raspbian
-export ROS2_BRANCH=dashing
+export ROS2_DISTRO=dashing
 bash automatic_cross_compile.sh
 ```
 

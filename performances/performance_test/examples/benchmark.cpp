@@ -20,7 +20,7 @@
 #include "performance_test/ros2/resource_usage_logger.hpp"
 #include "performance_test/ros2/template_factory.hpp"
 
-#include "benchmark/options.hpp"
+#include "cli/options.hpp"
 
 using namespace std::chrono_literals;
 

@@ -11,7 +11,7 @@ do
 key="$1"
 
 case $key in
-    -t|--topologies_list)
+    -t|--topology_list)
     TOPOLOGY_LIST="$2"
 
     while [[ "${3::1}" != '-' ]]
@@ -19,8 +19,6 @@ case $key in
         shift
         TOPOLOGY_LIST="$TOPOLOGY_LIST $2"
     done
-
-    printf "\nTOPOLOGY_LIST: $TOPOLOGY_LIST\n"
     shift 2;;
 
     # IPC mode
@@ -29,9 +27,9 @@ case $key in
     printf "IPC: $IPC\n"
     shift 2;;
 
-    --dds)
-    DDS="$2"
-    printf "DDS: $DDS\n"
+    --rmw)
+    RMW="$2"
+    printf "RMW: $RMW\n"
     shift 2;;
 
     # Duration of the test
@@ -40,28 +38,31 @@ case $key in
     printf "TIME: $TIME seconds\n"
     shift 2;;
 
-    # IP address of remote platform which runs the benchmark
+    # IP address of local platform which runs the benchmark
     --ip)
     IP_ADDR="$2"
     printf "IP_ADDR: $IP_ADDR\n"
     shift 2;;
 
-    # Location running benchmark: Local or remote
-    -l|--location)
-    LOCATION="$2"
-    printf "LOCATION: $LOCATION\n"
-    shift 2;;
+    # Sync flag: Wait for active counterparto to start benchmark
+    -s|--sync)
+    SYNC=true
+    printf "SYNC: true\n"
+    shift;;
 
     # Help
     -h|--help)
-    printf "\nDescription: Script for running multiple topologies simultaneously, on single or multiple platforms.\n"
-    printf "\nOptions:\n[-t|--topologies_list]\n[--ipc]:[on, off]\n"
-    printf "[--dds]:[fastrtps, cyclonedds, dps]\n[--time]:[test duration in seconds]\n[--ip]\n"
-    printf "\nSingle platform usage example:\nbash multi_process.sh -t sierra_nevada.json debug_sierra_nevada_reliable.json"
-    printf " --ipc on --dds fastrtps --time 5\n"
-    printf "\nMulti platform usage example: (use the IP address of your local device)\n"
-    printf "* Local:\nbash multi_process.sh -t sierra_nevada.json --ipc on --dds fastrtps --time 5 -l local --ip 192.168.1.218\n\n"
-    printf "* Remote:\nbash multi_process.sh -t debug_sierra_nevada_reliable.json --ipc on --dds fastrtps --time 5 -l remote --ip 192.168.1.218\n\n"
+    printf "\nDescription: Script for running multiple topologies simultaneously, on single or multiple platforms.\n\n"
+    printf "Options:\n[-t|--topology_list]\n[--ipc]:[on, off]\n"
+    printf "[--rmw]:[rmw_fastrtps_cpp, rmw_cyclonedds_cpp, rmw_dps_cpp]\n"
+    printf "[--time]:[test duration in seconds]\n[-s|--sync]\n[--ip]\n\n"
+    printf "Single platform usage example:\n"
+    printf "bash multi_process.sh -t <JSON FILE(s)> --ipc on --rmw rmw_fastrtps_cpp --time 5\n\n"
+    printf "Multi platform usage example:\n"
+    printf "* Local:\n"
+    printf "bash multi_process.sh -t <JSON FILE(s)> --ipc on --rmw rmw_fastrtps_cpp --time 5 -s\n\n"
+    printf "* Remote: (use the IP address of the local device)\n"
+    printf "bash multi_process.sh -t <JSON FILE(s)> --ipc on --rmw rmw_fastrtps_cpp --time 5 -s --ip 192.168.1.218\n\n"
     exit
 esac
 done
@@ -78,31 +79,32 @@ UTILITIES_DIR=$THIS_DIR/utility_scripts
 source $UTILITIES_DIR/kill_all_subprocesses.sh
 
 BENCHMARK_PATH=$ROS2_PERFORMANCE_TEST_EXECUTABLES_PATH
-TOPOLOGY_PATH="$THIS_DIR/../../benchmark/topology"
 
 # Use selected RMW
-export RMW_IMPLEMENTATION=rmw_"$DDS"_cpp
+export RMW_IMPLEMENTATION=$RMW
 
-for TOPOLOGY in $TOPOLOGY_LIST
+for FILE in $TOPOLOGY_LIST
 do
-    printf "\nRunning benchmark $TOPOLOGY in a background process.\n"
-    TOPOLOGY_NAME=${TOPOLOGY::-5}_log
+    TOPOLOGY_NAME=$(basename $FILE)
+    printf "\nRunning $TOPOLOGY_NAME in a background process.\n"
 
-    if [[ "$LOCATION" == "local" ]]
+    TOPOLOGY_RESULTS_DIR=${TOPOLOGY_NAME::-5}_log
+
+    if [[ ! -z "$SYNC" && -z "$IP_ADDR" ]]
     then
         printf "\nWaiting for remote benchmark to start...\n"
         nc -l $IP_ADDR -p 1234
 
-    elif [[ "$LOCATION" == "remote" ]]
+    elif [[ ! -z "$SYNC" ]]
     then
         SYNC_CMD="printf 'Remote device says: Start benchmark' | nc -q 1 $IP_ADDR 1234"
         until eval $SYNC_CMD
         do
-          printf "Please start benchmark on device with IP $IP_ADDR\n" && sleep 2
+          printf "Please run multi_process.sh on device with IP $IP_ADDR\n" && sleep 2
         done
     fi
 
-    $BENCHMARK_PATH/benchmark $TOPOLOGY_PATH/$TOPOLOGY --time $TIME --ipc $IPC --dir_name results/$TOPOLOGY_NAME &
+    $BENCHMARK_PATH/benchmark $FILE --time $TIME --ipc $IPC --dir_name results/$TOPOLOGY_RESULTS_DIR &
     echo
 done
 

@@ -38,31 +38,22 @@ case $key in
     printf "TIME: $TIME seconds\n"
     shift 2;;
 
-    # IP address of local platform which runs the benchmark
-    --ip)
+    # IP address of remote platform
+    -r|--remote_ip)
     IP_ADDR="$2"
     printf "IP_ADDR: $IP_ADDR\n"
     shift 2;;
 
-    # Sync flag: Wait for active counterparto to start benchmark
-    -s|--sync)
-    SYNC=true
-    printf "SYNC: true\n"
-    shift;;
-
     # Help
     -h|--help)
     printf "\nDescription: Script for running multiple topologies simultaneously, on single or multiple platforms.\n\n"
-    printf "Options:\n[-t|--topology_list]\n[--ipc]:[on, off]\n"
+    printf "Options:\n[-t|--topology_list]\n[-r|--remote_ip]\n[--ipc]:[on, off]\n"
     printf "[--rmw]:[rmw_fastrtps_cpp, rmw_cyclonedds_cpp, rmw_dps_cpp]\n"
-    printf "[--time]:[test duration in seconds]\n[-s|--sync]\n[--ip]\n\n"
+    printf "[--time]:[test duration in seconds]\n\n"
     printf "Single platform usage example:\n"
     printf "bash multi_process.sh -t <JSON FILE(s)> --ipc on --rmw rmw_fastrtps_cpp --time 5\n\n"
     printf "Multi platform usage example:\n"
-    printf "* Local:\n"
-    printf "bash multi_process.sh -t <JSON FILE(s)> --ipc on --rmw rmw_fastrtps_cpp --time 5 -s\n\n"
-    printf "* Remote: (use the IP address of the local device)\n"
-    printf "bash multi_process.sh -t <JSON FILE(s)> --ipc on --rmw rmw_fastrtps_cpp --time 5 -s --ip 192.168.1.218\n\n"
+    printf "bash multi_process.sh -t <JSON FILE(s)> --ipc on --rmw rmw_fastrtps_cpp --time 5 -r <REMOTE_IP_ADDRESS>\n\n"
     exit
 esac
 done
@@ -90,24 +81,21 @@ do
 
     TOPOLOGY_RESULTS_DIR=${TOPOLOGY_NAME::-5}_log
 
-    if [[ ! -z "$SYNC" && -z "$IP_ADDR" ]]
+    if [[ ! -z "$IP_ADDR" ]]
     then
-        printf "\nWaiting for remote benchmark to start...\n"
-        nc -l $IP_ADDR -p 1234
-
-    elif [[ ! -z "$SYNC" ]]
-    then
-        SYNC_CMD="printf 'Remote device says: Start benchmark' | nc -q 1 $IP_ADDR 1234"
-        until eval $SYNC_CMD
-        do
-          printf "Please run multi_process.sh on device with IP $IP_ADDR\n" && sleep 2
-        done
+        SYNC_CMD="printf 'Remote is now ready. Start benchmark\n' | nc -q 1 $IP_ADDR 1234"
+        if eval $SYNC_CMD
+        then
+          printf "Connection with remote succesfull\n"
+        else
+          printf "Remote not ready. Waiting for device with IP $IP_ADDR\n"
+          nc -lp 1234
+        fi
     fi
 
     $BENCHMARK_PATH/benchmark $FILE --time $TIME --ipc $IPC --dir_name results/$TOPOLOGY_RESULTS_DIR &
-    echo
 done
 
 wait
-echo "Results stored in $THIS_DIR/results"
+printf "\nResults stored in $THIS_DIR/results\n"
 

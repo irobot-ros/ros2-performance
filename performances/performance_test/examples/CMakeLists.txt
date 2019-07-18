@@ -43,6 +43,5 @@ install(TARGETS
   simple_client_service_main
   json_system_main
   benchmark
-
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )

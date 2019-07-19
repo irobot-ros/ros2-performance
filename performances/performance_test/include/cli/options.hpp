@@ -50,7 +50,7 @@ public:
       options.add_options()
       ("h,help", "print help")
       ("topology", "json file describing the topology of the system",
-        cxxopts::value<std::string>(topology_json_path),"FILE")
+        cxxopts::value<std::vector<std::string>>(topology_json_list),"FILE")
       ("ipc", "intra-process-communication",
         cxxopts::value<std::string>(ipc_option)->default_value(ipc ? "on" : "off"),"on/off")
       ("dir_name", "directory to store results", cxxopts::value<std::string>(dir_name))
@@ -94,7 +94,7 @@ public:
     bool ipc;
     int duration_sec;
     int resources_sampling_per_ms;
-    std::string topology_json_path;
+    std::vector<std::string> topology_json_list;
     std::string dir_name;
     performance_test::Tracker::TrackingOptions tracking_options;
 };

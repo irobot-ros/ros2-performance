@@ -69,33 +69,21 @@ UTILITIES_DIR=$THIS_DIR/utility_scripts
 # trap ctrl + c to kill all subprocesses
 source $UTILITIES_DIR/kill_all_subprocesses.sh
 
-BENCHMARK_PATH=$ROS2_PERFORMANCE_TEST_EXECUTABLES_PATH
-
 # Use selected RMW
 export RMW_IMPLEMENTATION=$RMW
 
-for FILE in $TOPOLOGY_LIST
-do
-    TOPOLOGY_NAME=$(basename $FILE)
-    printf "\nRunning $TOPOLOGY_NAME in a background process.\n"
-
-    TOPOLOGY_RESULTS_DIR=${TOPOLOGY_NAME::-5}_log
-
-    if [[ ! -z "$IP_ADDR" ]]
+if [[ ! -z "$IP_ADDR" ]]
+then
+    SYNC_CMD="printf 'Remote is now ready. Start benchmark\n' | nc -q 1 $IP_ADDR 1234"
+    if eval $SYNC_CMD
     then
-        SYNC_CMD="printf 'Remote is now ready. Start benchmark\n' | nc -q 1 $IP_ADDR 1234"
-        if eval $SYNC_CMD
-        then
-          printf "Connection with remote succesfull\n"
-        else
-          printf "Remote not ready. Waiting for device with IP $IP_ADDR\n"
-          nc -lp 1234
-        fi
+      printf "Connection with remote succesfull\n"
+    else
+      printf "Remote not ready. Waiting for device with IP $IP_ADDR\n"
+      nc -lp 1234
     fi
+fi
 
-    $BENCHMARK_PATH/benchmark $FILE --time $TIME --ipc $IPC --dir_name results/$TOPOLOGY_RESULTS_DIR &
-done
+$ROS2_PERFORMANCE_TEST_EXECUTABLES_PATH/benchmark $TOPOLOGY_LIST --time $TIME --ipc $IPC
 
-wait
-printf "\nResults stored in $THIS_DIR/results\n"
 

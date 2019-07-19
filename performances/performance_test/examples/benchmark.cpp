@@ -61,9 +61,12 @@ int main(int argc, char** argv)
         }
     }
 
-    std::string dir_name = options.dir_name;
-    std::string make_dir = "mkdir -p " + dir_name;
+    // Create results dir based on the topology name
+    const size_t last_slash = topology_json.find_last_of("/");
+    std::string topology_basename = topology_json.substr(last_slash + 1, topology_json.length());
+    std::string dir_name = topology_basename.substr(0,topology_basename.length()-5) + "_log";
 
+    std::string make_dir = "mkdir -p " + dir_name;
     const auto ret = system(make_dir.c_str());
     static_cast<void>(ret);
     std::string resources_output_path     = dir_name + "/resources.txt";

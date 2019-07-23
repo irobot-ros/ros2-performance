@@ -32,10 +32,8 @@ int main(int argc, char** argv)
     auto json_list = options.topology_json_list;
 
     std::cout << "Topology file(s): " << std::endl;
-    for (auto json = json_list.begin(); json != json_list.end(); json++)
-    {
-        std::cout << *json << std::endl;
-    }
+    for(const auto& json : json_list) std::cout << json << std::endl;
+
     std::cout << "Intra-process-communication: " << (options.ipc ? "on" : "off") << std::endl;
     std::cout << "Run test for: " << options.duration_sec << " seconds" << std::endl;
     std::cout << "Sampling resources every " << options.resources_sampling_per_ms << "ms" << std::endl;
@@ -43,7 +41,7 @@ int main(int argc, char** argv)
 
     std::string topology_json;
 
-    int is_parent = 1;
+    pid_t pid;
 
     for (auto json = json_list.begin(); json != json_list.end(); json++)
     {
@@ -52,12 +50,13 @@ int main(int argc, char** argv)
         // Fork only the for the first (n-1) topologies
         if (json != json_list.end() - 1)
         {
-            is_parent = fork();
-        }
-        // If fork() returns zero then it means it is a child process
-        if (!is_parent)
-        {
-            break;
+            pid = fork();
+
+            // If is a child process, break
+            if (pid == 0)
+            {
+                 break;
+            }
         }
     }
 
@@ -108,9 +107,9 @@ int main(int argc, char** argv)
 
     std::cout << std::endl;
 
-    // If we're in the parent process, wait for child to exit
-    if (is_parent)
+    // If this is the parent process, wait for child to exit
+    if (pid != 0)
     {
-        waitpid(getpid()+1, &is_parent, 0);
+        waitpid(getpid()+1, &pid, 0);
     }
 }

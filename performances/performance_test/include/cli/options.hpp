@@ -48,8 +48,8 @@ public:
       options.parse_positional({"topology"});
       options.add_options()
       ("h,help", "print help")
-      ("topology", "json file describing the topology of the system",
-        cxxopts::value<std::vector<std::string>>(topology_json_list),"FILE")
+      ("topology", "json file(s) describing the topology of the system",
+        cxxopts::value<std::vector<std::string>>(topology_json_list),"FILE [FILE...]")
       ("ipc", "intra-process-communication",
         cxxopts::value<std::string>(ipc_option)->default_value(ipc ? "on" : "off"),"on/off")
       ("t,time", "test duration", cxxopts::value<int>(duration_sec)->default_value(std::to_string(duration_sec)),"sec")

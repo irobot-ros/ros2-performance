@@ -46,13 +46,11 @@ case $key in
 
     # Help
     -h|--help)
-    printf "\nDescription: Script for running multiple topologies simultaneously, on single or multiple platforms.\n\n"
+    printf "\nDescription:\nScript for running multiple topologies simultaneously on multiple platforms.\n\n"
     printf "Options:\n[-t|--topology_list]\n[-r|--remote_ip]\n[--ipc]:[on, off]\n"
     printf "[--rmw]:[rmw_fastrtps_cpp, rmw_cyclonedds_cpp, rmw_dps_cpp]\n"
     printf "[--time]:[test duration in seconds]\n\n"
-    printf "Single platform usage example:\n"
-    printf "bash multi_process.sh -t <JSON FILE(s)> --ipc on --rmw rmw_fastrtps_cpp --time 5\n\n"
-    printf "Multi platform usage example:\n"
+    printf "Usage example:\n"
     printf "bash multi_process.sh -t <JSON FILE(s)> --ipc on --rmw rmw_fastrtps_cpp --time 5 -r <REMOTE_IP_ADDRESS>\n\n"
     exit
 esac
@@ -72,16 +70,13 @@ source $UTILITIES_DIR/kill_all_subprocesses.sh
 # Use selected RMW
 export RMW_IMPLEMENTATION=$RMW
 
-if [[ ! -z "$IP_ADDR" ]]
+SYNC_CMD="printf 'Remote is now ready. Start benchmark\n' | nc -q 1 $IP_ADDR 1234"
+if eval $SYNC_CMD
 then
-    SYNC_CMD="printf 'Remote is now ready. Start benchmark\n' | nc -q 1 $IP_ADDR 1234"
-    if eval $SYNC_CMD
-    then
-      printf "Connection with remote succesfull\n"
-    else
-      printf "Remote not ready. Waiting for device with IP $IP_ADDR\n"
-      nc -lp 1234
-    fi
+  printf "Connection with remote succesful\n"
+else
+  printf "Remote not ready. Waiting for device with IP $IP_ADDR\n"
+  nc -lp 1234
 fi
 
 $ROS2_PERFORMANCE_TEST_EXECUTABLES_PATH/benchmark $TOPOLOGY_LIST --time $TIME --ipc $IPC

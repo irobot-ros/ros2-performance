@@ -100,16 +100,18 @@ int main(int argc, char** argv)
 
     ros2_system.print_latency_all_stats();
     std::cout << std::endl;
-    std::cout << "System total:" << std::endl;
+    std::cout << "Process total:" << std::endl;
     ros2_system.print_latency_total_stats();
     ros2_system.save_latency_all_stats(latency_all_output_path);
     ros2_system.save_latency_total_stats(latency_total_output_path);
 
     std::cout << std::endl;
 
-    // If this is the parent process, wait for child to exit
+    // Parent process: wait for children to exit and print system stats
     if (pid != 0)
     {
         waitpid(getpid()+1, &pid, 0);
+        std::cout << "System total:" << std::endl;
+        ros2_system.print_agregate_stats(json_list);
     }
 }

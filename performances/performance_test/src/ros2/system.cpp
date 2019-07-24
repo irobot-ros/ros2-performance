@@ -305,6 +305,91 @@ void performance_test::System::print_latency_total_stats()
     this->log_latency_total_stats(std::cout);
 }
 
+void log_total_stats(unsigned long int total_received,
+                     unsigned long int total_lost,
+                     unsigned long int total_late,
+                     unsigned long int total_too_late,
+                     double average_latency,
+                     std::ostream& stream)
+{
+    const char separator = ' ';
+    const int wide_space = 15;
+    const int narrow_space = 10;
+
+    double total_lost_percentage = (double)total_lost / (total_received + total_lost) * 100;
+    double total_late_percentage = (double)total_late / total_received * 100;
+    double total_too_late_percentage = (double)total_too_late / total_received * 100;
+
+    // log header
+    stream << std::left << std::setw(wide_space)   << std::setfill(separator) << "received[#]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "mean[us]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[#]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[%]";
+    stream << std::left << std::setw(wide_space)   << std::setfill(separator) << "too_late[#]";
+    stream << std::left << std::setw(wide_space)   << std::setfill(separator) << "too_late[%]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[#]";
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[%]" << std::endl;
+
+    // log total values
+    stream << std::left << std::setw(wide_space)   << std::setfill(separator) << total_received;
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << average_latency;
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << total_late;
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::setprecision(4) << total_late_percentage;
+    stream << std::left << std::setw(wide_space)   << std::setfill(separator) << total_too_late;
+    stream << std::left << std::setw(wide_space)   << std::setfill(separator) << std::setprecision(4) << total_too_late_percentage;
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << total_lost;
+    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::setprecision(4) << total_lost_percentage << std::endl;
+}
+
+unsigned long int parse_line(std::string& line)
+{
+    std::string split_left = line.substr(0, line.find_first_of(" "));
+    std::string split_right = line.substr(line.find_first_of(" "), line.length());
+    line = split_right.substr(split_right.find_first_not_of(" "), split_right.length());
+    return strtoul(split_left.c_str(), NULL, 0);
+}
+
+void performance_test::System::print_agregate_stats(std::vector<std::string> topology_json_list)
+{
+
+    unsigned long int total_received = 0;
+    unsigned long int total_lost = 0;
+    unsigned long int total_late = 0;
+    unsigned long int total_too_late = 0;
+    unsigned long int total_latency = 0;
+
+    for(const auto& json : topology_json_list)
+    {
+        std::string filename = json.substr(0,json.length()-5) + "_log/latency_total.txt";
+        std::string line;
+        std::ifstream log_file(filename);
+
+        if (log_file.is_open())
+        {
+            getline (log_file,line);
+            // The second line contains the data to parse
+            getline (log_file,line);
+
+            total_received += parse_line(line);
+            total_latency += parse_line(line);
+            total_late += parse_line(line);
+            parse_line(line);
+            total_too_late += parse_line(line);
+            parse_line(line);
+            total_lost += parse_line(line);
+            log_file.close();
+        }
+        else
+        {
+            std::cout << "[SystemLatencyLogger]: Error. Could not open file "<< filename << std::endl;
+        }
+    }
+
+    double average_latency = std::round(total_latency / topology_json_list.size());
+
+    log_total_stats(total_received, total_lost, total_late, total_too_late,
+        average_latency, std::cout);
+}
 
 void performance_test::System::log_latency_all_stats(std::ostream& stream)
 {
@@ -365,9 +450,6 @@ void performance_test::System::log_latency_all_stats(std::ostream& stream)
 
 void performance_test::System::log_latency_total_stats(std::ostream& stream)
 {
-    const char separator = ' ';
-    const int wide_space = 15;
-    const int narrow_space = 10;
 
     unsigned long int total_received = 0;
     unsigned long int total_lost = 0;
@@ -389,28 +471,9 @@ void performance_test::System::log_latency_total_stats(std::ostream& stream)
         }
     }
 
-    double total_lost_percentage = (double)total_lost / (total_received + total_lost) * 100;
-    double total_late_percentage = (double)total_late / total_received * 100;
-    double total_too_late_percentage = (double)total_too_late / total_received * 100;
     double average_latency = std::round(total_latency / total_received);
 
-    // log header
-    stream << std::left << std::setw(wide_space) << std::setfill(separator) << "received[#]";
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "mean[us]";
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[#]";
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[%]";
-    stream << std::left << std::setw(wide_space) << std::setfill(separator) << "too_late[#]";
-    stream << std::left << std::setw(wide_space) << std::setfill(separator) << "too_late[%]";
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[#]";
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[%]" << std::endl;
+    log_total_stats(total_received, total_lost, total_late, total_too_late,
+        average_latency, stream);
 
-    // log total values
-    stream << std::left << std::setw(wide_space) << std::setfill(separator) << total_received;
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << average_latency;
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << total_late ;
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::setprecision(4) << total_late_percentage;
-    stream << std::left << std::setw(wide_space) << std::setfill(separator) << total_too_late ;
-    stream << std::left << std::setw(wide_space) << std::setfill(separator) << std::setprecision(4) << total_too_late_percentage;
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << total_lost;
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::setprecision(4) << total_lost_percentage << std::endl;
 }

@@ -24,7 +24,7 @@
 #include "performance_test/ros2/tracker.hpp"
 #include "performance_test/ros2/events_logger.hpp"
 
-#include "performance_test_msgs/msg/stamped_vector.hpp"
+//#include "performance_test_msgs/msg/stamped_vector.hpp"
 
 using namespace std::chrono_literals;
 
@@ -253,7 +253,11 @@ private:
     {
       case PASS_BY_SHARED_PTR:
       {
-          auto msg = get_resized_message_as_shared_ptr<Msg>(size);
+          //auto msg = get_resized_message_as_shared_ptr<Msg>(size);
+
+          auto msg = std::make_shared<Msg>();
+          msg->header.size = sizeof(msg->data);
+
           // get the frequency value that we stored when creating the publisher
           msg->header.frequency = 1000 / period.count();
           // set the tracking count for this message
@@ -267,7 +271,11 @@ private:
 
       case PASS_BY_UNIQUE_PTR:
       {
-          auto msg = get_resized_message_as_unique_ptr<Msg>(size);
+          //auto msg = get_resized_message_as_unique_ptr<Msg>(size);
+
+          auto msg = std::make_unique<Msg>();
+          msg->header.size = sizeof(msg->data);
+
           msg->header.frequency = 1000 / period.count();
           msg->header.tracking_number = tracking_number;
           msg->header.stamp = this->now();
@@ -282,6 +290,7 @@ private:
     tracking_number++;
   }
 
+  /*
   // Only resize if it is a dynamic message
   template <typename Msg>
   typename std::enable_if<
@@ -326,6 +335,7 @@ private:
       msg->header.size = size;
       return msg;
   }
+  */
 
   template <typename MsgType>
   void _topic_callback(const std::string& name, MsgType msg)

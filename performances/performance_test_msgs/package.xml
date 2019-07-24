@@ -4,6 +4,7 @@
   <name>performance_test_msgs</name>
   <version>0.1.0</version>
   <description>A package containing some performance test related message and service definitions.</description>
+  <maintainer email="joxoby@irobot.com">Juan Oxoby</maintainer>
   <maintainer email="asoragna@irobot.com">Alberto Soragna</maintainer>
   <license>Apache License 2.0</license>
 
@@ -11,10 +12,8 @@
   <buildtool_depend>rosidl_default_generators</buildtool_depend>
 
   <build_depend>builtin_interfaces</build_depend>
-  <build_depend>std_msgs</build_depend>
 
   <exec_depend>builtin_interfaces</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
   <exec_depend>rosidl_default_runtime</exec_depend>
 
   <member_of_group>rosidl_interface_packages</member_of_group>

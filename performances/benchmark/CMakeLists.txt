@@ -11,12 +11,17 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
-##
-## We keep the following dependencies because the topologies
-## defined below use the messages defined in them
-##
-find_package(benchmark_msgs REQUIRED)
-find_package(performance_test_msgs REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(performance_test REQUIRED)
+find_package(performance_test_factory REQUIRED)
+
+add_executable(benchmark src/benchmark.cpp)
+ament_target_dependencies(benchmark rclcpp performance_test performance_test_factory)
+
+install(TARGETS
+  benchmark
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 set(TOPOLOGY_FILES
   topology/sierra_nevada.json

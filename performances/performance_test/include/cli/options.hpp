@@ -44,7 +44,7 @@ public:
       cxxopts::Options options(argv[0], "ROS2 performance benchmark");
 
       std::string ipc_option;
-      options.positional_help("FILE").show_positional_help();
+      options.positional_help("FILE [FILE...]").show_positional_help();
       options.parse_positional({"topology"});
       options.add_options()
       ("h,help", "print help")

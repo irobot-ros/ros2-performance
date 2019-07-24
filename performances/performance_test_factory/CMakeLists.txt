@@ -37,16 +37,6 @@ set(LIBRARY_NAME ${PROJECT_NAME})
 add_library(${LIBRARY_NAME} SHARED ${LIBRARY_SRC})
 ament_target_dependencies(${LIBRARY_NAME} ${LIBRARY_DEPENDENCIES})
 
-
-add_executable(test_main src/main.cpp)
-ament_target_dependencies(test_main rclcpp ${LIBRARY_NAME})
-target_link_libraries(test_main ${LIBRARY_NAME})
-
-install(TARGETS
-  test_main
-  RUNTIME DESTINATION lib/${PROJECT_NAME}
-)
-
 install(TARGETS
   ${LIBRARY_NAME}
   ARCHIVE DESTINATION lib

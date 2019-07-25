@@ -89,7 +89,7 @@ public:
     }
 
 
-    void set_system_info(int pubs, int subs, float frequency, size_t msg_size)
+    void set_system_info(int pubs, int subs, float frequency)
     {
         if (_log == true){
             std::cout<<"[ResourceUsageLogger]: You have to set system info before starting the logger!"<<std::endl;
@@ -99,7 +99,6 @@ public:
         _pubs = pubs;
         _subs = subs;
         _frequency = frequency;
-        _msg_size = msg_size;
 
         _got_system_info = true;
     }
@@ -170,7 +169,6 @@ private:
             _file << std::left << std::setw(wide_space) << std::setfill(separator) << "pubs";
             _file << std::left << std::setw(wide_space) << std::setfill(separator) << "subs";
             _file << std::left << std::setw(wide_space) << std::setfill(separator) << "frequency";
-            _file << std::left << std::setw(wide_space) << std::setfill(separator) << "msg_size";
         }
 
         _file << std::endl;
@@ -199,7 +197,6 @@ private:
             _file << std::left << std::setw(wide_space) << std::setfill(separator) << _pubs;
             _file << std::left << std::setw(wide_space) << std::setfill(separator) << _subs;
             _file << std::left << std::setw(wide_space) << std::setfill(separator)<<  std::fixed << _frequency << std::defaultfloat;
-            _file << std::left << std::setw(wide_space) << std::setfill(separator) << _msg_size;
         }
 
         _file << std::endl;
@@ -221,6 +218,5 @@ private:
     int _pubs;
     int _subs;
     float _frequency;
-    size_t _msg_size;
 };
 }

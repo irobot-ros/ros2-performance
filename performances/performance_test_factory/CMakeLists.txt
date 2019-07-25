@@ -50,6 +50,11 @@ install(DIRECTORY
   DESTINATION include/
 )
 
+##
+## build the performance_test_factory examples
+##
+add_subdirectory(examples)
+
 ament_export_include_directories(include)
 ament_export_libraries(${LIBRARY_NAME})
 ament_export_dependencies(${LIBRARY_DEPENDENCIES})

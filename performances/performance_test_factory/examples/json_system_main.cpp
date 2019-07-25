@@ -13,11 +13,12 @@
 #include <string>
 
 #include "performance_test/ros2/system.hpp"
-#include "performance_test/ros2/template_factory.hpp"
 #include "performance_test/ros2/resource_usage_logger.hpp"
 #include "performance_test/ros2/tracker.hpp"
 
 #include "cxxopts.hpp"
+
+#include "performance_test_factory/factory.hpp"
 
 using namespace std::chrono_literals;
 

@@ -44,7 +44,6 @@ install(TARGETS
 install(DIRECTORY
   include/
   external/cxxopts-2.1.2/include/
-  #external/json/single_include/
   DESTINATION include/
 )
 

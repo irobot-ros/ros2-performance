@@ -19,7 +19,8 @@
 #include "performance_test/ros2/node.hpp"
 #include "performance_test/ros2/communication.hpp"
 #include "performance_test/ros2/resource_usage_logger.hpp"
-#include "performance_test/ros2/template_factory.hpp"
+
+#include "performance_test_factory/factory.hpp"
 
 #include "cli/options.hpp"
 

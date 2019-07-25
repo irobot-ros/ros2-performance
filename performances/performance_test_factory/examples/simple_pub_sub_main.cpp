@@ -11,11 +11,12 @@
 
 #include "rclcpp/rclcpp.hpp"
 
-#include "performance_test/ros2/template_factory.hpp"
 #include "performance_test/ros2/system.hpp"
 #include "performance_test/ros2/resource_usage_logger.hpp"
 
 #include "cxxopts.hpp"
+
+#include "performance_test_factory/factory.hpp"
 
 int main(int argc, char ** argv)
 {
@@ -83,8 +84,7 @@ int main(int argc, char ** argv)
     }
 
     performance_test::ResourceUsageLogger ru_logger(ru_file_path);
-    size_t m_size = performance_test::TemplateFactory::get_msg_size(msg_type, msg_size);
-    ru_logger.set_system_info(n_publishers, n_subscribers, frequency, m_size);
+    ru_logger.set_system_info(n_publishers, n_subscribers, frequency);
     // Start resources logger
     if (monitor_stats){
         ru_logger.start();

@@ -1,6 +1,6 @@
 # How to create a new topology for the iRobot Performance Framework
 
-A "topology" is a syntetic description of a ROS2 process, written in a format that can be parsed by the `performance_test_factory` package.
+A "topology" is a synthetic description of a ROS2 process, written in a format that can be parsed by the `performance_test_factory` package.
 
 Here you can find an example of a [simple topology](examples/simple_architecture.json).
 

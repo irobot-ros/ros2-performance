@@ -38,7 +38,7 @@ This directory contains the design proposals that we made to improve the ROS2 co
 [Cross-Compilation](cross-compiling)
 
 This repository also contains a Docker-based cross-compilation framework for cross-compiling the whole ROS2 SDK or single packages for the RaspberryPi.
-This framework has been designed with the objective in mind of being easy to be extended to new target architectures.
+This framework was designed to be easily extended to new architectures.
 
 You can find detailed instructions in the [cross-compiling directory](cross-compiling).
 

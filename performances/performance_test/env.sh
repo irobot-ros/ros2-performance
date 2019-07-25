@@ -18,22 +18,10 @@ MERGE_INSTALL=false
 # env.sh script: DO NOT MODIFY BELOW THIS LINE!!!
 #####
 
-# Set package name
-PERFORMANCE_TEST_PKG="performance_test"
-
-if [ "$MERGE_INSTALL" = true ]; then
-    # With --merge-install `colcon_build` creates a common directory for all libraries in the workspace
-    ROS2_SDK_LIBRARIES="$ROS2_SDK_INSTALL_PATH/lib"
-    ROS2_PERFORMANCE_TEST_LIBRARIES="$ROS2_PERFORMANCE_TEST_INSTALL_PATH/lib"
-    ROS2_PERFORMANCE_TEST_EXECUTABLES_PATH="$ROS2_PERFORMANCE_TEST_LIBRARIES/$PERFORMANCE_TEST_PKG"
-else
-    # Without --merge-install `colcon_build` creates a subdirectory for each package
-    ROS2_SDK_LIBRARIES="$(find $ROS2_SDK_INSTALL_PATH -name '*.so*' -printf '%h\n' | sort -u )"
-    ROS2_SDK_LIBRARIES="${ROS2_SDK_LIBRARIES//$'\n'/:}"
-    ROS2_PERFORMANCE_TEST_LIBRARIES="$(find $ROS2_PERFORMANCE_TEST_INSTALL_PATH -name '*.so*' -printf '%h\n' | sort -u )"
-    ROS2_PERFORMANCE_TEST_LIBRARIES="${ROS2_PERFORMANCE_TEST_LIBRARIES//$'\n'/:}"
-    ROS2_PERFORMANCE_TEST_EXECUTABLES_PATH="$ROS2_PERFORMANCE_TEST_INSTALL_PATH/$PERFORMANCE_TEST_PKG/lib/$PERFORMANCE_TEST_PKG"
-fi
+# Performance Test Framework package containing the example executables
+PERFORMANCE_TEST_EXAMPLES_PKG="performance_test"
+# Performance Test Framework package containing the benchmark application
+PERFORMANCE_TEST_BENCHMARK_PKG="benchmark"
 
 # Check if the specified directories exist
 if [ ! -d "$ROS2_PERFORMANCE_TEST_INSTALL_PATH" ]; then
@@ -48,10 +36,27 @@ if [ ! -d "$ROS2_SDK_INSTALL_PATH" ]; then
     return 1
 fi
 
-# Add ros2 shared libraries
+if [ "$MERGE_INSTALL" = true ]; then
+    # With --merge-install `colcon_build` creates a common directory for all libraries in the workspace
+    ROS2_SDK_LIBRARIES="$ROS2_SDK_INSTALL_PATH/lib"
+    ROS2_PERFORMANCE_TEST_LIBRARIES="$ROS2_PERFORMANCE_TEST_INSTALL_PATH/lib"
+    ROS2_PERFORMANCE_TEST_EXAMPLES_PATH="$ROS2_PERFORMANCE_TEST_LIBRARIES/$PERFORMANCE_TEST_EXAMPLES_PKG"
+    ROS2_PERFORMANCE_TEST_BENCHMARK_PATH="$ROS2_PERFORMANCE_TEST_LIBRARIES/$PERFORMANCE_TEST_BENCHMARK_PKG"
+else
+    # Without --merge-install `colcon_build` creates a subdirectory for each package
+    ROS2_SDK_LIBRARIES="$(find $ROS2_SDK_INSTALL_PATH -name '*.so*' -printf '%h\n' | sort -u )"
+    ROS2_SDK_LIBRARIES="${ROS2_SDK_LIBRARIES//$'\n'/:}"
+    ROS2_PERFORMANCE_TEST_LIBRARIES="$(find $ROS2_PERFORMANCE_TEST_INSTALL_PATH -name '*.so*' -printf '%h\n' | sort -u )"
+    ROS2_PERFORMANCE_TEST_LIBRARIES="${ROS2_PERFORMANCE_TEST_LIBRARIES//$'\n'/:}"
+    ROS2_PERFORMANCE_TEST_EXECUTABLES_PATH="$ROS2_PERFORMANCE_TEST_INSTALL_PATH/$PERFORMANCE_TEST_EXAMPLES_PKG/lib/$PERFORMANCE_TEST_EXAMPLES_PKG"
+    ROS2_PERFORMANCE_TEST_BENCHMARK_PATH="$ROS2_PERFORMANCE_TEST_INSTALL_PATH/$PERFORMANCE_TEST_BENCHMARK_PKG/lib/$PERFORMANCE_TEST_BENCHMARK_PKG"
+fi
+
+# Add the libraries to the shared libraries path
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROS2_SDK_LIBRARIES:$ROS2_PERFORMANCE_TEST_LIBRARIES
 
-# Specify where the C++ executables installed by this package are located
+# Specify where the C++ executables installed are located
 export ROS2_PERFORMANCE_TEST_EXECUTABLES_PATH
+export ROS2_PERFORMANCE_TEST_BENCHMARK_PATH
 
 echo "Environment sourced correctly!"

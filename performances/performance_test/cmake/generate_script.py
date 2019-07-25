@@ -9,7 +9,6 @@
 #  You may use, distribute and modify this code under the BSD-3-Clause license.
 #
 
-
 import argparse
 import os
 import re
@@ -110,7 +109,7 @@ def add_sub_factory(msgs, package):
     };
 
     if (subscribers_factory.find(msg_type) == subscribers_factory.end()){
-      assert(0 && "unknown msg type passed to factory method!" );
+      throw std::runtime_error("unknown msg type passed to subscribers factory: " + msg_type);
     }
 
     subscribers_factory.at(msg_type)();
@@ -158,7 +157,7 @@ def add_pub_factory(msgs, package):
     };
 
     if (publishers_factory.find(msg_type) == publishers_factory.end()){
-      assert(0 && "unknown msg type passed to factory method!" );
+      throw std::runtime_error("unknown msg type passed to publishers factory: " + msg_type);
     }
 
     publishers_factory.at(msg_type)();
@@ -203,7 +202,7 @@ def add_server_factory(srvs, package):
     };
 
     if (servers_factory.find(srv_type) == servers_factory.end()){
-      assert(0 && "unknown srv type passed to factory method!" );
+      throw std::runtime_error("unknown srv type passed to servers factory: " + srv_type);
     }
 
     servers_factory.at(srv_type)();
@@ -249,7 +248,7 @@ def add_client_factory(srvs, package):
     };
 
     if (clients_factory.find(srv_type) == clients_factory.end()){
-        assert(0 && "unknown srv type passed to factory method!" );
+      throw std::runtime_error("unknown srv type passed to clients factory: " + srv_type);
     }
 
     clients_factory.at(srv_type)();
@@ -301,7 +300,6 @@ def main():
   content += add_client_factory(srvs, package)
 
   #change = False
-
   def create(filename, content):
     if os.path.exists(filename):
       old_content = open(filename, 'r').read()

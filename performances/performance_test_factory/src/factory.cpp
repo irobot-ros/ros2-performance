@@ -206,8 +206,6 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_strings(
       std::cout<<"Error! Library is nullptr"<<std::endl;
     }
 
-    std::cout<<"ADD PUBLISHER---> "<< msg_type<<std::endl;
-
     typedef void (*function_impl_t)(
       std::shared_ptr<performance_test::Node>,
       std::string,

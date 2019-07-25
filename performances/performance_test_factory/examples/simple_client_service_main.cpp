@@ -27,7 +27,7 @@ int main(int argc, char ** argv)
     // experiment default values
     int n_clients = 2;
     int n_services = 1;
-    std::string msg_type = "10b";
+    std::string msg_type = "stamped10b";
     float frequency = 10;
     int executors = 0;
     int use_ipc = 0;

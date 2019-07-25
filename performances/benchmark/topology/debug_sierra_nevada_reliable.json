@@ -3,19 +3,19 @@
     {
       "node_name": "debug_node",
       "subscribers":[
-        {"topic_name":"amazon",   "msg_type":"9float32"},
-        {"topic_name":"arkansas", "msg_type":"4int32"},
-        {"topic_name":"congo",    "msg_type":"4int32"},
-        {"topic_name":"danube",   "msg_type":"int64"},
-        {"topic_name":"ganges",   "msg_type":"4int32"},
-        {"topic_name":"lena",     "msg_type":"vector"},
-        {"topic_name":"mekong",   "msg_type":"vector"},
-        {"topic_name":"missouri", "msg_type":"vector"},
-        {"topic_name":"nile",     "msg_type":"4int32"},
-        {"topic_name":"parana",   "msg_type":"3float32"},
-        {"topic_name":"salween",  "msg_type":"12float32"},
-        {"topic_name":"tigris",   "msg_type":"4float32"},
-        {"topic_name":"volga",    "msg_type":"int64"}
+        {"topic_name":"amazon",   "msg_type":"stamped9_float32"},
+        {"topic_name":"arkansas", "msg_type":"stamped4_int32"},
+        {"topic_name":"congo",    "msg_type":"stamped4_int32"},
+        {"topic_name":"danube",   "msg_type":"stamped_int64"},
+        {"topic_name":"ganges",   "msg_type":"stamped4_int32"},
+        {"topic_name":"lena",     "msg_type":"stamped_vector"},
+        {"topic_name":"mekong",   "msg_type":"stamped_vector"},
+        {"topic_name":"missouri", "msg_type":"stamped_vector"},
+        {"topic_name":"nile",     "msg_type":"stamped4_int32"},
+        {"topic_name":"parana",   "msg_type":"stamped3_float32"},
+        {"topic_name":"salween",  "msg_type":"stamped12_float32"},
+        {"topic_name":"tigris",   "msg_type":"stamped4_float32"},
+        {"topic_name":"volga",    "msg_type":"stamped_int64"}
       ]
     }
   ]

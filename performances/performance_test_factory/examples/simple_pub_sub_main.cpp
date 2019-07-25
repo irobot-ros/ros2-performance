@@ -27,7 +27,7 @@ int main(int argc, char ** argv)
     // experiment default values
     int n_subscribers = 2;
     int n_publishers = 1;
-    std::string msg_type = "10b";
+    std::string msg_type = "stamped10b";
     int msg_size = 0;
     float frequency = 10;
     int executors = 0;

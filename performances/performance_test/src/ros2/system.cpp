@@ -360,7 +360,8 @@ void performance_test::System::print_agregate_stats(std::vector<std::string> top
 
     for(const auto& json : topology_json_list)
     {
-        std::string filename = json.substr(0,json.length()-5) + "_log/latency_total.txt";
+        std::string basename = json.substr(json.find_last_of("/") + 1, json.length());
+        std::string filename = basename.substr(0,basename.length()-5) + "_log/latency_total.txt";
         std::string line;
         std::ifstream log_file(filename);
 

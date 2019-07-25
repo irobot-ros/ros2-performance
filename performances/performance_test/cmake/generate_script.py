@@ -158,7 +158,7 @@ def add_pub_factory(msgs, package):
     lowercased_name = get_lowercased_name(msg_name)
     map_key = "\"" + lowercased_name + "\""
 
-    map_entry = "{" + map_key +",  [&] { n->add_periodic_publisher(" + topic +"(topic_name), period_ms, msg_pass_by, custom_qos_profile); } },"
+    map_entry = "{" + map_key +",  [&] { n->add_periodic_publisher(" + topic +"(topic_name), period_ms, msg_pass_by, custom_qos_profile, msg_size); } },"
 
     content += "\n" + map_entry
 

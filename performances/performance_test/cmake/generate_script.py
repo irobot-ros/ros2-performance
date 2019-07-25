@@ -26,6 +26,18 @@ def get_interface_name_from_path(interface_path):
 
 
 def get_lowercased_name(interface_name):
+
+  # Remove consecutive upper-case letters: HelloWORLD becomes HelloWorld
+  last_upper = False
+  for idx, c in enumerate(interface_name):
+    if c.isupper():
+      if last_upper:
+        interface_name = interface_name[:idx] + c.lower() + interface_name[idx+1:]
+      last_upper = True
+    else:
+      last_upper = False
+
+  # This regular expression splits the name at each capital letter
   parts = re.sub( r"([A-Z])", r" \1", interface_name).split()
   lowercase_parts = [x.lower() for x in parts]
   lowercased_name = "_".join(lowercase_parts)

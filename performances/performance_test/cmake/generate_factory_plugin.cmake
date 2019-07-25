@@ -2,7 +2,7 @@
 set(GENERATE_FACTORY_PLUGIN__INTERNAL_DIR__ ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
 
 
-function(generate_factory_plugin)
+function(generate_factory_plugin argMSGS argSRVS)
 
   find_package(rclcpp REQUIRED)
   find_package(performance_test REQUIRED)
@@ -14,16 +14,16 @@ function(generate_factory_plugin)
 
   set (CUSTOM_TARGET_NAME ${PROJECT_NAME}_implementation.cpp)
   set (CUSTOM_TARGET_PATH ${PROJECT_BINARY_DIR}/generated/${CUSTOM_TARGET_NAME})
+
   add_custom_command(
       OUTPUT ${CUSTOM_TARGET_PATH}
       COMMAND python3
         ${GENERATE_FACTORY_PLUGIN__INTERNAL_DIR__}/generate_script.py
         ${CUSTOM_TARGET_PATH}
         --package ${PROJECT_NAME}
-        --msg ${CUSTOM_MSGS}
-        --srv ${CUSTOM_SRVS}
+        --msg ${argMSGS}
+        --srv ${argSRVS}
       DEPENDS ${PROJECT_NAME}
-      COMMENT "Generate (custom command)"
   )
 
   set (LIBRARY_NAME ${PROJECT_NAME}_implementation)

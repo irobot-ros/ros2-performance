@@ -1,16 +1,11 @@
 # Performances
 
-## iRobot ROS2 performance evaluation
+## iRobot ROS2 performance evaluation framework
 
-For each ROS2 core concept, we developed several tests for evaluating its performances.
+[ROS2 Performance Framework](performances)
 
-[iRobot ROS2 Performance Evaluation Framework](performances/performance_test)
-
-
-For a whole system performance evaluation, we have developed benchmark applications
-
-[iRobot ROS2 Benchmark applications](performances/benchmark)
-
+We developed a framework that allows to easily create arbitrary ROS2 systems and then measures their performance.
+With this framework you can define your system at runtime using json files or with command line options.
 
 These are the main metrics that we are interested in:
 
@@ -20,55 +15,35 @@ These are the main metrics that we are interested in:
  - Memory usage
 
 Due to our specific application scenario and to the new ROS2 multithread capabilities, we made most of the evaluations running all nodes in a single process.
-Evaluations have been performed on standard x86_64 laptops as well as on embedded platforms.
-
-If you want to repeat the experiments, eventually with different parameters, follow the [Build Instructions](performances/performance_test/README.md).
-
-##### Motivations
+However, our frameworks also support having multiple processes running at the same time.
 
 The goal is to develop a set of experiments which are easily reproducible and provide useful insights on the ROS2 performances.
-This allows to easily repeat them as soon as a new ROS2 distribution is released.
+Moreover, it is possible to create proxy applications that mimic a real, complex, system and to measure what's the overhead of ROS2 communication in such a context.
 
+We can easily repeat our tests with different ROS2 distributions or middlewares.
 For each ROS2 distribution we aim to:
 
- - Test all the ROS2 features.
- - Find limits/bugs.
- - Perform regression tests with respect to the previous distribution.
-
 Early results are suggesting us that this is the correct way to go, as we are spotting the strengths and weaknesses of ROS2 and helping the ROS2 community to grow, by signaling and fixing bugs to the ROS2 core implementation.
+Running our application also allowed to find regressions with respect to the previous releases.
 
-##### Creating ROS2 systems
 
-We tested ROS2 on many different systems.
-In order to do that we implemented tools that allow users to easily create any number of nodes with the same characteristics as well as tools for manually crafting your own graph topology and measure its performances.
+## Proposals
+
+[Proposals](proposals)
+
+This directory contains the design proposals that we made to improve the ROS2 core and its performances.
 
 ## Cross-Compilation
 
-This repository also contains some Docker-based tools for cross-compiling ROS2 SDK and single packages for RaspberryPi.
+[Cross-Compilation](cross-compiling)
+
+This repository also contains a Docker-based cross-compilation framework for cross-compiling the whole ROS2 SDK or single packages for the RaspberryPi.
+This framework has been designed with the objective in mind of being easy to be extended to new target architectures.
 
 You can find detailed instructions in the [cross-compiling directory](cross-compiling).
 
 
-## Experiments
-
-Here you find links to the experiments for the most recent ROS2 distribution.
-Each `README` file contains a description of the experiment, instructions for reproducing it and the results obtained.
-
-
-
-| Experiment | README |
-| ------------- | ------------- |
-| Benchmark application | [README.md](performances/benchmark)
-| Discovery time | [README.md](performances/experiments/crystal/discovery_time) |
-| Pub/Sub Latency | [README.md](performances/experiments/crystal/pub_sub_latency) |
-| Pub/Sub Reliability | [README.md](performances/experiments/crystal/pub_sub_reliability) |
-| Pub/Sub Memory usage | [README.md](performances/experiments/crystal/pub_sub_memory) |
-| Pub/Sub CPU usage | [README.md](performances/experiments/crystal/pub_sub_cpu) |
-| Client/Service systems | [README.md](performances/experiments/crystal/client_service) |
-| Bouncy-Crystal regression test | [README.md](performances/experiments/crystal/regression) |
-
-
-## External tools an resources
+## External tools and resources
 
 #### Apex AI ROS2 Evaluation tool
 

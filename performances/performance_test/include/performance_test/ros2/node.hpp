@@ -306,7 +306,6 @@ private:
     (std::is_same<DataT, std::vector<uint8_t>>::value), void>::type
   resize_msg(DataT & data, performance_test_msgs::msg::PerformanceHeader & header, size_t size)
   {
-      std::cout<<"RESIZE TO "<< size<<std::endl;
       data.resize(size);
       header.size = size;
   }

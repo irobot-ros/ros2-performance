@@ -39,22 +39,22 @@ There are 2 constraints on the custom interfaces that can be used in the perform
   The `data` field can be both a vector (as in the example) or an array. This simulates the payload of the message.
 
 An example of such a plugin package is the [irobot_interfaces_plugin](../irobot_interfaces_plugin).
-At a first glance, this package may look identical to any of the ROS2 packages that define custom interfaces, but there are 2 small differences:
+At a first glance, this package may look identical to any of the ROS2 packages that define custom interfaces, but there are small differences:
 
  - In the `package.xml` file it's necessary to add the line
  ```
   <member_of_group>performance_test_factory_plugins</member_of_group>
  ```
    This is used to let the compiler know that the `performance_test_factory` will have to support these interfaces.
- - In the `CMakeLists.txt` file it's necessary to add a dependency on `performance_test`
- ```
-  find_package(performance_test REQUIRED)
- ```
-   And to call a custom CMake function to generate a support library for the factory.
+ - The package has to depend on `performance_test_plugin_cmake`. This has to be added to `package.xml` as well as `CMakeLists.txt`.
+
+ - In the `CMakeLists.txt` file it's necessary to call a custom CMake function to generate a support library for the factory.
  ```
   generate_factory_plugin("${MSGS}" "${SRVS}")
  ```
    Where the arguments are CMake variables containing a list of messages and services names. Note that the `"` are needed to pass each list as a single argument.
+
+**NOTE:** you can copy the [irobot_interfaces_plugin](../irobot_interfaces_plugin) package and just change the generated interfaces to what you need.
 
 #### How to reference a custom message in a topology
 

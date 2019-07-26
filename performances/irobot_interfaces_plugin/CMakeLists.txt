@@ -13,7 +13,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 
 find_package(rosidl_default_generators REQUIRED)
-find_package(performance_test REQUIRED)
+find_package(performance_test_plugin_cmake REQUIRED)
 find_package(performance_test_msgs REQUIRED)
 
 find_package(std_msgs REQUIRED)

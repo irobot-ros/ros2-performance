@@ -3,7 +3,7 @@
 <package format="2">
   <name>performance_test</name>
   <version>0.2.0</version>
-  <description>Tests for measuring ROS2 performances</description>
+  <description>Classes for generating ROS2 nodes and measuring their performance</description>
   <author>Alberto Soragna</author>
   <maintainer email="asoragna@irobot.com">Alberto Soragna</maintainer>
   <maintainer email="joxoby@irobot.com">Juan Oxoby</maintainer>

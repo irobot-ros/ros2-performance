@@ -58,11 +58,4 @@ ament_export_include_directories(include)
 ament_export_libraries(${LIBRARY_NAME})
 ament_export_dependencies(${LIBRARY_DEPENDENCIES})
 
-ament_package(
-  CONFIG_EXTRAS "generate_factory_plugin-extras.cmake"
-)
-
-install(
-  DIRECTORY cmake
-  DESTINATION share/${PROJECT_NAME}
-)
+ament_package()

@@ -11,21 +11,21 @@
 
 #include "performance_test/ros2/system.hpp"
 #include "performance_test/ros2/node.hpp"
-#include "performance_test_msgs/msg/stamped10b.hpp"
-#include "performance_test_msgs/srv/stamped10b.hpp"
+#include "performance_test_msgs/msg/sample.hpp"
+#include "performance_test_msgs/srv/sample.hpp"
 
-
-
-int32_t main(int32_t argc, char ** argv)
+class TestSystem : public ::testing::Test
 {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
-
-TEST(SystemTest, SystemAddNodesTest)
-{
+public:
+  static void SetUpTestCase()
+  {
     rclcpp::init(0, nullptr);
+  }
+};
 
+
+TEST_F(TestSystem, SystemAddNodesTest)
+{
     auto node_1 = std::make_shared<performance_test::Node>("node_1");
     auto node_2 = std::make_shared<performance_test::Node>("node_2");
     auto node_3 = std::make_shared<performance_test::Node>("node_3");
@@ -42,19 +42,13 @@ TEST(SystemTest, SystemAddNodesTest)
 
     single_executor_system.add_node(node_1);
     single_executor_system.add_node(nodes_vec);
-
-    rclcpp::shutdown();
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }
 
 
 
-TEST(SystemTest, SystemPubSubTest)
+TEST_F(TestSystem, SystemPubSubTest)
 {
-    rclcpp::init(0, nullptr);
-
-    auto topic = performance_test::Topic<performance_test_msgs::msg::Stamped10b>("my_topic");
+    auto topic = performance_test::Topic<performance_test_msgs::msg::Sample>("my_topic");
 
     int duration_sec = 1;
     performance_test::System ros2_system;
@@ -70,24 +64,17 @@ TEST(SystemTest, SystemPubSubTest)
 
     ros2_system.spin(duration_sec);
 
-    rclcpp::shutdown();
-
     auto trackers_vec_ptr = sub_node->all_trackers();
     auto tracker = (*trackers_vec_ptr)[0];
 
     ASSERT_EQ("my_topic", tracker.first);
     ASSERT_GT(tracker.second.received(), (unsigned long int)1);
-
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }
 
 
-TEST(SystemTest, SystemClientServerTest)
+TEST_F(TestSystem, SystemClientServerTest)
 {
-    rclcpp::init(0, nullptr);
-
-    auto service = performance_test::Topic<performance_test_msgs::srv::Stamped10b>("my_service");
+    auto service = performance_test::Topic<performance_test_msgs::srv::Sample>("my_service");
 
     int duration_sec = 2;
     performance_test::System ros2_system;
@@ -104,24 +91,17 @@ TEST(SystemTest, SystemClientServerTest)
     // discovery check does not work with client/server yet
     ros2_system.spin(duration_sec, false);
 
-    rclcpp::shutdown();
-
     auto trackers_vec_ptr = client_node->all_trackers();
     auto tracker = (*trackers_vec_ptr)[0];
 
     ASSERT_EQ("my_service", tracker.first);
     ASSERT_GT(tracker.second.received(), (unsigned long int)1);
-
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }
 
 
-TEST(SystemTest, SystemDifferentQoSTest)
+TEST_F(TestSystem, SystemDifferentQoSTest)
 {
-    rclcpp::init(0, nullptr);
-
-    auto topic = performance_test::Topic<performance_test_msgs::msg::Stamped10b>("my_topic");
+    auto topic = performance_test::Topic<performance_test_msgs::msg::Sample>("my_topic");
 
     int duration_sec = 1;
     performance_test::System ros2_system;
@@ -140,13 +120,9 @@ TEST(SystemTest, SystemDifferentQoSTest)
 
     ros2_system.spin(duration_sec);
 
-    rclcpp::shutdown();
-
     auto trackers_vec_ptr = sub_node->all_trackers();
     auto tracker = (*trackers_vec_ptr)[0];
 
     // they have incompatible qos so they shouldn't communicate
     ASSERT_EQ(tracker.second.received(), (unsigned long int)0);
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }

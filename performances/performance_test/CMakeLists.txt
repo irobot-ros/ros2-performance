@@ -47,6 +47,13 @@ install(DIRECTORY
   DESTINATION include/
 )
 
+##
+## build the unit tests
+##
+if(BUILD_TESTING)
+  add_subdirectory(test)
+endif()
+
 ament_export_include_directories(include)
 ament_export_libraries(${LIBRARY_NAME})
 ament_export_dependencies(${LIBRARY_DEPENDENCIES})

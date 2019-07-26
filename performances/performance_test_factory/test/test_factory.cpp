@@ -9,53 +9,47 @@
 
 #include <gtest/gtest.h>
 
-#include "performance_test/ros2/template_factory.hpp"
+#include "performance_test_factory/factory.hpp"
 
 
 
-int32_t main(int32_t argc, char ** argv)
+class TestFactory : public ::testing::Test
 {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
+public:
+  static void SetUpTestCase()
+  {
+    rclcpp::init(0, nullptr);
+  }
+};
 
-
-TEST(FactoryTest, FactoryConstructorTest)
+TEST_F(TestFactory, FactoryConstructorTest)
 {
   performance_test::TemplateFactory factory;
 }
 
 
-TEST(FactoryTest, FactoryCreateFromStringTest)
+TEST_F(TestFactory, FactoryCreateFromStringTest)
 {
-  rclcpp::init(0, nullptr);
-
   performance_test::TemplateFactory factory;
 
   auto node = std::make_shared<performance_test::Node>("node_name");
 
-  factory.add_subscriber_from_strings(node, "10b", "my_topic", performance_test::Tracker::TrackingOptions());
-  factory.add_periodic_publisher_from_strings(node, "10b", "my_topic");
-  factory.add_server_from_strings(node, "10b", "my_service");
-  factory.add_periodic_client_from_strings(node, "10b", "my_service");
+  factory.add_subscriber_from_strings(node, "stamped10b", "my_topic", performance_test::Tracker::TrackingOptions());
+  factory.add_periodic_publisher_from_strings(node, "stamped10b", "my_topic");
+  factory.add_server_from_strings(node, "stamped10b", "my_service");
+  factory.add_periodic_client_from_strings(node, "stamped10b", "my_service");
 
   ASSERT_EQ((size_t)3, node->all_trackers()->size());
-
-  rclcpp::shutdown();
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 
-TEST(FactoryTest, FactoryCreateFromIndicesTest)
+TEST_F(TestFactory, FactoryCreateFromIndicesTest)
 {
-  rclcpp::init(0, nullptr);
-
   performance_test::TemplateFactory factory;
 
   int n_subscriber_nodes = 2;
   int n_publisher_nodes = 2;
-  std::string msg_type = "10b";
+  std::string msg_type = "stamped10b";
   float frequency = 1;
 
   int subscriber_start_index = 0;
@@ -86,17 +80,11 @@ TEST(FactoryTest, FactoryCreateFromIndicesTest)
   for (const auto& n : sub_nodes){
     ASSERT_EQ((size_t)2, n->all_trackers()->size());
   }
-
-  rclcpp::shutdown();
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 
-TEST(FactoryTest, FactoryCreateFromJsonTest)
+TEST_F(TestFactory, FactoryCreateFromJsonTest)
 {
-  rclcpp::init(0, nullptr);
-
   std::string this_file_path = __FILE__;
   std::string this_dir_path = this_file_path.substr(0, this_file_path.rfind("/"));
   std::string json_path = this_dir_path + std::string("/files/test_architecture.json");
@@ -113,8 +101,4 @@ TEST(FactoryTest, FactoryCreateFromJsonTest)
 
   ASSERT_EQ((size_t)2, nodes_vec[1]->all_trackers()->size());
   ASSERT_EQ((size_t)1, nodes_vec[2]->all_trackers()->size());
-
-  rclcpp::shutdown();
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }

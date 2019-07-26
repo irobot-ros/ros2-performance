@@ -10,22 +10,23 @@
 #include <gtest/gtest.h>
 
 #include "performance_test/ros2/node.hpp"
-#include "performance_test_msgs/msg/stamped10b.hpp"
-#include "performance_test_msgs/srv/stamped10b.hpp"
+#include "performance_test_msgs/msg/sample.hpp"
+#include "performance_test_msgs/srv/sample.hpp"
 
 
-int32_t main(int32_t argc, char ** argv)
+
+class TestNode : public ::testing::Test
 {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
+public:
+  static void SetUpTestCase()
+  {
+    rclcpp::init(0, nullptr);
+  }
+};
 
 
-
-TEST(NodeTest, NodeConstructorTest)
+TEST_F(TestNode, NodeConstructorTest)
 {
-  rclcpp::init(0, nullptr);
-
   std::string ros2_namespace = "node_namespace";
   bool use_ipc = true;
 
@@ -34,18 +35,13 @@ TEST(NodeTest, NodeConstructorTest)
   auto trackers_vector_ptr = node->all_trackers();
 
   ASSERT_EQ((size_t)0, trackers_vector_ptr->size());
-
-  rclcpp::shutdown();
-
 }
 
 
-TEST(NodeTest, NodeAddItemsTest)
+TEST_F(TestNode, NodeAddItemsTest)
 {
-  rclcpp::init(0, nullptr);
-
-  auto topic = performance_test::Topic<performance_test_msgs::msg::Stamped10b>("my_topic");
-  auto service = performance_test::Topic<performance_test_msgs::srv::Stamped10b>("my_service");
+  auto topic = performance_test::Topic<performance_test_msgs::msg::Sample>("my_topic");
+  auto service = performance_test::Topic<performance_test_msgs::srv::Sample>("my_service");
 
   auto node = std::make_shared<performance_test::Node>("node_name");
 
@@ -55,6 +51,4 @@ TEST(NodeTest, NodeAddItemsTest)
   node->add_periodic_client(service, std::chrono::milliseconds(10));
 
   ASSERT_EQ((size_t)3, node->all_trackers()->size());
-
-  rclcpp::shutdown();
 }

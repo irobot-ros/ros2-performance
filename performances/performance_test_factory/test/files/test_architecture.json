@@ -1,0 +1,28 @@
+{
+    "nodes": [
+        {
+          "node_name": "node_0",
+          "publishers": [
+                {"topic_name": "topic_0", "msg_type": "stamped10b", "period_ms": 10},
+                {"topic_name": "topic_1", "msg_type": "stamped_vector", "msg_size": 100, "period_ms": 10}
+              ]
+        },
+
+        {
+            "node_name": "node_1",
+            "subscribers":[
+                {"topic_name":"topic_0", "msg_type":"stamped10b"}
+              ],
+            "servers": [
+                {"service_name": "service_1", "srv_type": "stamped10b"}
+              ]
+        },
+
+        {
+            "node_name": "node_2",
+            "clients": [
+                {"service_name": "service_1", "srv_type": "stamped10b", "period_ms": 10}
+              ]
+        }
+    ]
+ }

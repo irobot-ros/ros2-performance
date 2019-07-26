@@ -20,12 +20,19 @@ def get_interface_name_from_path(interface_path):
   path has the form msg/PoseWithCovariance.msg
   the name is only PoseWithCovariance
   '''
-  _, name = interface_path.split('/', 1)
-  name = name[:-4]
+
+  # get filename from path
+  name_with_extension = os.path.basename(interface_path)
+  # remove extension from filename
+  name = os.path.splitext(name_with_extension)[0]
   return name
 
 
 def get_lowercased_name(interface_name):
+  '''
+  interface_name has the PoseWithCovariance
+  the lowercased version is pose_with_covariance
+  '''
 
   # Remove consecutive upper-case letters: HelloWORLD becomes HelloWorld
   last_upper = False
@@ -68,11 +75,13 @@ def get_namespaced_cpp_class_name(interface_name, package, interface_type):
   return class_name
 
 
-def add_include_paths(msgs, srvs, package):
+def get_include_paths(msgs, srvs, package):
+  '''
+  create include definitions for all the messages and services
+  '''
 
-  content = """
 
-  """
+  content = "\n"
 
   for msg_name in msgs:
     statement = get_cpp_include_statement(msg_name, package, "msg")
@@ -85,7 +94,7 @@ def add_include_paths(msgs, srvs, package):
   return content
 
 
-def add_sub_factory(msgs, package):
+def get_sub_factory(msgs, package):
 
   if len(msgs) == 0:
     return ""
@@ -103,14 +112,17 @@ def add_sub_factory(msgs, package):
     const std::map<std::string, std::function<void()>> subscribers_factory{
   """
 
+  function = "add_subscriber"
+  user_args = "msg_pass_by, tracking_options, custom_qos_profile"
+
   for msg_name in msgs:
 
     msg_class_name = get_namespaced_cpp_class_name(msg_name, package, "msg")
-    topic = "performance_test::Topic<" + msg_class_name + ">"
+    topic = "performance_test::Topic<" + msg_class_name + ">(topic_name)"
     lowercased_name = get_lowercased_name(msg_name)
     map_key = "\"" + lowercased_name + "\""
 
-    map_entry = "{" + map_key +",  [&] { n->add_subscriber(" + topic +"(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },"
+    map_entry = "{" + map_key +",  [&] { n->" + function + "(" + topic +", " + user_args + "); } },"
 
     content += "\n" + map_entry
 
@@ -118,7 +130,9 @@ def add_sub_factory(msgs, package):
     content = content[:-1]
 
   content += """
-    };
+    };"""
+
+  content += """
 
     if (subscribers_factory.find(msg_type) == subscribers_factory.end()){
       throw std::runtime_error("unknown msg type passed to subscribers factory: " + msg_type);
@@ -132,7 +146,7 @@ def add_sub_factory(msgs, package):
   return content
 
 
-def add_pub_factory(msgs, package):
+def get_pub_factory(msgs, package):
 
   if len(msgs) == 0:
     return ""
@@ -151,14 +165,17 @@ def add_pub_factory(msgs, package):
     const std::map<std::string, std::function<void()>> publishers_factory{
   """
 
-  for msg_name in msgs:
+  function = "add_periodic_publisher"
+  user_args = "period_ms, msg_pass_by, custom_qos_profile, msg_size"
 
+  for msg_name in msgs:
     msg_class_name = get_namespaced_cpp_class_name(msg_name, package, "msg")
-    topic = "performance_test::Topic<" + msg_class_name + ">"
+    topic = "performance_test::Topic<" + msg_class_name + ">(topic_name)"
+
     lowercased_name = get_lowercased_name(msg_name)
     map_key = "\"" + lowercased_name + "\""
 
-    map_entry = "{" + map_key +",  [&] { n->add_periodic_publisher(" + topic +"(topic_name), period_ms, msg_pass_by, custom_qos_profile, msg_size); } },"
+    map_entry = "{" + map_key +",  [&] { n->" + function + "(" + topic +", " + user_args + "); } },"
 
     content += "\n" + map_entry
 
@@ -166,7 +183,9 @@ def add_pub_factory(msgs, package):
     content = content[:-1]
 
   content += """
-    };
+    };"""
+
+  content += """
 
     if (publishers_factory.find(msg_type) == publishers_factory.end()){
       throw std::runtime_error("unknown msg type passed to publishers factory: " + msg_type);
@@ -180,7 +199,7 @@ def add_pub_factory(msgs, package):
   return content
 
 
-def add_server_factory(srvs, package):
+def get_server_factory(srvs, package):
 
   if len(srvs) == 0:
     return ""
@@ -196,14 +215,17 @@ def add_server_factory(srvs, package):
     const std::map<std::string, std::function<void()>> servers_factory{
   """
 
+  function = "add_server"
+  user_args = "custom_qos_profile"
+
   for srv_name in srvs:
 
     srv_class_name = get_namespaced_cpp_class_name(srv_name, package, "srv")
-    service = "performance_test::Service<" + srv_class_name + ">"
+    service = "performance_test::Service<" + srv_class_name + ">(service_name)"
     lowercased_name = get_lowercased_name(srv_name)
     map_key = "\"" + lowercased_name + "\""
 
-    map_entry = "{" + map_key +",  [&] { n->add_server(" + service +"(service_name), custom_qos_profile); } },"
+    map_entry = "{" + map_key +",  [&] { n->" + function + "(" + service + ", " + user_args + "); } },"
 
     content += "\n" + map_entry
 
@@ -211,7 +233,9 @@ def add_server_factory(srvs, package):
     content = content[:-1]
 
   content += """
-    };
+    };"""
+
+  content += """
 
     if (servers_factory.find(srv_type) == servers_factory.end()){
       throw std::runtime_error("unknown srv type passed to servers factory: " + srv_type);
@@ -225,7 +249,7 @@ def add_server_factory(srvs, package):
   return content
 
 
-def add_client_factory(srvs, package):
+def get_client_factory(srvs, package):
 
   if len(srvs) == 0:
     return ""
@@ -242,14 +266,17 @@ def add_client_factory(srvs, package):
     const std::map<std::string, std::function<void()>> clients_factory{
   """
 
+  function = "add_periodic_client"
+  user_args = "period_ms, custom_qos_profile"
+
   for srv_name in srvs:
 
     srv_class_name = get_namespaced_cpp_class_name(srv_name, package, "srv")
-    service = "performance_test::Service<" + srv_class_name + ">"
+    service = "performance_test::Service<" + srv_class_name + ">(service_name)"
     lowercased_name = get_lowercased_name(srv_name)
     map_key = "\"" + lowercased_name + "\""
 
-    map_entry = "{" + map_key +",  [&] { n->add_periodic_client(" + service +"(service_name), period_ms, custom_qos_profile); } },"
+    map_entry = "{" + map_key +",  [&] { n->" + function + "(" + service +", " + user_args + "); } },"
 
     content += "\n" + map_entry
 
@@ -257,8 +284,9 @@ def add_client_factory(srvs, package):
     content = content[:-1]
 
   content += """
-    };
+    };"""
 
+  content += """
     if (clients_factory.find(srv_type) == clients_factory.end()){
       throw std::runtime_error("unknown srv type passed to clients factory: " + srv_type);
     }
@@ -305,28 +333,21 @@ def main():
 
   """
 
-  content += add_include_paths(msgs, srvs, package)
-  content += add_sub_factory(msgs, package)
-  content += add_pub_factory(msgs, package)
-  content += add_server_factory(srvs, package)
-  content += add_client_factory(srvs, package)
+  content += get_include_paths(msgs, srvs, package)
+  content += get_sub_factory(msgs, package)
+  content += get_pub_factory(msgs, package)
+  content += get_server_factory(srvs, package)
+  content += get_client_factory(srvs, package)
 
-  #change = False
   def create(filename, content):
     if os.path.exists(filename):
       old_content = open(filename, 'r').read()
-      #if old_content == content:
-        #return
-    #global change
-    #change = True
+      if old_content == content:
+        return
+
     open(filename, 'w').write(content)
 
   create(output_file_path, content)
-
-  # Check changes
-  #if not change:
-    #sys.exit('No changes!')
-
 
 
 

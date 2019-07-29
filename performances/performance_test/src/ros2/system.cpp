@@ -252,7 +252,7 @@ void performance_test::System::wait_edp_discovery(
 }
 
 
-void performance_test::System::save_latency_all_stats(std::string filename)
+void performance_test::System::save_latency_all_stats(std::string filename) const
 {
 
     if (filename.empty()){
@@ -273,7 +273,7 @@ void performance_test::System::save_latency_all_stats(std::string filename)
     this->log_latency_all_stats(out_file);
 }
 
-void performance_test::System::save_latency_total_stats(std::string filename)
+void performance_test::System::save_latency_total_stats(std::string filename) const
 {
 
     if (filename.empty()){
@@ -295,12 +295,12 @@ void performance_test::System::save_latency_total_stats(std::string filename)
 }
 
 
-void performance_test::System::print_latency_all_stats()
+void performance_test::System::print_latency_all_stats() const
 {
     this->log_latency_all_stats(std::cout);
 }
 
-void performance_test::System::print_latency_total_stats()
+void performance_test::System::print_latency_total_stats() const
 {
     this->log_latency_total_stats(std::cout);
 }
@@ -350,7 +350,7 @@ unsigned long int parse_line(std::string& line)
 }
 
 void performance_test::System::print_agregate_stats(std::vector<std::string> topology_json_list)
-{
+const {
 
     unsigned long int total_received = 0;
     unsigned long int total_lost = 0;
@@ -392,7 +392,7 @@ void performance_test::System::print_agregate_stats(std::vector<std::string> top
         average_latency, std::cout);
 }
 
-void performance_test::System::log_latency_all_stats(std::ostream& stream)
+void performance_test::System::log_latency_all_stats(std::ostream& stream) const
 {
     const char separator = ' ';
     const int wide_space = 15;
@@ -449,7 +449,7 @@ void performance_test::System::log_latency_all_stats(std::ostream& stream)
     }
 }
 
-void performance_test::System::log_latency_total_stats(std::ostream& stream)
+void performance_test::System::log_latency_total_stats(std::ostream& stream) const
 {
 
     unsigned long int total_received = 0;

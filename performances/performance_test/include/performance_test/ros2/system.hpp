@@ -31,12 +31,12 @@ public:
 
   void enable_events_logger(std::string events_logger_path);
 
-  void save_latency_all_stats(std::string filename);
-  void save_latency_total_stats(std::string filename);
+  void save_latency_all_stats(std::string filename) const;
+  void save_latency_total_stats(std::string filename) const;
 
-  void print_latency_all_stats();
-  void print_latency_total_stats();
-  void print_agregate_stats(const std::vector<std::string> topology_json_list);
+  void print_latency_all_stats() const;
+  void print_latency_total_stats() const;
+  void print_agregate_stats(std::vector<std::string> topology_json_list) const;
 
 private:
 
@@ -50,8 +50,8 @@ private:
     std::chrono::milliseconds period = std::chrono::milliseconds(20),
     std::chrono::milliseconds max_edp_time = std::chrono::milliseconds(30 * 1000));
 
-  void log_latency_all_stats(std::ostream& stream);
-  void log_latency_total_stats(std::ostream& stream);
+  void log_latency_all_stats(std::ostream& stream) const;
+  void log_latency_total_stats(std::ostream& stream) const;
 
   std::chrono::high_resolution_clock::time_point _start_time;
 

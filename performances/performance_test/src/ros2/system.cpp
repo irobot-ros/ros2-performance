@@ -349,8 +349,8 @@ unsigned long int parse_line(std::string& line)
     return strtoul(split_left.c_str(), NULL, 0);
 }
 
-void performance_test::System::print_agregate_stats(std::vector<std::string> topology_json_list)
-const {
+void performance_test::System::print_agregate_stats(std::vector<std::string> topology_json_list) const
+{
 
     unsigned long int total_received = 0;
     unsigned long int total_lost = 0;

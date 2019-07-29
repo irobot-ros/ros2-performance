@@ -36,7 +36,7 @@ public:
 
   void print_latency_all_stats();
   void print_latency_total_stats();
-  void print_agregate_stats(std::vector<std::string> topology_json_list);
+  void print_agregate_stats(const std::vector<std::string> topology_json_list);
 
 private:
 

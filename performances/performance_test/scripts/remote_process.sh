@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Script for running benchmark + debug_node
-# Usage: bash multi_process.sh -h
+# Script for running multiple topologies simultaneously on multiple platforms.
+# Usage: bash remote_process.sh -h
 
 # Parse input arguments
 if [[ $# -eq 0 ]]; then set -- "-h"; fi
@@ -51,7 +51,7 @@ case $key in
     printf "[--rmw]:[rmw_fastrtps_cpp, rmw_cyclonedds_cpp, rmw_dps_cpp]\n"
     printf "[--time]:[test duration in seconds]\n\n"
     printf "Usage example:\n"
-    printf "bash multi_process.sh -t <JSON FILE(s)> --ipc on --rmw rmw_fastrtps_cpp --time 5 -r <REMOTE_IP_ADDRESS>\n\n"
+    printf "bash remote_process.sh -t <JSON FILE(s)> --ipc on --rmw rmw_fastrtps_cpp --time 5 -r <REMOTE_IP_ADDRESS>\n\n"
     exit
 esac
 done
@@ -80,5 +80,3 @@ else
 fi
 
 $ROS2_PERFORMANCE_TEST_EXECUTABLES_PATH/benchmark $TOPOLOGY_LIST --time $TIME --ipc $IPC
-
-

@@ -24,8 +24,6 @@
 #include "performance_test/ros2/tracker.hpp"
 #include "performance_test/ros2/events_logger.hpp"
 
-//#include "performance_test_msgs/msg/stamped_vector.hpp"
-
 using namespace std::chrono_literals;
 
 typedef enum

@@ -24,8 +24,6 @@
 #include "performance_test/ros2/tracker.hpp"
 #include "performance_test/ros2/events_logger.hpp"
 
-#include "performance_test_msgs/msg/stamped_vector.hpp"
-
 using namespace std::chrono_literals;
 
 typedef enum
@@ -217,15 +215,24 @@ public:
       trackers->push_back({sub.first, sub.second.second});
     }
 
+    /*
+    for(const auto& pub : _pubs)
+    {
+      trackers->push_back({pub.first, pub.second.second});
+    }
+    */
+
     for(const auto& client : _clients)
     {
       trackers->push_back({client.first, client.second.second});
     }
 
+    /*
     for(const auto& server : _servers)
     {
       trackers->push_back({server.first, server.second.second});
     }
+    */
 
     return trackers;
   }
@@ -253,7 +260,10 @@ private:
     {
       case PASS_BY_SHARED_PTR:
       {
-          auto msg = get_resized_message_as_shared_ptr<Msg>(size);
+          // create a message and eventually resize it
+          auto msg = std::make_shared<Msg>();
+          resize_msg(msg->data, msg->header, size);
+
           // get the frequency value that we stored when creating the publisher
           msg->header.frequency = 1000 / period.count();
           // set the tracking count for this message
@@ -267,14 +277,21 @@ private:
 
       case PASS_BY_UNIQUE_PTR:
       {
-          auto msg = get_resized_message_as_unique_ptr<Msg>(size);
+          // create a message and eventually resize it
+          auto msg = std::make_unique<Msg>();
+          resize_msg(msg->data, msg->header, size);
+
+          // get the frequency value that we stored when creating the publisher
           msg->header.frequency = 1000 / period.count();
+          // set the tracking count for this message
           msg->header.tracking_number = tracking_number;
+          //attach the timestamp as last operation before publishing
           msg->header.stamp = this->now();
 
           pub->publish(std::move(msg));
           break;
       }
+
     }
 
     RCLCPP_DEBUG(this->get_logger(), "Publishing to %s msg number %d", name.c_str(), tracking_number);
@@ -282,50 +299,24 @@ private:
     tracking_number++;
   }
 
-  // Only resize if it is a dynamic message
-  template <typename Msg>
+  template <typename DataT>
   typename std::enable_if<
-    (!std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::unique_ptr<Msg>>::type
-  get_resized_message_as_unique_ptr(size_t size)
+    (!std::is_same<DataT, std::vector<uint8_t>>::value), void>::type
+  resize_msg(DataT & data, performance_test_msgs::msg::PerformanceHeader & header, size_t size)
   {
       (void)size;
-      auto msg = std::make_unique<Msg>();
-      msg->header.size = sizeof(msg->data);
-      return msg;
+      header.size = sizeof(data);
   }
 
-  template <typename Msg>
+  template <typename DataT>
   typename std::enable_if<
-    (std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::unique_ptr<Msg>>::type
-  get_resized_message_as_unique_ptr(size_t size)
+    (std::is_same<DataT, std::vector<uint8_t>>::value), void>::type
+  resize_msg(DataT & data, performance_test_msgs::msg::PerformanceHeader & header, size_t size)
   {
-      auto msg = std::make_unique<Msg>();
-      msg->data.resize(size);
-      msg->header.size = size;
-      return msg;
+      data.resize(size);
+      header.size = size;
   }
 
-  template <typename Msg>
-  typename std::enable_if<
-    (!std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::shared_ptr<Msg>>::type
-  get_resized_message_as_shared_ptr(size_t size)
-  {
-      (void)size;
-      auto msg = std::make_shared<Msg>();
-      msg->header.size = sizeof(msg->data);
-      return msg;
-  }
-
-  template <typename Msg>
-  typename std::enable_if<
-    (std::is_same<Msg, performance_test_msgs::msg::StampedVector>::value), std::shared_ptr<Msg>>::type
-  get_resized_message_as_shared_ptr(size_t size)
-  {
-      auto msg = std::make_shared<Msg>();
-      msg->data.resize(size);
-      msg->header.size = size;
-      return msg;
-  }
 
   template <typename MsgType>
   void _topic_callback(const std::string& name, MsgType msg)
@@ -336,6 +327,7 @@ private:
 
     RCLCPP_DEBUG(this->get_logger(), "Received on %s msg number %d after %lu us", name.c_str(), msg->header.tracking_number, tracker.last());
   }
+
 
   template <typename Srv>
   void _request(const std::string& name, size_t size)

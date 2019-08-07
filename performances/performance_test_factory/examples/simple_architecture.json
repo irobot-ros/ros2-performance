@@ -1,0 +1,47 @@
+{
+    "nodes": [
+        {
+          "node_name": "node_1",
+          "publishers": [
+                {"topic_name": "topic_1", "msg_type": "stamped10b", "period_ms": 10},
+                {"topic_name": "topic_2", "msg_type": "stamped4mb", "period_ms": 1000,
+                    "qos_depth":                           10,
+                    "qos_history":                         "keep_last",
+                    "qos_reliability":                     "reliable",
+                    "qos_durability":                      "volatile",
+                    "qos_deadline":                        "default",
+                    "qos_lifespan":                        "default",
+                    "qos_liveliness":                      "system_default",
+                    "qos_liveliness_lease_duration":       "default",
+                    "qos_avoid_ros_namespace_conventions": "false",
+                    "msg_pass_by":                         "unique_ptr"
+                }
+              ]
+        },
+
+        {
+            "node_name": "node_2",
+            "subscribers":[
+                {"topic_name":"topic_1", "msg_type":"stamped10b", "msg_pass_by":"shared_ptr"}
+              ],
+            "servers": [
+                {"service_name": "service_2", "srv_type": "stamped10b"}
+              ]
+        },
+
+        {
+            "node_name": "node_3",
+            "clients": [
+                {"service_name": "service_2", "srv_type": "stamped10b", "period_ms": 10}
+              ]
+        },
+
+        {
+            "node_name": "multi_node",
+            "subscribers":[
+                {"topic_name":"topic_1", "msg_type":"stamped10b"}
+             ],
+             "number": 5
+        }
+    ]
+ }

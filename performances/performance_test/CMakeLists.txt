@@ -13,23 +13,19 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(performance_test_msgs REQUIRED)
-find_package(benchmark_msgs REQUIRED)
 
 include_directories(
   include
   external/cxxopts-2.1.2/include
-  external/json/single_include
 )
 
 set (LIBRARY_DEPENDENCIES
   rclcpp
   performance_test_msgs
-  benchmark_msgs
 )
 
 set(LIBRARY_SRC
   src/ros2/names_utilities.cpp
-  src/ros2/template_factory.cpp
   src/ros2/system.cpp
   src/ros2/tracker.cpp
 )
@@ -48,14 +44,8 @@ install(TARGETS
 install(DIRECTORY
   include/
   external/cxxopts-2.1.2/include/
-  external/json/single_include/
   DESTINATION include/
 )
-
-##
-## build the performance_test examples
-##
-add_subdirectory(examples)
 
 ##
 ## build the unit tests
@@ -63,7 +53,6 @@ add_subdirectory(examples)
 if(BUILD_TESTING)
   add_subdirectory(test)
 endif()
-
 
 ament_export_include_directories(include)
 ament_export_libraries(${LIBRARY_NAME})

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>performance_test_plugin_cmake</name>
+  <version>0.2.0</version>
+  <description>CMake function for generating performance_test_factory plugins</description>
+  <author>Alberto Soragna</author>
+  <maintainer email="asoragna@irobot.com">Alberto Soragna</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>performance_test</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

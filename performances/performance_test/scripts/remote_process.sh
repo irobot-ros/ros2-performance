@@ -56,7 +56,7 @@ case $key in
 esac
 done
 
-if [ -z "$ROS2_PERFORMANCE_TEST_EXECUTABLES_PATH" ]; then
+if [ -z "$ROS2_PERFORMANCE_TEST_BENCHMARK_PATH" ]; then
   printf 'Error: env.sh has not been sourced!\n' >&2
   exit 1
 fi
@@ -79,4 +79,4 @@ else
   nc -lp 1234
 fi
 
-$ROS2_PERFORMANCE_TEST_EXECUTABLES_PATH/benchmark $TOPOLOGY_LIST --time $TIME --ipc $IPC
+$ROS2_PERFORMANCE_TEST_BENCHMARK_PATH/benchmark $TOPOLOGY_LIST --time $TIME --ipc $IPC

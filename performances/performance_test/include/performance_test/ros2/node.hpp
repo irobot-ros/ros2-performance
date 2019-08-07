@@ -215,15 +215,24 @@ public:
       trackers->push_back({sub.first, sub.second.second});
     }
 
+    /*
+    for(const auto& pub : _pubs)
+    {
+      trackers->push_back({pub.first, pub.second.second});
+    }
+    */
+
     for(const auto& client : _clients)
     {
       trackers->push_back({client.first, client.second.second});
     }
 
+    /*
     for(const auto& server : _servers)
     {
       trackers->push_back({server.first, server.second.second});
     }
+    */
 
     return trackers;
   }

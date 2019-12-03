@@ -57,10 +57,10 @@ Evaluations have been performed on standard x86_64 laptops as well as on embedde
 
 | Experiment | README |
 | ------------- | ------------- |
-| Discovery time | [README.md](performances/experiments/crystal/discovery_time) |
-| Pub/Sub Latency | [README.md](performances/experiments/crystal/pub_sub_latency) |
-| Pub/Sub Reliability | [README.md](performances/experiments/crystal/pub_sub_reliability) |
-| Pub/Sub Memory usage | [README.md](performances/experiments/crystal/pub_sub_memory) |
-| Pub/Sub CPU usage | [README.md](performances/experiments/crystal/pub_sub_cpu) |
-| Client/Service systems | [README.md](performances/experiments/crystal/client_service) |
-| Bouncy-Crystal regression test | [README.md](performances/experiments/crystal/regression) |
+| Discovery time | [README.md](experiments/crystal/discovery_time) |
+| Pub/Sub Latency | [README.md](experiments/crystal/pub_sub_latency) |
+| Pub/Sub Reliability | [README.md](experiments/crystal/pub_sub_reliability) |
+| Pub/Sub Memory usage | [README.md](experiments/crystal/pub_sub_memory) |
+| Pub/Sub CPU usage | [README.md](experiments/crystal/pub_sub_cpu) |
+| Client/Service systems | [README.md](experiments/crystal/client_service) |
+| Bouncy-Crystal regression test | [README.md](experiments/crystal/regression) |

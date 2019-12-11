@@ -27,7 +27,7 @@ public:
 
   void add_node(std::shared_ptr<Node> node);
 
-  void spin(int duration_sec, bool wait_for_discovery = true);
+  void spin(int duration_sec, bool wait_pdp_discovery = true, bool wait_edp_discovery = true);
 
   void enable_events_logger(std::string events_logger_path);
 
@@ -40,7 +40,7 @@ public:
 
 private:
 
-  void wait_discovery();
+  void wait_discovery(bool wait_pdp = true, bool wait_edp = true);
 
   void wait_pdp_discovery(
     std::chrono::milliseconds period = std::chrono::milliseconds(20),

@@ -51,7 +51,7 @@ void performance_test::System::add_node(std::shared_ptr<Node> node)
 }
 
 
-void performance_test::System::spin(int duration_sec, bool wait_for_discovery)
+void performance_test::System::spin(int duration_sec, bool wait_pdp_discovery, bool wait_edp_discovery)
 {
     _experiment_duration_sec = duration_sec;
     // Store the instant when the experiment started
@@ -66,10 +66,12 @@ void performance_test::System::spin(int duration_sec, bool wait_for_discovery)
         _events_logger->set_start_time(_start_time);
     }
 
-    if (wait_for_discovery){
-        // wait until PDP and EDP are finished before starting
+    // Wait for discovery if needed.
+    if (wait_pdp_discovery || wait_edp_discovery)
+    {
+        // Wait until PDP, EDP, or both are finished before starting
         // log events when each is completed
-        this->wait_discovery();
+        this->wait_discovery(wait_pdp_discovery, wait_edp_discovery);
     }
 
     if (_executor != nullptr){
@@ -110,16 +112,22 @@ void performance_test::System::spin(int duration_sec, bool wait_for_discovery)
 }
 
 
-void performance_test::System::wait_discovery()
+void performance_test::System::wait_discovery(bool wait_pdp, bool wait_edp)
 {
     // period at which PDP and EDP are checked
     std::chrono::milliseconds period = 30ms;
     // maximum discovery time, after which the experiment is shut down
     std::chrono::milliseconds max_discovery_time = 30s;
 
-    wait_pdp_discovery(period, max_discovery_time);
+    if (wait_pdp)
+    {
+        wait_pdp_discovery(period, max_discovery_time);
+    }
 
-    wait_edp_discovery(period, max_discovery_time);
+    if (wait_edp)
+    {
+        wait_edp_discovery(period, max_discovery_time);
+    }
 }
 
 

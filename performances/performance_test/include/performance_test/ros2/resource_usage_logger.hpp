@@ -122,10 +122,12 @@ private:
         _resources.cpu_usage = time_elapsed_user_ms / (time_elapsed_real_ms * n_threads) * 100;
 
         // Get mallinfo
+#if (defined(__UCLIBC__) || defined(__GLIBC__))
         auto mem_info = mallinfo();
         _resources.mem_arena_KB = mem_info.arena >> 10;
         _resources.mem_in_use_KB = mem_info.uordblks >> 10;
         _resources.mem_mmap_KB = mem_info.hblkhd >> 10;
+#endif
 
         // Get rss
         struct rusage usage;

@@ -12,6 +12,7 @@ The supported ROS2 distributions are:
  - `bouncy`
  - `crystal`
  - `dashing`
+ - `eloquent`
 
 
 The supported architectures are:
@@ -54,7 +55,7 @@ For example you can run:
 
 ```
 export TARGET=raspbian
-export ROS2_DISTRO=dashing
+export ROS2_DISTRO=eloquent
 bash automatic_cross_compile.sh
 ```
 
@@ -75,17 +76,14 @@ Note that if you already have a sysroot with the same name inside the `sysroots`
 
 If you want to use your own sysroot, instead of generating a new one, you can skip the last instruction and just place your sysroot in the `sysroots` directory. Your sysroot directory must be renamed to `raspbian` or as the specified `TARGET_ARCHITECTURE` that you passed to `env.sh`.
 
-Create a ROS2 workspace containing the sources you need
+Create a ROS2 workspace and download the sources you need
 
-    mkdir -p ~/ros2_cc_ws/src
-    cd ~/ros2_cc_ws
-    wget https://raw.githubusercontent.com/ros2/ros2/crystal/ros2.repos
-    vcs import src < ros2.repos
+    bash get_ros2_sources.sh eloquent
 
 Ignore some packages and python dependencies (note that there is a different script for each distribution you want to  cross-compile)
 
     cd -
-    bash ignore_pkgs.sh ~/ros2_cc_ws dashing
+    bash ignore_pkgs.sh ~/ros2_cc_ws eloquent
 
 Cross-compile the workspace
 

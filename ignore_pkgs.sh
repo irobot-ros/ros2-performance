@@ -11,7 +11,7 @@ workspace_directory=$1
 echo "Working on $workspace_directory workspace"
 
 # You can specify a distribution, otherwise the default one will be used
-distribution="dashing"
+distribution="eloquent"
 if [ -z "$2" ]; then
   echo "Using default $distribution ignore"
 else

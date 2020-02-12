@@ -274,7 +274,8 @@ void performance_test::TemplateFactory::add_periodic_client_from_strings(
 
 
 std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateFactory::parse_topology_from_json(
-    std::string json_path)
+    std::string json_path,
+    Tracker::TrackingOptions tracking_options)
 {
 
     std::vector<std::shared_ptr<performance_test::Node>> nodes_vec;
@@ -307,14 +308,14 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
             {
                 std::string node_name_suffix = '_' + std::to_string(node_number);
                 auto node = create_node_from_json(n_json, node_name_suffix);
-                create_node_entities_from_json(node, n_json);
+                create_node_entities_from_json(node, n_json, tracking_options);
                 nodes_vec.push_back(node);
             }
         }
         else
         {
             auto node = create_node_from_json(n_json);
-            create_node_entities_from_json(node, n_json);
+            create_node_entities_from_json(node, n_json, tracking_options);
             nodes_vec.push_back(node);
         }
 
@@ -335,7 +336,7 @@ std::shared_ptr<performance_test::Node> performance_test::TemplateFactory::creat
 }
 
 void performance_test::TemplateFactory::create_node_entities_from_json(
-    std::shared_ptr<performance_test::Node> node, const json node_json)
+    std::shared_ptr<performance_test::Node> node, const json node_json, Tracker::TrackingOptions tracking_options)
 {
 
     if (node_json.find("publishers") != node_json.end()) {
@@ -348,7 +349,7 @@ void performance_test::TemplateFactory::create_node_entities_from_json(
     if (node_json.find("subscribers") != node_json.end()) {
         // if there is at least 1 subscriber, add each of them
         for(auto s_json : node_json["subscribers"]){
-            this->add_subscriber_from_json(node, s_json);
+            this->add_subscriber_from_json(node, s_json, tracking_options);
         }
     }
 
@@ -399,13 +400,12 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_json(
 }
 
 void performance_test::TemplateFactory::add_subscriber_from_json(
-    std::shared_ptr<performance_test::Node> node, const json sub_json)
+    std::shared_ptr<performance_test::Node> node, const json sub_json, Tracker::TrackingOptions t_options)
 {
 
     std::string topic_name = sub_json["topic_name"];
     std::string msg_type = sub_json["msg_type"];
 
-    Tracker::TrackingOptions t_options;
     rmw_qos_profile_t custom_qos_profile = get_qos_from_json(sub_json);
 
     msg_pass_by_t msg_pass_by = get_msg_pass_by_from_json(sub_json, PASS_BY_SHARED_PTR);

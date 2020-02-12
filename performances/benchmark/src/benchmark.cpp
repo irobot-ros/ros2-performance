@@ -87,7 +87,7 @@ int main(int argc, char** argv)
     // Load topology from json file
     performance_test::TemplateFactory factory = performance_test::TemplateFactory(options.ipc);
 
-    auto nodes_vec = factory.parse_topology_from_json(topology_json);
+    auto nodes_vec = factory.parse_topology_from_json(topology_json, options.tracking_options);
     ros2_system.add_node(nodes_vec);
 
     // now the system is complete and we can make it spin for the requested duration

@@ -114,17 +114,19 @@ class TemplateFactory {
          * parses it and creates the nodes accordingly
          */
 
-        std::vector<std::shared_ptr<Node>> parse_topology_from_json(std::string json_path);
+        std::vector<std::shared_ptr<Node>> parse_topology_from_json(
+            std::string json_path,
+            Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions());
 
     private:
 
         std::shared_ptr<Node> create_node_from_json(const nlohmann::json node_json, std::string suffix = "");
 
-        void create_node_entities_from_json(std::shared_ptr<Node> node, const nlohmann::json node_json);
+        void create_node_entities_from_json(std::shared_ptr<Node> node, const nlohmann::json node_json, Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions());
 
         void add_periodic_publisher_from_json(std::shared_ptr<Node> node, const nlohmann::json pub_json);
 
-        void add_subscriber_from_json(std::shared_ptr<Node> node, const nlohmann::json sub_json);
+        void add_subscriber_from_json(std::shared_ptr<Node> node, const nlohmann::json sub_json, Tracker::TrackingOptions tracking_options);
 
         void add_periodic_client_from_json(std::shared_ptr<Node> node, const nlohmann::json client_json);
 

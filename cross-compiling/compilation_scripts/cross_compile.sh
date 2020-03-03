@@ -18,7 +18,6 @@ colcon \
     build \
     --merge-install \
     --cmake-force-configure \
-    --executor sequential \
     --cmake-args \
     -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_PATH \
     -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
@@ -27,5 +26,3 @@ colcon \
 
 
 # --merge-install is used to avoid creation of nested install dirs for each package
-# --executtor sequential is used because parallel build fails in random ways
-

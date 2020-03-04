@@ -4,10 +4,10 @@ ROS2_PATH=~/ros2_cc_ws
 
 # You can specify a distribution, otherwise the default one will be used
 distribution="eloquent"
-if [ -z "$2" ]; then
+if [ -z "$1" ]; then
   echo "Using default ROS2 $distribution distribution sources"
 else
-  distribution=$2
+  distribution=$1
   echo "Using ROS2 $distribution distribution sources"
 fi
 

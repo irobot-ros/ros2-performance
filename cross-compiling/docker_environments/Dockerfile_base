@@ -69,7 +69,8 @@ export PYTHONPATH=/root/sysroot/usr/lib/python3.6/site-packages/:$PYTHONPATH' >>
 # However, we should use `:` as a delimiter, not `;`, but that does not work.
 # set the AMENT_PREFIX_PATH to the sysroot
 RUN echo '  \n\
-export AMENT_PREFIX_PATH="/root/sysroot/usr;/root/sysroot/usr/bin"' >> $HOME/.bashrc
+# export AMENT_PREFIX_PATH="/root/sysroot/usr;/root/sysroot/usr/bin"' >> $HOME/.bashrc
+export AMENT_PREFIX_PATH="/root/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr;/root/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/bin"' >> $HOME/.bashrc
 
 # copy the compilation scripts into the docker image
 COPY compilation_scripts $HOME/compilation_scripts

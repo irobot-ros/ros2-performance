@@ -265,7 +265,7 @@ private:
           resize_msg(msg->data, msg->header, size);
 
           // get the frequency value that we stored when creating the publisher
-          msg->header.frequency = 1000 / period.count();
+          msg->header.frequency = 1000.0 / period.count();
           // set the tracking count for this message
           msg->header.tracking_number = tracking_number;
           //attach the timestamp as last operation before publishing
@@ -282,7 +282,7 @@ private:
           resize_msg(msg->data, msg->header, size);
 
           // get the frequency value that we stored when creating the publisher
-          msg->header.frequency = 1000 / period.count();
+          msg->header.frequency = 1000.0 / period.count();
           // set the tracking count for this message
           msg->header.tracking_number = tracking_number;
           //attach the timestamp as last operation before publishing

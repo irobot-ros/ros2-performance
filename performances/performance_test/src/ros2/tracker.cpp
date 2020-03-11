@@ -21,35 +21,6 @@ void performance_test::Tracker::scan(
     if (stat().n() == 0) {
         _size = header.size;
         _frequency = header.frequency;
-
-    }
-
-    // Check if we received the correct message. The assumption here is
-    // that the messages arrive in chronological order
-    if (header.tracking_number == _tracking_number_count) {
-        _tracking_number_count++;
-    } else {
-        // We missed some mesages...
-        long unsigned int n_lost = header.tracking_number - _tracking_number_count;
-        _lost_messages += n_lost;
-        _tracking_number_count = header.tracking_number + 1;
-
-        // Log the event
-        if (elog != nullptr){
-            EventsLogger::Event ev;
-            std::stringstream description;
-            ev.caller_name = _topic_srv_name + "->" + _node_name;
-            ev.code = EventsLogger::EventCode::lost_messages;
-
-            if(n_lost == 1) {
-                description << "msg " << header.tracking_number - 1 << " lost.";
-            } else {
-                description << "msgs " << header.tracking_number - 1 << " to " << header.tracking_number - 1 + n_lost << " lost.";
-            }
-            ev.description = description.str();
-            elog->write_event(ev);
-        }
-
     }
 
     // Compute latency
@@ -63,6 +34,34 @@ void performance_test::Tracker::scan(
     bool too_late = false;
 
     if (_tracking_options.is_enabled){
+	
+        // Check if we received the correct message. The assumption here is
+        // that the messages arrive in chronological order
+        if (header.tracking_number == _tracking_number_count) {
+            _tracking_number_count++;
+        } else {
+            // We missed some mesages...
+            long unsigned int n_lost = header.tracking_number - _tracking_number_count;
+            _lost_messages += n_lost;
+            _tracking_number_count = header.tracking_number + 1;
+
+            // Log the event
+            if (elog != nullptr){
+                EventsLogger::Event ev;
+                std::stringstream description;
+                ev.caller_name = _topic_srv_name + "->" + _node_name;
+                ev.code = EventsLogger::EventCode::lost_messages;
+
+                if(n_lost == 1) {
+                    description << "msg " << header.tracking_number - 1 << " lost.";
+                } else {
+                    description << "msgs " << header.tracking_number - 1 << " to " << header.tracking_number - 1 + n_lost << " lost.";
+                }
+                ev.description = description.str();
+                elog->write_event(ev);
+            }
+        }
+
         // Check if the message latency qualifies the message as a lost or late message.
         const int  period_us = 1000000 / _frequency;
         const unsigned int latency_late_threshold_us = std::min(_tracking_options.late_absolute_us,
@@ -115,5 +114,4 @@ void performance_test::Tracker::scan(
     }
 
     _received_messages++;
-
 }

@@ -98,7 +98,7 @@ int main(int argc, char ** argv)
 
     rclcpp::init(argc, argv);
 
-    performance_test::TemplateFactory factory(use_ipc, verbose, ros_namespace);
+    performance_test::TemplateFactory factory(use_ipc, true, verbose, ros_namespace);
     performance_test::System ros2_system(executors);
     ros2_system.enable_events_logger(events_file_path);
 

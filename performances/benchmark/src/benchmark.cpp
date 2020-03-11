@@ -38,8 +38,9 @@ int main(int argc, char** argv)
     std::cout << "Intra-process-communication: " << (options.ipc ? "on" : "off") << std::endl;
     std::cout << "Run test for: " << options.duration_sec << " seconds" << std::endl;
     std::cout << "Sampling resources every " << options.resources_sampling_per_ms << "ms" << std::endl;
+    std::cout << "Logging events statistics: " << (options.tracking_options.is_enabled ? "on" : "off") << std::endl;
     std::cout << "Start test" << std::endl;
-
+    
     std::string topology_json;
 
     pid_t pid = getpid();
@@ -82,7 +83,10 @@ int main(int argc, char** argv)
 
     int executors = 0; // set to 1 if you want to add all nodes to the same executor
     performance_test::System ros2_system(executors);
-    ros2_system.enable_events_logger(events_output_path);
+    
+    if (options.tracking_options.is_enabled) {
+        ros2_system.enable_events_logger(events_output_path);    
+    }
 
     // Load topology from json file
     performance_test::TemplateFactory factory = performance_test::TemplateFactory(options.ipc);

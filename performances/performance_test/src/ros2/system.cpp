@@ -91,9 +91,9 @@ void performance_test::System::spin(int duration_sec, bool wait_for_discovery)
             auto ex = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
             ex->add_node(n);
             // Spin each executor in a different thread
-            std::thread a([=]() { ex->spin(); });
+            std::thread thread([=]() { ex->spin(); });
             pthread_setname_np(thread.native_handle(), n->get_name());
-            a.detach();
+            thread.detach();
             _executors_vec.push_back(ex);
         }
     }

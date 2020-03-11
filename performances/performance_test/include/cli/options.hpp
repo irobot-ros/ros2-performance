@@ -26,6 +26,7 @@ public:
         ipc = true;
         duration_sec = 5;
         resources_sampling_per_ms = 500;
+	tracking_options.is_enabled = true;
         tracking_options.late_percentage = 20;
         tracking_options.late_absolute_us = 5000;
         tracking_options.too_late_percentage = 100;
@@ -44,6 +45,7 @@ public:
       cxxopts::Options options(argv[0], "ROS2 performance benchmark");
 
       std::string ipc_option;
+      std::string tracking_enabled_option;
       options.positional_help("FILE [FILE...]").show_positional_help();
       options.parse_positional({"topology"});
       options.add_options()
@@ -55,6 +57,8 @@ public:
       ("t,time", "test duration", cxxopts::value<int>(duration_sec)->default_value(std::to_string(duration_sec)),"sec")
       ("s, sampling", "resources sampling period",
         cxxopts::value<int>(resources_sampling_per_ms)->default_value(std::to_string(resources_sampling_per_ms)),"msec")
+      ("tracking", "compute and logs detailed statistics and events",
+        cxxopts::value<std::string>(tracking_enabled_option)->default_value(tracking_options.is_enabled ? "on" : "off"),"on/off")
       ("late-percentage", "a msg with greater latency than this percentage of the msg publishing period is considered late",
         cxxopts::value<int>(tracking_options.late_percentage)->default_value(std::to_string(tracking_options.late_percentage)),"%")
       ("late-absolute", "a msg with greater latency than this is considered late",
@@ -81,12 +85,17 @@ public:
           throw cxxopts::argument_incorrect_type(ipc_option);
         }
 
+        if (tracking_enabled_option != "off" && tracking_enabled_option != "on") {
+          throw cxxopts::argument_incorrect_type(tracking_enabled_option);
+        }
+
       } catch (const cxxopts::OptionException& e) {
         std::cout << "Error parsing options. " << e.what() << std::endl;
         exit(1);
       }
 
       ipc = (ipc_option == "on" ? true : false);
+      tracking_options.is_enabled = (tracking_enabled_option == "on" ? true : false);
     }
 
     bool ipc;

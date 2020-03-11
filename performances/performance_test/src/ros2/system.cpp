@@ -9,6 +9,7 @@
 
 #include <fstream>
 #include <map>
+#include <pthread.h>
 
 #include "performance_test/ros2/system.hpp"
 #include "performance_test/ros2/names_utilities.hpp"
@@ -81,6 +82,7 @@ void performance_test::System::spin(int duration_sec, bool wait_for_discovery)
         std::thread thread([&](){
             _executor->spin();
         });
+        pthread_setname_np(thread.native_handle(), "executor");
         thread.detach();
     }
     else{
@@ -90,6 +92,7 @@ void performance_test::System::spin(int duration_sec, bool wait_for_discovery)
             ex->add_node(n);
             // Spin each executor in a different thread
             std::thread a([=]() { ex->spin(); });
+            pthread_setname_np(thread.native_handle(), n->get_name());
             a.detach();
             _executors_vec.push_back(ex);
         }

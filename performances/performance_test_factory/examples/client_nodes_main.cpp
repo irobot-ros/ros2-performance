@@ -31,6 +31,8 @@ int main(int argc, char ** argv)
     float frequency = 10;
     int executors = 0;
     int use_ipc = 0;
+    int use_param_services = 1;
+    int use_param_event_publisher =1;
     std::string ros_namespace = "";
     int experiment_duration = 5;
     int monitor_stats = 0;
@@ -57,6 +59,10 @@ int main(int argc, char ** argv)
         cxxopts::value<int>(executors)->default_value(std::to_string(executors)))
     ("use_ipc", "Activate IntraProcessCommunication (0 or 1 accepted arguments)",
         cxxopts::value<int>(use_ipc)->default_value(std::to_string(use_ipc)))
+    ("use_param_services", "Use parameter services (0 or 1 accepted arguments)",
+        cxxopts::value<int>(use_param_services)->default_value(std::to_string(use_param_services)))
+    ("use_param_event_publisher", "Use parameter event publisher (0 or 1 accepted arguments)",
+        cxxopts::value<int>(use_param_event_publisher)->default_value(std::to_string(use_param_event_publisher)))
     ("ros_namespace", "Create every node under this namespace",
         cxxopts::value<std::string>(ros_namespace)->default_value(ros_namespace))
     ("t, duration", "Duration in seconds",
@@ -95,7 +101,7 @@ int main(int argc, char ** argv)
 
     rclcpp::init(argc, argv);
 
-    performance_test::TemplateFactory factory(use_ipc, verbose, ros_namespace);
+    performance_test::TemplateFactory factory(use_ipc, use_param_services, use_param_event_publisher,verbose, ros_namespace);
     performance_test::System ros2_system(executors);
     ros2_system.enable_events_logger(events_file_path);
 

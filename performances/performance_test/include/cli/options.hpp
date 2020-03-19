@@ -24,8 +24,7 @@ public:
     Options()
     {
         ipc = true;
-        ps = true;
-        pep = true;
+        ros_params = true;
         duration_sec = 5;
         resources_sampling_per_ms = 500;
 	tracking_options.is_enabled = true;
@@ -47,8 +46,7 @@ public:
       cxxopts::Options options(argv[0], "ROS2 performance benchmark");
 
       std::string ipc_option;
-      std::string ps_option;
-      std::string pep_option;
+      std::string ros_params_option;
       std::string tracking_enabled_option;
       options.positional_help("FILE [FILE...]").show_positional_help();
       options.parse_positional({"topology"});
@@ -58,10 +56,8 @@ public:
         cxxopts::value<std::vector<std::string>>(topology_json_list),"FILE [FILE...]")
       ("ipc", "intra-process-communication",
         cxxopts::value<std::string>(ipc_option)->default_value(ipc ? "on" : "off"),"on/off")
-      ("ps", "enable parameter services",
-        cxxopts::value<std::string>(ps_option)->default_value(ipc ? "on" : "off"),"on/off")
-      ("pep", "enable parameter event publisher",
-        cxxopts::value<std::string>(pep_option)->default_value(ipc ? "on" : "off"),"on/off")
+      ("ros_params", "enable parameter services",
+        cxxopts::value<std::string>(ros_params_option)->default_value(ipc ? "on" : "off"),"on/off")
       ("t,time", "test duration", cxxopts::value<int>(duration_sec)->default_value(std::to_string(duration_sec)),"sec")
       ("s, sampling", "resources sampling period",
         cxxopts::value<int>(resources_sampling_per_ms)->default_value(std::to_string(resources_sampling_per_ms)),"msec")
@@ -103,14 +99,12 @@ public:
       }
 
       ipc = (ipc_option == "on" ? true : false);
-      ps = (ps_option == "on" ? true : false);
-      pep = (pep_option == "on" ? true : false);
+      ros_params = (ros_params_option == "on" ? true : false);
       tracking_options.is_enabled = (tracking_enabled_option == "on" ? true : false);
     }
 
     bool ipc;
-    bool ps;
-    bool pep;
+    bool ros_params;
     int duration_sec;
     int resources_sampling_per_ms;
     std::vector<std::string> topology_json_list;

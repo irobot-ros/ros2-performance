@@ -28,9 +28,13 @@ public:
 TEST_F(TestNode, NodeConstructorTest)
 {
   std::string ros2_namespace = "node_namespace";
-  bool use_ipc = true;
 
-  auto node = std::make_shared<performance_test::Node>("node_name", ros2_namespace, use_ipc);
+  rclcpp::NodeOptions node_options = rclcpp::NodeOptions();
+  node_options.use_intra_process_comms(true);
+  node_options.start_parameter_services(true);
+  node_options.start_parameter_event_publisher(true);
+
+  auto node = std::make_shared<performance_test::Node>("node_name", ros2_namespace, node_options);
 
   auto trackers_vector_ptr = node->all_trackers();
 

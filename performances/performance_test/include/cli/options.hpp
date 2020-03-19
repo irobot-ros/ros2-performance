@@ -57,7 +57,7 @@ public:
       ("ipc", "intra-process-communication",
         cxxopts::value<std::string>(ipc_option)->default_value(ipc ? "on" : "off"),"on/off")
       ("ros_params", "enable parameter services",
-        cxxopts::value<std::string>(ros_params_option)->default_value(ipc ? "on" : "off"),"on/off")
+        cxxopts::value<std::string>(ros_params_option)->default_value(ros_params ? "on" : "off"),"on/off")
       ("t,time", "test duration", cxxopts::value<int>(duration_sec)->default_value(std::to_string(duration_sec)),"sec")
       ("s, sampling", "resources sampling period",
         cxxopts::value<int>(resources_sampling_per_ms)->default_value(std::to_string(resources_sampling_per_ms)),"msec")

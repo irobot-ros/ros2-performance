@@ -39,7 +39,8 @@ class TemplateFactory {
             std::string name,
             bool use_ipc = true,
             bool verbose = false,
-            std::string ros2_namespace = "");
+            std::string ros2_namespace = "",
+            int executor_id = 0);
 
         std::vector<std::shared_ptr<Node>> create_subscriber_nodes(
             int start_id,

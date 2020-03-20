@@ -31,14 +31,12 @@ TEST_F(TestSystem, SystemAddNodesTest)
     auto node_3 = std::make_shared<performance_test::Node>("node_3");
     std::vector<std::shared_ptr<performance_test::Node>> nodes_vec = {node_2, node_3};
 
-    int executors = 0;
-    performance_test::System separate_threads_system(executors);
+    performance_test::System separate_threads_system;
 
     separate_threads_system.add_node(node_1);
     separate_threads_system.add_node(nodes_vec);
 
-    executors = 1;
-    performance_test::System single_executor_system(executors);
+    performance_test::System single_executor_system;
 
     single_executor_system.add_node(node_1);
     single_executor_system.add_node(nodes_vec);

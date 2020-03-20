@@ -15,19 +15,6 @@
 #include "performance_test/ros2/names_utilities.hpp"
 
 
-performance_test::System::System(int executor_id)
-{
-    //TODO here implement also multi thread executor, or maybe allow user to pass its custom executor
-    if (executor_id == 1){
-        _executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    }
-    else{
-        _executor = nullptr;
-    }
-
-}
-
-
 void performance_test::System::enable_events_logger(std::string events_logger_path)
 {
     _events_logger = std::make_shared<EventsLogger>(events_logger_path);
@@ -46,6 +33,21 @@ void performance_test::System::add_node(std::shared_ptr<Node> node)
 {
     if (_events_logger != nullptr){
         node->set_events_logger(_events_logger);
+    }
+
+    int executor_id = node->get_executor_id();
+    auto it = _executors_map.find(executor_id);
+    if (it != _executors_map.end()) {
+        auto& ex = it->second;
+        ex.executor->add_node(node);
+        ex.name = ex.name + "_" + node->get_name();
+    } else {
+        auto ex = NamedExecutor();
+        ex.executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+        ex.executor->add_node(node);
+        ex.name = node->get_name();
+
+        _executors_map.insert(std::make_pair(executor_id, ex));
     }
 
     _nodes.push_back(node);
@@ -73,42 +75,26 @@ void performance_test::System::spin(int duration_sec, bool wait_for_discovery)
         this->wait_discovery();
     }
 
-    if (_executor != nullptr){
-        // a main executor has been defined, so add all nodes to it
-        for (const auto& n : _nodes){
-            _executor->add_node(n);
-        }
-        // create a separate thread for the executor to spin
-        std::thread thread([&](){
-            _executor->spin();
+    for (const auto& pair : _executors_map) {
+
+        auto& name = pair.second.name;
+        auto& executor = pair.second.executor;
+
+        // Spin each executor in a separate thread
+        std::thread thread([=](){
+            executor->spin();
         });
-        pthread_setname_np(thread.native_handle(), "executor");
+        pthread_setname_np(thread.native_handle(), name.c_str());
         thread.detach();
-    }
-    else{
-        // Create a different executor for each node
-        for (const auto& n : _nodes){
-            auto ex = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-            ex->add_node(n);
-            // Spin each executor in a different thread
-            std::thread thread([=]() { ex->spin(); });
-            pthread_setname_np(thread.native_handle(), n->get_name());
-            thread.detach();
-            _executors_vec.push_back(ex);
-        }
     }
 
     // let the nodes spin for the specified amount of time
     std::this_thread::sleep_for(std::chrono::seconds(_experiment_duration_sec));
 
     // after the timer, stop all the spin functions
-    if (_executor != nullptr){
-        _executor->cancel();
-    }
-    else{
-        for (auto& ex : _executors_vec){
-            ex->cancel();
-        }
+    for (const auto& pair : _executors_map) {
+        auto& executor = pair.second.executor;
+        executor->cancel();
     }
 }
 

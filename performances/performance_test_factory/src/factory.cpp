@@ -25,10 +25,11 @@ std::shared_ptr<performance_test::Node> performance_test::TemplateFactory::creat
     std::string name,
     bool use_ipc,
     bool verbose,
-    std::string ros2_namespace)
+    std::string ros2_namespace,
+    int executor_id)
 {
 
-    auto node = std::make_shared<performance_test::Node>(name, ros2_namespace, use_ipc);
+    auto node = std::make_shared<performance_test::Node>(name, ros2_namespace, use_ipc, executor_id);
 
     if (verbose){
         auto ret = rcutils_logging_set_logger_level(node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
@@ -330,7 +331,13 @@ std::shared_ptr<performance_test::Node> performance_test::TemplateFactory::creat
 {
 
     auto node_name = std::string(node_json["node_name"]) + suffix;
-    auto node = this->create_node(node_name, _use_ipc, _verbose_mode, _ros2_namespace);
+
+    int executor_id = 0;
+    if (node_json.find("executor_id") != node_json.end()) {
+        executor_id = node_json["executor_id"];
+    }
+
+    auto node = this->create_node(node_name, _use_ipc, _verbose_mode, _ros2_namespace, executor_id);
 
     return node;
 }

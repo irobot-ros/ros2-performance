@@ -41,10 +41,12 @@ friend class System;
 
 public:
 
-  Node(const std::string& name, const std::string& ros2_namespace = "", bool ipc = true)
+  Node(const std::string& name, const std::string& ros2_namespace = "", bool ipc = true, int executor_id = 0)
     : rclcpp::Node(name, ros2_namespace, rclcpp::NodeOptions().use_intra_process_comms(ipc))
   {
-    RCLCPP_INFO(this->get_logger(), "Node %s created", name.c_str());
+    m_executor_id = executor_id;
+
+    RCLCPP_INFO(this->get_logger(), "Node %s created with executor id %d", name.c_str(), m_executor_id);
   }
 
 
@@ -245,6 +247,10 @@ public:
     _events_logger = ev;
   }
 
+  int get_executor_id()
+  {
+    return m_executor_id;
+  }
 
 private:
 
@@ -447,5 +453,6 @@ private:
 
   std::shared_ptr<EventsLogger> _events_logger;
 
+  int m_executor_id = 0;
 };
 }

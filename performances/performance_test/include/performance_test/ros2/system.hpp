@@ -17,11 +17,18 @@
 
 namespace performance_test {
 
+struct NamedExecutor
+{
+    rclcpp::executor::Executor::SharedPtr executor;
+    std::string name;
+};
+
+
 class System
 {
 public:
 
-  System(int executor_id = 0);
+  System() = default;
 
   void add_node(std::vector<std::shared_ptr<Node>> nodes);
 
@@ -59,8 +66,7 @@ private:
 
   std::vector<std::shared_ptr<Node>> _nodes;
 
-  rclcpp::executor::Executor::SharedPtr _executor;
-  std::vector<rclcpp::executors::SingleThreadedExecutor::SharedPtr> _executors_vec;
+  std::map<int, NamedExecutor> _executors_map;
 
 
   std::shared_ptr<EventsLogger> _events_logger;

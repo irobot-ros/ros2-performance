@@ -29,7 +29,6 @@ int main(int argc, char ** argv)
     int n_services = 1;
     std::string msg_type = "stamped10b";
     float frequency = 10;
-    int executors = 0;
     int use_ipc = 0;
     std::string ros_namespace = "";
     int experiment_duration = 5;
@@ -53,8 +52,6 @@ int main(int argc, char ** argv)
         cxxopts::value<std::string>(msg_type)->default_value(msg_type))
     ("f,frequency", "Request frequency",
         cxxopts::value<float>(frequency)->default_value(std::to_string(frequency)))
-    ("executors", "Threading model: 0 each node has its own thread, 1 all nodes are in the same executor",
-        cxxopts::value<int>(executors)->default_value(std::to_string(executors)))
     ("use_ipc", "Activate IntraProcessCommunication (0 or 1 accepted arguments)",
         cxxopts::value<int>(use_ipc)->default_value(std::to_string(use_ipc)))
     ("ros_namespace", "Create every node under this namespace",
@@ -96,7 +93,7 @@ int main(int argc, char ** argv)
     rclcpp::init(argc, argv);
 
     performance_test::TemplateFactory factory(use_ipc, verbose, ros_namespace);
-    performance_test::System ros2_system(executors);
+    performance_test::System ros2_system;
     ros2_system.enable_events_logger(events_file_path);
 
     std::vector<std::shared_ptr<performance_test::Node>> client_nodes =

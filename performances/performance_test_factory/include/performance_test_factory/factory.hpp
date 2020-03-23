@@ -22,10 +22,15 @@ class TemplateFactory {
 
     public:
 
-		TemplateFactory(bool use_ipc = true, bool verbose_mode = false, std::string ros2_namespace = "") :
-            _use_ipc(use_ipc),
-            _verbose_mode(verbose_mode),
-            _ros2_namespace(ros2_namespace)
+        TemplateFactory(
+            bool use_ipc = true,
+            bool use_ros_params = true,
+            bool verbose_mode = false,
+            std::string ros2_namespace = "") :
+                _use_ipc(use_ipc),
+                _use_ros_params(use_ros_params),
+                _verbose_mode(verbose_mode),
+                _ros2_namespace(ros2_namespace)
         {}
 
         /**
@@ -38,6 +43,7 @@ class TemplateFactory {
         std::shared_ptr<Node> create_node(
             std::string name,
             bool use_ipc = true,
+            bool use_ros_params = true,
             bool verbose = false,
             std::string ros2_namespace = "",
             int executor_id = 0);
@@ -138,6 +144,7 @@ class TemplateFactory {
         msg_pass_by_t get_msg_pass_by_from_json(const nlohmann::json entity_json, msg_pass_by_t default_value);
 
         bool _use_ipc;
+        bool _use_ros_params;
         bool _verbose_mode;
         std::string _ros2_namespace;
 

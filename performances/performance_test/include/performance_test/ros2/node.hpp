@@ -41,8 +41,9 @@ friend class System;
 
 public:
 
-  Node(const std::string& name, const std::string& ros2_namespace = "", bool ipc = true, int executor_id = 0)
-    : rclcpp::Node(name, ros2_namespace, rclcpp::NodeOptions().use_intra_process_comms(ipc))
+  Node(const std::string& name, const std::string& ros2_namespace = "",
+      const rclcpp::NodeOptions& node_options = rclcpp::NodeOptions(), int executor_id = 0)
+    : rclcpp::Node(name, ros2_namespace, node_options)
   {
     m_executor_id = executor_id;
 

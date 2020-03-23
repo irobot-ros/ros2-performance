@@ -36,6 +36,7 @@ int main(int argc, char** argv)
     for(const auto& json : json_list) std::cout << json << std::endl;
 
     std::cout << "Intra-process-communication: " << (options.ipc ? "on" : "off") << std::endl;
+    std::cout << "Parameter services: " << (options.ros_params ? "on" : "off") << std::endl;
     std::cout << "Run test for: " << options.duration_sec << " seconds" << std::endl;
     std::cout << "Sampling resources every " << options.resources_sampling_per_ms << "ms" << std::endl;
     std::cout << "Logging events statistics: " << (options.tracking_options.is_enabled ? "on" : "off") << std::endl;
@@ -88,7 +89,7 @@ int main(int argc, char** argv)
     }
 
     // Load topology from json file
-    performance_test::TemplateFactory factory = performance_test::TemplateFactory(options.ipc);
+    performance_test::TemplateFactory factory = performance_test::TemplateFactory(options.ipc, options.ros_params);
 
     auto nodes_vec = factory.parse_topology_from_json(topology_json, options.tracking_options);
     ros2_system.add_node(nodes_vec);

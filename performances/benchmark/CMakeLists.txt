@@ -25,6 +25,7 @@ install(TARGETS
 
 set(TOPOLOGY_FILES
   topology/sierra_nevada.json
+  topology/cedar.json
   topology/mont_blanc.json
   topology/white_mountain.json
   topology/debug_sierra_nevada_reliable.json

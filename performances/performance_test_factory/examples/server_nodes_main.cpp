@@ -30,6 +30,7 @@ int main(int argc, char ** argv)
     std::string msg_type = "stamped10b";
     float frequency = 10;
     int use_ipc = 0;
+    int use_ros_params = 1;
     std::string ros_namespace = "";
     int experiment_duration = 5;
     int monitor_stats = 0;
@@ -54,6 +55,8 @@ int main(int argc, char ** argv)
         cxxopts::value<float>(frequency)->default_value(std::to_string(frequency)))
     ("use_ipc", "Activate IntraProcessCommunication (0 or 1 accepted arguments)",
         cxxopts::value<int>(use_ipc)->default_value(std::to_string(use_ipc)))
+    ("use_ros_params", "Use parameter services (0 or 1 accepted arguments)",
+        cxxopts::value<int>(use_ros_params)->default_value(std::to_string(use_ros_params)))
     ("ros_namespace", "Create every node under this namespace",
         cxxopts::value<std::string>(ros_namespace)->default_value(ros_namespace))
     ("t, duration", "Duration in seconds",
@@ -92,7 +95,7 @@ int main(int argc, char ** argv)
 
     rclcpp::init(argc, argv);
 
-    performance_test::TemplateFactory factory(use_ipc, verbose, ros_namespace);
+    performance_test::TemplateFactory factory(use_ipc, use_ros_params, verbose, ros_namespace);
     performance_test::System ros2_system;
     ros2_system.enable_events_logger(events_file_path);
 

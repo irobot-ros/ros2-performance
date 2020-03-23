@@ -24,12 +24,17 @@ using json = nlohmann::json;
 std::shared_ptr<performance_test::Node> performance_test::TemplateFactory::create_node(
     std::string name,
     bool use_ipc,
+    bool use_ros_params,
     bool verbose,
     std::string ros2_namespace,
     int executor_id)
 {
+    rclcpp::NodeOptions node_options = rclcpp::NodeOptions();
+    node_options.use_intra_process_comms(use_ipc);
+    node_options.start_parameter_services(use_ros_params);
+    node_options.start_parameter_event_publisher(use_ros_params);
 
-    auto node = std::make_shared<performance_test::Node>(name, ros2_namespace, use_ipc, executor_id);
+    auto node = std::make_shared<performance_test::Node>(name, ros2_namespace, node_options, executor_id);
 
     if (verbose){
         auto ret = rcutils_logging_set_logger_level(node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
@@ -54,7 +59,7 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
     for (int node_id = start_id; node_id < end_id; node_id ++){
 
         std::string node_name = id_to_node_name(node_id);
-        auto node = this->create_node(node_name, _use_ipc, _verbose_mode, _ros2_namespace);
+        auto node = this->create_node(node_name, _use_ipc, _use_ros_params, _verbose_mode, _ros2_namespace);
 
         // TODO: pass publisher list instead of n_publishers, to select the IDs (
         // default is a list from 0 to n_pubs or directly from n_subs to n_pubs)
@@ -87,7 +92,7 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
     for (int node_id = start_id; node_id < end_id; node_id++){
 
         std::string node_name = id_to_node_name(node_id);
-        auto node = this->create_node(node_name, _use_ipc, _verbose_mode, _ros2_namespace);
+        auto node = this->create_node(node_name, _use_ipc, _use_ros_params, _verbose_mode, _ros2_namespace);
 
         int topic_id = node_id;
         std::string topic_name = id_to_topic_name(topic_id);
@@ -117,7 +122,7 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
     for (int node_id = start_id; node_id < end_id; node_id++){
 
         std::string node_name = id_to_node_name(node_id);
-        auto node = this->create_node(node_name, _use_ipc, _verbose_mode, _ros2_namespace);
+        auto node = this->create_node(node_name, _use_ipc, _use_ros_params, _verbose_mode, _ros2_namespace);
 
         int period = (1000/frequency);
         std::chrono::milliseconds period_ms = std::chrono::milliseconds(period);
@@ -150,7 +155,7 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
     for (int node_id = start_id; node_id < end_id; node_id++){
 
         std::string node_name = id_to_node_name(node_id);
-        auto node = this->create_node(node_name, _use_ipc, _verbose_mode, _ros2_namespace);
+        auto node = this->create_node(node_name, _use_ipc, _use_ros_params, _verbose_mode, _ros2_namespace);
 
         int service_id = node_id;
         std::string service_name = id_to_service_name(service_id);
@@ -337,7 +342,7 @@ std::shared_ptr<performance_test::Node> performance_test::TemplateFactory::creat
         executor_id = node_json["executor_id"];
     }
 
-    auto node = this->create_node(node_name, _use_ipc, _verbose_mode, _ros2_namespace, executor_id);
+    auto node = this->create_node(node_name, _use_ipc, _use_ros_params, _verbose_mode, _ros2_namespace, executor_id);
 
     return node;
 }

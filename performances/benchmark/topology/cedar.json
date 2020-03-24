@@ -10,7 +10,8 @@
               {"topic_name": "amazon", "msg_type": "stamped9_float32", "period_ms": 15.625},
               {"topic_name": "ganges", "msg_type": "stamped4_int32", "period_ms": 15.625},
               {"topic_name": "nile", "msg_type": "stamped4_int32", "period_ms": 15.625}
-          ]
+          ],
+        "executor_id":1
       },
 
       {
@@ -21,7 +22,8 @@
           ],
         "publishers": [
             {"topic_name":"rhine", "msg_type": "stamped4_int32", "period_ms": 15.625}
-          ]
+          ],
+        "executor_id":2
       },
 
       {
@@ -34,7 +36,8 @@
           ],
         "publishers": [
             {"topic_name": "parana", "msg_type": "stamped3_float32", "period_ms": 15.625}
-          ]
+          ],
+        "executor_id":3
       },
 
       {
@@ -44,7 +47,8 @@
           ],
         "publishers": [
             {"topic_name":"salween", "msg_type":"stamped12_float32", "period_ms": 100}
-          ]
+          ],
+        "executor_id":4
       },
 
       {
@@ -55,7 +59,8 @@
           ],
         "publishers": [
             {"topic_name":"missouri", "msg_type": "stamped_vector", "msg_size": 10000, "period_ms": 100}
-          ]
+          ],
+        "executor_id":5
       },
 
       {
@@ -69,7 +74,8 @@
         "publishers": [
             {"topic_name": "mekong", "msg_type": "stamped_vector", "msg_size": 100, "period_ms": 500},
             {"topic_name": "congo", "msg_type": "stamped4_int32", "period_ms": 100}
-          ]
+          ],
+        "executor_id":6
       },
 
       {
@@ -79,7 +85,8 @@
           ],
         "publishers": [
             {"topic_name": "lena", "msg_type": "stamped_vector", "msg_size": 50, "period_ms": 100}
-          ]
+          ],
+        "executor_id":7
       },
 
       {
@@ -89,7 +96,8 @@
           ],
         "publishers": [
             {"topic_name": "volga", "msg_type": "stamped_int64", "period_ms": 500}
-          ]
+          ],
+        "executor_id":8
       },
 
       {
@@ -101,7 +109,8 @@
           ],
         "publishers": [
             {"topic_name": "arkansas", "msg_type": "stamped4_int32", "period_ms": 100}
-          ]
+          ],
+        "executor_id":9
       }
     ]
 }

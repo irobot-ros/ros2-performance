@@ -102,7 +102,7 @@ public:
 
   template <typename Msg>
   void add_periodic_publisher(const Topic<Msg>& topic,
-                              std::chrono::milliseconds period,
+                              std::chrono::microseconds period_us,
                               msg_pass_by_t msg_pass_by,
                               rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
                               size_t size = 0)
@@ -116,10 +116,10 @@ public:
       topic.name,
       msg_pass_by,
       size,
-      period
+      period_us
     );
 
-    this->add_timer(period, publisher_task);
+    this->add_timer(period_us, publisher_task);
   }
 
 
@@ -166,7 +166,7 @@ public:
 
   template <typename Srv>
   void add_periodic_client(const Service<Srv>& service,
-                              std::chrono::milliseconds period,
+                              std::chrono::microseconds period_us,
                               rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
                               size_t size = 0)
   {
@@ -181,9 +181,9 @@ public:
       );
 
     // store the frequency of this client task
-    _clients.at(service.name).second.set_frequency(1000 / period.count());
+    _clients.at(service.name).second.set_frequency(1000000 / period_us.count());
 
-    this->add_timer(period, client_task);
+    this->add_timer(period_us, client_task);
 
   }
 
@@ -199,10 +199,9 @@ public:
   }
 
 
-  void add_timer(std::chrono::milliseconds period, std::function< void() > callback)
+  void add_timer(std::chrono::microseconds period_us, std::function< void() > callback)
   {
-
-    rclcpp::TimerBase::SharedPtr timer = this->create_wall_timer(period, callback);
+    rclcpp::TimerBase::SharedPtr timer = this->create_wall_timer(period_us, callback);
 
     _timers.push_back(timer);
 
@@ -256,7 +255,7 @@ public:
 private:
 
   template <typename Msg>
-  void _publish(const std::string& name, msg_pass_by_t msg_pass_by, size_t size, std::chrono::milliseconds period)
+  void _publish(const std::string& name, msg_pass_by_t msg_pass_by, size_t size, std::chrono::microseconds period_us)
   {
     // Get publisher and tracking count from map
     auto& pub_pair = _pubs.at(name);
@@ -272,7 +271,7 @@ private:
           resize_msg(msg->data, msg->header, size);
 
           // get the frequency value that we stored when creating the publisher
-          msg->header.frequency = 1000.0 / period.count();
+          msg->header.frequency = 1000000.0 / period_us.count();
           // set the tracking count for this message
           msg->header.tracking_number = tracking_number;
           //attach the timestamp as last operation before publishing
@@ -289,7 +288,7 @@ private:
           resize_msg(msg->data, msg->header, size);
 
           // get the frequency value that we stored when creating the publisher
-          msg->header.frequency = 1000.0 / period.count();
+          msg->header.frequency = 1000000.0 / period_us.count();
           // set the tracking count for this message
           msg->header.tracking_number = tracking_number;
           //attach the timestamp as last operation before publishing

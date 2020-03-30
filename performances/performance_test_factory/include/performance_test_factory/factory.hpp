@@ -99,7 +99,7 @@ class TemplateFactory {
             std::string topic_name,
             msg_pass_by_t msg_pass_by = PASS_BY_UNIQUE_PTR,
             rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
-            std::chrono::milliseconds period_ms = std::chrono::milliseconds(10),
+            std::chrono::microseconds period_us = std::chrono::microseconds(10000),
             size_t msg_size = 0);
 
         void add_periodic_client_from_strings(
@@ -107,7 +107,7 @@ class TemplateFactory {
             std::string srv_type,
             std::string service_name,
             rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
-            std::chrono::milliseconds period_ms = std::chrono::milliseconds(10));
+            std::chrono::microseconds period_us = std::chrono::microseconds(10000));
 
         void add_server_from_strings(
             std::shared_ptr<Node> n,

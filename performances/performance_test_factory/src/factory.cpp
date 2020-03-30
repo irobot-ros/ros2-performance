@@ -97,10 +97,10 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
         int topic_id = node_id;
         std::string topic_name = id_to_topic_name(topic_id);
 
-        int period = (1000/frequency);
-        std::chrono::milliseconds period_ms = std::chrono::milliseconds(period);
+        int period_us_ = (1000000/frequency);
+        std::chrono::microseconds period_us = std::chrono::microseconds(period_us_);
 
-        this->add_periodic_publisher_from_strings(node, msg_type, topic_name, msg_pass_by, custom_qos_profile, period_ms, msg_size);
+        this->add_periodic_publisher_from_strings(node, msg_type, topic_name, msg_pass_by, custom_qos_profile, period_us, msg_size);
 
         nodes_vector.push_back(node);
     }
@@ -124,15 +124,15 @@ std::vector<std::shared_ptr<performance_test::Node>> performance_test::TemplateF
         std::string node_name = id_to_node_name(node_id);
         auto node = this->create_node(node_name, _use_ipc, _use_ros_params, _verbose_mode, _ros2_namespace);
 
-        int period = (1000/frequency);
-        std::chrono::milliseconds period_ms = std::chrono::milliseconds(period);
+        int period_us_ = (1000000/frequency);
+        std::chrono::microseconds period_us = std::chrono::microseconds(period_us_);
 
         for (int k = 0; k < n_services; k ++){
 
             int service_id = k + end_id;
             std::string service_name = id_to_service_name(service_id);
 
-            this->add_periodic_client_from_strings(node, srv_type, service_name, custom_qos_profile, period_ms);
+            this->add_periodic_client_from_strings(node, srv_type, service_name, custom_qos_profile, period_us);
 
         }
 
@@ -203,7 +203,7 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_strings(
     std::string topic_name,
     msg_pass_by_t msg_pass_by,
     rmw_qos_profile_t custom_qos_profile,
-    std::chrono::milliseconds period_ms,
+    std::chrono::microseconds period_us,
     size_t msg_size)
 {
     Poco::SharedLibrary * library = get_library(msg_type);
@@ -218,12 +218,13 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_strings(
       std::string,
       msg_pass_by_t,
       rmw_qos_profile_t,
-      std::chrono::milliseconds,
+      std::chrono::microseconds,
       size_t);
 
-		function_impl_t add_publisher_impl = (function_impl_t)library->getSymbol("add_publisher_impl");
-		add_publisher_impl(n, msg_type, topic_name, msg_pass_by, custom_qos_profile, period_ms, msg_size);
-		library->unload();
+	function_impl_t add_publisher_impl = (function_impl_t)library->getSymbol("add_publisher_impl");
+
+	add_publisher_impl(n, msg_type, topic_name, msg_pass_by, custom_qos_profile, period_us, msg_size);
+	library->unload();
 }
 
 
@@ -257,7 +258,7 @@ void performance_test::TemplateFactory::add_periodic_client_from_strings(
     std::string srv_type,
     std::string service_name,
     rmw_qos_profile_t custom_qos_profile,
-    std::chrono::milliseconds period_ms)
+    std::chrono::microseconds period_us)
 {
     Poco::SharedLibrary * library = get_library(srv_type);
 
@@ -270,12 +271,12 @@ void performance_test::TemplateFactory::add_periodic_client_from_strings(
       std::string,
       std::string,
       rmw_qos_profile_t,
-      std::chrono::milliseconds period_ms
+      std::chrono::microseconds period_us
     );
 
-		function_impl_t add_client_impl = (function_impl_t)library->getSymbol("add_client_impl");
-		add_client_impl(n, srv_type, service_name, custom_qos_profile, period_ms);
-		library->unload();
+	function_impl_t add_client_impl = (function_impl_t)library->getSymbol("add_client_impl");
+	add_client_impl(n, srv_type, service_name, custom_qos_profile, period_us);
+	library->unload();
 }
 
 
@@ -388,7 +389,8 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_json(
     std::string topic_name = pub_json["topic_name"];
     std::string msg_type = pub_json["msg_type"];
 
-    auto period_ms = std::chrono::milliseconds(pub_json["period_ms"]);
+    float period_ms = pub_json["period_ms"];
+    auto period_us = std::chrono::microseconds(static_cast<int>(period_ms * 1000));
 
     size_t msg_size = 0;
     if (pub_json.find("msg_size") != pub_json.end())
@@ -406,7 +408,7 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_json(
         topic_name,
         msg_pass_by,
         custom_qos_profile,
-        period_ms,
+        period_us,
         msg_size);
 
 }
@@ -439,7 +441,10 @@ void performance_test::TemplateFactory::add_periodic_client_from_json(
 
     std::string service_name = client_json["service_name"];
     std::string srv_type = client_json["srv_type"];
-    auto period_ms = std::chrono::milliseconds(client_json["period_ms"]);
+
+    float period_ms = client_json["period_ms"];
+    auto period_us = std::chrono::microseconds(static_cast<int>(period_ms * 1000));
+
     rmw_qos_profile_t custom_qos_profile = get_qos_from_json(client_json);
 
     this->add_periodic_client_from_strings(
@@ -447,7 +452,7 @@ void performance_test::TemplateFactory::add_periodic_client_from_json(
         srv_type,
         service_name,
         custom_qos_profile,
-        period_ms);
+        period_us);
 
 }
 

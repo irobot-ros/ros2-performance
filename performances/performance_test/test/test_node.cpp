@@ -50,9 +50,9 @@ TEST_F(TestNode, NodeAddItemsTest)
   auto node = std::make_shared<performance_test::Node>("node_name");
 
   node->add_subscriber(topic, PASS_BY_SHARED_PTR);
-  node->add_periodic_publisher(topic, std::chrono::milliseconds(10), PASS_BY_UNIQUE_PTR);
+  node->add_periodic_publisher(topic, std::chrono::microseconds(10000), PASS_BY_UNIQUE_PTR);
   node->add_server(service);
-  node->add_periodic_client(service, std::chrono::milliseconds(10));
+  node->add_periodic_client(service, std::chrono::microseconds(10000));
 
   ASSERT_EQ((size_t)3, node->all_trackers()->size());
 }

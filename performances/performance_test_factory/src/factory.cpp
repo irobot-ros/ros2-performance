@@ -389,7 +389,17 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_json(
     std::string topic_name = pub_json["topic_name"];
     std::string msg_type = pub_json["msg_type"];
 
-    float period_ms = pub_json["period_ms"];
+    float period_ms;
+
+    if (pub_json.find("freq_hz") != pub_json.end()) {
+        float frequency = pub_json["freq_hz"];
+        period_ms = 1000 / frequency;
+    } else if (pub_json.find("period_ms") != pub_json.end()) {
+        period_ms = pub_json["period_ms"];
+    } else {
+       std::cout << "Error! Publishers must set period_ms or freq_hz in json file" << std::endl;
+    }
+
     auto period_us = std::chrono::microseconds(static_cast<int>(period_ms * 1000));
 
     size_t msg_size = 0;
@@ -442,7 +452,17 @@ void performance_test::TemplateFactory::add_periodic_client_from_json(
     std::string service_name = client_json["service_name"];
     std::string srv_type = client_json["srv_type"];
 
-    float period_ms = client_json["period_ms"];
+    float period_ms;
+
+    if (client_json.find("freq_hz") != client_json.end()) {
+        float frequency = client_json["freq_hz"];
+        period_ms = 1000 / frequency;
+    } else if (client_json.find("period_ms") != client_json.end()) {
+        period_ms = client_json["period_ms"];
+    } else {
+       std::cout << "Error! Clients must set period_ms or freq_hz in json file" << std::endl;
+    }
+
     auto period_us = std::chrono::microseconds(static_cast<int>(period_ms * 1000));
 
     rmw_qos_profile_t custom_qos_profile = get_qos_from_json(client_json);

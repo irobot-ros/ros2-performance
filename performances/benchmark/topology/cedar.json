@@ -6,10 +6,10 @@
             {"topic_name":"arkansas", "msg_type":"stamped4_int32"}
           ],
         "publishers": [
-              {"topic_name": "danube", "msg_type": "stamped_int64", "period_ms": 15.625},
-              {"topic_name": "amazon", "msg_type": "stamped9_float32", "period_ms": 15.625},
-              {"topic_name": "ganges", "msg_type": "stamped4_int32", "period_ms": 15.625},
-              {"topic_name": "nile", "msg_type": "stamped4_int32", "period_ms": 15.625}
+              {"topic_name": "danube", "msg_type": "stamped_int64", "freq_hz": 64},
+              {"topic_name": "amazon", "msg_type": "stamped9_float32", "freq_hz": 64},
+              {"topic_name": "ganges", "msg_type": "stamped4_int32", "freq_hz": 64},
+              {"topic_name": "nile", "msg_type": "stamped4_int32", "freq_hz": 64}
           ],
         "executor_id":1
       },
@@ -21,7 +21,7 @@
             {"topic_name":"amazon", "msg_type": "stamped9_float32"}
           ],
         "publishers": [
-            {"topic_name":"rhine", "msg_type": "stamped4_int32", "period_ms": 15.625}
+            {"topic_name":"rhine", "msg_type": "stamped4_int32", "freq_hz": 64}
           ],
         "executor_id":2
       },
@@ -35,7 +35,7 @@
             {"topic_name":"nile", "msg_type":"stamped4_int32"}
           ],
         "publishers": [
-            {"topic_name": "parana", "msg_type": "stamped3_float32", "period_ms": 15.625}
+            {"topic_name": "parana", "msg_type": "stamped3_float32", "freq_hz": 64}
           ],
         "executor_id":3
       },
@@ -46,7 +46,7 @@
             {"topic_name":"parana", "msg_type":"stamped3_float32"}
           ],
         "publishers": [
-            {"topic_name":"salween", "msg_type":"stamped12_float32", "period_ms": 100}
+            {"topic_name":"salween", "msg_type":"stamped12_float32", "freq_hz": 10}
           ],
         "executor_id":4
       },
@@ -58,7 +58,7 @@
             {"topic_name":"salween", "msg_type":"stamped12_float32"}
           ],
         "publishers": [
-            {"topic_name":"missouri", "msg_type": "stamped_vector", "msg_size": 10000, "period_ms": 100}
+            {"topic_name":"missouri", "msg_type": "stamped_vector", "msg_size": 10000, "freq_hz": 10}
           ],
         "executor_id":5
       },
@@ -72,8 +72,8 @@
             {"topic_name":"volga", "msg_type":"stamped_int64"}
           ],
         "publishers": [
-            {"topic_name": "mekong", "msg_type": "stamped_vector", "msg_size": 100, "period_ms": 500},
-            {"topic_name": "congo", "msg_type": "stamped4_int32", "period_ms": 100}
+            {"topic_name": "mekong", "msg_type": "stamped_vector", "msg_size": 100, "freq_hz": 2},
+            {"topic_name": "congo", "msg_type": "stamped4_int32", "freq_hz": 10}
           ],
         "executor_id":6
       },
@@ -84,7 +84,7 @@
             {"topic_name":"mekong", "msg_type":"stamped_vector"}
           ],
         "publishers": [
-            {"topic_name": "lena", "msg_type": "stamped_vector", "msg_size": 50, "period_ms": 100}
+            {"topic_name": "lena", "msg_type": "stamped_vector", "msg_size": 50, "freq_hz": 10}
           ],
         "executor_id":7
       },
@@ -95,7 +95,7 @@
             {"topic_name":"lena", "msg_type":"stamped_vector"}
           ],
         "publishers": [
-            {"topic_name": "volga", "msg_type": "stamped_int64", "period_ms": 500}
+            {"topic_name": "volga", "msg_type": "stamped_int64", "freq_hz": 2}
           ],
         "executor_id":8
       },
@@ -108,7 +108,7 @@
             {"topic_name":"parana", "msg_type":"stamped3_float32"}
           ],
         "publishers": [
-            {"topic_name": "arkansas", "msg_type": "stamped4_int32", "period_ms": 100}
+            {"topic_name": "arkansas", "msg_type": "stamped4_int32", "freq_hz": 10}
           ],
         "executor_id":9
       }

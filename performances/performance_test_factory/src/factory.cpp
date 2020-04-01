@@ -389,7 +389,7 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_json(
     std::string topic_name = pub_json["topic_name"];
     std::string msg_type = pub_json["msg_type"];
 
-    float period_ms;
+    float period_ms = 0;
 
     if (pub_json.find("freq_hz") != pub_json.end()) {
         float frequency = pub_json["freq_hz"];

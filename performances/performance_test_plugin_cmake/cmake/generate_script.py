@@ -159,14 +159,14 @@ def get_pub_factory(msgs, package):
     std::string topic_name,
     msg_pass_by_t msg_pass_by,
     rmw_qos_profile_t custom_qos_profile,
-    std::chrono::microseconds period_us,
+    std::chrono::microseconds period,
     size_t msg_size)
   {
     const std::map<std::string, std::function<void()>> publishers_factory{
   """
 
   function = "add_periodic_publisher"
-  user_args = "period_us, msg_pass_by, custom_qos_profile, msg_size"
+  user_args = "period, msg_pass_by, custom_qos_profile, msg_size"
 
   for msg_name in msgs:
     msg_class_name = get_namespaced_cpp_class_name(msg_name, package, "msg")
@@ -261,13 +261,13 @@ def get_client_factory(srvs, package):
     std::string srv_type,
     std::string service_name,
     rmw_qos_profile_t custom_qos_profile,
-    std::chrono::microseconds period_us)
+    std::chrono::microseconds period)
   {
     const std::map<std::string, std::function<void()>> clients_factory{
   """
 
   function = "add_periodic_client"
-  user_args = "period_us, custom_qos_profile"
+  user_args = "period, custom_qos_profile"
 
   for srv_name in srvs:
 

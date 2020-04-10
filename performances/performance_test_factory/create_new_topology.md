@@ -18,7 +18,7 @@ This is the structure of the json:
      - The `topic_name` or `service_name`. This field is mandatory.
      - The `msg_type` or `srv_type`. This is a string that defines the type of message used. More details on how to specify the name of a specific message can be found later. This field is mandatory.
      - If the interface specified in the `msg_type` or `srv_type` has a vector field, the size of this vector should be specified using the `msg_size` field. The size is in bytes.
-     - Publishers and clients have to specify the `period_ms` field. This denotes the amount of milliseconds between consecutive messages are published or service requests are issued. This field is mandatory for publishers and clients.
+     - Publishers and clients have to specify the `period_ms` or `freq_hz` field. This denotes the amount of milliseconds (or frequency) between consecutive messages are published or service requests are issued. This field is mandatory for publishers and clients.
      - For all the entity types, quality of service options can be specified in the json format.
 
 

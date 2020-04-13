@@ -24,10 +24,10 @@ public:
     Options()
     {
         ipc = true;
-        ros_params = true;
+        ros_params = false;
         duration_sec = 5;
         resources_sampling_per_ms = 500;
-	tracking_options.is_enabled = true;
+        tracking_options.is_enabled = false;
         tracking_options.late_percentage = 20;
         tracking_options.late_absolute_us = 5000;
         tracking_options.too_late_percentage = 100;

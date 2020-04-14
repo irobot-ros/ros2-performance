@@ -43,7 +43,7 @@ void performance_test::System::add_node(std::shared_ptr<Node> node)
         ex.name = ex.name + "_" + node->get_name();
     } else {
         auto ex = NamedExecutor();
-        ex.executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+        ex.executor = std::make_shared<rclcpp::executors::StaticSingleThreadedExecutor>();
         ex.executor->add_node(node);
         ex.name = node->get_name();
 
@@ -431,7 +431,7 @@ void performance_test::System::log_latency_all_stats(std::ostream& stream) const
             stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.stat().stddev());
             stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.stat().min());
             stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.stat().max());
-            stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.frequency());
+            stream << std::left << std::setw(narrow_space) << std::setfill(separator) << tracker.second.frequency();
             stream << std::left << std::setw(narrow_space) << std::setfill(separator) << _experiment_duration_sec;
             stream << std::endl;
         }

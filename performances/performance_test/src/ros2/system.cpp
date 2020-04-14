@@ -43,7 +43,7 @@ void performance_test::System::add_node(std::shared_ptr<Node> node)
         ex.name = ex.name + "_" + node->get_name();
     } else {
         auto ex = NamedExecutor();
-        ex.executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+        ex.executor = std::make_shared<rclcpp::executors::StaticSingleThreadedExecutor>();
         ex.executor->add_node(node);
         ex.name = node->get_name();
 

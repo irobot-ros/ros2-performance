@@ -1,5 +1,9 @@
 # ROS2 Performance Framework
 
+The `master` branch of this repository targets the current ROS 2 development branch.
+It may fail to compile if you are using a stable ROS 2 distribution.
+If you want to run the framework using one of the stable ROS 2 distribtions switch to its specific branch (e.g. `dashing` or `eloquent`).
+
 The **[benchmark](benchmark)** package contains the application used by iRobot to evaluate the ROS2 performance and the results obtained with it.
 
 This executable depends on the performance framework contained in the other packages in this directory.

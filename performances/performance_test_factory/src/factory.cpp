@@ -177,11 +177,7 @@ void performance_test::TemplateFactory::add_subscriber_from_strings(
     msg_pass_by_t msg_pass_by,
     rmw_qos_profile_t custom_qos_profile)
 {
-    Poco::SharedLibrary * library = get_library(msg_type);
-
-    if (library == nullptr) {
-      std::cout<<"Error! Library is nullptr"<<std::endl;
-    }
+    auto library = performance_test::get_library(msg_type);
 
     typedef void (*function_impl_t)(
       std::shared_ptr<performance_test::Node>,
@@ -191,9 +187,8 @@ void performance_test::TemplateFactory::add_subscriber_from_strings(
       msg_pass_by_t,
       rmw_qos_profile_t);
 
-		function_impl_t add_subscriber_impl = (function_impl_t)library->getSymbol("add_subscriber_impl");
-		add_subscriber_impl(n, msg_type, topic_name, tracking_options, msg_pass_by, custom_qos_profile);
-		library->unload();
+    function_impl_t add_subscriber_impl = (function_impl_t)library->get_symbol("add_subscriber_impl");
+    add_subscriber_impl(n, msg_type, topic_name, tracking_options, msg_pass_by, custom_qos_profile);
 }
 
 
@@ -206,11 +201,7 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_strings(
     std::chrono::microseconds period,
     size_t msg_size)
 {
-    Poco::SharedLibrary * library = get_library(msg_type);
-
-    if (library == nullptr) {
-      std::cout<<"Error! Library is nullptr"<<std::endl;
-    }
+    auto library = performance_test::get_library(msg_type);
 
     typedef void (*function_impl_t)(
       std::shared_ptr<performance_test::Node>,
@@ -221,10 +212,8 @@ void performance_test::TemplateFactory::add_periodic_publisher_from_strings(
       std::chrono::microseconds,
       size_t);
 
-	function_impl_t add_publisher_impl = (function_impl_t)library->getSymbol("add_publisher_impl");
-
-	add_publisher_impl(n, msg_type, topic_name, msg_pass_by, custom_qos_profile, period, msg_size);
-	library->unload();
+    function_impl_t add_publisher_impl = (function_impl_t)library->get_symbol("add_publisher_impl");
+    add_publisher_impl(n, msg_type, topic_name, msg_pass_by, custom_qos_profile, period, msg_size);
 }
 
 
@@ -234,11 +223,7 @@ void performance_test::TemplateFactory::add_server_from_strings(
     std::string service_name,
     rmw_qos_profile_t custom_qos_profile)
 {
-    Poco::SharedLibrary * library = get_library(srv_type);
-
-    if (library == nullptr) {
-      std::cout<<"Error! Library is nullptr"<<std::endl;
-    }
+    auto library = performance_test::get_library(srv_type);
 
     typedef void (*function_impl_t)(
       std::shared_ptr<performance_test::Node>,
@@ -247,9 +232,8 @@ void performance_test::TemplateFactory::add_server_from_strings(
       rmw_qos_profile_t
     );
 
-		function_impl_t add_server_impl = (function_impl_t)library->getSymbol("add_server_impl");
-		add_server_impl(n, srv_type, service_name, custom_qos_profile);
-		library->unload();
+    function_impl_t add_server_impl = (function_impl_t)library->get_symbol("add_server_impl");
+    add_server_impl(n, srv_type, service_name, custom_qos_profile);
 }
 
 
@@ -260,11 +244,7 @@ void performance_test::TemplateFactory::add_periodic_client_from_strings(
     rmw_qos_profile_t custom_qos_profile,
     std::chrono::microseconds period)
 {
-    Poco::SharedLibrary * library = get_library(srv_type);
-
-    if (library == nullptr) {
-      std::cout<<"Error! Library is nullptr"<<std::endl;
-    }
+    auto library = performance_test::get_library(srv_type);
 
     typedef void (*function_impl_t)(
       std::shared_ptr<performance_test::Node>,
@@ -274,9 +254,8 @@ void performance_test::TemplateFactory::add_periodic_client_from_strings(
       std::chrono::microseconds period
     );
 
-	function_impl_t add_client_impl = (function_impl_t)library->getSymbol("add_client_impl");
-	add_client_impl(n, srv_type, service_name, custom_qos_profile, period);
-	library->unload();
+    function_impl_t add_client_impl = (function_impl_t)library->get_symbol("add_client_impl");
+    add_client_impl(n, srv_type, service_name, custom_qos_profile, period);
 }
 
 

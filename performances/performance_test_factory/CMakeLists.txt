@@ -12,10 +12,7 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 
-# provides FindPoco.cmake and Poco on platforms without it
-find_package(poco_vendor)
-find_package(Poco COMPONENTS Foundation REQUIRED)
-
+find_package(rcpputils REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(performance_test REQUIRED)
 
@@ -25,12 +22,14 @@ include_directories(
 )
 
 set (LIBRARY_DEPENDENCIES
+  rcpputils
   rclcpp
   performance_test
 )
 
 set(LIBRARY_SRC
   src/factory.cpp
+  src/load_plugins.cpp
 )
 
 set(LIBRARY_NAME ${PROJECT_NAME})

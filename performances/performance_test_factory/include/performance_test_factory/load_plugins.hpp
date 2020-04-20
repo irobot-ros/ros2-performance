@@ -10,22 +10,13 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
 
-#include <rcutils/shared_library.h>
+#include <rcpputils/shared_library.hpp>
 
 namespace performance_test {
 
-std::string get_env_var(const char * env_var);
-
-std::list<std::string> split(const std::string & value, const char delimiter);
-
-bool is_file_exist(const char * filename);
-
-std::string find_library_path(const std::string & library_name);
-
-std::string get_library_name(std::string msg_type);
-
-rcutils_shared_library_t get_library(std::string msg_type);
+std::shared_ptr<rcpputils::SharedLibrary> get_library(std::string msg_type);
 
 }

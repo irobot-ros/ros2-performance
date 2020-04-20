@@ -12,7 +12,7 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 
-find_package(rcutils REQUIRED)
+find_package(rcpputils REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(performance_test REQUIRED)
 
@@ -22,6 +22,7 @@ include_directories(
 )
 
 set (LIBRARY_DEPENDENCIES
+  rcpputils
   rclcpp
   performance_test
 )

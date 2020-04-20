@@ -7,16 +7,6 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#include <cstddef>
-#include <cstdio>
-#include <cstring>
-
-#include <list>
-
-#include <fstream>
-#include <iostream>
-#include <sstream>
-
 #include "performance_test_factory/load_plugins.hpp"
 
 using namespace performance_test;

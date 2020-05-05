@@ -34,7 +34,7 @@ public:
 
   void add_node(std::shared_ptr<Node> node);
 
-  void spin(int duration_sec, bool wait_for_discovery = true);
+  void spin(int duration_sec, bool wait_for_discovery = true, bool name_threads = true);
 
   void enable_events_logger(std::string events_logger_path);
 

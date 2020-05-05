@@ -25,9 +25,10 @@ public:
     {
         ipc = true;
         ros_params = true;
+        name_threads = true;
         duration_sec = 5;
         resources_sampling_per_ms = 500;
-	tracking_options.is_enabled = true;
+        tracking_options.is_enabled = true;
         tracking_options.late_percentage = 20;
         tracking_options.late_absolute_us = 5000;
         tracking_options.too_late_percentage = 100;
@@ -47,6 +48,7 @@ public:
 
       std::string ipc_option;
       std::string ros_params_option;
+      std::string name_threads_option;
       std::string tracking_enabled_option;
       options.positional_help("FILE [FILE...]").show_positional_help();
       options.parse_positional({"topology"});
@@ -58,6 +60,8 @@ public:
         cxxopts::value<std::string>(ipc_option)->default_value(ipc ? "on" : "off"),"on/off")
       ("ros_params", "enable parameter services",
         cxxopts::value<std::string>(ros_params_option)->default_value(ros_params ? "on" : "off"),"on/off")
+      ("name_threads", "enable naming threads",
+        cxxopts::value<std::string>(name_threads_option)->default_value(name_threads ? "on" : "off"),"on/off")
       ("t,time", "test duration", cxxopts::value<int>(duration_sec)->default_value(std::to_string(duration_sec)),"sec")
       ("s, sampling", "resources sampling period",
         cxxopts::value<int>(resources_sampling_per_ms)->default_value(std::to_string(resources_sampling_per_ms)),"msec")
@@ -100,11 +104,13 @@ public:
 
       ipc = (ipc_option == "on" ? true : false);
       ros_params = (ros_params_option == "on" ? true : false);
+      name_threads = (name_threads_option == "on" ? true : false);
       tracking_options.is_enabled = (tracking_enabled_option == "on" ? true : false);
     }
 
     bool ipc;
     bool ros_params;
+    bool name_threads;
     int duration_sec;
     int resources_sampling_per_ms;
     std::vector<std::string> topology_json_list;

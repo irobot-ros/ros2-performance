@@ -54,7 +54,7 @@ void performance_test::System::add_node(std::shared_ptr<Node> node)
 }
 
 
-void performance_test::System::spin(int duration_sec, bool wait_for_discovery)
+void performance_test::System::spin(int duration_sec, bool wait_for_discovery, bool name_threads)
 {
     _experiment_duration_sec = duration_sec;
     // Store the instant when the experiment started
@@ -84,7 +84,9 @@ void performance_test::System::spin(int duration_sec, bool wait_for_discovery)
         std::thread thread([=](){
             executor->spin();
         });
-        pthread_setname_np(thread.native_handle(), name.c_str());
+        if(name_threads) {
+            pthread_setname_np(thread.native_handle(), name.c_str());
+        }
         thread.detach();
     }
 

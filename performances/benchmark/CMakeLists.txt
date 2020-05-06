@@ -28,6 +28,7 @@ set(TOPOLOGY_FILES
   topology/cedar.json
   topology/mont_blanc.json
   topology/white_mountain.json
+  topology/debug_cedar_reliable.json
   topology/debug_sierra_nevada_reliable.json
   topology/debug_sierra_nevada_best_effort.json
   topology/debug_mont_blanc_reliable.json

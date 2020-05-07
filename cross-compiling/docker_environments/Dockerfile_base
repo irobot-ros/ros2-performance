@@ -70,6 +70,3 @@ export PYTHONPATH=/root/sysroot/usr/lib/python3.6/site-packages/:$PYTHONPATH' >>
 # set the AMENT_PREFIX_PATH to the sysroot
 RUN echo '  \n\
 export AMENT_PREFIX_PATH="/root/sysroot/usr;/root/sysroot/usr/bin"' >> $HOME/.bashrc
-
-# copy the compilation scripts into the docker image
-COPY compilation_scripts $HOME/compilation_scripts

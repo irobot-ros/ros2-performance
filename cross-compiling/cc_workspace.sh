@@ -30,12 +30,14 @@ WORKSPACE_PATH=$1
 SYSROOT_PATH="$THIS_DIR/sysroots/$TARGET_ARCHITECTURE"
 TOOLCHAIN_PATH="$THIS_DIR/toolchains/generic_linux.cmake"
 TOOLCHAIN_VARIABLES_PATH="$THIS_DIR/toolchains/"$TARGET_ARCHITECTURE".sh"
+COMPILATION_SCRIPTS="$THIS_DIR/compilation_scripts"
 
 docker run -it \
     --volume $WORKSPACE_PATH:/root/ws \
     --volume $SYSROOT_PATH:/root/sysroot \
     --volume $TOOLCHAIN_PATH:/root/ws/toolchainfile.cmake \
     --volume $TOOLCHAIN_VARIABLES_PATH:/root/cc_export.sh \
+    --volume $COMPILATION_SCRIPTS:/root/compilation_scripts \
     -w="/root/ws" \
     ros2_cc_$TARGET_ARCHITECTURE \
     /bin/bash -c 'source /root/.bashrc; \

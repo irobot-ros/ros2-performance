@@ -16,6 +16,7 @@ rm -rf build install log
 
 colcon \
     build \
+    --build-base build_$TARGET_ARCHITECTURE \
     --merge-install \
     --cmake-force-configure \
     --cmake-args \

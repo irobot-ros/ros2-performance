@@ -30,9 +30,6 @@
 
       {
         "node_name": "lyon",
-        "subscribers":[
-            {"topic_name":"amazon", "msg_type":"stamped9_float32"}
-          ],
         "publishers": [
             {"topic_name": "tigris", "msg_type": "stamped4_float32", "period_ms": 10}
           ]
@@ -40,12 +37,6 @@
 
       {
         "node_name": "hamburg",
-        "subscribers":[
-            {"topic_name":"nile", "msg_type":"stamped4_int32"},
-            {"topic_name":"tigris", "msg_type":"stamped4_float32"},
-            {"topic_name":"ganges", "msg_type":"stamped4_int32"},
-            {"topic_name":"danube", "msg_type":"stamped_int64"}
-          ],
         "publishers": [
             {"topic_name": "parana", "msg_type": "stamped3_float32", "period_ms": 10}
           ]
@@ -60,9 +51,6 @@
 
       {
         "node_name": "taipei",
-        "subscribers":[
-            {"topic_name":"columbia", "msg_type":"stamped250kb"}
-          ],
         "publishers": [
             {"topic_name": "colorado", "msg_type": "stamped4_int32", "period_ms": 200}
           ]
@@ -70,10 +58,6 @@
 
       {
         "node_name": "osaka",
-        "subscribers":[
-            {"topic_name":"parana", "msg_type":"stamped3_float32"},
-            {"topic_name":"colorado", "msg_type":"stamped4_int32"}
-          ],
         "publishers": [
             {"topic_name": "salween", "msg_type": "stamped12_float32", "period_ms": 100},
             {"topic_name": "godavari", "msg_type": "stamped_vector", "msg_size": 5000, "period_ms": 200}
@@ -83,7 +67,6 @@
       {
         "node_name": "tripoli",
         "subscribers":[
-            {"topic_name":"columbia", "msg_type":"stamped250kb"},
             {"topic_name":"godavari", "msg_type":"stamped_vector"}
           ],
         "publishers": [
@@ -108,12 +91,8 @@
       {
         "node_name": "mandalay",
         "subscribers":[
-            {"topic_name":"salween", "msg_type":"stamped12_float32"},
-            {"topic_name":"danube", "msg_type":"stamped_int64"},
             {"topic_name":"godavari", "msg_type":"stamped_vector"},
-            {"topic_name":"yamuna", "msg_type":"stamped4_int32"},
-            {"topic_name": "loire", "msg_type": "stamped_vector"},
-            {"topic_name": "chenab", "msg_type": "stamped1kb"}
+            {"topic_name": "loire", "msg_type": "stamped_vector"}
           ],
         "publishers": [
             {"topic_name": "missouri", "msg_type": "stamped_vector", "msg_size": 10000, "period_ms": 100},
@@ -126,14 +105,10 @@
         "node_name": "ponce",
         "subscribers":[
             {"topic_name":"missouri", "msg_type":"stamped_vector"},
-            {"topic_name":"danube", "msg_type":"stamped_int64"},
-            {"topic_name":"volga", "msg_type":"stamped_int64"},
             {"topic_name":"godavari", "msg_type":"stamped_vector"},
-            {"topic_name":"yamuna", "msg_type":"stamped4_int32"},
             {"topic_name": "loire", "msg_type": "stamped_vector"},
             {"topic_name": "tagus", "msg_type": "stamped_vector"},
-            {"topic_name": "brazos", "msg_type": "stamped_vector"},
-            {"topic_name": "ohio", "msg_type": "stamped100b"}
+            {"topic_name": "brazos", "msg_type": "stamped_vector"}
           ],
         "publishers": [
             {"topic_name": "mekong", "msg_type": "stamped_vector", "msg_size": 100, "period_ms": 500},
@@ -153,9 +128,6 @@
 
       {
         "node_name": "monaco",
-        "subscribers":[
-            {"topic_name":"congo", "msg_type":"stamped4_int32"}
-          ],
         "publishers": [
             {"topic_name": "ohio", "msg_type": "stamped100b", "period_ms": 200}
           ]
@@ -185,9 +157,6 @@
       {
         "node_name": "geneva",
         "subscribers":[
-            {"topic_name":"congo", "msg_type":"stamped4_int32"},
-            {"topic_name":"danube", "msg_type":"stamped_int64"},
-            {"topic_name":"parana", "msg_type":"stamped3_float32"},
             {"topic_name": "tagus", "msg_type": "stamped_vector"}
           ],
         "publishers": [
@@ -196,10 +165,7 @@
       },
 
       {
-        "node_name": "arequipa",
-        "subscribers":[
-            {"topic_name":"arkansas", "msg_type":"stamped4_int32"}
-          ]
+        "node_name": "arequipa"
       }
     ]
 }

@@ -17,3 +17,7 @@ RUN apt-get update && apt-get install -y \
   gcc-6 \
   g++-6 \
   g++-6-arm-linux-gnueabihf
+
+###### INSTALL GENERAL UTILITIES
+RUN apt-get update && apt-get install -y \
+  vim

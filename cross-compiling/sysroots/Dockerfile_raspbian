@@ -64,5 +64,9 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get update && apt-get install -y \
   libpcl-dev
 
+# RMW Iceoryx dependencies
+RUN apt-get install -y \
+  libacl1-dev libncurses5-dev pkg-config
+
 # transform absolute simbolic links into relative ones
 RUN apt-get install -y symlinks && symlinks -cr /lib /etc /opt /usr

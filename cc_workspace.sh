@@ -31,7 +31,20 @@ SYSROOT_PATH="$THIS_DIR/sysroots/$TARGET_ARCHITECTURE"
 TOOLCHAIN_PATH="$THIS_DIR/toolchains/generic_linux.cmake"
 TOOLCHAIN_VARIABLES_PATH="$THIS_DIR/toolchains/"$TARGET_ARCHITECTURE".sh"
 
+INTERACTIVE_DOCKER="-it"
+
+for i in "$@"
+do
+case $i in
+    --no-it)
+    INTERACTIVE_DOCKER=""
+    shift
+    ;;
+esac
+done
+
 docker run \
+    $INTERACTIVE_DOCKER \
     --volume $WORKSPACE_PATH:/root/ws \
     --volume $SYSROOT_PATH:/root/sysroot \
     --volume $TOOLCHAIN_PATH:/root/ws/toolchainfile.cmake \

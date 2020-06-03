@@ -22,7 +22,8 @@ RUN apt-get update && apt-get install -y \
   git \
   wget \
   software-properties-common \
-  gnupg2
+  gnupg2 \
+  vim
 
 ###### INSTALL ROS2 REQUIREMENTS
 

@@ -2,13 +2,15 @@
 # But it still possible to use manually setting up this variables:
 #
 # TARGET=[raspbian]
-# ROS2_DISTRO=[ardent,bouncy,crystal,master,...]
+
+# Set env variables
+ROS2_DISTRO="${ROS2_DISTRO:=master}"
 
 # Check that all variables are defined before start
-if [[ -z "$TARGET" || -z "$ROS2_DISTRO" ]]
+if [[ -z "$TARGET" ]]
 then
   echo "Error: environmental variables are not defined!"
-  echo "Set values to: TARGET / ROS2_DISTRO"
+  echo "Set values to TARGET"
   exit 1
 fi
 
@@ -22,43 +24,40 @@ source $THIS_DIR/env.sh $TARGET
 bash $THIS_DIR/get_sysroot.sh
 
 # Remove ROS2 old cross-compilation workspace and get a new one
-cd $BASE_DIR
-sudo rm -rf ros2_cc_ws
-mkdir -p ros2_cc_ws/src
-cd ros2_cc_ws
-wget https://raw.githubusercontent.com/ros2/ros2/"$ROS2_DISTRO"/ros2.repos
-vcs import src < ros2.repos
+sudo rm -rf $BASE_DIR/ros2_cc_ws
+bash $THIS_DIR/get_ros2_sources.sh --distro=$ROS2_DISTRO --ros2-path=$BASE_DIR/ros2_cc_ws
 
 # Get HEAD of branch
 HEAD=$(git ls-remote git://github.com/ros2/ros2 "$ROS2_DISTRO" | cut -c1-7)
 
 # Create install directory for the cross-compilation results
-RESULTS_DIR=$BASE_DIR/install/"$ROS2_DISTRO"_"$HEAD"_"$TARGET"
+TARGET_NAME=$(echo "$TARGET" | tr - _)
+RESULTS_DIR=$BASE_DIR/ROS2_SDKs/ros2_"$ROS2_DISTRO"_"$TARGET_NAME"
 echo "Create RESULTS_DIR=$RESULTS_DIR"
+sudo rm -rf $RESULTS_DIR
 mkdir -p $RESULTS_DIR
 
 # Save the current packages versions and check if any changes
 ROS2_SRCS_HEADS=$RESULTS_DIR/ros2.repos.by_commit
-ROS2_SRCS_HEADS_PREV_RUN=$BASE_DIR/ros2_srcs_prev_run_"$TARGET"_"$ROS2_DISTRO".txt
+ROS2_SRCS_HEADS_PREV_RUN=$BASE_DIR/ros2_srcs_prev_run_"$TARGET_NAME"_"$ROS2_DISTRO".txt
 
-vcs export --exact src > $ROS2_SRCS_HEADS
+vcs export --exact $BASE_DIR/ros2_cc_ws/src > $ROS2_SRCS_HEADS
 
 if [ -f $ROS2_SRCS_HEADS_PREV_RUN ]; then
   diff -y  $ROS2_SRCS_HEADS $ROS2_SRCS_HEADS_PREV_RUN > $RESULTS_DIR/diff_ros2_versions.txt
 fi
 cp -R $ROS2_SRCS_HEADS $ROS2_SRCS_HEADS_PREV_RUN
 
-
-# Cross-compiling ROS2
-cd $BASE_DIR
-IGNORE_SCRIPT=cross-compiling/ignore_pkgs.sh
-bash $IGNORE_SCRIPT $BASE_DIR/ros2_cc_ws $ROS2_DISTRO
+# Ignore packages
+bash $THIS_DIR/ignore_pkgs.sh $BASE_DIR/ros2_cc_ws $ROS2_DISTRO
 
 # Run the cross-compilation and check the return code
-CC_CMD="bash cross-compiling/cc_workspace.sh $BASE_DIR/ros2_cc_ws"
+CC_CMD="bash $THIS_DIR/cc_workspace.sh $BASE_DIR/ros2_cc_ws --no-it"
 if $CC_CMD; then
-  # If the build was succesful, copy results to store as artifact
-  cp -r $BASE_DIR/ros2_cc_ws/install $RESULTS_DIR
+  # If the build was successful, copy results to store as artifact
+  cp -r $BASE_DIR/ros2_cc_ws/install/* $RESULTS_DIR
+  cd $BASE_DIR/ROS2_SDKs/
+  tar -czf ros2_"$ROS2_DISTRO"_"$TARGET_NAME".tar.gz ros2_"$ROS2_DISTRO"_"$TARGET_NAME"
 else
   exit 1
 fi

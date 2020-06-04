@@ -15,7 +15,7 @@ then
 fi
 
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-export BASE_DIR="$(dirname "$(pwd)")"
+BASE_DIR="$(dirname "$(pwd)")"
 
 # Prepare cross-compiling environment
 source $THIS_DIR/env.sh $TARGET

@@ -31,14 +31,15 @@ bash $THIS_DIR/get_ros2_sources.sh --distro=$ROS2_DISTRO --ros2-path=$BASE_DIR/r
 HEAD=$(git ls-remote git://github.com/ros2/ros2 "$ROS2_DISTRO" | cut -c1-7)
 
 # Create install directory for the cross-compilation results
-RESULTS_DIR=$BASE_DIR/ROS2_SDKs/ros2_"$ROS2_DISTRO"_"$TARGET"
+TARGET_NAME=${TARGET#*-}
+RESULTS_DIR=$BASE_DIR/ROS2_SDKs/ros2_"$ROS2_DISTRO"_"$TARGET_NAME"
 echo "Create RESULTS_DIR=$RESULTS_DIR"
 sudo rm -rf $RESULTS_DIR
 mkdir -p $RESULTS_DIR
 
 # Save the current packages versions and check if any changes
 ROS2_SRCS_HEADS=$RESULTS_DIR/ros2.repos.by_commit
-ROS2_SRCS_HEADS_PREV_RUN=$BASE_DIR/ros2_srcs_prev_run_"$TARGET"_"$ROS2_DISTRO".txt
+ROS2_SRCS_HEADS_PREV_RUN=$BASE_DIR/ros2_srcs_prev_run_"$TARGET_NAME"_"$ROS2_DISTRO".txt
 
 vcs export --exact $BASE_DIR/ros2_cc_ws/src > $ROS2_SRCS_HEADS
 
@@ -56,7 +57,7 @@ if $CC_CMD; then
   # If the build was successful, copy results to store as artifact
   cp -r $BASE_DIR/ros2_cc_ws/install/* $RESULTS_DIR
   cd $BASE_DIR/ROS2_SDKs/
-  tar -czf ros2_"$ROS2_DISTRO"_"$TARGET".tar.gz ros2_"$ROS2_DISTRO"_"$TARGET"
+  tar -czf ros2_"$ROS2_DISTRO"_"$TARGET_NAME".tar.gz ros2_"$ROS2_DISTRO"_"$TARGET_NAME"
 else
   exit 1
 fi

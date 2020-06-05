@@ -11,10 +11,6 @@ fi
 
 echo "Ignoring packages..."
 
-sed -i -r \
-  's/<build(.+?py.+?)/<\!\-\-build\1\-\->/' \
-  src/ros2/rosidl_defaults/rosidl_default_generators/package.xml
-
 # TODO: this may print some errors if some paths are not correct, but it should still work
 # we should ignore paths that do not exist
 touch \
@@ -31,13 +27,11 @@ touch \
   src/ros2/rcl_logging/rcl_logging_log4cxx/COLCON_IGNORE \
   src/ros2/rmw_connext/COLCON_IGNORE \
   src/ros2/rosbag2/COLCON_IGNORE \
-  src/ros2/rosidl_python/COLCON_IGNORE \
   src/ros2/system_tests/COLCON_IGNORE \
   src/ros2/urdf/COLCON_IGNORE \
   src/ros2/urdfdom/COLCON_IGNORE \
   src/ros2/rcl/rcl/test/COLCON_IGNORE \
   src/ros2/examples/rclpy/COLCON_IGNORE \
   src/ros2/message_filters/COLCON_IGNORE \
-  src/ros2/tinyxml_vendor/COLCON_IGNORE \
   src/ros-perception/laser_geometry/COLCON_IGNORE
 

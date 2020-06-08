@@ -1,11 +1,5 @@
 #!/bin/bash
 
-if [ -z "$TARGET_ARCHITECTURE" ]; then
-    echo "Missing TARGET_ARCHITECTURE environment variables. Please run first"
-    echo "source env.sh";
-    exit 1;
-fi
-
 if [ -z "$1" ]; then
     THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
     echo "Working on $THIS_DIR workspace"

@@ -1,3 +1,11 @@
 
 FROM ros2_cc_irobot
 LABEL maintainer="Alberto Soragna asoragna at irobot dot com"
+
+# install Fast-RTPS dependencies
+RUN apt-get install --no-install-recommends -y \
+  libasio-dev \
+  libtinyxml2-dev
+
+RUN pip3 install \
+  numpy

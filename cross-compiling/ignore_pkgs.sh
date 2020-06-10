@@ -19,6 +19,8 @@ else
   echo "Using $distribution ignore"
 fi
 
+export distribution
+
 # Run the ignore script for the specific distribution
 bash $THIS_DIR/ignore_pkgs_scripts/$distribution"_ignore.sh" $workspace_directory
 

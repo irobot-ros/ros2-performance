@@ -1,0 +1,24 @@
+--- src/eProsima/Fast-CDR/include/fastcdr/exceptions/include/fastcdr/exceptions/Exception.h
++++ src/eProsima/Fast-CDR/include/fastcdr/exceptions/Exception.h
+@@ -44,7 +44,7 @@ namespace eprosima
+                      *
+                      * @return The error message.
+                      */
+-                    virtual Cdr_DllAPI const char* what() const noexcept ;
++                    virtual Cdr_DllAPI const char* what() const noexcept override;
+ 
+                 protected:
+ 
+diff --git a/include/fastcdr/exceptions/NotEnoughMemoryException.h b/include/fastcdr/exceptions/NotEnoughMemoryException.h
+index 4a8f899..271393c 100644
+--- src/eProsima/Fast-CDR/include/fastcdr/exceptions/NotEnoughMemoryException.h
++++ src/eProsima/Fast-CDR/include/fastcdr/exceptions/NotEnoughMemoryException.h
+@@ -74,7 +74,7 @@ namespace eprosima
+                     virtual Cdr_DllAPI ~NotEnoughMemoryException() noexcept;
+ 
+                     //! @brief This function throws the object as exception.
+-                    virtual Cdr_DllAPI void raise() const;
++                    virtual Cdr_DllAPI void raise() const override;
+ 
+                     //! @brief Default message used in the library.
+                     static Cdr_DllAPI const char* const NOT_ENOUGH_MEMORY_MESSAGE_DEFAULT;

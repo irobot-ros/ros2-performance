@@ -35,3 +35,4 @@ touch \
   src/ros2/message_filters/COLCON_IGNORE \
   src/ros-perception/laser_geometry/COLCON_IGNORE
 
+patch -p0 < $THIS_DIR/x86_64_fix_ros2_sources.patch

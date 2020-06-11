@@ -18,7 +18,7 @@ case $i in
     shift
     ;;
     -h|--help|*)
-    echo "Usage example: bash get_ros2_sources.sh --distro=master --ros2-path=~/ros2_cc_ws"
+    echo "Usage example: bash get_ros2_sources.sh --distro=master --ros2-path=${HOME}/ros2_cc_ws"
     exit 0
     shift
     ;;

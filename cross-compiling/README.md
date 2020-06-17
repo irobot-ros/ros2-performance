@@ -120,6 +120,7 @@ You can follow the instructions in the previous section
 
 Copy the SDK into the sysroot
 
+    cp -r ~/ros2_cc_ws/install/cmake sysroots/raspbian/usr/cmake
     cp -R ~/ros2_cc_ws/install/share/* sysroots/raspbian/usr/share/
     cp -R ~/ros2_cc_ws/install/lib/* sysroots/raspbian/usr/lib/
     cp -R ~/ros2_cc_ws/install/include/* sysroots/raspbian/usr/include/

@@ -14,6 +14,11 @@ fi
 # clear out everything first
 rm -rf build install log
 
+ROS2_SETUP=/root/sysroot/setup.bash
+if [ -f "$ROS2_SETUP" ]; then
+    source /root/sysroot/setup.bash
+fi
+
 colcon \
     build \
     --merge-install \

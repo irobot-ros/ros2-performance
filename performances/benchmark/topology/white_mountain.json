@@ -54,14 +54,14 @@
       {
         "node_name": "delhi",
         "publishers": [
-              {"topic_name": "columbia", "msg_type": "stamped250kb", "period_ms": 200}
+              {"topic_name": "columbia", "msg_type": "stamped600kb", "freq_hz": 15}
             ]
       },
 
       {
         "node_name": "taipei",
         "subscribers":[
-            {"topic_name":"columbia", "msg_type":"stamped250kb"}
+            {"topic_name":"columbia", "msg_type":"stamped600kb"}
           ],
         "publishers": [
             {"topic_name": "colorado", "msg_type": "stamped4_int32", "period_ms": 200}
@@ -83,7 +83,7 @@
       {
         "node_name": "tripoli",
         "subscribers":[
-            {"topic_name":"columbia", "msg_type":"stamped250kb"},
+            {"topic_name":"columbia", "msg_type":"stamped600kb"},
             {"topic_name":"godavari", "msg_type":"stamped_vector"}
           ],
         "publishers": [

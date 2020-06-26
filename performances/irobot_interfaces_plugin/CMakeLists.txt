@@ -32,6 +32,7 @@ set( CUSTOM_MSGS
   "msg/Stamped10kb.msg"
   "msg/Stamped100kb.msg"
   "msg/Stamped250kb.msg"
+  "msg/Stamped600kb.msg"
   "msg/Stamped1mb.msg"
   "msg/Stamped4mb.msg"
   "msg/Stamped8mb.msg"

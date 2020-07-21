@@ -1,0 +1,6 @@
+#include "PerformanceHeader.idl"
+struct StampedInt64
+{
+    PerformanceHeader header;
+    int64 data;
+};

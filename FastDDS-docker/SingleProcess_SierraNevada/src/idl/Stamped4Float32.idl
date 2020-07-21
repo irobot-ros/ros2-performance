@@ -1,0 +1,6 @@
+#include "PerformanceHeader.idl"
+struct Stamped4Float32
+{
+    PerformanceHeader header;
+    float data[4];
+};

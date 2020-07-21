@@ -27,7 +27,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR
     endif()
 endif()
 
-message(STATUS "Configuring HelloWorld publisher/subscriber example...")
+message(STATUS "Configuring single-process Sierra Nevada benchmark")
 file(GLOB DDS_BENCHMARK_SOURCES_CXX "src/*.cxx" "src/msg/*.cxx")
 
 add_executable(sierra_nevada src/sierra_nevada.cpp ${DDS_BENCHMARK_SOURCES_CXX})

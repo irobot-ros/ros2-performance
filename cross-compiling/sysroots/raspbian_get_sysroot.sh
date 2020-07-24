@@ -10,7 +10,7 @@ docker kill ros2-raspbian-sysroot
 docker rm ros2-raspbian-sysroot
 
 # create new docker container
-docker create --name ros2-raspbian-sysroot raspbian_sysroot
+docker create --name ros2-raspbian-sysroot raspbian_sysroot bash
 
 # extract sysroot from docker container as tar file
 docker container export -o $THIS_DIR/$TARGET_ARCHITECTURE.tar ros2-raspbian-sysroot

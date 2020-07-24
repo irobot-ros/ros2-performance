@@ -1,0 +1,67 @@
+--- src/eclipse-cyclonedds/cyclonedds/src/tools/ddsls/CMakeLists.txt
+--- src/eclipse-cyclonedds/cyclonedds/src/tools/ddsls/CMakeLists.txt
+@@ -10,7 +10,15 @@
+ # SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
+ #
+ add_executable(ddsls ddsls.c)
+-target_link_libraries(ddsls ddsc)
++
++if(NOT WITH_FREERTOS)
++  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
++  find_package(Threads REQUIRED)
++  target_link_libraries(ddsls PUBLIC ddsc Threads::Threads)
++elseif()
++  target_link_libraries(ddsls ddsc)
++endif()
++
+ 
+ install(
+   TARGETS ddsls
+--- src/eclipse-cyclonedds/cyclonedds/src/tools/ddsperf/CMakeLists.txt
+--- src/eclipse-cyclonedds/cyclonedds/src/tools/ddsperf/CMakeLists.txt
+@@ -12,7 +12,14 @@
+ 
+ idlc_generate(ddsperf_types ddsperf_types.idl)
+ add_executable(ddsperf ddsperf.c cputime.c cputime.h netload.c netload.h)
+-target_link_libraries(ddsperf ddsperf_types ddsc)
++
++if(NOT WITH_FREERTOS)
++  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
++  find_package(Threads REQUIRED)
++  target_link_libraries(ddsperf ddsperf_types ddsc Threads::Threads)
++elseif()
++  target_link_libraries(ddsperf ddsperf_types ddsc)
++endif()
+ 
+ if(WIN32)
+   target_compile_definitions(ddsperf PRIVATE _CRT_SECURE_NO_WARNINGS)
+--- src/eclipse-cyclonedds/cyclonedds/src/tools/pubsub/CMakeLists.txt
+--- src/eclipse-cyclonedds/cyclonedds/src/tools/pubsub/CMakeLists.txt
+@@ -10,7 +10,15 @@
+ # SPDX-License-Identifier: EPL-2.0 OR BSD-3-Clause
+ #
+ add_executable(pubsub pubsub.c common.c testtype.c porting.c)
+-target_link_libraries(pubsub ddsc)
++
++
++if(NOT WITH_FREERTOS)
++  set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
++  find_package(Threads REQUIRED)
++  target_link_libraries(pubsub ddsc Threads::Threads)
++elseif()
++  target_link_libraries(pubsub ddsc)
++endif()
+ 
+ if(WIN32)
+   target_compile_definitions(pubsub PRIVATE _CRT_SECURE_NO_WARNINGS)
+--- src/ros2/rmw_cyclonedds/rmw_cyclonedds_cpp/CMakeLists.txt
++++ src/ros2/rmw_cyclonedds/rmw_cyclonedds_cpp/CMakeLists.txt
+@@ -22,7 +22,7 @@ if(NOT CMAKE_CXX_STANDARD)
+ endif()
+ 
+ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+-  add_compile_options(-Wall -Wextra -Wpedantic -Wimplicit-fallthrough)
++  add_compile_options(-Wall -Wextra -Wpedantic)
+ endif()
+ 
+ find_package(ament_cmake_ros REQUIRED)

@@ -21,17 +21,23 @@ BASE_DIR="$(dirname "$(pwd)")"
 # Prepare cross-compiling environment
 source $THIS_DIR/env.sh $TARGET
 
-# Make sure that workspace directory does not exist before running
-WORKSPACE_DIR=$BASE_DIR/ros2_"$ROS2_DISTRO"_"$TARGET_NAME"_ws
-if [ -d "$WORKSPACE_DIR" ]; then
-  echo "Error: workspace directory $WORKSPACE_DIR already exists."
-  echo "Remove it and run again the script."
-  exit 1
-fi
+if [[ -z "$WORKSPACE_DIR" ]]; then
+  # If the user has not specified a workspace directory, try to create one
+  # Make sure that workspace directory does not exist before running
+  WORKSPACE_DIR=$BASE_DIR/ros2_"$ROS2_DISTRO"_"$TARGET_NAME"_ws
+  if [ -d "$WORKSPACE_DIR" ]; then
+    echo "Error: workspace directory $WORKSPACE_DIR already exists."
+    echo "Remove it and run again the script."
+    exit 1
+  fi
 
-# Get ROS 2 sources
-echo "Create WORKSPACE_DIR=$WORKSPACE_DIR"
-bash $THIS_DIR/get_ros2_sources.sh --distro=$ROS2_DISTRO --ros2-path=$WORKSPACE_DIR
+  # Get ROS 2 sources
+  echo "Create WORKSPACE_DIR=$WORKSPACE_DIR"
+  bash $THIS_DIR/get_ros2_sources.sh --distro=$ROS2_DISTRO --ros2-path=$WORKSPACE_DIR
+else
+  # Use the user-provided workspace directory
+  echo "Using WORKSPACE_DIR=$WORKSPACE_DIR"
+fi
 
 # Ignore packages
 bash $THIS_DIR/ignore_pkgs.sh $WORKSPACE_DIR $ROS2_DISTRO

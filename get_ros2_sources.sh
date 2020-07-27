@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # You can specify a distribution with --distro=<distribution>, otherwise the default one will be used
-DISTRIBUTION="eloquent"
+DISTRIBUTION="foxy"
 
 # You can specify a directory to store sources with --ros2-path=<DIR>, otherwise the default one will be used
 ROS2_PATH=~/ros2_cc_ws

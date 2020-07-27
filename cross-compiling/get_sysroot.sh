@@ -20,8 +20,15 @@ TARGET_FILE_NAME=$SYSROOTS_DIR/$TARGET_ARCHITECTURE"_get_sysroot.sh"
 if [ -e $TARGET_FILE_NAME ]; then
   bash $TARGET_FILE_NAME
 else
-  echo "Error: the environment variable TARGET_ARCHITECTURE points to an unknown value:"
-  echo "$TARGET_ARCHITECTURE"
-  echo "Check the 'env.sh' script"
+  echo "Error: get_sysroot script not found for architecture $TARGET_ARCHITECTURE"
+  echo "Looking for $TARGET_FILE_NAME"
+  echo "Check the architecture name is correct and that the file exists"
   exit 1
+fi
+
+if [ -d $SYSROOTS_DIR/$TARGET_ARCHITECTURE ]; then
+    echo "Sysroot $SYSROOTS_DIR/$TARGET_ARCHITECTURE succesfully created"
+else
+    echo "Error: something went wrong while creating sysroot for $TARGET_ARCHITECTURE"
+    exit 1
 fi

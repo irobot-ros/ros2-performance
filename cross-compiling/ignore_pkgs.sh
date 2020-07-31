@@ -25,6 +25,7 @@ bash $THIS_DIR/ignore_pkgs_scripts/$distribution"_ignore.sh" $workspace_director
 # Eventually run the ignore script for the specific platform
 platform_specific_script=$THIS_DIR/ignore_pkgs_scripts/$TARGET_ARCHITECTURE"_ignore.sh"
 if [ -e $platform_specific_script ]; then
+  echo "Running architecture specific ignore for $TARGET_ARCHITECTURE"
   bash $platform_specific_script $workspace_directory
 fi
 

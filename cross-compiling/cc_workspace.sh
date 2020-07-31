@@ -43,6 +43,13 @@ case $i in
 esac
 done
 
+if [ ! -d "$SYSROOT_PATH" ]; then
+    echo "Sysroot for target architecture $TARGET_ARCHITECTURE not found. Looking for"
+    echo "$SYSROOT_PATH"
+    echo "Please run first get_sysroot.sh"
+    exit 1
+fi
+
 docker run \
     $INTERACTIVE_DOCKER \
     --volume $WORKSPACE_PATH:/root/ws \

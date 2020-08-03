@@ -17,11 +17,16 @@ touch \
   src/ros/kdl_parser/COLCON_IGNORE \
   src/ros/ros_tutorials/COLCON_IGNORE \
   src/ros2/examples/rclpy/COLCON_IGNORE \
-  src/ros2/geometry2/COLCON_IGNORE \
-  src/ros2/rclcpp/rclcpp_components/COLCON_IGNORE \
+  src/ros2/geometry2/examples_tf2_py/COLCON_IGNORE \
+  src/ros2/geometry2/test_tf2/COLCON_IGNORE \
+  src/ros2/geometry2/tf2_bullet/COLCON_IGNORE \
+  src/ros2/geometry2/tf2_eigen/COLCON_IGNORE \
+  src/ros2/geometry2/tf2_kdl/COLCON_IGNORE \
+  src/ros2/geometry2/tf2_geometry_msgs/COLCON_IGNORE \
+  src/ros2/geometry2/tf2_sensor_msgs/COLCON_IGNORE \
+  src/ros2/geometry2/tf2_tools/COLCON_IGNORE \
   src/ros2/examples/rclcpp/composition/COLCON_IGNORE \
   src/ros2/orocos_kinematics_dynamics/COLCON_IGNORE \
-  src/ros2/rclpy/COLCON_IGNORE \
   src/ros2/rcl_interfaces/test_msgs/COLCON_IGNORE \
   src/ros2/rcl_logging/rcl_logging_log4cxx/COLCON_IGNORE \
   src/ros2/rmw_connext/COLCON_IGNORE \
@@ -31,6 +36,5 @@ touch \
   src/ros2/urdfdom/COLCON_IGNORE \
   src/ros2/rcl/rcl/test/COLCON_IGNORE \
   src/ros2/examples/rclpy/COLCON_IGNORE \
-  src/ros2/message_filters/COLCON_IGNORE \
   src/ros-perception/laser_geometry/COLCON_IGNORE
 

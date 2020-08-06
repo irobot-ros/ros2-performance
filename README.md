@@ -81,12 +81,11 @@ If you want to use your own sysroot, instead of generating a new one, you can sk
     bash get_sysroot.sh
 
 Create a ROS 2 workspace that you want to cross-compile.
-**NOTES:**
  - The cross-compilation script will mount the workspace as a Docker volume. This does not go well with symbolic links. For this reason ensure that the workspace contains the whole source code and not a symlink to the repositories.
- - It is recommended that the workspace contains the source code of all the ROS 2 dependencies of your packages. However, you can also cross-compile individual packages if you already have the cross-compiled dependencies somewhere, see [advanced section](advanced.md).
+ - It is recommended that the workspace contains the source code of all the ROS 2 dependencies of your packages. However, you can also cross-compile individual packages if you already have the cross-compiled dependencies, see the [advanced section](advanced.md).
 
 We provide convenient scripts for downloading the ROS 2 sources for a specific distribution and for ignoring some packages that are not meant to be cross-compiled, e.g. visualization tools.
-If you want to cross-compile generic ROS 2 packages, see [advanced section](advanced.md).
+If you want to cross-compile generic ROS 2 packages, see the [advanced section](advanced.md).
 
     bash get_ros2_sources.sh --distro=foxy --ros2-path=~/ros2_cc_ws
     bash ignore_pkgs.sh ~/ros2_cc_ws foxy

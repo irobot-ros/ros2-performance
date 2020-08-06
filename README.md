@@ -21,7 +21,7 @@ The supported ROS 2 distributions are:
  - `bouncy`
  - `crystal`
  - `dashing`
- - `foxy`
+ - `eloquent`
  - `foxy`
  - `master`
 

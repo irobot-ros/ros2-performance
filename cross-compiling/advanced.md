@@ -33,7 +33,7 @@ To stop ignoring a package, just remove the `COLCON_IGNORE` file in its director
 You may also want to update the ignore scripts to permanently stop ignoring the package.
 The packages to be ignored in a workspace are specified in two different scripts: a distribution-specific script such as `ignore_pkgs_scripts/<ROS2_DISTRO>_ignore.sh` and an architecture-specific script such as `ignore_pkgs_scripts/<TARGET_ARCHITECTURE>_ignore.sh`.
 
-If you stop ignoring a package, you will have to consider it as any other new ROS 2 package and make sure that its rependencies are satisfied.
+If you stop ignoring a package, you will have to consider it as any other new ROS 2 package and make sure that its dependencies are satisfied.
 
 
 #### Generic (non-ROS) dependencies
@@ -88,23 +88,20 @@ patch -p0 < $THIS_DIR/<TARGET_ARCHITECTURE>_my_changes.patch
 
 Where `ignore_pkgs_scripts/<TARGET_ARCHITECTURE>_my_changes.patch` contains the patch that you want to apply.
 
-
 ## Debugging of cross-compilation issues
 
 When you add new ROS 2 packages to your cross-compilation workspace, it's common that you will face compilation errors.
 The terminal will show WARN level logs.
 You can find all logs and all build commands in the directory `ros2_cc_ws/log/latest_build/<ROS2_PACKAGE>`.
 
-To speed-up debugging, it is recommended to manually invoke the build commands:
-
-This command will bring you inside the cross-compilation Docker environment
+To speed-up debugging, it is recommended to manually invoke the build commands.
+The `--debug` option will bring you inside the cross-compilation Docker environment
 
 ```
 bash cc_workspace.sh ~/ros2_cc_ws --debug
 ```
 
-To start a build
-
+To start a build, **from within the Docker environment**
 ```
 bash /root/compilation_scripts/cross_compile.sh
 ```

@@ -18,11 +18,13 @@ SYSROOT_ARCHIVE=$SYSROOT_TARGET.tar
 docker build -t $DOCKER_IMAGE_NAME -f $DOCKERFILE_NAME $THIS_DIR
 
 # eventually remove old docker containers
+echo "Trying to remove existing container... This may print some errors if nothing is found"
 docker kill $DOCKER_CONTAINER_NAME
 docker rm $DOCKER_CONTAINER_NAME
+echo "Existing container succesfully removed!"
 
 # create new docker container
-docker create --name $DOCKER_CONTAINER_NAME $DOCKER_IMAGE_NAME
+docker create --name $DOCKER_CONTAINER_NAME $DOCKER_IMAGE_NAME bash
 
 # extract sysroot from docker container as tar file
 docker container export -o $SYSROOT_ARCHIVE $DOCKER_CONTAINER_NAME

@@ -114,7 +114,7 @@ export LD_LIBRARY_PATH=~/install/lib
 ~/install/lib/examples_rclcpp_minimal_publisher/publisher_lambda
 ```
 
-If you want access toe ROS 2 command line tools, you will have to source the cross-compiled workspace.
+If you want access the ROS 2 command line tools, you will have to source the cross-compiled workspace.
 
 ```
 export COLCON_CURRENT_PREFIX=~/install
@@ -126,5 +126,5 @@ ros2 run examples_rclcpp_minimal_publisher publisher_lambda
 ## References
 
  - [ROS 2 cross-compilation official tools](https://github.com/ros2/cross_compile)
- - [ROS 2 step by step cross-compilation on ARM](https://github.com/ros2-for-arm/ros2/wiki/ROS 2-on-arm-architecture)
+ - [ROS 2 step by step cross-compilation on ARM](https://github.com/ros2-for-arm/ros2/wiki/ROS2-on-arm-architecture)
  - [ROS 2 RaspberryPi cross-compilation](https://github.com/alsora/ros2-raspberrypi)

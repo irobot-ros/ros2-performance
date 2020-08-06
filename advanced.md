@@ -110,7 +110,7 @@ You can modify the cross_compile script `/root/compilation_scripts/cross_compile
 Common changes are the following:
 
  - Comment the line that clears the workspace every time to speed up builds `rm -rf build install log`
- - Build only the package that is failing, adding one of the following to the `colcon build` arguments: `--packages-up-to MY_PACKAGE` or `--packages-select MY_PACKAGE`.
+ - Rebuild only subset of packages, adding one of the following to the `colcon build` arguments: `--packages-up-to MY_PACKAGE` or `--packages-select MY_PACKAGE` or `--packages-start LAST_SUCCESSFUL_PACKAGE`.
  - Change the colcon log verbosity adding `--log-level debug`
 
 ## Cross-compile individual ROS 2 packages

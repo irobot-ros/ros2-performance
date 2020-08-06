@@ -63,5 +63,4 @@ docker run \
     --volume $TOOLCHAIN_VARIABLES_PATH:/root/cc_export.sh \
     -w="/root/ws" \
     ros2_cc_$TARGET_ARCHITECTURE \
-    /bin/bash -c 'source /root/.bashrc; \
-        bash /root/compilation_scripts/cross_compile.sh'
+    $COMMAND

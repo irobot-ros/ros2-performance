@@ -5,7 +5,7 @@ SYSROOTS_DIR=$THIS_DIR/sysroots
 
 if [ -z "$TARGET_ARCHITECTURE" ]; then
     echo "Missing TARGET_ARCHITECTURE environment variables. Please run first"
-    echo "source env.sh";
+    echo "source env.sh <TARGET_ARCHITECTURE>";
     exit 1;
 fi
 
@@ -27,7 +27,7 @@ fi
 # Run the get sysroot script
 GET_SYSROOT_CMD="bash $TARGET_FILE_NAME"
 if ! $GET_SYSROOT_CMD; then
-  echo "Error: failed to get sysroot for architecture $TARGET"
+  echo "Error: failed to get sysroot for architecture $TARGET_ARCHITECTURE"
   exit 1
 fi
 

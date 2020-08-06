@@ -1,23 +1,34 @@
-# ROS2 cross-compilation tools
+# ROS 2 cross-compilation framework
 
-This directory contains Docker-based tools for cross-compiling ROS2 packages for embedded platforms.
+This is a Docker-based framework for cross-compiling ROS 2 packages for a variety of platforms.
+The pros of this framework are its modularity, that allows to easily add support for new architectures, and the possibility of integrating it into CI jobs.
 
-If you are interested in additional resources about cross-compilation, check the [**ROS2 Cross-compilation official guide**](https://index.ros.org/doc/ros2/Tutorials/Cross-compilation) or the references at the bottom of this page.
+In the following sections you can find instructions for cross-compiling ROS 2 packages and running the cross-compiled executables on your target platform.
+
+Instructions for adding new packages or dependencies or adding support for new architectures can be found in the [advanced section](advanced.md).
+
+If you are interested in additional resources about cross-compilation, check the [**ROS 2 Cross-compilation official guide**](https://index.ros.org/doc/ros2/Tutorials/Cross-compilation) or the references at the bottom of this page.
 
 A list of common cross-compilation issues and solutions is provided in the [troubleshooting page](troubleshooting.md).
 
-The supported ROS2 distributions are:
+## Support
+
+**NOTE:** the following names are keywords! Write them exactly as they are here.
+
+The supported ROS 2 distributions are:
 
  - `ardent`
  - `bouncy`
  - `crystal`
  - `dashing`
  - `eloquent`
-
+ - `foxy`
+ - `master`
 
 The supported architectures are:
 
- - `raspbian`
+ - `raspbian` (Debian Stretch, tested on RaspberryPi 2 and RaspberryPi 3, **not** working on RaspberryPi 1)
+ - `x86_64` (Ubuntu 18.04)
 
 
 ## Requirements
@@ -27,153 +38,93 @@ The supported architectures are:
 If you don't have Docker installed follow [this link](../docker_setup.md).
 Ensure that you have support for building and running ARM Docker containers.
 
-## Build
+Install some other dependencies
 
+```
+sudo apt update && sudo apt install -y curl gnupg2 lsb-release software-properties-common
+curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+sudo apt update && sudo apt install -y python3-vcstool wget
+```
+
+## Build
 
     bash build.sh
 
-This will build the `Dockerfile` which provides a Docker environment with all the cross-compilation dependencies installed.
+This will build the cross-compilation framework.
+It mainly consists of a bunch of `Dockerfile`s which provide a Docker environment with all the cross-compilation dependencies installed for each of the supported architectures.
 
-## How to use it
+## Cross-compile ROS 2 SDK
 
-You can use these tools to cross-compile the ROS2 SDK or specific packages. Note that in the second case, you need an already cross-compiled SDK which will have to be copied to the sysroot of your target platform.
-
-We are currently not able to cross-compile all the ROS2 package, due to their dependencies.
-That's not a problem as the missing ones are mostly visualization-related packages.
-You can find the list of the packages to ignore for each specific ROS2 release [here](ignore_pkgs_scripts).
-
-**NOTE:** the cross-compilation script mounts the workspace that you want to cross-compile as a Docker volume. This does not go well with symbolic links. For this reason ensure that the workspace contains the whole source code and not a symlink to the repositories.
-
-In the following sections you can find some examples about how to cross-compile different types of packages.
-Note that no changes are required if you want to cross-compile packages for a different ROS2 distribution.
-However it's recommended to wipe out the sysroot and get a new one when you want to cross-compile for a new distribution.
-
-## Cross-compile ROS2 SDK
-
-**NOTE:** there is an automated script for cross-compiling specific versions of the ROS2 SDK.
+**NOTE:** there is an automated script for cross-compiling specific versions of the ROS 2 SDK.
 For example you can run:
 
 ```
 export TARGET=raspbian
-export ROS2_DISTRO=eloquent
+export ROS2_DISTRO=foxy
 bash automatic_cross_compile.sh
 ```
 
-You can find the output in the directory `install/"$ROS2_BRANCH"_"$HEAD"_"$TARGET"`.
+You can find the output in the directory `ROS2_SDKs/"$ROS2_BRANCH"_"$HEAD"_"$TARGET"`.
 
-Let's go through an example showing how to manually cross-compile ROS2 Crystal SDK for `raspbian` board.
+Let's go through an example showing how to manually cross-compile ROS 2 Foxy SDK for `raspbian` architecture.
 
 Source the environment variables for this architecture using
 
     source env.sh raspbian
 
-If you need a sysroot for the architecture, create it.
-
-    bash get_sysroot.sh
-
+Create a sysroot for the architecture.
 This command will download a sysroot for the archicture specified by the `TARGET_ARCHITECTURE` environment variable (the argument passed to the `env.sh` script above, `raspbian` in this case).
 Note that if you already have a sysroot with the same name inside the `sysroots` directory, it will be overwritten by the new one.
 
 If you want to use your own sysroot, instead of generating a new one, you can skip the last instruction and just place your sysroot in the `sysroots` directory. Your sysroot directory must be renamed to `raspbian` or as the specified `TARGET_ARCHITECTURE` that you passed to `env.sh`.
 
-Create a ROS2 workspace and download the sources you need
+    bash get_sysroot.sh
 
-    bash get_ros2_sources.sh eloquent
+Create a ROS 2 workspace that you want to cross-compile.
+ - The cross-compilation script will mount the workspace as a Docker volume. This does not go well with symbolic links. For this reason ensure that the workspace contains the whole source code and not a symlink to the repositories.
+ - It is recommended that the workspace contains the source code of all the ROS 2 dependencies of your packages. However, you can also cross-compile individual packages if you already have the cross-compiled dependencies, see the [advanced section](advanced.md).
 
-Ignore some packages and python dependencies (note that there is a different script for each distribution you want to  cross-compile)
+We provide convenient scripts for downloading the ROS 2 sources for a specific distribution and for ignoring some packages that are not meant to be cross-compiled, e.g. visualization tools.
+If you want to cross-compile generic ROS 2 packages, see the [advanced section](advanced.md).
 
-    cd -
-    bash ignore_pkgs.sh ~/ros2_cc_ws eloquent
+    bash get_ros2_sources.sh --distro=foxy --ros2-path=~/ros2_cc_ws
+    bash ignore_pkgs.sh ~/ros2_cc_ws foxy
 
 Cross-compile the workspace
 
     bash cc_workspace.sh ~/ros2_cc_ws
 
-The provided workspace will be mounted as a volume and it will be populated with the output of the cross-compilation.
+The result of the cross-compilation will be found in `~/ros2_cc_ws/install`.
 
-#### Install
+## Use cross-compiled ROS 2 packages
 
-Copy the `install/lib` directory from the cross-compiled SDK to your target system.
+Copy the `install` directory from the cross-compiled workspace to your target platform.
+
 ```
 cd ~/ros2_cc_ws
-scp -r install/lib user@address:~/ros2_crystal
+tar -czf install.tar.gz install
+scp install.tar.gz user@hostname:~/
 ```
 
-## Cross-compile ROS2 workspaces
-
-Let's go through an example showing how to cross-compile some ROS2 Crystal packages for `raspbian` board.
-
-Source the environment variables for this architecture using
-
-    source env.sh raspbian
-
-If you have followed the instructions in the previous section, you will already have a sysroot.
-
-If you need a sysroot for the architecture, create it.
-
-    bash get_sysroot.sh
-
-Note that if you want to use your own sysroot, instead of generating a new one, you can skip the last instruction and just place your sysroot in the `sysroots` directory. The name of the sysroot directory must match the name be `raspbian`.
-
-If you are creating a new sysroot or if your sysroot does not contain the ROS2 SDK, you must add it.
-You can follow the instructions in the previous section
-
-Copy the SDK into the sysroot
-
-    cp -r ~/ros2_cc_ws/install/cmake sysroots/raspbian/usr/cmake
-    cp -R ~/ros2_cc_ws/install/share/* sysroots/raspbian/usr/share/
-    cp -R ~/ros2_cc_ws/install/lib/* sysroots/raspbian/usr/lib/
-    cp -R ~/ros2_cc_ws/install/include/* sysroots/raspbian/usr/include/
-
-Note that after adding contents to the sysroot, you can always revert it back to its original state by running again the `get-sysroots.sh` script.
-
-Create a ROS2 workspace, for example containing example nodes.
-
-    mkdir -p ~/my_ros2_cc_ws/src
-    svn checkout https://github.com/ros2/examples/trunk/rclcpp ~/my_ros2_cc_ws/src/examples_rclcpp
-
-Now you can cross-compile the workspace
-
-    bash cc_workspace.sh ~/my_ros2_cc_ws
-
-The provided workspace will be mounted as a volume and it will be populated with the output of the cross-compilation.
-
-
-#### Install
-
-Copy the `install/lib` directory from the cross-compiled workspace to your target system.
-
-Prefer using `rsync` to copy over files since `scp` fails randomly. For example,
+If you only need to run individual executables and you don't need ROS 2 command line tools (or you don't have Python3 in your target platform), you can simply add the libraries of the cross-compiled workspace to the dynamic libraries path.
 
 ```
-cd ~/my_ros2_cc_ws
-scp -r install/lib user@address:~/ros2_crystal
+export LD_LIBRARY_PATH=~/install/lib
+
+~/install/lib/examples_rclcpp_minimal_publisher/publisher_lambda
 ```
 
-Note that if you place the libraries in a place different from the `usr/lib` directory, you will have to specify export their path.
-For example:
+If you want access the ROS 2 command line tools, you will have to source the cross-compiled workspace.
 
-    export LD_LIBRARY_PATH=~/ros2_crystal:$LD_LIBRARY_PATH
+```
+export COLCON_CURRENT_PREFIX=~/install
+source $COLCON_CURRENT_PREFIX/setup.sh
 
-
-## Add support for additional target architectures
-
-One of the goals of this cross-compilation framework is to be quite easy to be extended to new target architectures.
-
-For example, if you want to add a target named `my_architecture` you need the following:
-
- - A compilation environment for your architecture. You have to create a new Dockerfile named `docker_environments/Dockerfile_my_architecture`. This Dockerfile must begin with the line
-    ```
-    FROM ros2_cc_base
-    ```
-
-    Then it has only to install the compiler for your architecure.
- - A bash script that sets compilation flags for the toolchain named `toolchains/my_architecture.sh`
- - A sysroot named `sysroots/my_architecture` or a script `sysroots/my_architecture_get_sysroot.sh` to generate it.
-
+ros2 run examples_rclcpp_minimal_publisher publisher_lambda
+```
 
 ## References
 
- - [ROS2 cross-compilation official tools](https://github.com/ros2/cross_compile)
- - [ROS2 step by step cross-compilation on ARM](https://github.com/ros2-for-arm/ros2/wiki/ROS2-on-arm-architecture)
- - [ROS2 RaspberryPi cross-compilation](https://github.com/alsora/ros2-raspberrypi)
+ - [ROS 2 cross-compilation official tools](https://github.com/ros2/cross_compile)
+ - [ROS 2 step by step cross-compilation on ARM](https://github.com/ros2-for-arm/ros2/wiki/ROS2-on-arm-architecture)
+ - [ROS 2 RaspberryPi cross-compilation](https://github.com/alsora/ros2-raspberrypi)

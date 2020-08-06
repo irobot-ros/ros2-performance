@@ -15,10 +15,12 @@ case $i in
     ;;
     --ros2-path=*)
     ROS2_PATH="${i#*=}"
+    # correctly expand ~ token
+    ROS2_PATH="${ROS2_PATH/#\~/$HOME}"
     shift
     ;;
     -h|--help|*)
-    echo "Usage example: bash get_ros2_sources.sh --distro=master --ros2-path=${HOME}/ros2_cc_ws"
+    echo "Usage example: bash get_ros2_sources.sh --distro=master --ros2-path=~/ros2_cc_ws"
     exit 0
     shift
     ;;

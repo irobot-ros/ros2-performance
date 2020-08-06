@@ -5,7 +5,7 @@ SYSROOTS_DIR=$THIS_DIR/sysroots
 
 if [ -z "$TARGET_ARCHITECTURE" ]; then
     echo "Missing TARGET_ARCHITECTURE environment variables. Please run first"
-    echo "source env.sh";
+    echo "source env.sh <TARGET_ARCHITECTURE>";
     exit 1;
 fi
 

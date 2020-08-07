@@ -32,7 +32,7 @@ TOOLCHAIN_PATH="$THIS_DIR/toolchains/generic_linux.cmake"
 TOOLCHAIN_VARIABLES_PATH="$THIS_DIR/toolchains/"$TARGET_ARCHITECTURE".sh"
 
 INTERACTIVE_DOCKER="-it"
-COMMAND="/bin/bash -c 'source /root/.bashrc; bash /root/compilation_scripts/cross_compile.sh'"
+COMMAND=(/bin/bash -c "source /root/.bashrc && bash /root/compilation_scripts/cross_compile.sh")
 
 for i in "$@"
 do
@@ -42,7 +42,7 @@ case $i in
     shift
     ;;
     --debug)
-    COMMAND="bash"
+    COMMAND=(bash)
     shift
     ;;
 esac
@@ -63,4 +63,4 @@ docker run \
     --volume $TOOLCHAIN_VARIABLES_PATH:/root/cc_export.sh \
     -w="/root/ws" \
     ros2_cc_$TARGET_ARCHITECTURE \
-    $COMMAND
+    "${COMMAND[@]}"

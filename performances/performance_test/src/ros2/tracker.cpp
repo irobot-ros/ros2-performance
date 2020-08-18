@@ -35,16 +35,21 @@ void performance_test::Tracker::scan(
 
     if (_tracking_options.is_enabled){
 	
+        std::map<std::string, TrackingNumber>::iterator it = _tracking_number_count_map.find(header.node_name);
+        // If this is first message received for the node store some info about it
+        if (it == _tracking_number_count_map.end()) {
+            it = _tracking_number_count_map.insert(it, {header.node_name, header.tracking_number});
+        }
+	
         // Check if we received the correct message. The assumption here is
         // that the messages arrive in chronological order
-        if (header.tracking_number == _tracking_number_count) {
-            _tracking_number_count++;
+        if (header.tracking_number == it->second) {
+            it->second++;
         } else {
             // We missed some mesages...
-            long unsigned int n_lost = header.tracking_number - _tracking_number_count;
+            long unsigned int n_lost = header.tracking_number - it->second;
             _lost_messages += n_lost;
-            _tracking_number_count = header.tracking_number + 1;
-
+            it->second = header.tracking_number + 1;
             // Log the event
             if (elog != nullptr){
                 EventsLogger::Event ev;

@@ -272,7 +272,7 @@ private:
           resize_msg(msg->data, msg->header, size);
 
           // set the node name
-          msg->header.node_name = this->get_name();
+          msg->header.node_name = this->get_fully_qualified_name();
           // get the frequency value that we stored when creating the publisher
           msg->header.frequency = 1000000.0 / period.count();
           // set the tracking count for this message
@@ -291,7 +291,7 @@ private:
           resize_msg(msg->data, msg->header, size);
 
           // set the node name
-          msg->header.node_name = this->get_name();
+          msg->header.node_name = this->get_fully_qualified_name();
           // get the frequency value that we stored when creating the publisher
           msg->header.frequency = 1000000.0 / period.count();
           // set the tracking count for this message
@@ -378,7 +378,7 @@ private:
     // Create request
     auto request = std::make_shared<typename Srv::Request>();
     // get the frequency value that we stored when creating the publisher
-    request->header.node_name = this->get_name();
+    request->header.node_name = this->get_fully_qualified_name();
     request->header.frequency = tracker.frequency();
     request->header.tracking_number = tracking_number;
     request->header.stamp = this->now();

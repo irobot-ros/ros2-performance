@@ -347,9 +347,11 @@ private:
     _client_lock = true;
 
     // Get client and tracking count from map
-    auto& client_pair = _clients.at(name);
-    auto client = std::static_pointer_cast<rclcpp::Client<Srv>>(client_pair.first);
-    auto& tracker = client_pair.second;
+
+    //Wait for service to come online
+    while (!client->wait_for_service(1.0s)){
+      RCLCPP_WARN(this->get_logger(), "service '%s' not available, waiting again...", name.c_str());
+    }
 
     // Create request
     auto request = std::make_shared<typename Srv::Request>();

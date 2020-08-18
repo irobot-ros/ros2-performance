@@ -56,13 +56,13 @@ public:
 
   unsigned long int received() const { return _received_messages; }
 
-  size_t size() const { return _size; }
+  size_t size() const { return _size.mean(); }
 
-  float frequency() const { return _frequency; }
+  float frequency() const { return _frequency.mean(); }
 
   Stat<unsigned long int> stat() const { return _stat; }
 
-  void set_frequency(float f) { _frequency = f; }
+  void set_frequency(float f) { _frequency.add_sample(f); }
 
   unsigned long int last() const { return _last_latency; }
 
@@ -76,8 +76,8 @@ private:
   unsigned long int _received_messages = 0;
   unsigned long int _late_messages = 0;
   unsigned long int _too_late_messages = 0;
-  size_t _size = 0;
-  float _frequency = 0;
+  Stat<size_t> _size;
+  Stat<float> _frequency;
   Stat<unsigned long int> _stat;
   // A node-name indexed map to store the publisher tracking number to track.
   std::map<std::string, TrackingNumber> _tracking_number_count_map;

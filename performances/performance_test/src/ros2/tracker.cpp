@@ -17,12 +17,6 @@ void performance_test::Tracker::scan(
     const rclcpp::Time& now,
     std::shared_ptr<EventsLogger> elog)
 {
-    // If this is first message received store some info about it
-    if (stat().n() == 0) {
-        _size = header.size;
-        _frequency = header.frequency;
-    }
-
     // Compute latency
     rclcpp::Time stamp(header.stamp.sec, header.stamp.nanosec, RCL_ROS_TIME);
     auto lat = std::chrono::nanoseconds((now - stamp).nanoseconds());
@@ -38,6 +32,8 @@ void performance_test::Tracker::scan(
         std::map<std::string, TrackingNumber>::iterator it = _tracking_number_count_map.find(header.node_name);
         // If this is first message received for the node store some info about it
         if (it == _tracking_number_count_map.end()) {
+            _size.add_sample(header.size);
+            _frequency.add_sample(header.frequency);
             it = _tracking_number_count_map.insert(it, {header.node_name, header.tracking_number});
         }
 	
@@ -68,7 +64,7 @@ void performance_test::Tracker::scan(
         }
 
         // Check if the message latency qualifies the message as a lost or late message.
-        const int  period_us = 1000000 / _frequency;
+        const int  period_us = 1000000 / _frequency.mean();
         const unsigned int latency_late_threshold_us = std::min(_tracking_options.late_absolute_us,
                                                                 _tracking_options.late_percentage * period_us / 100);
         const unsigned int latency_too_late_threshold_us = std::min(_tracking_options.too_late_absolute_us,

@@ -16,6 +16,7 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <tuple>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
@@ -181,7 +182,7 @@ public:
       );
 
     // store the frequency of this client task
-    _clients.at(service.name).second.set_frequency(1000000 / period.count());
+    std::get<1>(_clients.at(service.name)).set_frequency(1000000 / period.count());
 
     this->add_timer(period, client_task);
 
@@ -193,7 +194,7 @@ public:
 
     typename rclcpp::Client<Srv>::SharedPtr client = this->create_client<Srv>(service.name, qos_profile);
 
-    _clients.insert({ service.name, { client, Tracker(this->get_name(), service.name, Tracker::TrackingOptions()) } });
+    _clients.insert({ service.name, { client, Tracker(this->get_name(), service.name, Tracker::TrackingOptions()), 0 } });
 
     RCLCPP_INFO(this->get_logger(),"Client to %s created", service.name.c_str());
   }
@@ -226,7 +227,7 @@ public:
 
     for(const auto& client : _clients)
     {
-      trackers->push_back({client.first, client.second.second});
+      trackers->push_back({client.first, std::get<1>(client.second)});
     }
 
     /*
@@ -347,6 +348,10 @@ private:
     _client_lock = true;
 
     // Get client and tracking count from map
+    auto& client_tuple = _clients.at(name);
+    auto client = std::static_pointer_cast<rclcpp::Client<Srv>>(std::get<0>(client_tuple));
+    auto& tracker = std::get<1>(client_tuple);
+    auto& tracking_number = std::get<2>(client_tuple);
 
     //Wait for service to come online
     while (!client->wait_for_service(1.0s)){
@@ -357,7 +362,7 @@ private:
     auto request = std::make_shared<typename Srv::Request>();
     // get the frequency value that we stored when creating the publisher
     request->header.frequency = tracker.frequency();
-    request->header.tracking_number = tracker.stat().n();
+    request->header.tracking_number = tracking_number;
     request->header.stamp = this->now();
 
     // Client non-blocking call + callback
@@ -372,6 +377,8 @@ private:
       );
 
     auto result_future = client->async_send_request(request, callback_function);
+    tracking_number++;
+    _client_lock = false;
 
     // Client blocking call does not work with timers
     /*
@@ -395,13 +402,11 @@ private:
   template <typename Srv>
   void _response_received_callback(const std::string& name, std::shared_ptr<typename Srv::Request> request, typename rclcpp::Client<Srv>::SharedFuture result_future)
   {
-    _client_lock = false;
-
       // This is not used at the moment
       auto response = result_future.get();
 
       // Scan new message's header
-      auto& tracker = _clients.at(name).second;
+      auto& tracker = std::get<1>(_clients.at(name));
       tracker.scan(request->header, this->now(), _events_logger);
 
       RCLCPP_DEBUG(this->get_logger(), "Response on %s request number %d received after %lu us", name.c_str(), request->header.tracking_number, tracker.last());
@@ -444,7 +449,7 @@ private:
 
   // A service-name indexed map to store the client pointers with their
   // trackers.
-  std::map<std::string, std::pair<std::shared_ptr<void>, Tracker>> _clients;
+  std::map<std::string, std::tuple<std::shared_ptr<void>, Tracker, Tracker::TrackingNumber>> _clients;
 
   // A service-name indexed map to store the server pointers with their
   // trackers.

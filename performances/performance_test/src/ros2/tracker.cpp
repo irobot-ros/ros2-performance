@@ -41,7 +41,7 @@ void performance_test::Tracker::scan(
         // that the messages arrive in chronological order
         if (header.tracking_number == it->second) {
             it->second++;
-        } else {
+        } else if (header.tracking_number > it->second) {
             // We missed some mesages...
             long unsigned int n_lost = header.tracking_number - it->second;
             _lost_messages += n_lost;
@@ -61,6 +61,8 @@ void performance_test::Tracker::scan(
                 ev.description = description.str();
                 elog->write_event(ev);
             }
+        } else {
+            std::cerr << "warning: order of message is not sequential! Is node_name unique for each publisher?" << std::endl;
         }
 
         // Check if the message latency qualifies the message as a lost or late message.

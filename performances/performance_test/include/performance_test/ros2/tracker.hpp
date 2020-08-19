@@ -10,7 +10,7 @@
 #pragma once
 
 #include <iostream>
-#include <map>
+#include <unordered_map>
 
 #include "rclcpp/time.hpp"
 
@@ -80,7 +80,7 @@ private:
   Stat<float> _frequency;
   Stat<unsigned long int> _stat;
   // A node-name indexed map to store the publisher tracking number to track.
-  std::map<std::string, TrackingNumber> _tracking_number_count_map;
+  std::unordered_map<std::string, TrackingNumber> _tracking_number_count_map;
   TrackingOptions _tracking_options;
 };
 }

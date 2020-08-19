@@ -29,7 +29,7 @@ void performance_test::Tracker::scan(
 
     if (_tracking_options.is_enabled){
 	
-        std::map<std::string, TrackingNumber>::iterator it = _tracking_number_count_map.find(header.node_name);
+        auto it = _tracking_number_count_map.find(header.node_name);
         // If this is first message received for the node store some info about it
         if (it == _tracking_number_count_map.end()) {
             _size.add_sample(header.size);

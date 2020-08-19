@@ -178,11 +178,9 @@ public:
         &Node::_request<Srv>,
         this,
         service.name,
-        size
+        size,
+        period
       );
-
-    // store the frequency of this client task
-    std::get<1>(_clients.at(service.name)).set_frequency(1000000 / period.count());
 
     this->add_timer(period, client_task);
 
@@ -341,7 +339,7 @@ private:
 
 
   template <typename Srv>
-  void _request(const std::string& name, size_t size)
+  void _request(const std::string& name, size_t size, std::chrono::microseconds period)
   {
 
     (void)size;
@@ -379,7 +377,7 @@ private:
     auto request = std::make_shared<typename Srv::Request>();
     // get the frequency value that we stored when creating the publisher
     request->header.node_name = this->get_fully_qualified_name();
-    request->header.frequency = tracker.frequency();
+    request->header.frequency = 1000000.0 / period.count();
     request->header.tracking_number = tracking_number;
     request->header.stamp = this->now();
 

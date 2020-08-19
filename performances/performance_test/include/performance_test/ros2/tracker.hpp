@@ -62,8 +62,6 @@ public:
 
   Stat<unsigned long int> stat() const { return _stat; }
 
-  void set_frequency(float f) { _frequency.add_sample(f); }
-
   unsigned long int last() const { return _last_latency; }
 
 private:

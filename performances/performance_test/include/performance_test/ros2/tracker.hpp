@@ -58,7 +58,7 @@ public:
 
   size_t size() const { return _size.mean(); }
 
-  float frequency() const { return _frequency.mean(); }
+  float frequency() const { return _frequency.sum(); }
 
   Stat<unsigned long int> stat() const { return _stat; }
 

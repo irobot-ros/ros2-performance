@@ -354,8 +354,21 @@ private:
     auto& tracking_number = std::get<2>(client_tuple);
 
     //Wait for service to come online
-    while (!client->wait_for_service(1.0s)){
-      RCLCPP_WARN(this->get_logger(), "service '%s' not available, waiting again...", name.c_str());
+    if (!client->wait_for_service(1.0s)){
+      if (_events_logger != nullptr){
+          // Create a descrption for the event
+          std::stringstream description;
+          description << "[service] '"<< name.c_str() << "' unavailable after 1s";
+
+          EventsLogger::Event ev;
+          ev.caller_name = name + "->" + this->get_name();
+          ev.code = EventsLogger::EventCode::service_unavailable;
+          ev.description = description.str();
+
+          _events_logger->write_event(ev);
+      }
+      _client_lock = false;
+      return;
     }
 
     // Create request

@@ -31,7 +31,8 @@ public:
         discovery,
         late_message,
         too_late_message,
-        lost_messages
+        lost_messages,
+        service_unavailable
     };
 
     struct Event {

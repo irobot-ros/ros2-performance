@@ -56,7 +56,7 @@ public:
 
   unsigned long int received() const { return _received_messages; }
 
-  size_t size() const { return _size.mean(); }
+  float size() const { return _size.mean(); }
 
   float frequency() const { return _frequency.sum(); }
 

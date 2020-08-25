@@ -507,7 +507,6 @@ rmw_qos_profile_t performance_test::TemplateFactory::get_qos_from_json(
     std::map<std::string, rmw_qos_liveliness_policy_t> liveliness_qos_map{
         {"system_default",  RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT},
         {"automatic",       RMW_QOS_POLICY_LIVELINESS_AUTOMATIC},
-        {"manual_by_node",  RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_NODE},
         {"manual_by_topic", RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_TOPIC},
         {"unknown",         RMW_QOS_POLICY_LIVELINESS_UNKNOWN}
     };

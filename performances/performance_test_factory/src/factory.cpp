@@ -316,13 +316,17 @@ std::shared_ptr<performance_test::Node> performance_test::TemplateFactory::creat
 {
 
     auto node_name = std::string(node_json["node_name"]) + suffix;
+    auto node_namespace = _ros2_namespace;
+    if (node_json.find("node_namespace") != node_json.end()) {
+        node_namespace += std::string(node_json["node_namespace"]) + suffix;
+    } 
 
     int executor_id = 0;
     if (node_json.find("executor_id") != node_json.end()) {
         executor_id = node_json["executor_id"];
     }
 
-    auto node = this->create_node(node_name, _use_ipc, _use_ros_params, _verbose_mode, _ros2_namespace, executor_id);
+    auto node = this->create_node(node_name, _use_ipc, _use_ros_params, _verbose_mode, node_namespace, executor_id);
 
     return node;
 }

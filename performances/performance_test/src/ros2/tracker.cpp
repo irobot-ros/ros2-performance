@@ -29,12 +29,12 @@ void performance_test::Tracker::scan(
 
     if (_tracking_options.is_enabled){
 	
-        auto it = _tracking_number_count_map.find(header.node_name);
+        auto it = _tracking_number_count_map.find(header.node_id);
         // If this is first message received for the node store some info about it
         if (it == _tracking_number_count_map.end()) {
             _size.add_sample(header.size);
             _frequency.add_sample(header.frequency);
-            it = _tracking_number_count_map.insert(it, {header.node_name, header.tracking_number});
+            it = _tracking_number_count_map.insert(it, {header.node_id, header.tracking_number});
         }
 	
         // Check if we received the correct message. The assumption here is

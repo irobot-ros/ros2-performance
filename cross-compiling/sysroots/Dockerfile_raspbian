@@ -7,7 +7,6 @@ ENV HOME /root
 WORKDIR $HOME
 
 # minimal ROS2 dependencies
-# libc6 is requried because raspbian stretch lite lacks some pthread support
 RUN apt-get update && apt-get install -y \
   liblog4cxx-dev \
   libtinyxml2-dev \
@@ -15,12 +14,11 @@ RUN apt-get update && apt-get install -y \
   python3-dev
 
 # get ROS2 apt sources
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
   curl \
   lsb-release
 RUN curl -k https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add -
 RUN sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2-latest.list'
-RUN apt-get update
 
 # eigen --> required for orocos kdl --> required for tf2
 # tinyxml --> required for urdf --> required for nav2robot and many other nav packages
@@ -28,5 +26,39 @@ RUN apt-get update && apt-get install -y \
   libeigen3-dev \
   libtinyxml-dev
 
+# Install Intel RealSense driver
+RUN apt-get update && apt-get install -y cmake git g++ python3-dev libusb-1.0-0-dev
+RUN git clone https://github.com/IntelRealSense/librealsense.git $HOME/librealsense
+RUN mkdir -p $HOME/librealsense/build
+WORKDIR $HOME/librealsense/build
+RUN cmake \
+  -D CMAKE_INSTALL_PREFIX:PATH=/usr \
+  -D CMAKE_BUILD_TYPE="Release" -D BUILD_SHARED_LIBS=OFF \
+  -D FORCE_RSUSB_BACKEND=OFF -D BUILD_PYTHON_BINDINGS=OFF -D BUILD_EXAMPLES=OFF -D BUILD_GRAPHICAL_EXAMPLES=OFF -D BUILD_GLSL_EXTENSIONS=OFF \
+  ..
+RUN make -j40 && make install
+# ROS 2 Intel RealSense wrapper dependencies
+RUN apt-get update && apt-get install -y \
+  libssl-dev libusb-1.0-0-dev pkg-config libgtk-3-dev libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev libblas-dev liblapack-dev
+
+# ROS 2 cvBridge dependencies
+RUN apt-get update && apt-get install -y libopencv-dev python3-numpy libboost-python-dev
+
+# ROS 2 pcl dependencies
+RUN apt-get update && apt-get install -y libpcl-dev
+
+# nav2_map_server dependencies
+RUN apt-get update && apt-get install -y libgraphicsmagick++1-dev
+
+# slam_toolbox dependencies
+RUN apt-get update && apt-get install -y \
+  libboost-all-dev \
+  libsuitesparse-dev \
+  liblapack-dev \
+  libceres-dev \
+  libtbb-dev \
+  libopenblas-dev \
+  liblapacke-dev
+
 # transform absolute simbolic links into relative ones
-RUN apt-get install -y symlinks && symlinks -cr /lib /etc /opt /usr
+RUN apt-get install -y symlinks && symlinks -rc /

@@ -28,7 +28,13 @@ using namespace std::chrono_literals;
 
 int main(int argc, char** argv)
 {
-    auto options = benchmark::Options(argc, argv);
+    auto non_ros_args = rclcpp::remove_ros_arguments(argc, argv);
+    std::vector<char *> non_ros_args_c_strings;
+    for (auto & arg : non_ros_args) {
+        non_ros_args_c_strings.push_back(&arg.front());
+    }
+    int non_ros_argc = static_cast<int>(non_ros_args_c_strings.size());
+    auto options = benchmark::Options(non_ros_argc, non_ros_args_c_strings.data());
 
     auto json_list = options.topology_json_list;
 

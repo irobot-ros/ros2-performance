@@ -17,6 +17,6 @@
 
 namespace performance_test {
 
-std::shared_ptr<rcpputils::SharedLibrary> get_library(std::string msg_type);
+std::shared_ptr<rcpputils::SharedLibrary> get_library(std::string& msg_type);
 
 }

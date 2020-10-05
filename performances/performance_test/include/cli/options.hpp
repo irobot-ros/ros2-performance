@@ -16,7 +16,7 @@
 
 #include "cxxopts.hpp"
 
-namespace benchmark {
+namespace irobot_benchmark {
 
 class Options {
 

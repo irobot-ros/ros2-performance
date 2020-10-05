@@ -34,7 +34,7 @@ int main(int argc, char** argv)
         non_ros_args_c_strings.push_back(&arg.front());
     }
     int non_ros_argc = static_cast<int>(non_ros_args_c_strings.size());
-    auto options = benchmark::Options(non_ros_argc, non_ros_args_c_strings.data());
+    auto options = irobot_benchmark::Options(non_ros_argc, non_ros_args_c_strings.data());
 
     auto json_list = options.topology_json_list;
 

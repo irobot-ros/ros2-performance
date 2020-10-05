@@ -79,4 +79,4 @@ else
   nc -lp 1234
 fi
 
-$ROS2_PERFORMANCE_TEST_BENCHMARK_PATH/benchmark $TOPOLOGY_LIST --time $TIME --ipc $IPC
+$ROS2_PERFORMANCE_TEST_BENCHMARK_PATH/irobot-benchmark $TOPOLOGY_LIST --time $TIME --ipc $IPC

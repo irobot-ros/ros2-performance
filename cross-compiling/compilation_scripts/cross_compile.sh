@@ -31,3 +31,7 @@ colcon \
 
 
 # --merge-install is used to avoid creation of nested install dirs for each package
+
+# Add Read+Write+Execute permissions to workspace, to avoid
+# having to be sudo to tar or remove the cross-compiled workspace
+chmod -R a+rwx .

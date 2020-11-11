@@ -194,7 +194,15 @@ public:
 
     typename rclcpp::Client<Srv>::SharedPtr client = this->create_client<Srv>(service.name, qos_profile);
 
-    _clients.insert({ service.name, { client, Tracker(this->get_name(), service.name, Tracker::TrackingOptions()), 0 } });
+    _clients.insert(
+      {
+        service.name,
+        std::tuple<std::shared_ptr<void>, Tracker, Tracker::TrackingNumber>{
+          client,
+          Tracker(this->get_name(), service.name, Tracker::TrackingOptions()),
+          0
+        }
+      });
 
     RCLCPP_INFO(this->get_logger(),"Client to %s created", service.name.c_str());
   }

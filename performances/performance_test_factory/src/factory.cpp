@@ -435,7 +435,7 @@ void performance_test::TemplateFactory::add_periodic_client_from_json(
     std::string service_name = client_json["service_name"];
     std::string srv_type = client_json["srv_type"];
 
-    float period_ms;
+    float period_ms = 0;
 
     if (client_json.find("freq_hz") != client_json.end()) {
         float frequency = client_json["freq_hz"];

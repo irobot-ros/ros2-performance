@@ -42,7 +42,7 @@ fi
 
 # Set Read+Write+Execute permissions to workspace, to avoid
 # having to be sudo to tar or remove the cross-compiled workspace
-chmod -R a+rwx .
+chmod -R a+rwx $(ls -I src)
 
 # Exit
 exit $EXIT_CODE

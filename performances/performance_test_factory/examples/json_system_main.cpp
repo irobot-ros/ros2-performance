@@ -28,6 +28,7 @@ int main(int argc, char** argv)
     std::string this_file_path = __FILE__;
     std::string this_dir_path = this_file_path.substr(0, this_file_path.rfind("/"));
     std::string json_path = this_dir_path + std::string("/simple_architecture.json");
+    int executor = 3; // ID corresponding to the StaticSingleThreadedExecutor
     int use_ipc = 1;
     int experiment_duration = 5;
     int resources_sampling_per_ms = 500;
@@ -38,6 +39,8 @@ int main(int argc, char** argv)
     // parse the command line arguments and eventually overwrite the default values
     cxxopts::Options options("json_system_main", "Create a ROS2 system at runtime as defined by a JSON file");
     options.add_options()
+    ("x, executor", "the system executor:\n\t\t\t\t1:EventsExecutor. 2:SingleThreadedExecutor. 3:StaticSingleThreadedExecutor",
+        cxxopts::value<int>(executor)->default_value(std::to_string(executor)),"<1/2/3>")
     ("j, json", "path to the json file to load",
         cxxopts::value<std::string>(json_path)->default_value(json_path))
     ("use_ipc", "Activate IntraProcessCommunication (0 or 1 accepted arguments)",
@@ -81,7 +84,7 @@ int main(int argc, char** argv)
     rclcpp::init(argc, argv);
 
     // Architecture
-    performance_test::System ros2_system;
+    performance_test::System ros2_system(static_cast<performance_test::systemExecutor>(executor));
     ros2_system.enable_events_logger(events_output_path);
 
     performance_test::TemplateFactory factory(use_ipc);

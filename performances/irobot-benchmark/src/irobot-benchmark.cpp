@@ -41,6 +41,28 @@ int main(int argc, char** argv)
     std::cout << "Topology file(s): " << std::endl;
     for(const auto& json : json_list) std::cout << json << std::endl;
 
+    // Get the system executor from options
+    performance_test::systemExecutor system_executor;
+    system_executor = static_cast<performance_test::systemExecutor>(options.executor);
+
+    switch (system_executor)
+    {
+        using namespace performance_test;
+
+        case EVENTS_EXECUTOR:
+            std::cout << "System executor: EventsExecutor" << std::endl;
+            break;
+
+        case SINGLE_THREADED_EXECUTOR:
+            std::cout << "System executor: SingleThreadedExecutor" << std::endl;
+            break;
+
+        case STATIC_SINGLE_THREADED_EXECUTOR:
+        default:
+            std::cout << "System executor: StaticSingleThreadedExecutor" << std::endl;
+            break;
+    }
+
     std::cout << "Intra-process-communication: " << (options.ipc ? "on" : "off") << std::endl;
     std::cout << "Parameter services: " << (options.ros_params ? "on" : "off") << std::endl;
     std::cout << "Naming threads: " << (options.name_threads ? "on" : "off") << std::endl;
@@ -48,7 +70,7 @@ int main(int argc, char** argv)
     std::cout << "Sampling resources every " << options.resources_sampling_per_ms << "ms" << std::endl;
     std::cout << "Logging events statistics: " << (options.tracking_options.is_enabled ? "on" : "off") << std::endl;
     std::cout << "Start test" << std::endl;
-    
+
     std::string topology_json;
 
     pid_t pid = getpid();
@@ -89,10 +111,10 @@ int main(int argc, char** argv)
 
     rclcpp::init(argc, argv);
 
-    performance_test::System ros2_system;
+    performance_test::System ros2_system(system_executor);
 
     if (options.tracking_options.is_enabled) {
-        ros2_system.enable_events_logger(events_output_path);    
+        ros2_system.enable_events_logger(events_output_path);
     }
 
     // Load topology from json file

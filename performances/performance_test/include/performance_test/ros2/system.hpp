@@ -19,16 +19,22 @@ namespace performance_test {
 
 struct NamedExecutor
 {
-    rclcpp::executors::StaticSingleThreadedExecutor::SharedPtr executor;
+    std::shared_ptr<rclcpp::Executor> executor;
     std::string name;
 };
 
+typedef enum
+{
+  EVENTS_EXECUTOR = 1,
+  SINGLE_THREADED_EXECUTOR = 2,
+  STATIC_SINGLE_THREADED_EXECUTOR = 3
+} systemExecutor;
 
 class System
 {
 public:
 
-  System() = default;
+  System(systemExecutor executor);
 
   void add_node(std::vector<std::shared_ptr<Node>> nodes);
 
@@ -68,8 +74,9 @@ private:
 
   std::map<int, NamedExecutor> _executors_map;
 
-
   std::shared_ptr<EventsLogger> _events_logger;
+
+  systemExecutor _system_executor;
 
   // the following values are used for comparing different plots using the python scripts
   bool _got_system_info;

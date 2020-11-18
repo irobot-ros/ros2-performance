@@ -24,6 +24,7 @@ public:
     Options()
     {
         ipc = true;
+        executor = 3;
         ros_params = true;
         name_threads = true;
         duration_sec = 5;
@@ -65,6 +66,8 @@ public:
       ("t,time", "test duration", cxxopts::value<int>(duration_sec)->default_value(std::to_string(duration_sec)),"sec")
       ("s, sampling", "resources sampling period",
         cxxopts::value<int>(resources_sampling_per_ms)->default_value(std::to_string(resources_sampling_per_ms)),"msec")
+      ("x, executor", "the system executor:\n\t\t\t\t1:EventsExecutor. 2:SingleThreadedExecutor. 3:StaticSingleThreadedExecutor",
+        cxxopts::value<int>(executor)->default_value(std::to_string(executor)),"<1/2/3>")
       ("tracking", "compute and logs detailed statistics and events",
         cxxopts::value<std::string>(tracking_enabled_option)->default_value(tracking_options.is_enabled ? "on" : "off"),"on/off")
       ("late-percentage", "a msg with greater latency than this percentage of the msg publishing period is considered late",
@@ -111,6 +114,7 @@ public:
     bool ipc;
     bool ros_params;
     bool name_threads;
+    int executor;
     int duration_sec;
     int resources_sampling_per_ms;
     std::vector<std::string> topology_json_list;

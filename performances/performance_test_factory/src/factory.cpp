@@ -33,6 +33,7 @@ std::shared_ptr<performance_test::Node> performance_test::TemplateFactory::creat
     node_options.use_intra_process_comms(use_ipc);
     node_options.start_parameter_services(use_ros_params);
     node_options.start_parameter_event_publisher(use_ros_params);
+    node_options.start_parameter_event_subscriber(use_ros_params);
 
     auto node = std::make_shared<performance_test::Node>(name, ros2_namespace, node_options, executor_id);
 
@@ -319,7 +320,7 @@ std::shared_ptr<performance_test::Node> performance_test::TemplateFactory::creat
     auto node_namespace = _ros2_namespace;
     if (node_json.find("node_namespace") != node_json.end()) {
         node_namespace += std::string(node_json["node_namespace"]) + suffix;
-    } 
+    }
 
     int executor_id = 0;
     if (node_json.find("executor_id") != node_json.end()) {

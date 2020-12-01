@@ -83,19 +83,19 @@ void performance_test::System::spin(int duration_sec, bool wait_for_discovery, b
     _start_time = std::chrono::high_resolution_clock::now();
 
     // Check if some nodes have been added to this System
-    if(_nodes.empty()) {
-        assert(0 && "Error. Calling performance_test::System::spin when no nodes have been added.");
-    }
+    // if(_nodes.empty()) {
+    //     assert(0 && "Error. Calling performance_test::System::spin when no nodes have been added.");
+    // }
 
     if (_events_logger != nullptr){
         _events_logger->set_start_time(_start_time);
     }
 
-    if (wait_for_discovery){
-        // wait until PDP and EDP are finished before starting
-        // log events when each is completed
-        this->wait_discovery();
-    }
+    // if (wait_for_discovery){
+    //     // wait until PDP and EDP are finished before starting
+    //     // log events when each is completed
+    //     this->wait_discovery();
+    // }
 
     for (const auto& pair : _executors_map) {
 

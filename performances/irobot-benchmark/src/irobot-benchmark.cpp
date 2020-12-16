@@ -28,7 +28,29 @@ using namespace std::chrono_literals;
 
 int main(int argc, char** argv)
 {
+    std::string make_dir = "mkdir -p mauro";
+    const auto ret = system(make_dir.c_str());
+    static_cast<void>(ret);
+    std::string dir_name     = "mauro";
+    std::string resources_output_path     = dir_name + "/resources.txt";
+    std::string events_output_path        = dir_name + "/events.txt";
+    std::string latency_all_output_path   = dir_name + "/latency_all.txt";
+    std::string latency_total_output_path = dir_name + "/latency_total.txt";
+
+    // Start resources logger
+    performance_test::ResourceUsageLogger ru_logger(resources_output_path);
+    ru_logger.start(std::chrono::milliseconds(1000));
+    std::cout << "\n\n0. Init" << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+
+
+    std::cout << "\n\n1. rclcpp::remove_ros_arguments" << std::endl;
     auto non_ros_args = rclcpp::remove_ros_arguments(argc, argv);
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+
+    std::cout << "\n\n1.5 parse options" << std::endl;
+
+
     std::vector<char *> non_ros_args_c_strings;
     for (auto & arg : non_ros_args) {
         non_ros_args_c_strings.push_back(&arg.front());
@@ -42,7 +64,12 @@ int main(int argc, char** argv)
     for(const auto& json : json_list) std::cout << json << std::endl;
 
     // Get the system executor from options
+
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+
+    std::cout << "\n\n2. performance_test::systemExecutor" << std::endl;
     performance_test::systemExecutor system_executor;
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     system_executor = static_cast<performance_test::systemExecutor>(options.executor);
 
     switch (system_executor)
@@ -93,21 +120,11 @@ int main(int argc, char** argv)
     }
 
     // Create results dir based on the topology name
-    const size_t last_slash = topology_json.find_last_of("/");
-    std::string topology_basename = topology_json.substr(last_slash + 1, topology_json.length());
-    std::string dir_name = topology_basename.substr(0,topology_basename.length()-5) + "_log";
+    // const size_t last_slash = topology_json.find_last_of("/");
+    // std::string topology_basename = topology_json.substr(last_slash + 1, topology_json.length());
+    // std::string dir_name = topology_basename.substr(0,topology_basename.length()-5) + "_log";
 
-    std::string make_dir = "mkdir -p " + dir_name;
-    const auto ret = system(make_dir.c_str());
-    static_cast<void>(ret);
-    std::string resources_output_path     = dir_name + "/resources.txt";
-    std::string events_output_path        = dir_name + "/events.txt";
-    std::string latency_all_output_path   = dir_name + "/latency_all.txt";
-    std::string latency_total_output_path = dir_name + "/latency_total.txt";
 
-    // Start resources logger
-    performance_test::ResourceUsageLogger ru_logger(resources_output_path);
-    ru_logger.start(std::chrono::milliseconds(options.resources_sampling_per_ms));
 
     rclcpp::init(argc, argv);
 
@@ -125,6 +142,10 @@ int main(int argc, char** argv)
 
     // now the system is complete and we can make it spin for the requested duration
     bool wait_for_discovery = true;
+
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    std::cout << "\n\n5. start test" << std::endl;
+
     ros2_system.spin(options.duration_sec, wait_for_discovery, options.name_threads);
 
     // terminate the experiment

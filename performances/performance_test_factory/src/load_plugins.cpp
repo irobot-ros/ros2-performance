@@ -8,6 +8,9 @@
  */
 
 #include "performance_test_factory/load_plugins.hpp"
+#include <iostream>
+#include <thread>
+
 
 using namespace performance_test;
 
@@ -33,7 +36,11 @@ std::shared_ptr<rcpputils::SharedLibrary> performance_test::get_library(std::str
   std::string library_name = get_library_name(msg_type);
 
   const std::string library_path = rcpputils::get_platform_library_name(library_name);
+
+  std::cout << "\n\n3. std::make_shared<rcpputils::SharedLibrary>(library_path);" << std::endl;
   auto library = std::make_shared<rcpputils::SharedLibrary>(library_path);
+
+  std::this_thread::sleep_for(std::chrono::seconds(3));
 
   return library;
 }

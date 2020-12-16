@@ -188,6 +188,9 @@ void performance_test::TemplateFactory::add_subscriber_from_strings(
       msg_pass_by_t,
       rmw_qos_profile_t);
 
+    std::cout << "\n\n4. add_subscriber_impl" << std::endl;
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+
     function_impl_t add_subscriber_impl = (function_impl_t)library->get_symbol("add_subscriber_impl");
     add_subscriber_impl(n, msg_type, topic_name, tracking_options, msg_pass_by, custom_qos_profile);
 }

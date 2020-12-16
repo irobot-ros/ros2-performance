@@ -134,6 +134,8 @@ private:
         getrusage(RUSAGE_SELF, &usage);
         _resources.mem_max_rss_KB = usage.ru_maxrss;
 
+        std::cout << "RSS: " << usage.ru_maxrss << std::endl;
+
         // Get vsz from /proc/[pid]/statm
         std::string virtual_mem_pages_string;
         std::string statm_path = "/proc/" + std::to_string(_pid) + "/statm";

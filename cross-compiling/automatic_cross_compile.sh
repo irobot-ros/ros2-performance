@@ -39,9 +39,6 @@ else
   echo "Using WORKSPACE_DIR=$WORKSPACE_DIR"
 fi
 
-# Ignore packages
-bash $THIS_DIR/ignore_pkgs.sh $WORKSPACE_DIR $ROS2_DISTRO
-
 # Get sysroot
 GET_SYSROOT_CMD="bash $THIS_DIR/get_sysroot.sh"
 if ! $GET_SYSROOT_CMD; then

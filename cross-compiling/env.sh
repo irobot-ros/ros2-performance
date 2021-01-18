@@ -1,26 +1,23 @@
 #!/bin/bash
 
-
 if [ -z "$1" ]; then
     echo "Error! You have to provide a known architecture name"
     return 1
-else
-    TARGET_NAME=$1
-    echo "TARGET_ARCHITECTURE set to '$TARGET_NAME'"
+fi
+
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+TARGET_NAME=$1
+
+#Check target architecture toolchain script
+TOOLCHAIN_SCRIPT=$THIS_DIR/toolchains/$TARGET_NAME.sh
+if [ ! -f "$TOOLCHAIN_SCRIPT" ]; then
+    echo "ERROR: File $TOOLCHAIN_SCRIPT does not exist!!!."
+    return 1
 fi
 
 export TARGET_ARCHITECTURE=$TARGET_NAME
-
-#Check target architecture toolchain script
-THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-TOOLCHAIN_SCRIPT=$THIS_DIR/toolchains/$TARGET_ARCHITECTURE.sh
-if [ ! -e "$TOOLCHAIN_SCRIPT" ]; then
-    echo "ERROR: File $TOOLCHAIN_SCRIPT does not exist!!!."
-    return 1
-else
-    echo "Environment sourced correctly!"
-    echo "These paths will be used as target for the cross-compilation"
-    echo "Path to sysroot: $THIS_DIR/sysroots/$TARGET_ARCHITECTURE"
-    echo "Path to target specific toolchain: $THIS_DIR/toolchains/$TARGET_ARCHITECTURE.sh"
-    return 0
-fi
+echo "Environment sourced correctly!"
+echo "TARGET_ARCHITECTURE env variable set to '$TARGET_NAME'"
+echo "These paths will be used as target for the cross-compilation"
+echo "Path to sysroot: $THIS_DIR/sysroots/$TARGET_NAME"
+echo "Path to target specific toolchain: $THIS_DIR/toolchains/$TARGET_NAME.sh"

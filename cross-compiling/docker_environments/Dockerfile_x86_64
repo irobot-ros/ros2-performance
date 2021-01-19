@@ -1,17 +1,11 @@
 
-FROM ros2_cc_irobot
+FROM ros2_cc_base
 LABEL maintainer="Alberto Soragna asoragna at irobot dot com"
 
 # install Fast-RTPS dependencies
 RUN apt-get install --no-install-recommends -y \
-  libasio-dev
-
-# Installing libtinyxml2 version 2.2.0
-# From apt-get install we'd get the version 6.0
-RUN wget http://archive.ubuntu.com/ubuntu/pool/universe/t/tinyxml2/libtinyxml2-2v5_2.2.0-1.1ubuntu1_amd64.deb
-RUN dpkg -i libtinyxml2-2v5_2.2.0-1.1ubuntu1_amd64.deb
-RUN wget http://archive.ubuntu.com/ubuntu/pool/universe/t/tinyxml2/libtinyxml2-dev_2.2.0-1.1ubuntu1_amd64.deb
-RUN dpkg -i libtinyxml2-dev_2.2.0-1.1ubuntu1_amd64.deb
+  libasio-dev \
+  libtinyxml2-dev
 
 RUN pip3 install \
   numpy

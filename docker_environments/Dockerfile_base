@@ -55,10 +55,6 @@ RUN pip3 install -U \
 
 ###### ADDITIONAL SCRIPTS AND ENVIRONMENT VARIABLES
 
-# export architecture specific toolchain variables
-RUN echo ' \n\
-source /root/cc_export.sh' >> $HOME/.bashrc
-
 # TODO: investigate why this line is needed. It's the path where ament packages are installed.
 # These packages are required when cross-compiling additional packages once the sysroot already contains the ROS2 SDK
 # add the sysroot python modules to PYTHONPATH

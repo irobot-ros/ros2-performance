@@ -16,7 +16,12 @@ rm -rf build install log
 
 ROS2_SETUP=/root/sysroot/setup.bash
 if [ -f "$ROS2_SETUP" ]; then
-    source /root/sysroot/setup.bash
+    source $ROS2_SETUP
+fi
+
+ARCH_SPECIFIC_TOOLCHAIN=/root/cc_export.sh
+if [ -f "$ARCH_SPECIFIC_TOOLCHAIN" ]; then
+    source $ARCH_SPECIFIC_TOOLCHAIN
 fi
 
 COLCON_CMD="colcon \

@@ -13,22 +13,16 @@
 #include <vector>
 
 #include "performance_test/ros2/node.hpp"
+#include "performance_test/ros2/executors.hpp"
 #include "performance_test/ros2/events_logger.hpp"
 
 namespace performance_test {
-
-struct NamedExecutor
-{
-    rclcpp::executors::StaticSingleThreadedExecutor::SharedPtr executor;
-    std::string name;
-};
-
 
 class System
 {
 public:
 
-  System() = default;
+  System(ExecutorType executor);
 
   void add_node(std::vector<std::shared_ptr<Node>> nodes);
 
@@ -68,8 +62,9 @@ private:
 
   std::map<int, NamedExecutor> _executors_map;
 
-
   std::shared_ptr<EventsLogger> _events_logger;
+
+  ExecutorType _system_executor;
 
   // the following values are used for comparing different plots using the python scripts
   bool _got_system_info;

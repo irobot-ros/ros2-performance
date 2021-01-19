@@ -25,6 +25,7 @@ int main(int argc, char ** argv)
      */
 
     // experiment default values
+    int executor = 3; // ID corresponding to the StaticSingleThreadedExecutor
     int n_subscribers = 2;
     int n_publishers = 1;
     std::string msg_type = "stamped10b";
@@ -46,6 +47,8 @@ int main(int argc, char ** argv)
     // parse the command line arguments and eventually overwrite the default values
     cxxopts::Options options("publisher_nodes_main", "Run some ROS2 publisher nodes");
     options.add_options()
+    ("x, executor", "the system executor:\n\t\t\t\t1:EventsExecutor. 2:SingleThreadedExecutor. 3:StaticSingleThreadedExecutor",
+        cxxopts::value<int>(executor)->default_value(std::to_string(executor)),"<1/2/3>")
     ("s,subs", "Number of subscriber nodes",
         cxxopts::value<int>(n_subscribers)->default_value(std::to_string(n_subscribers)))
     ("p,pubs", "Number of publisher ndoes",
@@ -99,7 +102,7 @@ int main(int argc, char ** argv)
     rclcpp::init(argc, argv);
 
     performance_test::TemplateFactory factory(use_ipc, use_ros_params, verbose, ros_namespace);
-    performance_test::System ros2_system;
+    performance_test::System ros2_system(static_cast<performance_test::ExecutorType>(executor));
     ros2_system.enable_events_logger(events_file_path);
 
     std::vector<std::shared_ptr<performance_test::Node>> pub_nodes =

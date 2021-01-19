@@ -31,12 +31,13 @@ TEST_F(TestSystem, SystemAddNodesTest)
     auto node_3 = std::make_shared<performance_test::Node>("node_3");
     std::vector<std::shared_ptr<performance_test::Node>> nodes_vec = {node_2, node_3};
 
-    performance_test::System separate_threads_system;
+    auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
+    performance_test::System separate_threads_system(system_executor);
 
     separate_threads_system.add_node(node_1);
     separate_threads_system.add_node(nodes_vec);
 
-    performance_test::System single_executor_system;
+    performance_test::System single_executor_system(system_executor);
 
     single_executor_system.add_node(node_1);
     single_executor_system.add_node(nodes_vec);
@@ -49,7 +50,8 @@ TEST_F(TestSystem, SystemPubSubTest)
     auto topic = performance_test::Topic<performance_test_msgs::msg::Sample>("my_topic");
 
     int duration_sec = 1;
-    performance_test::System ros2_system;
+    auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
+    performance_test::System ros2_system(system_executor);
 
     // Create 1 pulisher node and 1 subscriber node
     auto pub_node = std::make_shared<performance_test::Node>("pub_node");
@@ -75,7 +77,8 @@ TEST_F(TestSystem, SystemClientServerTest)
     auto service = performance_test::Topic<performance_test_msgs::srv::Sample>("my_service");
 
     int duration_sec = 2;
-    performance_test::System ros2_system;
+    auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
+    performance_test::System ros2_system(system_executor);
 
     // Create 1 client node and 1 server node
     auto client_node = std::make_shared<performance_test::Node>("client_node");
@@ -102,7 +105,8 @@ TEST_F(TestSystem, SystemDifferentQoSTest)
     auto topic = performance_test::Topic<performance_test_msgs::msg::Sample>("my_topic");
 
     int duration_sec = 1;
-    performance_test::System ros2_system;
+    auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
+    performance_test::System ros2_system(system_executor);
     rmw_qos_profile_t qos_profile = rmw_qos_profile_default;
 
     // Create 1 pulisher node and 1 subscriber node

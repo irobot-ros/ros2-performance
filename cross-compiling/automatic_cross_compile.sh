@@ -11,7 +11,8 @@ if [[ -z "$TARGET" ]]
 then
   echo "Error: target architecture is not specified!"
   echo "Set environment variable TARGET"
-  echo "export TARGET=raspbian"
+  echo "Example usage"
+  echo "TARGET=raspbian ROS2_DISTRO=foxy bash automatic_cross_compile.sh"
   exit 1
 fi
 
@@ -19,7 +20,11 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 BASE_DIR="$(dirname "$(pwd)")"
 
 # Prepare cross-compiling environment
-source $THIS_DIR/env.sh $TARGET
+SOURCE_ENV_CMD="source $THIS_DIR/env.sh $TARGET"
+if ! $SOURCE_ENV_CMD; then
+  echo "Error: the source environment step failed"
+  exit 1
+fi
 
 if [[ -z "$WORKSPACE_DIR" ]]; then
   # If the user has not specified a workspace directory, try to create one
@@ -38,9 +43,6 @@ else
   # Use the user-provided workspace directory
   echo "Using WORKSPACE_DIR=$WORKSPACE_DIR"
 fi
-
-# Ignore packages
-bash $THIS_DIR/ignore_pkgs.sh $WORKSPACE_DIR $ROS2_DISTRO
 
 # Get sysroot
 GET_SYSROOT_CMD="bash $THIS_DIR/get_sysroot.sh"

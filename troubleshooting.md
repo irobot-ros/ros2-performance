@@ -86,13 +86,11 @@ However, you get a Python error similar to this one:
 Failed to load entry point 'launch': No module named 'rclpy._rclpy'
 ```
 
-**Possible reasons:** In order to use the CLI commands you need to have cross-compiled the ROS2 Python packages, that are ignored by the bash script in the `ignore_pkgs_scripts` directory since they require Python3.
+**Possible reasons:** In order to use the CLI commands you need to have cross-compiled the ROS2 Python packages.
 Note that an alternative cause could be that you cross-compiled all the required packages, but the `PYTHON_SOABI` value specified in the `toolchain.cmake` file is wrong.
 
 **Solution:** Besides cross-compiling all the Python packages and checking the `PYTHON_SOABI` value, there exists a quicker solution, suitable for these platforms where Python3 is not available.
 Indeed the `install/lib/<package_name>` directory of a ROS2 workspace contains all the binaries of a specific package. The ROS2 CLI is just a convenient tool for not having to specify the full path to this binaries, but it is not required.
-
-
 
 #### Runtime missing libPocoFoundation
 

@@ -32,17 +32,6 @@ Running our application also allowed to find regressions with respect to the pre
 [Proposals](proposals)
 
 This directory contains the design proposals that we made to improve the ROS2 core and its performances.
-
-## Cross-Compilation
-
-[Cross-Compilation](cross-compiling)
-
-This repository also contains a Docker-based cross-compilation framework for cross-compiling the whole ROS2 SDK or single packages for the RaspberryPi.
-This framework was designed to be easily extended to new architectures.
-
-You can find detailed instructions in the [cross-compiling directory](cross-compiling).
-
-
 ## External tools and resources
 
 #### Apex AI ROS2 Evaluation tool

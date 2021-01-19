@@ -42,26 +42,8 @@ int main(int argc, char** argv)
     for(const auto& json : json_list) std::cout << json << std::endl;
 
     // Get the system executor from options
-    performance_test::systemExecutor system_executor;
-    system_executor = static_cast<performance_test::systemExecutor>(options.executor);
-
-    switch (system_executor)
-    {
-        using namespace performance_test;
-
-        case EVENTS_EXECUTOR:
-            std::cout << "System executor: EventsExecutor" << std::endl;
-            break;
-
-        case SINGLE_THREADED_EXECUTOR:
-            std::cout << "System executor: SingleThreadedExecutor" << std::endl;
-            break;
-
-        case STATIC_SINGLE_THREADED_EXECUTOR:
-        default:
-            std::cout << "System executor: StaticSingleThreadedExecutor" << std::endl;
-            break;
-    }
+    auto system_executor = static_cast<performance_test::ExecutorType>(options.executor);
+    std::cout<< "System executor: " << system_executor << std::endl;
 
     std::cout << "Intra-process-communication: " << (options.ipc ? "on" : "off") << std::endl;
     std::cout << "Parameter services: " << (options.ros_params ? "on" : "off") << std::endl;

@@ -31,8 +31,7 @@ TEST_F(TestSystem, SystemAddNodesTest)
     auto node_3 = std::make_shared<performance_test::Node>("node_3");
     std::vector<std::shared_ptr<performance_test::Node>> nodes_vec = {node_2, node_3};
 
-    performance_test::systemExecutor system_executor;
-    system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
+    auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
     performance_test::System separate_threads_system(system_executor);
 
     separate_threads_system.add_node(node_1);
@@ -51,8 +50,7 @@ TEST_F(TestSystem, SystemPubSubTest)
     auto topic = performance_test::Topic<performance_test_msgs::msg::Sample>("my_topic");
 
     int duration_sec = 1;
-    performance_test::systemExecutor system_executor;
-    system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
+    auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
     performance_test::System ros2_system(system_executor);
 
     // Create 1 pulisher node and 1 subscriber node
@@ -79,8 +77,7 @@ TEST_F(TestSystem, SystemClientServerTest)
     auto service = performance_test::Topic<performance_test_msgs::srv::Sample>("my_service");
 
     int duration_sec = 2;
-    performance_test::systemExecutor system_executor;
-    system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
+    auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
     performance_test::System ros2_system(system_executor);
 
     // Create 1 client node and 1 server node
@@ -108,8 +105,7 @@ TEST_F(TestSystem, SystemDifferentQoSTest)
     auto topic = performance_test::Topic<performance_test_msgs::msg::Sample>("my_topic");
 
     int duration_sec = 1;
-    performance_test::systemExecutor system_executor;
-    system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
+    auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
     performance_test::System ros2_system(system_executor);
     rmw_qos_profile_t qos_profile = rmw_qos_profile_default;
 

@@ -15,7 +15,7 @@
 #include "performance_test/ros2/names_utilities.hpp"
 
 
-performance_test::System::System(systemExecutor executor)
+performance_test::System::System(ExecutorType executor)
 {
     _system_executor = executor;
 }
@@ -52,14 +52,9 @@ void performance_test::System::add_node(std::shared_ptr<Node> node)
 
         switch (_system_executor)
         {
-            case EVENTS_EXECUTOR:
-                ex.executor = std::make_shared<rclcpp::executors::EventsExecutor>();
-                break;
-
             case SINGLE_THREADED_EXECUTOR:
                 ex.executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
                 break;
-
             case STATIC_SINGLE_THREADED_EXECUTOR:
             default:
                 ex.executor = std::make_shared<rclcpp::executors::StaticSingleThreadedExecutor>();

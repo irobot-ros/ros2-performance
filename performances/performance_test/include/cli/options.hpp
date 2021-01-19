@@ -24,7 +24,7 @@ public:
     Options()
     {
         ipc = true;
-        executor = 3;
+        executor = 2;
         ros_params = true;
         name_threads = true;
         duration_sec = 5;

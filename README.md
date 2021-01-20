@@ -26,6 +26,10 @@ For each ROS2 distribution we aim to:
 Early results are suggesting us that this is the correct way to go, as we are spotting the strengths and weaknesses of ROS2 and helping the ROS2 community to grow, by signaling and fixing bugs to the ROS2 core implementation.
 Running our application also allowed to find regressions with respect to the previous releases.
 
+## Cross-Compilation
+
+**The iRobot cross-compilation framework has been moved to its own separate repository at: https://github.com/irobot-ros/ros2-cross-compilation**
+
 
 ## Proposals
 

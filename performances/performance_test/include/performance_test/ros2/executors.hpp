@@ -18,7 +18,7 @@ namespace performance_test {
 
 struct NamedExecutor
 {
-    std::shared_ptr<rclcpp::Executor> executor;
+    std::shared_ptr<rclcpp::executors::StaticSingleThreadedExecutor> executor;
     std::string name;
 };
 

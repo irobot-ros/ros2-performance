@@ -38,6 +38,7 @@ public:
     }
 
     _n++;
+    _sum += x;
     Ex += x - K;
     Ex2 += (x - K) * (x - K);
   }
@@ -77,11 +78,20 @@ public:
     return _min;
   }
 
+  double sum() const
+  {
+    if (_n == 0) {
+      return std::nan("");
+    }
+    return _sum;
+  }
+
   unsigned long int n() const { return _n; }
 
 private:
   double _max;
   double _min;
+  double _sum = 0;
   double  K;
   double Ex = 0;
   double Ex2 = 0;

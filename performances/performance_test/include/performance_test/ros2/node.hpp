@@ -24,6 +24,7 @@
 #include "performance_test/ros2/communication.hpp"
 #include "performance_test/ros2/tracker.hpp"
 #include "performance_test/ros2/events_logger.hpp"
+#include "performance_test/ros2/names_utilities.hpp"
 
 using namespace std::chrono_literals;
 
@@ -178,11 +179,9 @@ public:
         &Node::_request<Srv>,
         this,
         service.name,
-        size
+        size,
+        period
       );
-
-    // store the frequency of this client task
-    std::get<1>(_clients.at(service.name)).set_frequency(1000000 / period.count());
 
     this->add_timer(period, client_task);
 
@@ -279,6 +278,8 @@ private:
           auto msg = std::make_shared<Msg>();
           resize_msg(msg->data, msg->header, size);
 
+          // set the node name
+          msg->header.node_id = item_name_to_id(this->get_fully_qualified_name());
           // get the frequency value that we stored when creating the publisher
           msg->header.frequency = 1000000.0 / period.count();
           // set the tracking count for this message
@@ -296,6 +297,8 @@ private:
           auto msg = std::make_unique<Msg>();
           resize_msg(msg->data, msg->header, size);
 
+          // set the node name
+          msg->header.node_id = item_name_to_id(this->get_fully_qualified_name());
           // get the frequency value that we stored when creating the publisher
           msg->header.frequency = 1000000.0 / period.count();
           // set the tracking count for this message
@@ -345,7 +348,7 @@ private:
 
 
   template <typename Srv>
-  void _request(const std::string& name, size_t size)
+  void _request(const std::string& name, size_t size, std::chrono::microseconds period)
   {
 
     (void)size;
@@ -382,7 +385,8 @@ private:
     // Create request
     auto request = std::make_shared<typename Srv::Request>();
     // get the frequency value that we stored when creating the publisher
-    request->header.frequency = tracker.frequency();
+    request->header.node_id = item_name_to_id(this->get_fully_qualified_name());
+    request->header.frequency = 1000000.0 / period.count();
     request->header.tracking_number = tracking_number;
     request->header.stamp = this->now();
 

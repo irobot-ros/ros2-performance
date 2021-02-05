@@ -13,6 +13,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(performance_test_msgs REQUIRED)
+find_package(message_filters REQUIRED)
 
 include_directories(
   include
@@ -22,6 +23,7 @@ include_directories(
 set (LIBRARY_DEPENDENCIES
   rclcpp
   performance_test_msgs
+  message_filters
 )
 
 set(LIBRARY_SRC

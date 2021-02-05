@@ -20,6 +20,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
+#include "message_filters/subscriber.h"
 
 #include "performance_test/ros2/communication.hpp"
 #include "performance_test/ros2/tracker.hpp"
@@ -58,7 +59,8 @@ public:
                       Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
                       rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
-    typename rclcpp::Subscription<Msg>::SharedPtr sub;
+    //typename rclcpp::Subscription<Msg>::SharedPtr sub;
+    typename std::shared_ptr<message_filters::Subscriber<Msg>> sub;
 
     switch (msg_pass_by)
     {
@@ -71,25 +73,39 @@ public:
           std::placeholders::_1
         );
 
-        sub = this->create_subscription<Msg>(topic.name,
-          rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile),
-          callback_function);
+        //sub = this->create_subscription<Msg>(topic.name,
+        //  rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile),
+        //  callback_function);
 
+        sub = std::make_shared<message_filters::Subscriber<Msg>>(
+                    this, topic.name, qos_profile);
+        sub->registerCallback(callback_function);
         break;
       }
 
       case PASS_BY_UNIQUE_PTR:
       {
-        std::function<void(typename std::unique_ptr<Msg> msg)> callback_function = std::bind(
-          &Node::_topic_callback<typename std::unique_ptr<Msg>>,
+        //std::function<void(typename std::unique_ptr<Msg> msg)> callback_function = std::bind(
+        //  &Node::_topic_callback<typename std::unique_ptr<Msg>>,
+        //  this,
+        //  topic.name,
+        //  std::placeholders::_1
+        //);
+
+        //sub = this->create_subscription<Msg>(topic.name,
+        //  rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile),
+        //  callback_function);
+
+        std::function<void(const typename std::shared_ptr<const Msg> msg)> callback_function = std::bind(
+          &Node::_topic_callback<const typename std::shared_ptr<const Msg>>,
           this,
           topic.name,
           std::placeholders::_1
         );
 
-        sub = this->create_subscription<Msg>(topic.name,
-          rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile),
-          callback_function);
+        sub = std::make_shared<message_filters::Subscriber<Msg>>(
+                    this, topic.name, qos_profile);
+        sub->registerCallback(callback_function);
 
         break;
       }

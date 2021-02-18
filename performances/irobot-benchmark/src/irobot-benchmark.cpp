@@ -93,14 +93,14 @@ int main(int argc, char** argv)
 
     rclcpp::init(argc, argv);
 
-    performance_test::System ros2_system(system_executor);
+    performance_test::System<performance_test::LifecycleNode> ros2_system(system_executor);
 
     if (options.tracking_options.is_enabled) {
         ros2_system.enable_events_logger(events_output_path);
     }
 
     // Load topology from json file
-    auto factory = performance_test::TemplateFactory(options.ipc, options.ros_params);
+    auto factory = performance_test::TemplateFactory<performance_test::LifecycleNode>(options.ipc, options.ros_params);
 
     auto nodes_vec = factory.parse_topology_from_json(topology_json, options.tracking_options);
     ros2_system.add_node(nodes_vec);

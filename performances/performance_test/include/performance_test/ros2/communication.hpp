@@ -11,6 +11,12 @@
 
 #include <string>
 
+typedef enum
+{
+   PASS_BY_UNIQUE_PTR,
+   PASS_BY_SHARED_PTR
+} msg_pass_by_t;
+
 namespace performance_test {
 
 template <typename Interface>

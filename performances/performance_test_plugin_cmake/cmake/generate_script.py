@@ -102,7 +102,7 @@ def get_sub_factory(msgs, package):
   content = """
 
   extern "C" void add_subscriber_impl(
-    std::shared_ptr<performance_test::Node> n,
+    std::shared_ptr<performance_test::LifecycleNode> n,
     std::string msg_type,
     std::string topic_name,
     performance_test::Tracker::TrackingOptions tracking_options,
@@ -154,7 +154,7 @@ def get_pub_factory(msgs, package):
   content = """
 
   extern "C" void add_publisher_impl(
-    std::shared_ptr<performance_test::Node> n,
+    std::shared_ptr<performance_test::LifecycleNode> n,
     std::string msg_type,
     std::string topic_name,
     msg_pass_by_t msg_pass_by,
@@ -207,7 +207,7 @@ def get_server_factory(srvs, package):
   content = """
 
   extern "C" void add_server_impl(
-    std::shared_ptr<performance_test::Node> n,
+    std::shared_ptr<performance_test::LifecycleNode> n,
     std::string srv_type,
     std::string service_name,
     rmw_qos_profile_t custom_qos_profile)
@@ -257,7 +257,7 @@ def get_client_factory(srvs, package):
   content = """
 
   extern "C" void add_client_impl(
-    std::shared_ptr<performance_test::Node> n,
+    std::shared_ptr<performance_test::LifecycleNode> n,
     std::string srv_type,
     std::string service_name,
     rmw_qos_profile_t custom_qos_profile,

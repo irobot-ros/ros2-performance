@@ -28,6 +28,12 @@ enum ExecutorType
     STATIC_SINGLE_THREADED_EXECUTOR = 2,
 };
 
+enum NodeType
+{
+    RCLCPP_NODE = 1,
+    RCLCPP_LIFECYCLE_NODE = 2,
+};
+
 std::ostream &operator<<(std::ostream &os, const ExecutorType &t) {
     std::string executor_name;
     switch (t) {

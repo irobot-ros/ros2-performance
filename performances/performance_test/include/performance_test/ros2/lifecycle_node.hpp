@@ -1,6 +1,6 @@
 /* Software License Agreement (BSD License)
  *
- *  Copyright (c) 2019, iRobot ROS
+ *  Copyright (c) 2021, iRobot ROS
  *  All rights reserved.
  *
  *  This file is part of ros2-performance, which is released under BSD-3-Clause.
@@ -20,6 +20,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
 
 #include "performance_test/ros2/communication.hpp"
 #include "performance_test/ros2/tracker.hpp"
@@ -29,20 +30,21 @@ using namespace std::chrono_literals;
 
 namespace performance_test {
 
-class Node : public rclcpp::Node
+class LifecycleNode : public rclcpp_lifecycle::LifecycleNode
 {
 
 template <typename> friend class System;
 
 public:
 
-  Node(const std::string& name, const std::string& ros2_namespace = "",
+  LifecycleNode(const std::string& name, const std::string& ros2_namespace = "",
       const rclcpp::NodeOptions& node_options = rclcpp::NodeOptions(), int executor_id = 0)
-    : rclcpp::Node(name, ros2_namespace, node_options)
+    : rclcpp_lifecycle::LifecycleNode(name, ros2_namespace, node_options)
   {
     m_executor_id = executor_id;
-
-    RCLCPP_INFO(this->get_logger(), "Node %s created with executor id %d", name.c_str(), m_executor_id);
+    configure();
+    activate();
+    RCLCPP_INFO(this->get_logger(), "LifecycleNode %s created with executor id %d", name.c_str(), m_executor_id);
   }
 
 
@@ -59,7 +61,7 @@ public:
       case PASS_BY_SHARED_PTR:
       {
         std::function<void(const typename std::shared_ptr<const Msg> msg)> callback_function = std::bind(
-          &Node::_topic_callback<const typename std::shared_ptr<const Msg>>,
+          &LifecycleNode::_topic_callback<const typename std::shared_ptr<const Msg>>,
           this,
           topic.name,
           std::placeholders::_1
@@ -75,7 +77,7 @@ public:
       case PASS_BY_UNIQUE_PTR:
       {
         std::function<void(typename std::unique_ptr<Msg> msg)> callback_function = std::bind(
-          &Node::_topic_callback<typename std::unique_ptr<Msg>>,
+          &LifecycleNode::_topic_callback<typename std::unique_ptr<Msg>>,
           this,
           topic.name,
           std::placeholders::_1
@@ -102,11 +104,12 @@ public:
                               rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
                               size_t size = 0)
   {
+    RCLCPP_INFO(this->get_logger(), "LifecycleNode %s creating periodic publisher", this->get_name());
 
     this->add_publisher(topic, qos_profile);
 
     auto publisher_task = std::bind(
-      &Node::_publish<Msg>,
+      &LifecycleNode::_publish<Msg>,
       this,
       topic.name,
       msg_pass_by,
@@ -121,10 +124,13 @@ public:
   template <typename Msg>
   void add_publisher(const Topic<Msg>& topic, rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
+    RCLCPP_INFO(this->get_logger(), "LifecycleNode %s creating publisher", this->get_name());
 
-    typename rclcpp::Publisher<Msg>::SharedPtr pub =
+    typename rclcpp_lifecycle::LifecyclePublisher<Msg>::SharedPtr pub =
                                       this->create_publisher<Msg>(topic.name,
                                       rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile));
+
+    pub->on_activate();
 
     _pubs.insert({ topic.name, {pub, 0} });
 
@@ -140,7 +146,7 @@ public:
       const std::shared_ptr<rmw_request_id_t> request_header,
       const std::shared_ptr<typename Srv::Request> request,
       const std::shared_ptr<typename Srv::Response> response)> callback_function = std::bind(
-          &Node::_service_callback<Srv>,
+          &LifecycleNode::_service_callback<Srv>,
           this,
           service.name,
           std::placeholders::_1,
@@ -169,7 +175,7 @@ public:
     this->add_client(service, qos_profile);
 
     std::function<void()> client_task = std::bind(
-        &Node::_request<Srv>,
+        &LifecycleNode::_request<Srv>,
         this,
         service.name,
         size
@@ -245,7 +251,7 @@ public:
 
   void set_events_logger(std::shared_ptr<EventsLogger> ev)
   {
-    assert(ev != nullptr && "Called `Node::set_events_logger` passing a nullptr!");
+    assert(ev != nullptr && "Called `LifecycleNode::set_events_logger` passing a nullptr!");
 
     _events_logger = ev;
   }
@@ -384,7 +390,7 @@ private:
 
     std::function<void(
       typename rclcpp::Client<Srv>::SharedFuture future)> callback_function = std::bind(
-          &Node::_response_received_callback<Srv>,
+          &LifecycleNode::_response_received_callback<Srv>,
           this,
           name,
           request,

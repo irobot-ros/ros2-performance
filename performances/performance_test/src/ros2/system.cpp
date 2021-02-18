@@ -15,9 +15,10 @@
 #include "performance_test/ros2/names_utilities.hpp"
 
 
-performance_test::System::System(ExecutorType executor)
+performance_test::System::System(ExecutorType executor, NodeType node)
 {
     _system_executor = executor;
+    _node_type = node;
 }
 
 
@@ -70,6 +71,48 @@ void performance_test::System::add_node(std::shared_ptr<Node> node)
     _nodes.push_back(node);
 }
 
+void performance_test::System::add_node(std::vector<std::shared_ptr<LifecycleNode>> nodes)
+{
+    for (auto node : nodes){
+        this->add_node(node);
+    }
+}
+
+
+void performance_test::System::add_node(std::shared_ptr<LifecycleNode> node)
+{
+    if (_events_logger != nullptr){
+        node->set_events_logger(_events_logger);
+    }
+
+    int executor_id = node->get_executor_id();
+    auto it = _executors_map.find(executor_id);
+    if (it != _executors_map.end()) {
+        auto& ex = it->second;
+        ex.executor->add_node(node);
+        ex.name = ex.name + "_" + node->get_name();
+    } else {
+        auto ex = NamedExecutor();
+
+        switch (_system_executor)
+        {
+            case SINGLE_THREADED_EXECUTOR:
+                ex.executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+                break;
+            case STATIC_SINGLE_THREADED_EXECUTOR:
+            default:
+                ex.executor = std::make_shared<rclcpp::executors::StaticSingleThreadedExecutor>();
+                break;
+        }
+
+        ex.executor->add_node(node->get_node_base_interface());
+        ex.name = node->get_name();
+
+        _executors_map.insert(std::make_pair(executor_id, ex));
+    }
+
+    _lifecycle_nodes.push_back(node);
+}
 
 void performance_test::System::spin(int duration_sec, bool wait_for_discovery, bool name_threads)
 {
@@ -78,7 +121,13 @@ void performance_test::System::spin(int duration_sec, bool wait_for_discovery, b
     _start_time = std::chrono::high_resolution_clock::now();
 
     // Check if some nodes have been added to this System
-    if(_nodes.empty()) {
+    if (_node_type == RCLCPP_NODE) {
+        auto & nodes = _nodes;
+    } else {
+        auto & nodes = _lifecycle_nodes;
+    }
+
+    if(nodes.empty()) {
         assert(0 && "Error. Calling performance_test::System::spin when no nodes have been added.");
     }
 
@@ -151,19 +200,25 @@ void performance_test::System::wait_pdp_discovery(
         return v_intersection.size();
     };
 
+    if (_node_type == RCLCPP_NODE) {
+        auto & nodes = _nodes;
+    } else {
+        auto & nodes = _lifecycle_nodes;
+    }
+
     // create a vector with all the names of the nodes to be discovered
     std::vector<std::string> reference_names;
-    for (const auto& n : _nodes){
+    for (const auto& n : nodes){
         std::string node_name = n->get_fully_qualified_name();
         reference_names.push_back(node_name);
     }
 
     // count the total number of nodes
-    size_t num_nodes = _nodes.size();
+    size_t num_nodes = nodes.size();
 
     bool pdp_ok = false;
     while (!pdp_ok){
-        for (const auto& n : _nodes){
+        for (const auto& n : nodes){
             // we use the intersection to avoid counting nodes discovered from other processes
             size_t discovered_participants = get_intersection_size(n->get_node_names(), reference_names);
             pdp_ok = (discovered_participants == num_nodes);
@@ -204,9 +259,15 @@ void performance_test::System::wait_edp_discovery(
 
     auto edp_start_time = std::chrono::high_resolution_clock::now();
 
+    if (_node_type == RCLCPP_NODE) {
+        auto & nodes = _nodes;
+    } else {
+        auto & nodes = _lifecycle_nodes;
+    }
+
     // count the number of subscribers for each topic
     std::map<std::string, int> subs_per_topic;
-    for (const auto& n : _nodes){
+    for (const auto& n : nodes){
         auto trackers = n->all_trackers();
         for (const auto& tracker : *trackers){
             subs_per_topic[tracker.first] += 1;
@@ -217,7 +278,7 @@ void performance_test::System::wait_edp_discovery(
     // This is needed in case of processes with only subscriptions
     bool edp_ok = false;
     while (!edp_ok){
-        for (const auto& n : _nodes){
+        for (const auto& n : nodes){
             // if the node has no publishers, it will be skipped.
             // however, the boolean flag has to be set to true.
             if (n->_pubs.empty()){
@@ -428,8 +489,14 @@ void performance_test::System::log_latency_all_stats(std::ostream& stream) const
     unsigned long int total_late = 0;
     unsigned long int total_too_late = 0;
 
+    if (_node_type == RCLCPP_NODE) {
+        auto & nodes = _nodes;
+    } else {
+        auto & nodes = _lifecycle_nodes;
+    }
+
     // Print all
-    for (const auto& n : _nodes)
+    for (const auto& n : nodes)
     {
         auto trackers = n->all_trackers();
         for(const auto& tracker : *trackers)
@@ -466,8 +533,14 @@ void performance_test::System::log_latency_total_stats(std::ostream& stream) con
     unsigned long int total_too_late = 0;
     double total_latency = 0;
 
+    if (_node_type == RCLCPP_NODE) {
+        auto & nodes = _nodes;
+    } else {
+        auto & nodes = _lifecycle_nodes;
+    }
+
     // collect total data
-    for (const auto& n : _nodes)
+    for (const auto& n : nodes)
     {
         auto trackers = n->all_trackers();
         for(const auto& tracker : *trackers)

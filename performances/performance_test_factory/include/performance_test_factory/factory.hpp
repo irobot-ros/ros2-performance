@@ -13,20 +13,23 @@
 #include <vector>
 #include <algorithm>
 #include <map>
+#include <type_traits>
 
 #include "performance_test/ros2/names_utilities.hpp"
 
 #include "performance_test_factory/load_plugins.hpp"
 #include "nlohmann/json.hpp"
 
+#include "performance_test/ros2/executors.hpp"
 #include "performance_test/ros2/node.hpp"
+#include "performance_test/ros2/lifecycle_node.hpp"
 
 using namespace std::chrono_literals;
 using json = nlohmann::json;
 
 namespace performance_test {
 
-template < class NodeT>
+template <class NodeT>
 class TemplateFactory {
 
 
@@ -41,7 +44,13 @@ class TemplateFactory {
                 _use_ros_params(use_ros_params),
                 _verbose_mode(verbose_mode),
                 _ros2_namespace(ros2_namespace)
-        {}
+        {
+            if (std::is_same<NodeT, LifecycleNode>::value) {
+                _node_type = RCLCPP_LIFECYCLE_NODE;
+            } else if (std::is_same<NodeT, Node>::value) {
+                _node_type = RCLCPP_NODE;
+            }
+        }
 
         /**
          * Helper functions for creating several nodes at the same time.
@@ -217,7 +226,8 @@ class TemplateFactory {
             msg_pass_by_t,
             rmw_qos_profile_t);
 
-            function_impl_t add_subscriber_impl = (function_impl_t)library->get_symbol("add_subscriber_impl");
+            auto symbol_name = (_node_type == RCLCPP_LIFECYCLE_NODE) ? "add_subscriber_impl_lifecycle" : "add_subscriber_impl";
+            function_impl_t add_subscriber_impl = (function_impl_t)library->get_symbol(symbol_name);
             add_subscriber_impl(n, msg_type, topic_name, tracking_options, msg_pass_by, custom_qos_profile);
         }
 
@@ -241,7 +251,8 @@ class TemplateFactory {
             std::chrono::microseconds,
             size_t);
 
-            function_impl_t add_publisher_impl = (function_impl_t)library->get_symbol("add_publisher_impl");
+            auto symbol_name = (_node_type == RCLCPP_LIFECYCLE_NODE) ? "add_publisher_impl_lifecycle" : "add_publisher_impl";
+            function_impl_t add_publisher_impl = (function_impl_t)library->get_symbol(symbol_name);
             add_publisher_impl(n, msg_type, topic_name, msg_pass_by, custom_qos_profile, period, msg_size);
         }
 
@@ -262,7 +273,8 @@ class TemplateFactory {
             std::chrono::microseconds period
             );
 
-            function_impl_t add_client_impl = (function_impl_t)library->get_symbol("add_client_impl");
+            auto symbol_name = (_node_type == RCLCPP_LIFECYCLE_NODE) ? "add_client_impl_lifecycle" : "add_client_impl";
+            function_impl_t add_client_impl = (function_impl_t)library->get_symbol(symbol_name);
             add_client_impl(n, srv_type, service_name, custom_qos_profile, period);
         }
 
@@ -281,7 +293,8 @@ class TemplateFactory {
             rmw_qos_profile_t
             );
 
-            function_impl_t add_server_impl = (function_impl_t)library->get_symbol("add_server_impl");
+            auto symbol_name = (_node_type == RCLCPP_LIFECYCLE_NODE) ? "add_server_impl_lifecycle" : "add_server_impl";
+            function_impl_t add_server_impl = (function_impl_t)library->get_symbol(symbol_name);
             add_server_impl(n, srv_type, service_name, custom_qos_profile);
         }
 
@@ -620,6 +633,7 @@ class TemplateFactory {
         bool _use_ros_params;
         bool _verbose_mode;
         std::string _ros2_namespace;
+        NodeType _node_type;
 
 };
 

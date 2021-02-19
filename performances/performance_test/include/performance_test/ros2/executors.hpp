@@ -51,4 +51,21 @@ std::ostream &operator<<(std::ostream &os, const ExecutorType &t) {
     return os << executor_name;
 }
 
+std::ostream &operator<<(std::ostream &os, const NodeType &t) {
+    std::string node_type;
+    switch (t) {
+        case RCLCPP_NODE:
+            node_type = "Node";
+            break;
+        case RCLCPP_LIFECYCLE_NODE:
+            node_type = "LifecycleNode";
+            break;
+        default:
+            node_type = "Unknown NodeType";
+            break;
+    }
+
+    return os << node_type;
+}
+
 }

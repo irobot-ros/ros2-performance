@@ -104,8 +104,6 @@ public:
                               rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
                               size_t size = 0)
   {
-    RCLCPP_INFO(this->get_logger(), "LifecycleNode %s creating periodic publisher", this->get_name());
-
     this->add_publisher(topic, qos_profile);
 
     auto publisher_task = std::bind(
@@ -124,8 +122,6 @@ public:
   template <typename Msg>
   void add_publisher(const Topic<Msg>& topic, rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
-    RCLCPP_INFO(this->get_logger(), "LifecycleNode %s creating publisher", this->get_name());
-
     typename rclcpp_lifecycle::LifecyclePublisher<Msg>::SharedPtr pub =
                                       this->create_publisher<Msg>(topic.name,
                                       rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile));
@@ -268,7 +264,7 @@ private:
   {
     // Get publisher and tracking count from map
     auto& pub_pair = _pubs.at(name);
-    auto pub = std::static_pointer_cast<rclcpp::Publisher<Msg>>(pub_pair.first);
+    auto pub = std::static_pointer_cast<rclcpp_lifecycle::LifecyclePublisher<Msg>>(pub_pair.first);
     auto& tracking_number = pub_pair.second;
 
     switch (msg_pass_by)

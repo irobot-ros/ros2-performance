@@ -330,6 +330,7 @@ def main():
 
   content = """
   #include "performance_test/ros2/node.hpp"
+  #include "performance_test/ros2/lifecycle_node.hpp"
 
   """
 

@@ -25,6 +25,7 @@ public:
     {
         ipc = true;
         executor = 2;
+        node = 1;
         ros_params = true;
         name_threads = true;
         duration_sec = 5;
@@ -68,6 +69,8 @@ public:
         cxxopts::value<int>(resources_sampling_per_ms)->default_value(std::to_string(resources_sampling_per_ms)),"msec")
       ("x, executor", "the system executor:\n\t\t\t\t1:SingleThreadedExecutor. 2:StaticSingleThreadedExecutor",
         cxxopts::value<int>(executor)->default_value(std::to_string(executor)),"<1/2>")
+      ("n, node", "the node type:\n\t\t\t\t1:Node. 2:LifecycleNode",
+        cxxopts::value<int>(node)->default_value(std::to_string(node)),"<1/2>")
       ("tracking", "compute and logs detailed statistics and events",
         cxxopts::value<std::string>(tracking_enabled_option)->default_value(tracking_options.is_enabled ? "on" : "off"),"on/off")
       ("late-percentage", "a msg with greater latency than this percentage of the msg publishing period is considered late",
@@ -115,6 +118,7 @@ public:
     bool ros_params;
     bool name_threads;
     int executor;
+    int node;
     int duration_sec;
     int resources_sampling_per_ms;
     std::vector<std::string> topology_json_list;

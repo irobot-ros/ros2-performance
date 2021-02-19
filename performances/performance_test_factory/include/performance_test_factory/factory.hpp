@@ -230,8 +230,6 @@ class TemplateFactory {
             std::chrono::microseconds period = std::chrono::milliseconds(10),
             size_t msg_size = 0)
         {
-            RCLCPP_INFO(n->get_logger(), "LifecycleNode %s creating publisher from strings", n->get_name());
-
             auto library = performance_test::get_library(msg_type);
 
             typedef void (*function_impl_t)(
@@ -244,10 +242,7 @@ class TemplateFactory {
             size_t);
 
             function_impl_t add_publisher_impl = (function_impl_t)library->get_symbol("add_publisher_impl");
-            RCLCPP_INFO(n->get_logger(), "LifecycleNode %s calling publisher impl", n->get_name());
             add_publisher_impl(n, msg_type, topic_name, msg_pass_by, custom_qos_profile, period, msg_size);
-            RCLCPP_INFO(n->get_logger(), "LifecycleNode %s got past publisher impl", n->get_name());
-
         }
 
         void add_periodic_client_from_strings(
@@ -369,7 +364,7 @@ class TemplateFactory {
 
         void create_node_entities_from_json(std::shared_ptr<NodeT> node, const nlohmann::json node_json, Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions())
         {
-            RCLCPP_INFO(node->get_logger(), "LifecycleNode %s creating node entities", node->get_name());
+
             if (node_json.find("publishers") != node_json.end()) {
                 // if there is at least 1 publisher, add each of them
                 for(auto p_json : node_json["publishers"]){
@@ -402,7 +397,6 @@ class TemplateFactory {
 
         void add_periodic_publisher_from_json(std::shared_ptr<NodeT> node, const nlohmann::json pub_json)
         {
-            RCLCPP_INFO(node->get_logger(), "LifecycleNode %s creating publisher entities", node->get_name());
 
             std::string topic_name = pub_json["topic_name"];
             std::string msg_type = pub_json["msg_type"];

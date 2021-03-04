@@ -94,55 +94,27 @@ def get_include_paths(msgs, srvs, package):
   return content
 
 
-def get_sub_factory(msgs, package):
+def get_sub_factory(msgs, package, node_type):
 
   if len(msgs) == 0:
     return ""
 
-  content = """
+  if node_type == "Node":
+    content = """
 
-  extern "C" void add_subscriber_impl(
-    std::shared_ptr<performance_test::Node> n,
-    std::string msg_type,
-    std::string topic_name,
-    performance_test::Tracker::TrackingOptions tracking_options,
-    msg_pass_by_t msg_pass_by,
-    rmw_qos_profile_t custom_qos_profile)
-  {
-    const std::map<std::string, std::function<void()>> subscribers_factory{
-  """
+    extern "C" void add_subscriber_impl(
+    """
+  elif node_type == "LifecycleNode":
+    content = """
 
-  function = "add_subscriber"
-  user_args = "msg_pass_by, tracking_options, custom_qos_profile"
+    extern "C" void add_subscriber_impl_lifecycle(
+    """
+  else:
+    return ""
 
-  for msg_name in msgs:
-
-    msg_class_name = get_namespaced_cpp_class_name(msg_name, package, "msg")
-    topic = "performance_test::Topic<" + msg_class_name + ">(topic_name)"
-    lowercased_name = get_lowercased_name(msg_name)
-    map_key = "\"" + lowercased_name + "\""
-
-    map_entry = "{" + map_key +",  [&] { n->" + function + "(" + topic +", " + user_args + "); } },"
-
-    content += "\n" + map_entry
-
-  if content.endswith(","):
-    content = content[:-1]
+  content += "\n std::shared_ptr<performance_test::" + node_type + "> n,"
 
   content += """
-    };"""
-
-  content += """
-
-    if (subscribers_factory.find(msg_type) == subscribers_factory.end()){
-      throw std::runtime_error("unknown msg type passed to subscribers factory: " + msg_type);
-    }
-
-    subscribers_factory.at(msg_type)();
-  }
-
-  extern "C" void add_subscriber_impl_lifecycle(
-    std::shared_ptr<performance_test::LifecycleNode> n,
     std::string msg_type,
     std::string topic_name,
     performance_test::Tracker::TrackingOptions tracking_options,
@@ -186,56 +158,27 @@ def get_sub_factory(msgs, package):
   return content
 
 
-def get_pub_factory(msgs, package):
+def get_pub_factory(msgs, package, node_type):
 
   if len(msgs) == 0:
     return ""
 
-  content = """
+  if node_type == "Node":
+    content = """
 
-  extern "C" void add_publisher_impl(
-    std::shared_ptr<performance_test::Node> n,
-    std::string msg_type,
-    std::string topic_name,
-    msg_pass_by_t msg_pass_by,
-    rmw_qos_profile_t custom_qos_profile,
-    std::chrono::microseconds period,
-    size_t msg_size)
-  {
-    const std::map<std::string, std::function<void()>> publishers_factory{
-  """
+    extern "C" void add_publisher_impl(
+    """
+  elif node_type == "LifecycleNode":
+    content = """
 
-  function = "add_periodic_publisher"
-  user_args = "period, msg_pass_by, custom_qos_profile, msg_size"
+    extern "C" void add_publisher_impl_lifecycle(
+    """
+  else:
+    return ""
 
-  for msg_name in msgs:
-    msg_class_name = get_namespaced_cpp_class_name(msg_name, package, "msg")
-    topic = "performance_test::Topic<" + msg_class_name + ">(topic_name)"
-
-    lowercased_name = get_lowercased_name(msg_name)
-    map_key = "\"" + lowercased_name + "\""
-
-    map_entry = "{" + map_key +",  [&] { n->" + function + "(" + topic +", " + user_args + "); } },"
-
-    content += "\n" + map_entry
-
-  if content.endswith(","):
-    content = content[:-1]
+  content += "\n std::shared_ptr<performance_test::" + node_type + "> n,"
 
   content += """
-    };"""
-
-  content += """
-
-    if (publishers_factory.find(msg_type) == publishers_factory.end()){
-      throw std::runtime_error("unknown msg type passed to publishers factory: " + msg_type);
-    }
-
-    publishers_factory.at(msg_type)();
-  }
-
-  extern "C" void add_publisher_impl_lifecycle(
-    std::shared_ptr<performance_test::LifecycleNode> n,
     std::string msg_type,
     std::string topic_name,
     msg_pass_by_t msg_pass_by,
@@ -280,53 +223,27 @@ def get_pub_factory(msgs, package):
   return content
 
 
-def get_server_factory(srvs, package):
+def get_server_factory(srvs, package, node_type):
 
   if len(srvs) == 0:
     return ""
 
-  content = """
+  if node_type == "Node":
+    content = """
 
-  extern "C" void add_server_impl(
-    std::shared_ptr<performance_test::Node> n,
-    std::string srv_type,
-    std::string service_name,
-    rmw_qos_profile_t custom_qos_profile)
-  {
-    const std::map<std::string, std::function<void()>> servers_factory{
-  """
+    extern "C" void add_server_impl(
+    """
+  elif node_type == "LifecycleNode":
+    content = """
 
-  function = "add_server"
-  user_args = "custom_qos_profile"
+    extern "C" void add_server_impl_lifecycle(
+    """
+  else:
+    return ""
 
-  for srv_name in srvs:
-
-    srv_class_name = get_namespaced_cpp_class_name(srv_name, package, "srv")
-    service = "performance_test::Service<" + srv_class_name + ">(service_name)"
-    lowercased_name = get_lowercased_name(srv_name)
-    map_key = "\"" + lowercased_name + "\""
-
-    map_entry = "{" + map_key +",  [&] { n->" + function + "(" + service + ", " + user_args + "); } },"
-
-    content += "\n" + map_entry
-
-  if content.endswith(","):
-    content = content[:-1]
+  content += "\n std::shared_ptr<performance_test::" + node_type + "> n,"
 
   content += """
-    };"""
-
-  content += """
-
-    if (servers_factory.find(srv_type) == servers_factory.end()){
-      throw std::runtime_error("unknown srv type passed to servers factory: " + srv_type);
-    }
-
-    servers_factory.at(srv_type)();
-  }
-
-  extern "C" void add_server_impl_lifecycle(
-    std::shared_ptr<performance_test::LifecycleNode> n,
     std::string srv_type,
     std::string service_name,
     rmw_qos_profile_t custom_qos_profile)
@@ -368,53 +285,27 @@ def get_server_factory(srvs, package):
   return content
 
 
-def get_client_factory(srvs, package):
+def get_client_factory(srvs, package, node_type):
 
   if len(srvs) == 0:
     return ""
 
-  content = """
+  if node_type == "Node":
+    content = """
 
-  extern "C" void add_client_impl(
-    std::shared_ptr<performance_test::Node> n,
-    std::string srv_type,
-    std::string service_name,
-    rmw_qos_profile_t custom_qos_profile,
-    std::chrono::microseconds period)
-  {
-    const std::map<std::string, std::function<void()>> clients_factory{
-  """
+    extern "C" void add_client_impl(
+    """
+  elif node_type == "LifecycleNode":
+    content = """
 
-  function = "add_periodic_client"
-  user_args = "period, custom_qos_profile"
+    extern "C" void add_client_impl_lifecycle(
+    """
+  else:
+    return ""
 
-  for srv_name in srvs:
-
-    srv_class_name = get_namespaced_cpp_class_name(srv_name, package, "srv")
-    service = "performance_test::Service<" + srv_class_name + ">(service_name)"
-    lowercased_name = get_lowercased_name(srv_name)
-    map_key = "\"" + lowercased_name + "\""
-
-    map_entry = "{" + map_key +",  [&] { n->" + function + "(" + service +", " + user_args + "); } },"
-
-    content += "\n" + map_entry
-
-  if content.endswith(","):
-    content = content[:-1]
+  content += "\n std::shared_ptr<performance_test::" + node_type + "> n,"
 
   content += """
-    };"""
-
-  content += """
-    if (clients_factory.find(srv_type) == clients_factory.end()){
-      throw std::runtime_error("unknown srv type passed to clients factory: " + srv_type);
-    }
-
-    clients_factory.at(srv_type)();
- }
-
-  extern "C" void add_client_impl_lifecycle(
-    std::shared_ptr<performance_test::LifecycleNode> n,
     std::string srv_type,
     std::string service_name,
     rmw_qos_profile_t custom_qos_profile,
@@ -492,10 +383,17 @@ def main():
   """
 
   content += get_include_paths(msgs, srvs, package)
-  content += get_sub_factory(msgs, package)
-  content += get_pub_factory(msgs, package)
-  content += get_server_factory(srvs, package)
-  content += get_client_factory(srvs, package)
+  content += get_sub_factory(msgs, package, "Node")
+  content += get_sub_factory(msgs, package, "LifecycleNode")
+
+  content += get_pub_factory(msgs, package, "Node")
+  content += get_pub_factory(msgs, package, "LifecycleNode")
+
+  content += get_server_factory(srvs, package, "Node")
+  content += get_server_factory(srvs, package, "LifecycleNode")
+
+  content += get_client_factory(srvs, package, "Node")
+  content += get_client_factory(srvs, package, "LifecycleNode")
 
   def create(filename, content):
     if os.path.exists(filename):

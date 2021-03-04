@@ -17,6 +17,7 @@
 
 #include "performance_test/ros2/system.hpp"
 #include "performance_test/ros2/node.hpp"
+#include "performance_test/ros2/node_types.hpp"
 #include "performance_test/ros2/communication.hpp"
 #include "performance_test/ros2/resource_usage_logger.hpp"
 
@@ -27,7 +28,7 @@
 using namespace std::chrono_literals;
 
 template <typename NodeT>
-void init_ros_system(int argc, char** argv,
+void run_test(int argc, char** argv,
                     const irobot_benchmark::Options &options,
                     const std::string &topology_json,
                     pid_t &pid,
@@ -160,7 +161,7 @@ int main(int argc, char** argv)
     {
         case performance_test::RCLCPP_NODE:
         {
-            init_ros_system<performance_test::Node>(argc, argv, options, topology_json, pid,
+            run_test<performance_test::Node>(argc, argv, options, topology_json, pid,
                                                     resources_output_path, events_output_path,
                                                     latency_all_output_path, latency_total_output_path);
             break;
@@ -168,7 +169,7 @@ int main(int argc, char** argv)
 
         case performance_test::RCLCPP_LIFECYCLE_NODE:
         {
-            init_ros_system<performance_test::LifecycleNode>(argc, argv, options, topology_json, pid,
+            run_test<performance_test::LifecycleNode>(argc, argv, options, topology_json, pid,
                                                              resources_output_path, events_output_path,
                                                              latency_all_output_path, latency_total_output_path);
             break;

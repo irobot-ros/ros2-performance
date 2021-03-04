@@ -28,12 +28,6 @@ enum ExecutorType
     STATIC_SINGLE_THREADED_EXECUTOR = 2,
 };
 
-enum NodeType
-{
-    RCLCPP_NODE = 1,
-    RCLCPP_LIFECYCLE_NODE = 2,
-};
-
 std::ostream &operator<<(std::ostream &os, const ExecutorType &t) {
     std::string executor_name;
     switch (t) {
@@ -49,23 +43,6 @@ std::ostream &operator<<(std::ostream &os, const ExecutorType &t) {
     }
 
     return os << executor_name;
-}
-
-std::ostream &operator<<(std::ostream &os, const NodeType &t) {
-    std::string node_type;
-    switch (t) {
-        case RCLCPP_NODE:
-            node_type = "Node";
-            break;
-        case RCLCPP_LIFECYCLE_NODE:
-            node_type = "LifecycleNode";
-            break;
-        default:
-            node_type = "Unknown NodeType";
-            break;
-    }
-
-    return os << node_type;
 }
 
 }

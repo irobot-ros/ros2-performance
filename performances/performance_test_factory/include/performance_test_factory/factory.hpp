@@ -22,6 +22,7 @@
 
 #include "performance_test/ros2/executors.hpp"
 #include "performance_test/ros2/node.hpp"
+#include "performance_test/ros2/node_types.hpp"
 #include "performance_test/ros2/lifecycle_node.hpp"
 
 using namespace std::chrono_literals;

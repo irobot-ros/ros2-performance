@@ -30,7 +30,7 @@ using json = nlohmann::json;
 
 namespace performance_test {
 
-template <class NodeT>
+template <class NodeT = Node>
 class TemplateFactory {
 
 

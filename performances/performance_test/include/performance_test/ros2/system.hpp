@@ -67,7 +67,7 @@ unsigned long int parse_line(std::string& line)
 
 namespace performance_test {
 
-template <class NodeT>
+template <class NodeT = Node>
 class System
 {
 public:

@@ -94,15 +94,27 @@ def get_include_paths(msgs, srvs, package):
   return content
 
 
-def get_sub_factory(msgs, package):
+def get_sub_factory(msgs, package, node_type):
 
   if len(msgs) == 0:
     return ""
 
-  content = """
+  if node_type == "Node":
+    content = """
 
-  extern "C" void add_subscriber_impl(
-    std::shared_ptr<performance_test::Node> n,
+    extern "C" void add_subscriber_impl(
+    """
+  elif node_type == "LifecycleNode":
+    content = """
+
+    extern "C" void add_subscriber_impl_lifecycle(
+    """
+  else:
+    return ""
+
+  content += "\n std::shared_ptr<performance_test::" + node_type + "> n,"
+
+  content += """
     std::string msg_type,
     std::string topic_name,
     performance_test::Tracker::TrackingOptions tracking_options,
@@ -146,15 +158,27 @@ def get_sub_factory(msgs, package):
   return content
 
 
-def get_pub_factory(msgs, package):
+def get_pub_factory(msgs, package, node_type):
 
   if len(msgs) == 0:
     return ""
 
-  content = """
+  if node_type == "Node":
+    content = """
 
-  extern "C" void add_publisher_impl(
-    std::shared_ptr<performance_test::Node> n,
+    extern "C" void add_publisher_impl(
+    """
+  elif node_type == "LifecycleNode":
+    content = """
+
+    extern "C" void add_publisher_impl_lifecycle(
+    """
+  else:
+    return ""
+
+  content += "\n std::shared_ptr<performance_test::" + node_type + "> n,"
+
+  content += """
     std::string msg_type,
     std::string topic_name,
     msg_pass_by_t msg_pass_by,
@@ -199,15 +223,27 @@ def get_pub_factory(msgs, package):
   return content
 
 
-def get_server_factory(srvs, package):
+def get_server_factory(srvs, package, node_type):
 
   if len(srvs) == 0:
     return ""
 
-  content = """
+  if node_type == "Node":
+    content = """
 
-  extern "C" void add_server_impl(
-    std::shared_ptr<performance_test::Node> n,
+    extern "C" void add_server_impl(
+    """
+  elif node_type == "LifecycleNode":
+    content = """
+
+    extern "C" void add_server_impl_lifecycle(
+    """
+  else:
+    return ""
+
+  content += "\n std::shared_ptr<performance_test::" + node_type + "> n,"
+
+  content += """
     std::string srv_type,
     std::string service_name,
     rmw_qos_profile_t custom_qos_profile)
@@ -249,15 +285,27 @@ def get_server_factory(srvs, package):
   return content
 
 
-def get_client_factory(srvs, package):
+def get_client_factory(srvs, package, node_type):
 
   if len(srvs) == 0:
     return ""
 
-  content = """
+  if node_type == "Node":
+    content = """
 
-  extern "C" void add_client_impl(
-    std::shared_ptr<performance_test::Node> n,
+    extern "C" void add_client_impl(
+    """
+  elif node_type == "LifecycleNode":
+    content = """
+
+    extern "C" void add_client_impl_lifecycle(
+    """
+  else:
+    return ""
+
+  content += "\n std::shared_ptr<performance_test::" + node_type + "> n,"
+
+  content += """
     std::string srv_type,
     std::string service_name,
     rmw_qos_profile_t custom_qos_profile,
@@ -292,7 +340,7 @@ def get_client_factory(srvs, package):
     }
 
     clients_factory.at(srv_type)();
-}
+ }
 
   """
 
@@ -330,14 +378,22 @@ def main():
 
   content = """
   #include "performance_test/ros2/node.hpp"
+  #include "performance_test/ros2/lifecycle_node.hpp"
 
   """
 
   content += get_include_paths(msgs, srvs, package)
-  content += get_sub_factory(msgs, package)
-  content += get_pub_factory(msgs, package)
-  content += get_server_factory(srvs, package)
-  content += get_client_factory(srvs, package)
+  content += get_sub_factory(msgs, package, "Node")
+  content += get_sub_factory(msgs, package, "LifecycleNode")
+
+  content += get_pub_factory(msgs, package, "Node")
+  content += get_pub_factory(msgs, package, "LifecycleNode")
+
+  content += get_server_factory(srvs, package, "Node")
+  content += get_server_factory(srvs, package, "LifecycleNode")
+
+  content += get_client_factory(srvs, package, "Node")
+  content += get_client_factory(srvs, package, "LifecycleNode")
 
   def create(filename, content):
     if os.path.exists(filename):

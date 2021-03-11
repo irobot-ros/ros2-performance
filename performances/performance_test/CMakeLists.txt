@@ -12,6 +12,7 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
 find_package(performance_test_msgs REQUIRED)
 
 include_directories(
@@ -21,12 +22,12 @@ include_directories(
 
 set (LIBRARY_DEPENDENCIES
   rclcpp
+  rclcpp_lifecycle
   performance_test_msgs
 )
 
 set(LIBRARY_SRC
   src/ros2/names_utilities.cpp
-  src/ros2/system.cpp
   src/ros2/tracker.cpp
 )
 

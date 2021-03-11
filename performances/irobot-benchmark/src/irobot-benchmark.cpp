@@ -17,6 +17,7 @@
 
 #include "performance_test/ros2/system.hpp"
 #include "performance_test/ros2/node.hpp"
+#include "performance_test/ros2/node_types.hpp"
 #include "performance_test/ros2/communication.hpp"
 #include "performance_test/ros2/resource_usage_logger.hpp"
 
@@ -25,6 +26,68 @@
 #include "cli/options.hpp"
 
 using namespace std::chrono_literals;
+
+template <typename NodeT>
+void run_test(int argc, char** argv,
+                    const irobot_benchmark::Options &options,
+                    const std::string &topology_json,
+                    pid_t &pid,
+                    const std::string &resources_output_path,
+                    const std::string &events_output_path,
+                    const std::string &latency_all_output_path,
+                    const std::string &latency_total_output_path)
+{
+    // Start resources logger
+    performance_test::ResourceUsageLogger ru_logger(resources_output_path);
+
+    ru_logger.start(std::chrono::milliseconds(options.resources_sampling_per_ms));
+
+    rclcpp::init(argc, argv);
+
+    performance_test::System<NodeT> ros2_system(static_cast<performance_test::ExecutorType>(options.executor));
+
+    // Load topology from json file
+    auto factory = performance_test::TemplateFactory<NodeT>(options.ipc, options.ros_params);
+
+    if (options.tracking_options.is_enabled) {
+        ros2_system.enable_events_logger(events_output_path);
+    }
+
+    auto nodes_vec = factory.parse_topology_from_json(topology_json, options.tracking_options);
+    ros2_system.add_node(nodes_vec);
+
+    // now the system is complete and we can make it spin for the requested duration
+    bool wait_for_discovery = true;
+    ros2_system.spin(options.duration_sec, wait_for_discovery, options.name_threads);
+
+    // terminate the experiment
+    ru_logger.stop();
+    rclcpp::shutdown();
+    std::this_thread::sleep_for(500ms);
+
+    ros2_system.print_latency_all_stats();
+
+    if (options.topology_json_list.size() > 1)
+    {
+        std::cout << std::endl << "Process total:" << std::endl;
+        ros2_system.print_latency_total_stats();
+    }
+
+    std::cout << std::endl;
+    ros2_system.save_latency_all_stats(latency_all_output_path);
+    ros2_system.save_latency_total_stats(latency_total_output_path);
+
+    // Parent process: wait for children to exit and print system stats
+    if (pid != 0)
+    {
+        if (options.topology_json_list.size() > 1)
+        {
+            waitpid(getpid()+1, &pid, 0);
+        }
+        std::cout << "System total:" << std::endl;
+        ros2_system.print_agregate_stats(options.topology_json_list);
+    }
+}
 
 int main(int argc, char** argv)
 {
@@ -44,6 +107,10 @@ int main(int argc, char** argv)
     // Get the system executor from options
     auto system_executor = static_cast<performance_test::ExecutorType>(options.executor);
     std::cout<< "System executor: " << system_executor << std::endl;
+
+    // Get the node type from options
+    auto node_type = static_cast<performance_test::NodeType>(options.node);
+    std::cout<< "Node type: " << node_type << std::endl;
 
     std::cout << "Intra-process-communication: " << (options.ipc ? "on" : "off") << std::endl;
     std::cout << "Parameter services: " << (options.ros_params ? "on" : "off") << std::endl;
@@ -89,51 +156,23 @@ int main(int argc, char** argv)
 
     // Start resources logger
     performance_test::ResourceUsageLogger ru_logger(resources_output_path);
-    ru_logger.start(std::chrono::milliseconds(options.resources_sampling_per_ms));
 
-    rclcpp::init(argc, argv);
-
-    performance_test::System ros2_system(system_executor);
-
-    if (options.tracking_options.is_enabled) {
-        ros2_system.enable_events_logger(events_output_path);
-    }
-
-    // Load topology from json file
-    auto factory = performance_test::TemplateFactory(options.ipc, options.ros_params);
-
-    auto nodes_vec = factory.parse_topology_from_json(topology_json, options.tracking_options);
-    ros2_system.add_node(nodes_vec);
-
-    // now the system is complete and we can make it spin for the requested duration
-    bool wait_for_discovery = true;
-    ros2_system.spin(options.duration_sec, wait_for_discovery, options.name_threads);
-
-    // terminate the experiment
-    ru_logger.stop();
-    rclcpp::shutdown();
-    std::this_thread::sleep_for(500ms);
-
-    ros2_system.print_latency_all_stats();
-
-    if (json_list.size() > 1)
+    switch(node_type)
     {
-        std::cout << std::endl << "Process total:" << std::endl;
-        ros2_system.print_latency_total_stats();
-    }
-
-    std::cout << std::endl;
-    ros2_system.save_latency_all_stats(latency_all_output_path);
-    ros2_system.save_latency_total_stats(latency_total_output_path);
-
-    // Parent process: wait for children to exit and print system stats
-    if (pid != 0)
-    {
-        if (json_list.size() > 1)
+        case performance_test::RCLCPP_NODE:
         {
-            waitpid(getpid()+1, &pid, 0);
+            run_test<performance_test::Node>(argc, argv, options, topology_json, pid,
+                                                    resources_output_path, events_output_path,
+                                                    latency_all_output_path, latency_total_output_path);
+            break;
         }
-        std::cout << "System total:" << std::endl;
-        ros2_system.print_agregate_stats(json_list);
+
+        case performance_test::RCLCPP_LIFECYCLE_NODE:
+        {
+            run_test<performance_test::LifecycleNode>(argc, argv, options, topology_json, pid,
+                                                             resources_output_path, events_output_path,
+                                                             latency_all_output_path, latency_total_output_path);
+            break;
+        }
     }
 }

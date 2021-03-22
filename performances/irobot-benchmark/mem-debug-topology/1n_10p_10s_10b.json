@@ -1,0 +1,31 @@
+{
+  "nodes": [
+      {
+        "node_name": "node",
+        "subscribers":[
+            {"topic_name":"topic1", "msg_type":"stamped10b"},
+            {"topic_name":"topic2", "msg_type":"stamped10b"},
+            {"topic_name":"topic3", "msg_type":"stamped10b"},
+            {"topic_name":"topic4", "msg_type":"stamped10b"},
+            {"topic_name":"topic5", "msg_type":"stamped10b"},
+            {"topic_name":"topic6", "msg_type":"stamped10b"},
+            {"topic_name":"topic7", "msg_type":"stamped10b"},
+            {"topic_name":"topic8", "msg_type":"stamped10b"},
+            {"topic_name":"topic9", "msg_type":"stamped10b"},
+            {"topic_name":"topic10", "msg_type":"stamped10b"}
+          ],
+        "publishers": [
+            {"topic_name": "topic1", "msg_type":"stamped10b", "period_ms": 1000},
+            {"topic_name": "topic2", "msg_type":"stamped10b", "period_ms": 1000},
+            {"topic_name": "topic3", "msg_type":"stamped10b", "period_ms": 1000},
+            {"topic_name": "topic4", "msg_type":"stamped10b", "period_ms": 1000},
+            {"topic_name": "topic5", "msg_type":"stamped10b", "period_ms": 1000},
+            {"topic_name": "topic6", "msg_type":"stamped10b", "period_ms": 1000},
+            {"topic_name": "topic7", "msg_type":"stamped10b", "period_ms": 1000},
+            {"topic_name": "topic8", "msg_type":"stamped10b", "period_ms": 1000},
+            {"topic_name": "topic9", "msg_type":"stamped10b", "period_ms": 1000},
+            {"topic_name": "topic10", "msg_type":"stamped10b", "period_ms": 1000}
+          ]
+      }
+    ]
+}

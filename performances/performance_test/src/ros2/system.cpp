@@ -84,7 +84,7 @@ void performance_test::System::spin(int duration_sec, bool wait_for_discovery, b
 
     // Check if some nodes have been added to this System
     if(_nodes.empty()) {
-        assert(0 && "Error. Calling performance_test::System::spin when no nodes have been added.");
+        //assert(0 && "Error. Calling performance_test::System::spin when no nodes have been added.");
     }
 
     if (_events_logger != nullptr){

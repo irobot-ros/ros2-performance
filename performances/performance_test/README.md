@@ -124,7 +124,7 @@ This can be done in the same plot using the `--separator` option.
     export MAX_PUBLISHERS=1
     export MAX_SUBSCRIBERS=5
     export NUM_EXPERIMENTS=5
-    export MSG_TYPES=10b
+    export MSG_TYPES=stamped10b
     export PUBLISH_FREQUENCIES=100
     export DIR_PATH=my_experiment
     bash scripts/pub_sub_ros2.sh

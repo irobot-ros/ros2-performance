@@ -47,6 +47,10 @@ public:
     const rclcpp::Time& now,
     std::shared_ptr<EventsLogger> elog = nullptr);
 
+  void add_sample(unsigned long latency_sample);
+
+  TrackingNumber get_and_update_tracking_number();
+
   unsigned long int lost() const { return _lost_messages; }
 
   unsigned long int late() const { return _late_messages; }

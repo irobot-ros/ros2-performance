@@ -54,5 +54,5 @@ TEST_F(TestNode, NodeAddItemsTest)
   node->add_server(service);
   node->add_periodic_client(service, std::chrono::milliseconds(10));
 
-  ASSERT_EQ((size_t)2, node->all_trackers()->size());
+  ASSERT_EQ((size_t)3, node->all_trackers()->size());
 }

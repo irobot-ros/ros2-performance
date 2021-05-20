@@ -58,8 +58,8 @@ public:
     {
       case PASS_BY_SHARED_PTR:
       {
-        std::function<void(const typename std::shared_ptr<const Msg> msg)> callback_function = std::bind(
-          &Node::_topic_callback<const typename std::shared_ptr<const Msg>>,
+        std::function<void(typename Msg::ConstSharedPtr msg)> callback_function = std::bind(
+          &Node::_topic_callback<typename Msg::ConstSharedPtr>,
           this,
           topic.name,
           std::placeholders::_1
@@ -74,8 +74,8 @@ public:
 
       case PASS_BY_UNIQUE_PTR:
       {
-        std::function<void(typename std::unique_ptr<Msg> msg)> callback_function = std::bind(
-          &Node::_topic_callback<typename std::unique_ptr<Msg>>,
+        std::function<void(typename Msg::UniquePtr msg)> callback_function = std::bind(
+          &Node::_topic_callback<typename Msg::UniquePtr>,
           this,
           topic.name,
           std::placeholders::_1
@@ -126,7 +126,8 @@ public:
                                       this->create_publisher<Msg>(topic.name,
                                       rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile));
 
-    _pubs.insert({ topic.name, {pub, 0} });
+    auto tracking_options = Tracker::TrackingOptions();
+    _pubs.insert({ topic.name, { pub, Tracker(this->get_name(), topic.name, tracking_options) } });
 
     RCLCPP_INFO(this->get_logger(),"Publisher to %s created", topic.name.c_str());
   }
@@ -242,6 +243,17 @@ public:
     return trackers;
   }
 
+  std::shared_ptr<Trackers> pub_trackers()
+  {
+    auto trackers = std::make_shared<Trackers>();
+
+    for(const auto& pub : _pubs)
+    {
+      trackers->push_back({pub.first, pub.second.second});
+    }
+
+    return trackers;
+  }
 
   void set_events_logger(std::shared_ptr<EventsLogger> ev)
   {
@@ -263,8 +275,10 @@ private:
     // Get publisher and tracking count from map
     auto& pub_pair = _pubs.at(name);
     auto pub = std::static_pointer_cast<rclcpp::Publisher<Msg>>(pub_pair.first);
-    auto& tracking_number = pub_pair.second;
+    auto& tracker = pub_pair.second;
 
+    auto tracking_number = tracker.get_and_update_tracking_number();
+    unsigned long pub_time_us = 0;
     switch (msg_pass_by)
     {
       case PASS_BY_SHARED_PTR:
@@ -279,8 +293,14 @@ private:
           msg->header.tracking_number = tracking_number;
           //attach the timestamp as last operation before publishing
           msg->header.stamp = this->now();
+    
+          auto start_time = std::chrono::high_resolution_clock::now();
 
           pub->publish(*msg);
+
+          auto end_time = std::chrono::high_resolution_clock::now();
+          pub_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+    
           break;
       }
 
@@ -297,15 +317,21 @@ private:
           //attach the timestamp as last operation before publishing
           msg->header.stamp = this->now();
 
+          auto start_time = std::chrono::high_resolution_clock::now();
+
           pub->publish(std::move(msg));
+
+          auto end_time = std::chrono::high_resolution_clock::now();
+          pub_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+
           break;
       }
 
     }
 
-    RCLCPP_DEBUG(this->get_logger(), "Publishing to %s msg number %d", name.c_str(), tracking_number);
+    tracker.add_sample(pub_time_us);
 
-    tracking_number++;
+    RCLCPP_DEBUG(this->get_logger(), "Publishing to %s msg number %d", name.c_str(), tracking_number);
   }
 
   template <typename DataT>
@@ -456,7 +482,7 @@ private:
 
   // A topic-name indexed map to store the publisher pointers with their
   // trackers.
-  std::map<std::string, std::pair<std::shared_ptr<void>, Tracker::TrackingNumber>> _pubs;
+  std::map<std::string, std::pair<std::shared_ptr<void>, Tracker>> _pubs;
 
   // A topic-name indexed map to store the subscriber pointers with their
   // trackers.

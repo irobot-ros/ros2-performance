@@ -156,7 +156,7 @@ private:
     void _print_header()
     {
         const char separator = ' ';
-        const int wide_space = 15;
+        const int wide_space = 23;
         const int narrow_space = 10;
 
         _file << std::left << std::setw(wide_space) << std::setfill(separator) << "time[ms]";
@@ -184,7 +184,7 @@ private:
     void _print()
     {
         const char separator = ' ';
-        const int wide_space = 15;
+        const int wide_space = 23;
         const int narrow_space = 10;
 
         _file << std::left << std::setw(wide_space) << std::setfill(separator) << std::setprecision(wide_space-1) << std::round(_resources.elasped_ms);

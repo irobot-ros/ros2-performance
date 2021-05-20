@@ -30,11 +30,13 @@ void performance_test::Tracker::scan(
     // store the last latency to be read from node
     _last_latency = lat_us;
 
+    // std::cout << "_last_latency: " << _last_latency << std::endl;
+
     bool late = false;
     bool too_late = false;
 
     if (_tracking_options.is_enabled){
-	
+
         // Check if we received the correct message. The assumption here is
         // that the messages arrive in chronological order
         if (header.tracking_number == _tracking_number_count) {

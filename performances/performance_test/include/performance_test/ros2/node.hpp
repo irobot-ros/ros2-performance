@@ -279,12 +279,23 @@ private:
 
     auto tracking_number = tracker.get_and_update_tracking_number();
     unsigned long pub_time_us = 0;
+
+// #define USE_LOANED
+
+#ifdef USE_LOANED
+    std::allocator<void> allocator;
+    rclcpp::LoanedMessage<Msg> loaned_msg(*pub, allocator);
+    Msg * msg = &loaned_msg.get();
+#endif
+
     switch (msg_pass_by)
     {
       case PASS_BY_SHARED_PTR:
       {
           // create a message and eventually resize it
+#ifndef USE_LOANED
           auto msg = std::make_shared<Msg>();
+#endif
           resize_msg(msg->data, msg->header, size);
 
           // get the frequency value that we stored when creating the publisher
@@ -299,7 +310,11 @@ private:
 
           auto start_time = std::chrono::high_resolution_clock::now();
 
+#ifdef USE_LOANED
+          pub->publish(std::move(loaned_msg));
+#else
           pub->publish(*msg);
+#endif
 
           auto end_time = std::chrono::high_resolution_clock::now();
           pub_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
@@ -310,7 +325,9 @@ private:
       case PASS_BY_UNIQUE_PTR:
       {
           // create a message and eventually resize it
+#ifndef USE_LOANED
           auto msg = std::make_unique<Msg>();
+#endif
           resize_msg(msg->data, msg->header, size);
 
           // get the frequency value that we stored when creating the publisher
@@ -325,7 +342,11 @@ private:
 
           auto start_time = std::chrono::high_resolution_clock::now();
 
+#ifdef USE_LOANED
+          pub->publish(std::move(loaned_msg));
+#else
           pub->publish(std::move(msg));
+#endif
 
           auto end_time = std::chrono::high_resolution_clock::now();
           pub_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();

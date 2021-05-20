@@ -19,8 +19,8 @@ void performance_test::Tracker::scan(
 {
     // If this is first message received store some info about it
     if (stat().n() == 0) {
-        _size = header.size;
-        _frequency = header.frequency;
+        this->set_size(header.size);
+        this->set_frequency(header.frequency);
     }
 
     // Compute latency

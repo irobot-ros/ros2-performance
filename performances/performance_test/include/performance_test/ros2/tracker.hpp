@@ -67,6 +67,8 @@ public:
 
   void set_frequency(float f) { _frequency = f; }
 
+  void set_size(size_t s) { _size = s; }
+
   unsigned long int last() const { return _last_latency; }
 
 private:

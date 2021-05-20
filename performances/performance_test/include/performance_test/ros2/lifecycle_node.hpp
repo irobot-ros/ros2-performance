@@ -295,7 +295,10 @@ private:
           msg->header.tracking_number = tracking_number;
           //attach the timestamp as last operation before publishing
           msg->header.stamp = this->now();
-    
+
+          tracker.set_frequency(msg->header.frequency);
+          tracker.set_size(msg->header.size);
+
           auto start_time = std::chrono::high_resolution_clock::now();
 
           pub->publish(*msg);
@@ -318,6 +321,9 @@ private:
           msg->header.tracking_number = tracking_number;
           //attach the timestamp as last operation before publishing
           msg->header.stamp = this->now();
+
+          tracker.set_frequency(msg->header.frequency);
+          tracker.set_size(msg->header.size);
 
           auto start_time = std::chrono::high_resolution_clock::now();
 

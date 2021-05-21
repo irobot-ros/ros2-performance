@@ -412,53 +412,67 @@ private:
       const int wide_space = 15;
       const int narrow_space = 10;
 
-      // log header
-      stream << std::left << std::setw(wide_space) << std::setfill(separator) << "node";
-      stream << std::left << std::setw(wide_space) << std::setfill(separator) << "topic";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "size[b]";
-      stream << std::left << std::setw(wide_space) << std::setfill(separator) << "received[#]";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[#]";
-      stream << std::left << std::setw(wide_space) << std::setfill(separator) << "too_late[#]";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[#]";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "mean[us]";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "sd[us]";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "min[us]";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "max[us]";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "freq[hz]";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "duration[s]";
+      auto log_header = [&stream, wide_space, narrow_space, separator]()
+      {
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << "node";
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << "topic";
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "size[b]";
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << "received[#]";
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[#]";
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << "too_late[#]";
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[#]";
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "mean[us]";
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "sd[us]";
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "min[us]";
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "max[us]";
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "freq[hz]";
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "duration[s]";
 
-      stream << std::endl;
+        stream << std::endl;
+      };
 
-      unsigned long int total_received = 0;
-      unsigned long int total_lost = 0;
-      unsigned long int total_late = 0;
-      unsigned long int total_too_late = 0;
+      auto log_stats_line = [&stream, wide_space, narrow_space, separator](
+          const std::string& node_name, std::pair<std::string, Tracker> tracker, int duration)
+      {
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << node_name;
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << tracker.first;
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << tracker.second.size();
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << tracker.second.received();
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << tracker.second.late();
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << tracker.second.too_late();
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << tracker.second.lost();
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.stat().mean());
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.stat().stddev());
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.stat().min());
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.stat().max());
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << tracker.second.frequency();
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << duration;
 
-      // Print all
+        stream << std::endl;
+      };
+
+      // Print all subscriptions and clients
+      stream << "Subscriptions and clients stats:"<<std::endl;
+      log_header();
       for (const auto& n : _nodes)
       {
           auto trackers = n->all_trackers();
           for(const auto& tracker : *trackers)
           {
-              total_received += tracker.second.received();
-              total_lost += tracker.second.lost();
-              total_late += tracker.second.late();
-              total_too_late += tracker.second.too_late();
+              log_stats_line(n->get_name(), tracker, _experiment_duration_sec);
+          }
+      }
 
-              stream << std::left << std::setw(wide_space) << std::setfill(separator) << n->get_name();
-              stream << std::left << std::setw(wide_space) << std::setfill(separator) << tracker.first;
-              stream << std::left << std::setw(narrow_space) << std::setfill(separator) << tracker.second.size();
-              stream << std::left << std::setw(wide_space) << std::setfill(separator) << tracker.second.received();
-              stream << std::left << std::setw(narrow_space) << std::setfill(separator) << tracker.second.late();
-              stream << std::left << std::setw(wide_space) << std::setfill(separator) << tracker.second.too_late();
-              stream << std::left << std::setw(narrow_space) << std::setfill(separator) << tracker.second.lost();
-              stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.stat().mean());
-              stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.stat().stddev());
-              stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.stat().min());
-              stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::round(tracker.second.stat().max());
-              stream << std::left << std::setw(narrow_space) << std::setfill(separator) << tracker.second.frequency();
-              stream << std::left << std::setw(narrow_space) << std::setfill(separator) << _experiment_duration_sec;
-              stream << std::endl;
+      // Print publishers
+      stream << std::endl;
+      stream << "Publishers stats:"<<std::endl;
+      log_header();
+      for (const auto& n : _nodes)
+      {
+          auto trackers = n->pub_trackers();
+          for(const auto& tracker : *trackers)
+          {
+              log_stats_line(n->get_name(), tracker, _experiment_duration_sec);
           }
       }
   }

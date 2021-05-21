@@ -19,8 +19,8 @@ void performance_test::Tracker::scan(
 {
     // If this is first message received store some info about it
     if (stat().n() == 0) {
-        _size = header.size;
-        _frequency = header.frequency;
+        this->set_size(header.size);
+        this->set_frequency(header.frequency);
     }
 
     // Compute latency
@@ -110,8 +110,20 @@ void performance_test::Tracker::scan(
     if(!too_late) {
         // Compute statistics with new sample. Don't add to this the msgs
         // that arrived too late.
-        _stat.add_sample(lat_us);
+        this->add_sample(lat_us);
     }
 
     _received_messages++;
+}
+
+void performance_test::Tracker::add_sample(unsigned long latency_sample)
+{
+    _stat.add_sample(latency_sample);
+}
+
+performance_test::Tracker::TrackingNumber performance_test::Tracker::get_and_update_tracking_number()
+{
+    TrackingNumber old_number = _tracking_number_count;
+    _tracking_number_count++;
+    return old_number;
 }

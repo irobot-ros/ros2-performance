@@ -337,7 +337,7 @@ private:
 
     tracker.add_sample(pub_time_us);
 
-    RCLCPP_DEBUG(this->get_logger(), "Publishing to %s msg number %d", name.c_str(), tracking_number);
+    RCLCPP_DEBUG(this->get_logger(), "Publishing to %s msg number %d took %lu us", name.c_str(), tracking_number, pub_time_us);
   }
 
   template <typename DataT>

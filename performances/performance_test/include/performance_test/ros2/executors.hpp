@@ -26,6 +26,7 @@ enum ExecutorType
 {
     SINGLE_THREADED_EXECUTOR = 1,
     STATIC_SINGLE_THREADED_EXECUTOR = 2,
+    EVENTS_EXECUTOR = 3,
 };
 
 std::ostream &operator<<(std::ostream &os, const ExecutorType &t) {
@@ -36,6 +37,9 @@ std::ostream &operator<<(std::ostream &os, const ExecutorType &t) {
             break;
         case STATIC_SINGLE_THREADED_EXECUTOR:
             executor_name = "StaticSingleThreadedExecutor";
+            break;
+        case EVENTS_EXECUTOR:
+            executor_name = "EventsExecutor";
             break;
         default:
             executor_name = "Unknown ExecutorType";

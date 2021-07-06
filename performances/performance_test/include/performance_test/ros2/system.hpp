@@ -21,6 +21,9 @@
 #include "performance_test/ros2/executors.hpp"
 #include "performance_test/ros2/events_logger.hpp"
 
+#include "rclcpp/experimental/buffers/simple_events_queue.hpp"
+#include "rclcpp/experimental/buffers/blocking_concurrent_queue.hpp"
+
 void log_total_stats(unsigned long int total_received,
                     unsigned long int total_lost,
                     unsigned long int total_late,
@@ -101,6 +104,13 @@ public:
 
           switch (_system_executor)
           {
+              case EVENTS_EXECUTOR:
+              {
+                  auto queue = std::make_unique<rclcpp::experimental::buffers::SimpleEventsQueue>();
+                  // auto queue = std::make_unique<rclcpp::experimental::buffers::BlockingConcurrentQueue>();
+                  ex.executor = std::make_shared<rclcpp::executors::EventsExecutor>(std::move(queue));
+              }
+                  break;
               case SINGLE_THREADED_EXECUTOR:
                   ex.executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
                   break;
@@ -148,6 +158,7 @@ public:
           // Spin each executor in a separate thread
           std::thread thread([=](){
               executor->spin();
+              // while (true) {executor->spin_some();std::this_thread::sleep_for(16ms);}
           });
           if(name_threads) {
               pthread_setname_np(thread.native_handle(), name.c_str());

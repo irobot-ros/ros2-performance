@@ -4,10 +4,10 @@
         "node_name": "node",
         "number":1,
         "subscribers":[
-            {"topic_name":"topic", "msg_type":"stamped100kb"}
+            {"topic_name":"topic", "msg_type":"stamped250kb"}
           ],
         "publishers": [
-            {"topic_name": "topic", "msg_type":"stamped100kb", "period_ms": 1000}
+            {"topic_name": "topic", "msg_type":"stamped250kb", "period_ms": 20}
           ]
       }
     ]

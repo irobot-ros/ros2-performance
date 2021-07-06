@@ -2,12 +2,12 @@
   "nodes": [
       {
         "node_name": "node",
-        "number":15,
+        "number":1,
         "subscribers":[
             {"topic_name":"topic", "msg_type":"stamped10b"}
           ],
         "publishers": [
-            {"topic_name": "topic", "msg_type":"stamped10b", "period_ms": 1000}
+            {"topic_name": "topic", "msg_type":"stamped10b", "period_ms": 20}
           ]
       }
     ]

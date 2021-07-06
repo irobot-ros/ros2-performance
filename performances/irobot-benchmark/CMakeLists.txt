@@ -34,9 +34,50 @@ set(TOPOLOGY_FILES
   topology/debug_mont_blanc_best_effort.json
 )
 
+set(SINGLE-PROCESS
+  single-process/1n_1p_1s_100b.json
+  single-process/1n_1p_1s_100kb.json
+  single-process/1n_1p_1s_10b.json
+  single-process/1n_1p_1s_10kb.json
+  single-process/1n_1p_1s_1kb.json
+  single-process/1n_1p_1s_250b.json
+  single-process/1n_1p_1s_250kb.json
+  single-process/print-results.sh
+  single-process/run-pub-subs.sh
+)
+
+set(MULTI-PROCESS
+  multi-process/1n_1p_100b.json
+  multi-process/1n_1p_100kb.json
+  multi-process/1n_1p_10b.json
+  multi-process/1n_1p_10kb.json
+  multi-process/1n_1p_1kb.json
+  multi-process/1n_1p_250b.json
+  multi-process/1n_1p_250kb.json
+  multi-process/1n_1s_100b.json
+  multi-process/1n_1s_100kb.json
+  multi-process/1n_1s_10b.json
+  multi-process/1n_1s_10kb.json
+  multi-process/1n_1s_1kb.json
+  multi-process/1n_1s_250b.json
+  multi-process/1n_1s_250kb.json
+  multi-process/print-results.sh
+  multi-process/run-pubs.sh
+  multi-process/run-subs.sh
+)
+
+
 install(FILES
   ${TOPOLOGY_FILES}
   DESTINATION lib/${PROJECT_NAME}/topology)
+
+install(FILES
+  ${SINGLE-PROCESS}
+  DESTINATION lib/${PROJECT_NAME}/single-process)
+
+install(FILES
+  ${MULTI-PROCESS}
+  DESTINATION lib/${PROJECT_NAME}/multi-process)
 
 ament_package()
 

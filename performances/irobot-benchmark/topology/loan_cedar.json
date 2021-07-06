@@ -1,0 +1,116 @@
+{
+  "nodes": [
+      {
+        "node_name": "montreal",
+        "subscribers":[
+            {"topic_name":"arkansas", "msg_type":"stamped4_int32"}
+          ],
+        "publishers": [
+              {"topic_name": "danube", "msg_type": "stamped_int64", "qos_depth":1, "qos_history":"keep_last", "freq_hz": 64},
+              {"topic_name": "amazon", "msg_type": "stamped9_float32", "qos_depth":1, "qos_history":"keep_last", "freq_hz": 64},
+              {"topic_name": "ganges", "msg_type": "stamped4_int32", "qos_depth":1, "qos_history":"keep_last", "freq_hz": 64},
+              {"topic_name": "nile", "msg_type": "stamped4_int32", "qos_depth":1, "qos_history":"keep_last", "freq_hz": 64}
+          ],
+        "executor_id":1
+      },
+
+      {
+        "node_name": "munich",
+        "subscribers":[
+            {"topic_name":"danube", "msg_type":"stamped_int64"},
+            {"topic_name":"amazon", "msg_type": "stamped9_float32"}
+          ],
+        "publishers": [
+            {"topic_name":"rhine", "msg_type": "stamped4_int32", "qos_depth":1, "qos_history":"keep_last", "freq_hz": 64}
+          ],
+        "executor_id":2
+      },
+
+      {
+        "node_name": "hamburg",
+        "subscribers":[
+            {"topic_name":"danube", "msg_type":"stamped_int64"},
+            {"topic_name":"amazon", "msg_type": "stamped9_float32"},
+            {"topic_name":"ganges", "msg_type":"stamped4_int32"},
+            {"topic_name":"nile", "msg_type":"stamped4_int32"}
+          ],
+        "publishers": [
+            {"topic_name": "parana", "msg_type": "stamped3_float32", "qos_depth":1, "qos_history":"keep_last", "freq_hz": 64}
+          ],
+        "executor_id":3
+      },
+
+      {
+        "node_name": "osaka",
+        "subscribers":[
+            {"topic_name":"parana", "msg_type":"stamped3_float32"}
+          ],
+        "publishers": [
+            {"topic_name":"salween", "msg_type":"stamped12_float32", "qos_depth":1, "qos_history":"keep_last", "freq_hz": 10}
+          ],
+        "executor_id":4
+      },
+
+      {
+        "node_name": "mandalay",
+        "subscribers":[
+            {"topic_name":"rhine", "msg_type":"stamped4_int32"},
+            {"topic_name":"salween", "msg_type":"stamped12_float32"}
+          ],
+        "publishers": [
+            {"topic_name":"missouri", "msg_type": "stamped10kb", "qos_depth":1, "qos_history":"keep_last", "freq_hz": 10}
+          ],
+        "executor_id":5
+      },
+
+      {
+        "node_name": "ponce",
+        "subscribers":[
+            {"topic_name":"rhine", "msg_type":"stamped4_int32"},
+            {"topic_name":"missouri", "msg_type":"stamped10kb"},
+            {"topic_name":"salween", "msg_type":"stamped12_float32"},
+            {"topic_name":"volga", "msg_type":"stamped_int64"}
+          ],
+        "publishers": [
+            {"topic_name": "mekong", "msg_type": "stamped1kb", "qos_depth":1, "qos_history":"keep_last", "freq_hz": 2},
+            {"topic_name": "congo", "msg_type": "stamped4_int32", "qos_depth":1, "qos_history":"keep_last", "freq_hz": 10}
+          ],
+        "executor_id":6
+      },
+
+      {
+        "node_name": "barcelona",
+        "subscribers":[
+            {"topic_name":"mekong", "msg_type":"stamped1kb"}
+          ],
+        "publishers": [
+            {"topic_name": "lena", "msg_type": "stamped1kb", "qos_depth":1, "qos_history":"keep_last", "freq_hz": 10}
+          ],
+        "executor_id":7
+      },
+
+      {
+        "node_name": "georgetown",
+        "subscribers":[
+            {"topic_name":"lena", "msg_type":"stamped1kb"}
+          ],
+        "publishers": [
+            {"topic_name": "volga", "msg_type": "stamped_int64", "qos_depth":1, "qos_history":"keep_last", "freq_hz": 2}
+          ],
+        "executor_id":8
+      },
+
+      {
+        "node_name": "geneva",
+        "subscribers":[
+            {"topic_name":"congo", "msg_type":"stamped4_int32"},
+            {"topic_name":"rhine", "msg_type":"stamped4_int32"},
+            {"topic_name":"parana", "msg_type":"stamped3_float32"}
+          ],
+        "publishers": [
+            {"topic_name": "arkansas", "msg_type": "stamped4_int32", "qos_depth":1, "qos_history":"keep_last", "freq_hz": 10}
+          ],
+        "executor_id":9
+      }
+    ]
+}

@@ -1,0 +1,11 @@
+{
+  "nodes": [
+      {
+        "node_name": "node",
+        "number":1,
+        "subscribers":[
+            {"topic_name":"topic", "msg_type":"stamped250b"}
+          ]
+      }
+    ]
+}

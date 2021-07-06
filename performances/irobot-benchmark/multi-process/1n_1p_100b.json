@@ -1,0 +1,11 @@
+{
+  "nodes": [
+      {
+        "node_name": "node",
+        "number":1,
+        "publishers": [
+            {"topic_name": "topic", "msg_type":"stamped100b", "period_ms": 20}
+          ]
+      }
+    ]
+}

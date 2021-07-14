@@ -7,7 +7,7 @@
             {"topic_name":"topic", "msg_type":"stamped250b"}
           ],
         "publishers": [
-            {"topic_name": "topic", "msg_type":"stamped250b", "period_ms": 20}
+            {"topic_name": "topic", "msg_type":"stamped250b", "period_ms": 50}
           ]
       }
     ]

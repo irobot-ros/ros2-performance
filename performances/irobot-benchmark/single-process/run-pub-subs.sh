@@ -20,8 +20,8 @@ do
     do
         echo "Single node - 1 pub - 1 sub - ${msg} - rmw_${rmw}_cpp"
 
-        echo "${rmw} - COMMAND: ./irobot-benchmark single-process/1n_1p_1s_${msg}.json -x 1 --tracking off -t 10"
-        ./irobot-benchmark single-process/1n_1p_1s_${msg}.json -x 1 --tracking off -t 10
+        echo "${rmw} - COMMAND: ./irobot-benchmark single-process/1n_1p_1s_${msg}.json -x 1 --tracking off -t 30 --ros_params off"
+        ./irobot-benchmark single-process/1n_1p_1s_${msg}.json -x 1 --tracking off -t 30 --ros_params off
 
         mv *log results/${rmw}
 

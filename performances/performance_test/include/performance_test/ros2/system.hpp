@@ -101,14 +101,13 @@ public:
           ex.name = ex.name + "_" + node->get_name();
       } else {
           auto ex = NamedExecutor();
-
+          auto queue = std::make_unique<LockFreeQueue>();
           switch (_system_executor)
           {
               case SINGLE_THREADED_EXECUTOR:
                   ex.executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
                   break;
               case EVENTS_EXECUTOR:
-                  auto queue = std::make_unique<LockFreeQueue>();
                   ex.executor = std::make_shared<rclcpp::executors::EventsExecutor>(std::move(queue));
                   break;
               case STATIC_SINGLE_THREADED_EXECUTOR:

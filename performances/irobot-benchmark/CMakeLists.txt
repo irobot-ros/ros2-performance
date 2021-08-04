@@ -25,11 +25,13 @@ install(TARGETS
 )
 
 set(TOPOLOGY_FILES
+  topology/pubsub.json
   topology/sierra_nevada.json
   topology/cedar.json
   topology/loan_cedar.json
   topology/mont_blanc.json
   topology/white_mountain.json
+  topology/loan_white_mountain.json
   topology/debug_sierra_nevada_reliable.json
   topology/debug_sierra_nevada_best_effort.json
   topology/debug_mont_blanc_reliable.json

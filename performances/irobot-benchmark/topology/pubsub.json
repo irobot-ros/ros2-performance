@@ -1,0 +1,17 @@
+{
+  "nodes": [
+      {
+        "node_name": "pub",
+        "publishers": [
+              {"topic_name": "amazon", "msg_type": "stamped9_float32", "period_ms": 100}
+            ]
+      },
+
+      {
+        "node_name": "sub",
+        "subscribers":[
+            {"topic_name":"amazon", "msg_type":"stamped9_float32"}
+          ]
+      }
+    ]
+}

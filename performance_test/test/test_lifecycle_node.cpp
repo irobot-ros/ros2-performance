@@ -24,7 +24,6 @@ public:
   }
 };
 
-
 TEST_F(TestNode, NodeConstructorTest)
 {
   std::string ros2_namespace = "node_namespace";
@@ -41,7 +40,6 @@ TEST_F(TestNode, NodeConstructorTest)
   ASSERT_EQ((size_t)0, trackers_vector_ptr->size());
 }
 
-
 TEST_F(TestNode, NodeAddItemsTest)
 {
   auto topic = performance_test::Topic<performance_test_msgs::msg::Sample>("my_topic");
@@ -54,5 +52,5 @@ TEST_F(TestNode, NodeAddItemsTest)
   node->add_server(service);
   node->add_periodic_client(service, std::chrono::milliseconds(10));
 
-  ASSERT_EQ((size_t)3, node->all_trackers()->size());
+  ASSERT_EQ((size_t)2, node->all_trackers()->size());
 }

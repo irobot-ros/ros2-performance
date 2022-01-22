@@ -30,9 +30,6 @@ std::ostream &operator<<(std::ostream &os, const NodeType &t) {
         case RCLCPP_LIFECYCLE_NODE:
             node_type = "LifecycleNode";
             break;
-        default:
-            node_type = "Unknown NodeType";
-            break;
     }
 
     return os << node_type;

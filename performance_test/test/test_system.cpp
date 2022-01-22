@@ -32,18 +32,11 @@ TEST_F(TestSystem, SystemAddNodesTest)
     std::vector<std::shared_ptr<performance_test::Node>> nodes_vec = {node_2, node_3};
 
     auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
-    performance_test::System<> separate_threads_system(system_executor);
+    performance_test::System<> system(system_executor);
 
-    separate_threads_system.add_node(node_1);
-    separate_threads_system.add_node(nodes_vec);
-
-    performance_test::System<> single_executor_system(system_executor);
-
-    single_executor_system.add_node(node_1);
-    single_executor_system.add_node(nodes_vec);
+    system.add_node(node_1);
+    system.add_node(nodes_vec);
 }
-
-
 
 TEST_F(TestSystem, SystemPubSubTest)
 {
@@ -71,7 +64,6 @@ TEST_F(TestSystem, SystemPubSubTest)
     ASSERT_GT(tracker.second.received(), (unsigned long int)1);
 }
 
-
 TEST_F(TestSystem, SystemClientServerTest)
 {
     auto service = performance_test::Topic<performance_test_msgs::srv::Sample>("my_service");
@@ -98,7 +90,6 @@ TEST_F(TestSystem, SystemClientServerTest)
     ASSERT_EQ("my_service", tracker.first);
     ASSERT_GT(tracker.second.received(), (unsigned long int)1);
 }
-
 
 TEST_F(TestSystem, SystemDifferentQoSTest)
 {

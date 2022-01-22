@@ -45,7 +45,6 @@ public:
     RCLCPP_INFO(this->get_logger(), "Node %s created with executor id %d", name.c_str(), m_executor_id);
   }
 
-
   template <typename Msg>
   void add_subscriber(const Topic<Msg>& topic,
                       msg_pass_by_t msg_pass_by,
@@ -94,7 +93,6 @@ public:
     RCLCPP_INFO(this->get_logger(), "Subscriber to %s created", topic.name.c_str());
   }
 
-
   template <typename Msg>
   void add_periodic_publisher(const Topic<Msg>& topic,
                               std::chrono::microseconds period,
@@ -117,21 +115,20 @@ public:
     this->add_timer(period, publisher_task);
   }
 
-
   template <typename Msg>
   void add_publisher(const Topic<Msg>& topic, rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
-
-    typename rclcpp::Publisher<Msg>::SharedPtr pub =
-                                      this->create_publisher<Msg>(topic.name,
-                                      rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile));
+    auto node_topics_interface = get_node_topics_interface();
+    auto pub = rclcpp::create_publisher<Msg>(
+        node_topics_interface,
+        topic.name,
+        rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile));
 
     auto tracking_options = Tracker::TrackingOptions();
     _pubs.insert({ topic.name, { pub, Tracker(this->get_name(), topic.name, tracking_options) } });
 
     RCLCPP_INFO(this->get_logger(),"Publisher to %s created", topic.name.c_str());
   }
-
 
   template <typename Srv>
   void add_server(const Service<Srv>& service, rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
@@ -158,7 +155,6 @@ public:
 
     RCLCPP_INFO(this->get_logger(),"Server to %s created", service.name.c_str());
   }
-
 
   template <typename Srv>
   void add_periodic_client(const Service<Srv>& service,
@@ -358,7 +354,6 @@ private:
       header.size = size;
   }
 
-
   template <typename MsgType>
   void _topic_callback(const std::string& name, MsgType msg)
   {
@@ -445,7 +440,6 @@ private:
     RCLCPP_DEBUG(this->get_logger(), "Requesting to %s request number %d", name.c_str(), request->header.tracking_number);
   }
 
-
   template <typename Srv>
   void _response_received_callback(const std::string& name, std::shared_ptr<typename Srv::Request> request, typename rclcpp::Client<Srv>::SharedFuture result_future)
   {
@@ -462,7 +456,6 @@ private:
   // Client blocking call does not work with timers
   // Use a lock variable to avoid calling when you are already waiting
   bool _client_lock = false;
-
 
   template <typename Srv>
   void _service_callback(
@@ -485,7 +478,6 @@ private:
     RCLCPP_DEBUG(this->get_logger(), "Request on %s request number %d received %lu us", name.c_str(), request->header.tracking_number, tracker.last());
   }
 
-
   // A topic-name indexed map to store the publisher pointers with their
   // trackers.
   std::map<std::string, std::pair<std::shared_ptr<void>, Tracker>> _pubs;
@@ -501,7 +493,6 @@ private:
   // A service-name indexed map to store the server pointers with their
   // trackers.
   std::map<std::string, std::pair<std::shared_ptr<void>, Tracker>> _servers;
-
 
   std::vector<rclcpp::TimerBase::SharedPtr> _timers;
 

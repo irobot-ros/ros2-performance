@@ -1,0 +1,22 @@
+name: Testing
+
+on:
+  pull_request:
+  push:
+    branches:
+      - asoragna/cleanup
+
+jobs:
+  build_and_test:
+    name: build_and_test
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - uses: ros-tooling/setup-ros@0.2.1
+        with:
+          required-ros-distributions: rolling
+      - uses: ros-tooling/action-ros-ci@0.2.1
+        id: action_ros_ci_step
+        with:
+          target-ros2-distro: rolling
+          import-token: ${{ secrets.REPO_TOKEN }}

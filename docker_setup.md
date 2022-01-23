@@ -38,7 +38,8 @@ In the following you will find some additional configuration steps which may be 
 
 ### Manage Docker as non-root user
 
-**NOTE** This step is optional. If you skip it, simply add `sudo` to all the Docker commands.
+**NOTE** This step is optional.
+If you skip it, simply add `sudo` to all the Docker commands.
 
 Make sure that the docker group exists or create it
 
@@ -85,7 +86,8 @@ Using ARM containers on X86_64 laptops can be very useful, for example for cross
 
 This is not possible by default with Docker in Ubuntu, while it is possible with Mac OS and Windows.
 
-There are several solutions to this problem and not all may work depending on your Ubuntu or Kernel version. You should try them one after the other until you find something working for you.
+There are several solutions to this problem and not all may work depending on your Ubuntu or Kernel version.
+You should try them one after the other until you find something working for you.
 
 ##### Test if you need this step
 

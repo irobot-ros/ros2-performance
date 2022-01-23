@@ -1,0 +1,29 @@
+name: Testing
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  build_and_test:
+    name: build_and_test
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - uses: ros-tooling/setup-ros@0.2.1
+        with:
+          required-ros-distributions: rolling
+      - uses: ros-tooling/action-ros-ci@0.2.1
+        id: action_ros_ci_step
+        with:
+          target-ros2-distro: rolling
+          import-token: ${{ secrets.REPO_TOKEN }}
+          package-name:
+            irobot_interfaces_plugin
+            irobot_benchmark
+            performance_test
+            performance_test_factory
+            performance_test_msgs
+            performance_test_plugin_cmake

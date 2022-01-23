@@ -73,21 +73,21 @@ public:
 
   System(ExecutorType executor)
   {
-      _system_executor = executor;
+    _system_executor = executor;
   }
 
   void add_node(std::vector<std::shared_ptr<NodeT>> nodes)
   {
-      for (auto node : nodes){
-          this->add_node(node);
-      }
+    for (auto node : nodes){
+      this->add_node(node);
+    }
   }
 
   void add_node(std::shared_ptr<NodeT> node)
   {
-      if (_events_logger != nullptr){
-          node->set_events_logger(_events_logger);
-      }
+    if (_events_logger != nullptr){
+      node->set_events_logger(_events_logger);
+    }
 
       int executor_id = node->get_executor_id();
       auto it = _executors_map.find(executor_id);

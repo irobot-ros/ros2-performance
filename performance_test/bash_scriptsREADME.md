@@ -105,7 +105,8 @@ Usage:
 
 This script runs a series of tests using publisher/subscriber systems with different parameters.
 
-The default values of the parameters is contained in the bash script. Values can be changed exporting the proper environment variables.
+The default values of the parameters is contained in the bash script.
+Values can be changed exporting the proper environment variables.
 For example:
 
     export MSG_TYPES=1mb
@@ -115,7 +116,8 @@ For example:
     export DURATION=30
     export NUM_EXPERIMENTS=5
 
-Note that you can also pass multiple values to some variables. E.g.
+Note that you can also pass multiple values to some variables.
+E.g.
 
     export MSG_TYPES="10kb 1mb 4mb"
     export PUBLISH_FREQUENCIES="10 50 100"
@@ -126,12 +128,14 @@ You can control if you want to measure RAM and CPU using the following environme
     export MON_CPU_RAM=0
 
 
-**NOTE:** all the message types contains statically allocated arrays of the specified size. If you want to test a dynamically allocated message you have to set the following variables:
+**NOTE:** all the message types contains statically allocated arrays of the specified size.
+If you want to test a dynamically allocated message you have to set the following variables:
 
     export MSG_TYPES=vector
     export MSG_SIZE=10000
 
-Where `MSG_SIZE` is the size in bytes of the dynamically allocated field. Note that this varialbes is ignored if `MSG_TYPES` is not `vector`.
+Where `MSG_SIZE` is the size in bytes of the dynamically allocated field.
+Note that this varialbes is ignored if `MSG_TYPES` is not `vector`.
 
 
 For each combination of the environment variables we get:
@@ -142,7 +146,8 @@ For each combination of the environment variables we get:
 
 **NOTE:** there are two additional variants of this experiment bash script.
 
-The first one is `scripts/pub_sub_separate_process.sh`. This is basically the same script as before, but it creates publishers and subscribers in two different processes.
+The first one is `scripts/pub_sub_separate_process.sh`.
+This is basically the same script as before, but it creates publishers and subscribers in two different processes.
 The arguments are exactly the same previously described, however, note that only the subscriber process will be monitored.
 
 The second one is `scripts/client_service_ros2.sh` and, as its name states, it creates a system made of client and services.
@@ -189,7 +194,9 @@ cpu_ram_1p_2s_1kb_10hz_1.csv   lat_rel_1p_2s_1kb_10hz_1.csv
 
 The content of a `rel_lat` csv and the one of a `cpu_ram` CSV is different.
 
-The first one contains data where each line denotes a different ROS2 participant. For example it will contain the ID of the node, the ID of the topic/service which is used (called `communication_id`), the number of received messages, the average latency and so on.
+The first one contains data where each line denotes a different ROS2 participant.
+For example it will contain the ID of the node, the ID of the topic/service which is used (called `communication_id`), the number of received messages, the average latency and so on.
 
 On the other hand, the `cpu_ram` CSV contains values which are obtained from an observer which is external to the ROS2 system and thus it contains values related to the whole system.
-Each line is a snapshot of the system at a specific instant of time, i.e. RAM and CPU usage. Moreover, some additional information about the ROS2 system are included (i.e. number of nodes, type of messages) which can be usesful for plotting data.
+Each line is a snapshot of the system at a specific instant of time, i.e. RAM and CPU usage.
+Moreover, some additional information about the ROS2 system are included (i.e. number of nodes, type of messages) which can be usesful for plotting data.

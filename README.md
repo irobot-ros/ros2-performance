@@ -16,11 +16,13 @@ This makes it very easy to be compiled and used on embedded platforms.
 Note that this framework is mostly meant for evaluating single process applications.
 Although it is also able to measure the performance of multi-process applications, not all metrics will be available in this case.
 
-The nodes under test currently don't perform any sort of computation while they are tested. This means that most of the measured resource usage is due to the ROS2 communication.
+The nodes under test currently don't perform any sort of computation while they are tested.
+This means that most of the measured resource usage is due to the ROS2 communication.
 
 ## Build
 
-The only runtime requirement is ROS 2 rolling. Build requires Python 3, CMake and colcon.
+The only runtime requirement is ROS 2 rolling.
+The build machine requires Python 3, CMake and colcon.
 
 ```
 mkdir -p ~/performance_ws/src
@@ -51,13 +53,16 @@ If you want to create your own, follow the instructions in the `performance_test
 
 ### Structure of the framework
 
- - **[performance_test](performance_test)**: this package provides the `performance_test::PerformanceNode` class, which provides API for easily adding publishers, subscriptions, clients and services and monitor the performance of the communication. Moreover the `performance_test::System` class allows to start multiple nodes at the same time, while ensuring that they discover each other, and to monitor the performance of the whole system.
+ - **[performance_test](performance_test)**: this package provides the `performance_test::PerformanceNode` class, which provides API for easily adding publishers, subscriptions, clients and services and monitor the performance of the communication.
+ Moreover the `performance_test::System` class allows to start multiple nodes at the same time, while ensuring that they discover each other, and to monitor the performance of the whole system.
  Moreover, this pacakge contains scripts for visualizing the performance of applications.
  - **[performance_test_msgs](performance_test_msgs)**: this package contains basic interface definitions that are directly used by the `performance_test` package to measure performance.
- - **[performance_test_factory](performance_test_factory)**: this package provides the `performance_test::TemplateFactory` class that can be used to create `performance_test::PerformanceNode` objects with specific publishers and subscriptions according to some arguments provided at runtime: this can be done through json files or command line options. The interfaces (msg and srv) that can be used in these nodes have to be defined in the so called `performance_test_factory_plugins`.
+ - **[performance_test_factory](performance_test_factory)**: this package provides the `performance_test::TemplateFactory` class that can be used to create `performance_test::PerformanceNode` objects with specific publishers and subscriptions according to some arguments provided at runtime: this can be done through json files or command line options.
+ The interfaces (msg and srv) that can be used in these nodes have to be defined in the so called `performance_test_factory_plugins`.
  - **[performance_test_plugin_cmake](performance_test_plugin_cmake)**: this package provides the CMake function used to generate a factory plugin from interfaces definitions.
  - **[irobot_interfaces_plugin](irobot_interfaces_plugin)**: this package is a `performance_test_factory_plugin` that provides all the interfaces used in the iRobot system topologies.
- - **[irobot_benchmark](irobot_benchmark)**: this package provides our main benchmark application. This executable can load one or multiple json topologies and it creates a ROS2 system running in a specific process from each of them.
+ - **[irobot_benchmark](irobot_benchmark)**: this package provides our main benchmark application.
+ This executable can load one or multiple json topologies and it creates a ROS2 system running in a specific process from each of them.
  It also contains the json topologies used for iRobot performance evaluation.
 
 ## External tools and resources

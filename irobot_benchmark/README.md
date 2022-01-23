@@ -1,10 +1,16 @@
 # Benchmark Application
 
-This repository contains a benchmark application to test the performance of a ROS2 system. To run this benchmark, the user needs to provide a specific topology to simulate, in the form of a .json file. The application will load the complete ROS2 system from the topology file and will start doing dummy-message passing between the different nodes. Meanwhile, statistical data will be collected, such as the usage of resources (CPU utilization and RAM consumption) and message latencies. The application will run for a user-specified amount of time, and will output the results as human-readable log files. Tools to plot these results are provided.
+This repository contains a benchmark application to test the performance of a ROS2 system.
+To run this benchmark, the user needs to provide a specific topology to simulate, in the form of a .json file.
+The application will load the complete ROS2 system from the topology file and will start doing dummy-message passing between the different nodes.
+Meanwhile, statistical data will be collected, such as the usage of resources (CPU utilization and RAM consumption) and message latencies.
+The application will run for a user-specified amount of time, and will output the results as human-readable log files.
+Tools to plot these results are provided.
 
 ### Topologies
 
-Two default topologies are provided in the [topology](topology) folder, called [Sierra Nevada](topology/sierra_nevada.pdf) and [Mont Blanc](topology/mont_blanc.pdf). Sierra Nevada is light 10-node system while Mont Blanc is a heavier and more complex 20-node system.
+Two default topologies are provided in the [topology](topology) folder, called [Sierra Nevada](topology/sierra_nevada.pdf) and [Mont Blanc](topology/mont_blanc.pdf).
+Sierra Nevada is light 10-node system while Mont Blanc is a heavier and more complex 20-node system.
 
 
 ### Building
@@ -39,7 +45,8 @@ cd performances_ws/install/lib/irobot_benchmark
 ./irobot_benchmark topology/sierra_nevada.json -t 60 --ipc on
 ```
 
-This will run Sierra Nevada for 60 seconds and with *Intra-Process-Communication* activated. For more options, run `./irobot_benchmark --help`.
+This will run Sierra Nevada for 60 seconds and with *Intra-Process-Communication* activated.
+For more options, run `./irobot_benchmark --help`.
 
 
 ### Output
@@ -84,7 +91,15 @@ received[#]    mean[us]  late[#]   late[%]   too_late[#]    too_late[%]    lost[
 126496         744       204       0.1613    2              0.001581       0         0
 ```
 
-There are different message classifications depending on their latency. A message is classified as **too_late** when its latency is greater than `min(period, 50ms)`, where `period` is the publishing period of that particular topic. A message is classified as **late** if it's not classified as **too_late** but its latency is greater than `min(0.2*period, 5ms)`. The idea is that a real system could still work with a few **late** messages but not **too_late** messages. Note that there are CL options to change these thresholds (for more info: `./irobot_benchmark --help`). A **lost** message is a message that never arrived. We can detect a lost message when the subscriber receives a message with a tracking number greater than the one expected. The assumption here is that the messages always arrive in chronological order, i.e., a message A sent before a message B will either arrive before B or get lost, but will never arrive after B. The rest of the messages are classified as **on_time**.
+There are different message classifications depending on their latency.
+A message is classified as **too_late** when its latency is greater than `min(period, 50ms)`, where `period` is the publishing period of that particular topic.
+A message is classified as **late** if it's not classified as **too_late** but its latency is greater than `min(0.2*period, 5ms)`.
+The idea is that a real system could still work with a few **late** messages but not **too_late** messages.
+Note that there are CL options to change these thresholds (for more info: `./irobot_benchmark --help`).
+A **lost** message is a message that never arrived.
+We can detect a lost message when the subscriber receives a message with a tracking number greater than the one expected.
+The assumption here is that the messages always arrive in chronological order, i.e., a message A sent before a message B will either arrive before B or get lost, but will never arrive after B.
+The rest of the messages are classified as **on_time**.
 
 ```
 Message classifications by their latency
@@ -151,7 +166,14 @@ time[ms]       cpu[%]    arena[KB]      in_use[KB]     mmap[KB]       rss[KB]   
 20000          25        203536         203409         0              55792          661748
 ```
 
-The resources utilization are sampled periodically every 0.5 seconds (can be changed with the option `--sampling`). The utilization of the CPU is measured over the total cores, i.e., a 100% CPU utilization on a 4-core platform means that all 4 cores are 100% busy. The fields **arena**, **in_use** (uordblks) and **mmap** (hblkhd) are obtained by calling [mallinfo](http://man7.org/linux/man-pages/man3/mallinfo.3.html). These fields represent the total memory allocated by the `sbrk()` and `mmap()` system calls. The field **rss** is the actual allocated memory that was mapped into physical memory. Note that an allocated memory page is not mapped into physical memory until the executing process demands it ([demand paging](https://en.wikipedia.org/wiki/Demand_paging)). **vsz** represents the size of the virtual memory space. For our benchmark, **rss** is the most important memory metric.
+The resources utilization are sampled periodically every 0.5 seconds (can be changed with the option `--sampling`).
+The utilization of the CPU is measured over the total cores, i.e., a 100% CPU utilization on a 4-core platform means that all 4 cores are 100% busy.
+The fields **arena**, **in_use** (uordblks) and **mmap** (hblkhd) are obtained by calling [mallinfo](http://man7.org/linux/man-pages/man3/mallinfo.3.html).
+These fields represent the total memory allocated by the `sbrk()` and `mmap()` system calls.
+The field **rss** is the actual allocated memory that was mapped into physical memory.
+Note that an allocated memory page is not mapped into physical memory until the executing process demands it ([demand paging](https://en.wikipedia.org/wiki/Demand_paging)).
+**vsz** represents the size of the virtual memory space.
+For our benchmark, **rss** is the most important memory metric.
 
 **events.txt** (trimmed to fit):
 ```
@@ -197,7 +219,8 @@ This file stores special events with their associated timestamp, such as:
 
 ### Target performace
 
-The target performance for different topologies on specific platforms can be found in the folder [performance_target](performance_target). For example, [sierra_nevada_rpi3.json](performance_target/sierra_nevada_rpi3.json):
+The target performance for different topologies on specific platforms can be found in the folder [performance_target](performance_target).
+For example, [sierra_nevada_rpi3.json](performance_target/sierra_nevada_rpi3.json):
 
 ```
 {
@@ -221,7 +244,8 @@ The target performance for different topologies on specific platforms can be fou
 
 After you have run the application, you can plot the results using the plot scripts described in the [performance_test](../performance_test) library.
 
-Moreover, it's possible to directly compare the results with a performance target defined in a *.json* file. For example, you can run:
+Moreover, it's possible to directly compare the results with a performance target defined in a *.json* file.
+For example, you can run:
 
 ```
 python3 <path_to_performance_test_pkg>/scripts/plot_scripts/benchmark_app_evaluation.py --target <path_to_benchmark_pkg>/performance_target/sierra_nevada_rpi3.json --resources log/resources.txt --latency log/latency_total.txt

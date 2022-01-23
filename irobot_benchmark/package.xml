@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
-  <name>irobot-benchmark</name>
+  <name>irobot_benchmark</name>
   <version>0.1.0</version>
   <description>Benchmark applications to test ros2 performance</description>
   <maintainer email="joxoby@irobot.com">Juan Oxoby</maintainer>

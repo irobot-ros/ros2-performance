@@ -35,11 +35,11 @@ source performances_ws/install/local_setup.bash
 Run:
 
 ```
-cd performances_ws/install/lib/irobot-benchmark
-./irobot-benchmark topology/sierra_nevada.json -t 60 --ipc on
+cd performances_ws/install/lib/irobot_benchmark
+./irobot_benchmark topology/sierra_nevada.json -t 60 --ipc on
 ```
 
-This will run Sierra Nevada for 60 seconds and with *Intra-Process-Communication* activated. For more options, run `./irobot-benchmark --help`.
+This will run Sierra Nevada for 60 seconds and with *Intra-Process-Communication* activated. For more options, run `./irobot_benchmark --help`.
 
 
 ### Output
@@ -84,7 +84,7 @@ received[#]    mean[us]  late[#]   late[%]   too_late[#]    too_late[%]    lost[
 126496         744       204       0.1613    2              0.001581       0         0
 ```
 
-There are different message classifications depending on their latency. A message is classified as **too_late** when its latency is greater than `min(period, 50ms)`, where `period` is the publishing period of that particular topic. A message is classified as **late** if it's not classified as **too_late** but its latency is greater than `min(0.2*period, 5ms)`. The idea is that a real system could still work with a few **late** messages but not **too_late** messages. Note that there are CL options to change these thresholds (for more info: `./irobot-benchmark --help`). A **lost** message is a message that never arrived. We can detect a lost message when the subscriber receives a message with a tracking number greater than the one expected. The assumption here is that the messages always arrive in chronological order, i.e., a message A sent before a message B will either arrive before B or get lost, but will never arrive after B. The rest of the messages are classified as **on_time**.
+There are different message classifications depending on their latency. A message is classified as **too_late** when its latency is greater than `min(period, 50ms)`, where `period` is the publishing period of that particular topic. A message is classified as **late** if it's not classified as **too_late** but its latency is greater than `min(0.2*period, 5ms)`. The idea is that a real system could still work with a few **late** messages but not **too_late** messages. Note that there are CL options to change these thresholds (for more info: `./irobot_benchmark --help`). A **lost** message is a message that never arrived. We can detect a lost message when the subscriber receives a message with a tracking number greater than the one expected. The assumption here is that the messages always arrive in chronological order, i.e., a message A sent before a message B will either arrive before B or get lost, but will never arrive after B. The rest of the messages are classified as **on_time**.
 
 ```
 Message classifications by their latency

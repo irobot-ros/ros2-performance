@@ -32,19 +32,19 @@ colcon build
 
 ## Run
 
-The **[irobot-benchmark](irobot-benchmark)** package contains the main application and example of graph topologies for evaluation.
+The **[irobot_benchmark](irobot_benchmark)** package contains the main application and example of graph topologies for evaluation.
 
 ```
 source ~/performance_ws/install/setup.bash
-cd ~/performance_ws/install/irobot-benchmark/lib/irobot-benchmark
-./irobot-benchmark topology/sierra_nevada.json
+cd ~/performance_ws/install/irobot_benchmark/lib/irobot_benchmark
+./irobot_benchmark topology/sierra_nevada.json
 ```
 
 The results will be printed to screen and also saved in the directory `./sierra_nevada_log`.
 
 ## Extending the performance framework and testing your own system
 
-The `irobot-benchmark/topology` directory contains some examples of json files that can be used to create a system.
+The `irobot_benchmark/topology` directory contains some examples of json files that can be used to create a system.
 If you want to create your own, follow the instructions in the `performance_test_factory` package:
 
 [How to create a new topology](performance_test_factory/create_new_topology.md)
@@ -57,7 +57,7 @@ If you want to create your own, follow the instructions in the `performance_test
  - **[performance_test_factory](performance_test_factory)**: this package provides the `performance_test::TemplateFactory` class that can be used to create `performance_test::PerformanceNode` objects with specific publishers and subscriptions according to some arguments provided at runtime: this can be done through json files or command line options. The interfaces (msg and srv) that can be used in these nodes have to be defined in the so called `performance_test_factory_plugins`.
  - **[performance_test_plugin_cmake](performance_test_plugin_cmake)**: this package provides the CMake function used to generate a factory plugin from interfaces definitions.
  - **[irobot_interfaces_plugin](irobot_interfaces_plugin)**: this package is a `performance_test_factory_plugin` that provides all the interfaces used in the iRobot system topologies.
- - **[irobot-benchmark](irobot-benchmark)**: this package provides our main benchmark application. This executable can load one or multiple json topologies and it creates a ROS2 system running in a specific process from each of them.
+ - **[irobot_benchmark](irobot_benchmark)**: this package provides our main benchmark application. This executable can load one or multiple json topologies and it creates a ROS2 system running in a specific process from each of them.
  It also contains the json topologies used for iRobot performance evaluation.
 
 ## External tools and resources

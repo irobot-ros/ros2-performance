@@ -22,7 +22,7 @@ jobs:
           import-token: ${{ secrets.REPO_TOKEN }}
           package-name:
             irobot_interfaces_plugin
-            irobot-benchmark
+            irobot_benchmark
             performance_test
             performance_test_factory
             performance_test_msgs

@@ -28,81 +28,89 @@ namespace performance_test {
 class ResourceUsageLogger {
 
 public:
-    struct Resources {
-        double elasped_ms = 0;
-        double cpu_usage = 0;
-        unsigned long int mem_arena_KB = 0;
-        unsigned long int mem_in_use_KB = 0;
-        unsigned long int mem_mmap_KB = 0;
-        unsigned long int mem_max_rss_KB = 0;
-        unsigned long int mem_virtual_KB = 0;
-    };
+  struct Resources {
+      double elasped_ms = 0;
+      double cpu_usage = 0;
+      unsigned long int mem_arena_KB = 0;
+      unsigned long int mem_in_use_KB = 0;
+      unsigned long int mem_mmap_KB = 0;
+      unsigned long int mem_max_rss_KB = 0;
+      unsigned long int mem_virtual_KB = 0;
+  };
 
-    ResourceUsageLogger() = delete;
+  ResourceUsageLogger() = delete;
 
-    ResourceUsageLogger(std::string filename) : _filename(filename)
-    {
-        _pid = getpid();
-        _pagesize = getpagesize();
+  ResourceUsageLogger(std::string filename) : _filename(filename)
+  {
+    _pid = getpid();
+    _pagesize = getpagesize();
 
-        _log = false;
+    _log = false;
+    _done = true;
+  };
+
+  void start(std::chrono::milliseconds period = std::chrono::milliseconds(1000))
+  {
+    _file.open(_filename,  std::fstream::out);
+    if(!_file.is_open()) {
+      std::cout << "[ResourceUsageLogger]: Error. Could not open file " << _filename << std::endl;
+      std::cout << "[ResourceUsageLogger]: Not logging." << std::endl;
+      return;
+    }
+
+    std::cout << "[ResourceUsageLogger]: Logging to " << _filename << std::endl;
+
+    _t1_real_start = std::chrono::steady_clock::now();
+    _t1_user = std::clock();
+    _t1_real = std::chrono::steady_clock::now();
+    _log = true;
+    _done = false;
+
+    // create a detached thread that monitors resource usage periodically
+    std::thread logger_thread([=]() {
+      long int i = 1;
+      while(this->_log) {
+        std::this_thread::sleep_until(_t1_real_start + period * i);
+        if (i == 1) {
+          _print_header(_file);
+          // print a line of zeros for better visualization
+          _print(_file);
+        }
+        _get();
+        _print(_file);
+        i++;
         _done = true;
-    };
+      }
+    });
+    logger_thread.detach();
+  }
 
-    void start(std::chrono::milliseconds period = std::chrono::milliseconds(1000))
-    {
-        _file.open(_filename,  std::fstream::out);
-        if(!_file.is_open()) {
-            std::cout << "[ResourceUsageLogger]: Error. Could not open file " << _filename << std::endl;
-            std::cout << "[ResourceUsageLogger]: Not logging." << std::endl;
-            return;
-        }
+  void stop()
+  {
+    _log = false;
+    while(_done == false); // Wait until we are done logging.
+    _file.close();
+  }
 
-        std::cout << "[ResourceUsageLogger]: Logging to " << _filename << std::endl;
+  void print_resource_usage()
+  {
+    _print_header(std::cout);
+    _print(std::cout);
+  }
 
-        _t1_real_start = std::chrono::steady_clock::now();
-        _t1_user = std::clock();
-        _t1_real = std::chrono::steady_clock::now();
-        _log = true;
-        _done = false;
-
-        // create a detached thread that monitors resource usage periodically
-        std::thread logger_thread([=]() {
-                                            long int i = 1;
-                                            while(this->_log) {
-                                                std::this_thread::sleep_until(_t1_real_start + period * i);
-                                                if (i == 1) _print_header();
-                                                _get();
-                                                _print();
-                                                i++;
-                                                _done = true;
-                                            }
-                                        });
-        logger_thread.detach();
+  void set_system_info(int pubs, int subs, float frequency)
+  {
+    if (_log == true){
+      std::cout<<"[ResourceUsageLogger]: You have to set system info before starting the logger!"<<std::endl;
+      return;
     }
 
-    void stop()
-    {
-        _log = false;
-        while(_done == false); // Wait until we are done logging.
-        _file.close();
-    }
+    _pubs = pubs;
+    _subs = subs;
+    _frequency = frequency;
 
-
-    void set_system_info(int pubs, int subs, float frequency)
-    {
-        if (_log == true){
-            std::cout<<"[ResourceUsageLogger]: You have to set system info before starting the logger!"<<std::endl;
-            return;
-        }
-
-        _pubs = pubs;
-        _subs = subs;
-        _frequency = frequency;
-
-        _got_system_info = true;
-    }
-
+    _got_system_info = true;
+  }
 
 private:
 
@@ -152,56 +160,51 @@ private:
         }
     }
 
-
-    void _print_header()
+    void _print_header(std::ostream& stream)
     {
         const char separator = ' ';
         const int wide_space = 15;
         const int narrow_space = 10;
 
-        _file << std::left << std::setw(wide_space) << std::setfill(separator) << "time[ms]";
-        _file << std::left << std::setw(narrow_space) << std::setfill(separator) << "cpu[%]";
-        _file << std::left << std::setw(wide_space) << std::setfill(separator) << "arena[KB]";
-        _file << std::left << std::setw(wide_space) << std::setfill(separator) << "in_use[KB]";
-        _file << std::left << std::setw(wide_space) << std::setfill(separator) << "mmap[KB]";
-        _file << std::left << std::setw(wide_space) << std::setfill(separator) << "rss[KB]";
-        _file << std::left << std::setw(wide_space) << std::setfill(separator) << "vsz[KB]";
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << "time[ms]";
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "cpu[%]";
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << "arena[KB]";
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << "in_use[KB]";
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << "mmap[KB]";
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << "rss[KB]";
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << "vsz[KB]";
 
         if (_got_system_info){
-            _file << std::left << std::setw(wide_space) << std::setfill(separator) << "pubs";
-            _file << std::left << std::setw(wide_space) << std::setfill(separator) << "subs";
-            _file << std::left << std::setw(wide_space) << std::setfill(separator) << "frequency";
+            stream << std::left << std::setw(wide_space) << std::setfill(separator) << "pubs";
+            stream << std::left << std::setw(wide_space) << std::setfill(separator) << "subs";
+            stream << std::left << std::setw(wide_space) << std::setfill(separator) << "frequency";
         }
 
-        _file << std::endl;
-
-        // print a line of zeros for better visualization
-        _print();
+        stream << std::endl;
     }
 
-
     // Print data to file
-    void _print()
+    void _print(std::ostream& stream)
     {
         const char separator = ' ';
         const int wide_space = 15;
         const int narrow_space = 10;
 
-        _file << std::left << std::setw(wide_space) << std::setfill(separator) << std::setprecision(wide_space-1) << std::round(_resources.elasped_ms);
-        _file << std::left << std::setw(narrow_space) << std::setfill(separator) << std::setprecision(2) << _resources.cpu_usage;
-        _file << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_arena_KB;
-        _file << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_in_use_KB;
-        _file << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_mmap_KB;
-        _file << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_max_rss_KB;
-        _file << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_virtual_KB;
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << std::setprecision(wide_space-1) << std::round(_resources.elasped_ms);
+        stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::setprecision(2) << _resources.cpu_usage;
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_arena_KB;
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_in_use_KB;
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_mmap_KB;
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_max_rss_KB;
+        stream << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_virtual_KB;
 
         if (_got_system_info){
-            _file << std::left << std::setw(wide_space) << std::setfill(separator) << _pubs;
-            _file << std::left << std::setw(wide_space) << std::setfill(separator) << _subs;
-            _file << std::left << std::setw(wide_space) << std::setfill(separator)<<  std::fixed << _frequency << std::defaultfloat;
+            stream << std::left << std::setw(wide_space) << std::setfill(separator) << _pubs;
+            stream << std::left << std::setw(wide_space) << std::setfill(separator) << _subs;
+            stream << std::left << std::setw(wide_space) << std::setfill(separator)<<  std::fixed << _frequency << std::defaultfloat;
         }
 
-        _file << std::endl;
+        stream << std::endl;
     }
 
     Resources _resources;

@@ -26,24 +26,17 @@ public:
 
 TEST_F(TestSystem, SystemAddNodesTest)
 {
-    auto node_1 = std::make_shared<performance_test::Node>("node_1");
-    auto node_2 = std::make_shared<performance_test::Node>("node_2");
-    auto node_3 = std::make_shared<performance_test::Node>("node_3");
-    std::vector<std::shared_ptr<performance_test::Node>> nodes_vec = {node_2, node_3};
+    auto node_1 = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("node_1");
+    auto node_2 = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("node_2");
+    auto node_3 = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("node_3");
+    std::vector<std::shared_ptr<performance_test::PerformanceNode<rclcpp::Node>>> nodes_vec = {node_2, node_3};
 
     auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
-    performance_test::System<> separate_threads_system(system_executor);
+    performance_test::System<> system(system_executor);
 
-    separate_threads_system.add_node(node_1);
-    separate_threads_system.add_node(nodes_vec);
-
-    performance_test::System<> single_executor_system(system_executor);
-
-    single_executor_system.add_node(node_1);
-    single_executor_system.add_node(nodes_vec);
+    system.add_node(node_1);
+    system.add_node(nodes_vec);
 }
-
-
 
 TEST_F(TestSystem, SystemPubSubTest)
 {
@@ -54,11 +47,11 @@ TEST_F(TestSystem, SystemPubSubTest)
     performance_test::System<> ros2_system(system_executor);
 
     // Create 1 pulisher node and 1 subscriber node
-    auto pub_node = std::make_shared<performance_test::Node>("pub_node");
+    auto pub_node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("pub_node");
     pub_node->add_periodic_publisher(topic, 10ms, PASS_BY_UNIQUE_PTR, rmw_qos_profile_default);
     ros2_system.add_node(pub_node);
 
-    auto sub_node = std::make_shared<performance_test::Node>("sub_node");
+    auto sub_node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("sub_node");
     sub_node->add_subscriber(topic, PASS_BY_SHARED_PTR, performance_test::Tracker::TrackingOptions(), rmw_qos_profile_default);
     ros2_system.add_node(sub_node);
 
@@ -71,7 +64,6 @@ TEST_F(TestSystem, SystemPubSubTest)
     ASSERT_GT(tracker.second.received(), (unsigned long int)1);
 }
 
-
 TEST_F(TestSystem, SystemClientServerTest)
 {
     auto service = performance_test::Topic<performance_test_msgs::srv::Sample>("my_service");
@@ -81,11 +73,11 @@ TEST_F(TestSystem, SystemClientServerTest)
     performance_test::System<> ros2_system(system_executor);
 
     // Create 1 client node and 1 server node
-    auto client_node = std::make_shared<performance_test::Node>("client_node");
+    auto client_node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("client_node");
     client_node->add_periodic_client(service, 10ms, rmw_qos_profile_default);
     ros2_system.add_node(client_node);
 
-    auto server_node = std::make_shared<performance_test::Node>("server_node");
+    auto server_node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("server_node");
     server_node->add_server(service, rmw_qos_profile_default);
     ros2_system.add_node(server_node);
 
@@ -99,7 +91,6 @@ TEST_F(TestSystem, SystemClientServerTest)
     ASSERT_GT(tracker.second.received(), (unsigned long int)1);
 }
 
-
 TEST_F(TestSystem, SystemDifferentQoSTest)
 {
     auto topic = performance_test::Topic<performance_test_msgs::msg::Sample>("my_topic");
@@ -110,12 +101,12 @@ TEST_F(TestSystem, SystemDifferentQoSTest)
     rmw_qos_profile_t qos_profile = rmw_qos_profile_default;
 
     // Create 1 pulisher node and 1 subscriber node
-    auto pub_node = std::make_shared<performance_test::Node>("pub_node");
+    auto pub_node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("pub_node");
     qos_profile.reliability = rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
     pub_node->add_periodic_publisher(topic, 10ms, PASS_BY_UNIQUE_PTR, qos_profile);
     ros2_system.add_node(pub_node);
 
-    auto sub_node = std::make_shared<performance_test::Node>("sub_node");
+    auto sub_node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("sub_node");
     qos_profile.reliability = rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_RELIABLE;
     sub_node->add_subscriber(topic, PASS_BY_SHARED_PTR, performance_test::Tracker::TrackingOptions(), qos_profile);
     ros2_system.add_node(sub_node);

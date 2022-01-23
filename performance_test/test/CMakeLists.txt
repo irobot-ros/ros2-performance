@@ -19,7 +19,3 @@ target_link_libraries(test_node ${LIBRARY_NAME})
 ament_add_gtest(test_system test_system.cpp)
 ament_target_dependencies(test_system performance_test_msgs)
 target_link_libraries(test_system ${LIBRARY_NAME})
-
-ament_add_gtest(test_lifecycle_node test_lifecycle_node.cpp)
-ament_target_dependencies(test_lifecycle_node performance_test_msgs)
-target_link_libraries(test_lifecycle_node ${LIBRARY_NAME})

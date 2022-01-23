@@ -106,7 +106,7 @@ int main(int argc, char ** argv)
     performance_test::System<> ros2_system(static_cast<performance_test::ExecutorType>(executor));
     ros2_system.enable_events_logger(events_file_path);
 
-    std::vector<std::shared_ptr<performance_test::Node>> sub_nodes =
+    std::vector<std::shared_ptr<performance_test::PerformanceNode<>>> sub_nodes =
         factory.create_subscriber_nodes(
             0,
             n_subscribers,

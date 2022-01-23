@@ -15,6 +15,8 @@
 #include <map>
 #include <type_traits>
 
+#include <rclcpp_lifecycle/lifecycle_node.hpp>
+
 #include "performance_test/names_utilities.hpp"
 
 #include "performance_test_factory/load_plugins.hpp"
@@ -23,14 +25,13 @@
 #include "performance_test/executors.hpp"
 #include "performance_test/node.hpp"
 #include "performance_test/node_types.hpp"
-#include "performance_test/lifecycle_node.hpp"
 
 using namespace std::chrono_literals;
 using json = nlohmann::json;
 
 namespace performance_test {
 
-template <class NodeT = Node>
+template <class NodeT = PerformanceNode<rclcpp::Node>>
 class TemplateFactory {
 
 
@@ -46,9 +47,9 @@ class TemplateFactory {
                 _verbose_mode(verbose_mode),
                 _ros2_namespace(ros2_namespace)
         {
-            if (std::is_same<NodeT, LifecycleNode>::value) {
+            if (std::is_same<NodeT, PerformanceNode<rclcpp_lifecycle::LifecycleNode>>::value) {
                 _node_type = RCLCPP_LIFECYCLE_NODE;
-            } else if (std::is_same<NodeT, Node>::value) {
+            } else if (std::is_same<NodeT, PerformanceNode<rclcpp::Node>>::value) {
                 _node_type = RCLCPP_NODE;
             }
         }

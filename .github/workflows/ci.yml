@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     branches:
-      - asoragna/cleanup
+      - master
 
 jobs:
   build_and_test:
@@ -20,3 +20,10 @@ jobs:
         with:
           target-ros2-distro: rolling
           import-token: ${{ secrets.REPO_TOKEN }}
+          package-name:
+            irobot_interfaces_plugin
+            irobot_benchmark
+            performance_test
+            performance_test_factory
+            performance_test_msgs
+            performance_test_plugin_cmake

@@ -11,8 +11,6 @@
 
 #include "performance_test_factory/factory.hpp"
 
-
-
 class TestFactory : public ::testing::Test
 {
 public:
@@ -24,28 +22,26 @@ public:
 
 TEST_F(TestFactory, FactoryConstructorTest)
 {
-  performance_test::TemplateFactory<> factory;
+  performance_test::TemplateFactory<performance_test::PerformanceNode<rclcpp::Node>> factory;
 }
-
 
 TEST_F(TestFactory, FactoryCreateFromStringTest)
 {
-  performance_test::TemplateFactory<> factory;
+  performance_test::TemplateFactory<performance_test::PerformanceNode<rclcpp::Node>> factory;
 
-  auto node = std::make_shared<performance_test::Node>("node_name");
+  auto node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("node_name");
 
   factory.add_subscriber_from_strings(node, "stamped10b", "my_topic", performance_test::Tracker::TrackingOptions());
   factory.add_periodic_publisher_from_strings(node, "stamped10b", "my_topic");
   factory.add_server_from_strings(node, "stamped10b", "my_service");
   factory.add_periodic_client_from_strings(node, "stamped10b", "my_service");
 
-  ASSERT_EQ((size_t)3, node->all_trackers()->size());
+  ASSERT_EQ((size_t)2, node->all_trackers()->size());
 }
-
 
 TEST_F(TestFactory, FactoryCreateFromIndicesTest)
 {
-  performance_test::TemplateFactory<> factory;
+  performance_test::TemplateFactory<performance_test::PerformanceNode<rclcpp::Node>> factory;
 
   int n_subscriber_nodes = 2;
   int n_publisher_nodes = 2;
@@ -82,7 +78,6 @@ TEST_F(TestFactory, FactoryCreateFromIndicesTest)
   }
 }
 
-
 TEST_F(TestFactory, FactoryCreateFromJsonTest)
 {
   std::string this_file_path = __FILE__;
@@ -99,6 +94,7 @@ TEST_F(TestFactory, FactoryCreateFromJsonTest)
   ASSERT_STREQ("node_1", nodes_vec[1]->get_name());
   ASSERT_STREQ("node_2", nodes_vec[2]->get_name());
 
-  ASSERT_EQ((size_t)2, nodes_vec[1]->all_trackers()->size());
+  ASSERT_EQ((size_t)0, nodes_vec[0]->all_trackers()->size());
+  ASSERT_EQ((size_t)1, nodes_vec[1]->all_trackers()->size());
   ASSERT_EQ((size_t)1, nodes_vec[2]->all_trackers()->size());
 }

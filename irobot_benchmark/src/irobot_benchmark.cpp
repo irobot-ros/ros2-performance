@@ -161,7 +161,7 @@ int main(int argc, char** argv)
     {
         case performance_test::RCLCPP_NODE:
         {
-            run_test<performance_test::Node>(argc, argv, options, topology_json, pid,
+            run_test<performance_test::PerformanceNode<rclcpp::Node>>(argc, argv, options, topology_json, pid,
                                                     resources_output_path, events_output_path,
                                                     latency_all_output_path, latency_total_output_path);
             break;
@@ -169,7 +169,7 @@ int main(int argc, char** argv)
 
         case performance_test::RCLCPP_LIFECYCLE_NODE:
         {
-            run_test<performance_test::LifecycleNode>(argc, argv, options, topology_json, pid,
+            run_test<performance_test::PerformanceNode<rclcpp_lifecycle::LifecycleNode>>(argc, argv, options, topology_json, pid,
                                                              resources_output_path, events_output_path,
                                                              latency_all_output_path, latency_total_output_path);
             break;

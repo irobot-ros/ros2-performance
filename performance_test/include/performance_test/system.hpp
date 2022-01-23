@@ -17,7 +17,6 @@
 
 #include "performance_test/names_utilities.hpp"
 #include "performance_test/node.hpp"
-#include "performance_test/lifecycle_node.hpp"
 #include "performance_test/executors.hpp"
 #include "performance_test/events_logger.hpp"
 
@@ -67,28 +66,28 @@ unsigned long int parse_line(std::string& line)
 
 namespace performance_test {
 
-template <class NodeT = Node>
+template <class NodeT = PerformanceNode<rclcpp::Node>>
 class System
 {
 public:
 
   System(ExecutorType executor)
   {
-      _system_executor = executor;
+    _system_executor = executor;
   }
 
   void add_node(std::vector<std::shared_ptr<NodeT>> nodes)
   {
-      for (auto node : nodes){
-          this->add_node(node);
-      }
+    for (auto node : nodes){
+      this->add_node(node);
+    }
   }
 
   void add_node(std::shared_ptr<NodeT> node)
   {
-      if (_events_logger != nullptr){
-          node->set_events_logger(_events_logger);
-      }
+    if (_events_logger != nullptr){
+      node->set_events_logger(_events_logger);
+    }
 
       int executor_id = node->get_executor_id();
       auto it = _executors_map.find(executor_id);
@@ -365,14 +364,14 @@ private:
       bool edp_ok = false;
       while (!edp_ok){
           for (const auto& n : _nodes){
+              auto published_topics = n->get_published_topics();
               // if the node has no publishers, it will be skipped.
               // however, the boolean flag has to be set to true.
-              if (n->_pubs.empty()){
+              if (published_topics.empty()){
                   edp_ok = true;
                   continue;
               }
-              for (const auto& pub_tracker : n->_pubs){
-                  std::string topic_name = pub_tracker.first;
+              for (const auto& topic_name : published_topics){
                   int discovered_endpoints = n->count_subscribers(topic_name);
                   // we check greater or equal to take into account for other processes
                   edp_ok = (discovered_endpoints >= subs_per_topic[topic_name]);

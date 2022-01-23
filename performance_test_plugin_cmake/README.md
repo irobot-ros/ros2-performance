@@ -18,7 +18,7 @@ This is how the file should look like.
 #include "performance_test_msgs/msg/stamped_vector.hpp"
 
 void performance_test::TemplateFactory::add_subscriber_from_strings(
-  std::shared_ptr<performance_test::Node> n,
+  std::shared_ptr<performance_test::PerformanceNode> n,
   std::string msg_type,
   std::string topic_name,
   Tracker::TrackingOptions tracking_options,

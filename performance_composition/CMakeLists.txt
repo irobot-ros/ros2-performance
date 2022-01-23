@@ -17,22 +17,32 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 
-add_library(composable_node SHARED
-  src/composable_node.cpp
+add_library(global_factory SHARED
   src/global_factory.cpp
 )
-ament_target_dependencies(composable_node rclcpp rclcpp_components performance_test)
-target_include_directories(composable_node PUBLIC include)
+target_include_directories(global_factory PUBLIC include)
 
-add_executable(performance_composition
-  src/main.cpp
+add_library(composable_node SHARED
+  src/composable_node.cpp
 )
-ament_target_dependencies(performance_composition performance_test irobot_interfaces_plugin)
-target_link_libraries(performance_composition composable_node)
+ament_target_dependencies(composable_node rclcpp rclcpp_components performance_test)
+target_link_libraries(composable_node global_factory)
+target_include_directories(composable_node PUBLIC include)
+rclcpp_components_register_nodes(composable_node "ComposableNode")
+
+add_library(base_node SHARED
+  src/base_node.cpp
+)
+ament_target_dependencies(base_node rclcpp rclcpp_components performance_test)
+target_link_libraries(base_node global_factory)
+target_include_directories(base_node PUBLIC include)
+
+add_subdirectory(apps)
 
 install(TARGETS
+  base_node
   composable_node
-  performance_composition
+  global_factory
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}

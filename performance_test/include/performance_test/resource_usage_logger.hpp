@@ -10,17 +10,17 @@
 #pragma once
 
 #include <atomic>
-#include <iostream>
-#include <fstream>
-#include <string>
 #include <chrono>
-#include <ctime>
-#include <thread>
 #include <cmath>
-
+#include <ctime>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <malloc.h>
+#include <string>
 #include <sys/resource.h>
 #include <sys/types.h>
+#include <thread>
 #include <unistd.h>
 
 namespace performance_test {

@@ -5,7 +5,7 @@
 class ComposableNode : public performance_test::PerformanceNode<rclcpp::Node>
 {
 public:
-    explicit ComposableNode(const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
+  explicit ComposableNode(const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
-    ~ComposableNode() = default;
+  ~ComposableNode() = default;
 };

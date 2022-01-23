@@ -2,10 +2,10 @@
 
 ## Create a sample application
 
-This package defines the `performance_test::Node` class.
+This package defines the `performance_test::PerformanceNode` class.
 This class inherits from `rclcpp::Node` and provides APIs for easily adding any number of publishers, subscriptions, clients and servers to the node.
 
-Each of the `Node::add_periodic_publisher`, `Node::add_subscriber`, etc.. methods are based on a template in order to allow the creation of systems with different types of messages.
+Each of the `PerformanceNode::add_periodic_publisher`, `PerformanceNode::add_subscriber`, etc.. methods are based on a template in order to allow the creation of systems with different types of messages.
 
 We use the `performance_test::Topic<MsgType>` templated structures in order to store the message type and the name of topics.
 There exists an equivalent structure for services `performance_test::Service<SrvType>`.
@@ -13,7 +13,7 @@ There exists an equivalent structure for services `performance_test::Service<Srv
 ```
 #include "performance_test/node.hpp"
 auto topic = performance_test::Topic<performance_test_msgs::msg::Stamped10b>("my_topic_name");
-auto sub_node = std::make_shared<performance_test::Node>("my_sub_node");
+auto sub_node = std::make_shared<performance_test::PerformanceNode>("my_sub_node");
 sub_node->add_subscriber(topic, rmw_qos_profile_default);
 ```
 
@@ -24,7 +24,7 @@ Similarly you can create a second node which publishes data periodically.
 ```
 #include "performance_test/node.hpp"
 auto topic = performance_test::Topic<performance_test_msgs::msg::Stamped10b>("my_topic_name");
-auto pub_node = std::make_shared<performance_test::Node>("my_pub_node");
+auto pub_node = std::make_shared<performance_test::PerformanceNode>("my_pub_node");
 pub_node->add_subscriber(topic, rmw_qos_profile_default);
 ```
 

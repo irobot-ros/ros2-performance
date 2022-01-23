@@ -22,14 +22,14 @@ public:
 
 TEST_F(TestFactory, FactoryConstructorTest)
 {
-  performance_test::TemplateFactory<> factory;
+  performance_test::TemplateFactory<performance_test::PerformanceNode<rclcpp::Node>> factory;
 }
 
 TEST_F(TestFactory, FactoryCreateFromStringTest)
 {
-  performance_test::TemplateFactory<> factory;
+  performance_test::TemplateFactory<performance_test::PerformanceNode<rclcpp::Node>> factory;
 
-  auto node = std::make_shared<performance_test::Node>("node_name");
+  auto node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("node_name");
 
   factory.add_subscriber_from_strings(node, "stamped10b", "my_topic", performance_test::Tracker::TrackingOptions());
   factory.add_periodic_publisher_from_strings(node, "stamped10b", "my_topic");
@@ -41,7 +41,7 @@ TEST_F(TestFactory, FactoryCreateFromStringTest)
 
 TEST_F(TestFactory, FactoryCreateFromIndicesTest)
 {
-  performance_test::TemplateFactory<> factory;
+  performance_test::TemplateFactory<performance_test::PerformanceNode<rclcpp::Node>> factory;
 
   int n_subscriber_nodes = 2;
   int n_publisher_nodes = 2;

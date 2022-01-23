@@ -99,12 +99,12 @@ def get_sub_factory(msgs, package, node_type):
   if len(msgs) == 0:
     return ""
 
-  if node_type == "Node":
+  if node_type == "rclcpp::Node":
     content = """
 
     extern "C" void add_subscriber_impl(
     """
-  elif node_type == "LifecycleNode":
+  elif node_type == "rclcpp_lifecycle::LifecycleNode":
     content = """
 
     extern "C" void add_subscriber_impl_lifecycle(
@@ -112,7 +112,8 @@ def get_sub_factory(msgs, package, node_type):
   else:
     return ""
 
-  content += "\n std::shared_ptr<performance_test::" + node_type + "> n,"
+  performance_node = "performance_test::PerformanceNode<" + node_type + ">"
+  content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
     std::string msg_type,
@@ -163,12 +164,12 @@ def get_pub_factory(msgs, package, node_type):
   if len(msgs) == 0:
     return ""
 
-  if node_type == "Node":
+  if node_type == "rclcpp::Node":
     content = """
 
     extern "C" void add_publisher_impl(
     """
-  elif node_type == "LifecycleNode":
+  elif node_type == "rclcpp_lifecycle::LifecycleNode":
     content = """
 
     extern "C" void add_publisher_impl_lifecycle(
@@ -176,7 +177,8 @@ def get_pub_factory(msgs, package, node_type):
   else:
     return ""
 
-  content += "\n std::shared_ptr<performance_test::" + node_type + "> n,"
+  performance_node = "performance_test::PerformanceNode<" + node_type + ">"
+  content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
     std::string msg_type,
@@ -228,12 +230,12 @@ def get_server_factory(srvs, package, node_type):
   if len(srvs) == 0:
     return ""
 
-  if node_type == "Node":
+  if node_type == "rclcpp::Node":
     content = """
 
     extern "C" void add_server_impl(
     """
-  elif node_type == "LifecycleNode":
+  elif node_type == "rclcpp_lifecycle::LifecycleNode":
     content = """
 
     extern "C" void add_server_impl_lifecycle(
@@ -241,7 +243,8 @@ def get_server_factory(srvs, package, node_type):
   else:
     return ""
 
-  content += "\n std::shared_ptr<performance_test::" + node_type + "> n,"
+  performance_node = "performance_test::PerformanceNode<" + node_type + ">"
+  content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
     std::string srv_type,
@@ -290,12 +293,12 @@ def get_client_factory(srvs, package, node_type):
   if len(srvs) == 0:
     return ""
 
-  if node_type == "Node":
+  if node_type == "rclcpp::Node":
     content = """
 
     extern "C" void add_client_impl(
     """
-  elif node_type == "LifecycleNode":
+  elif node_type == "rclcpp_lifecycle::LifecycleNode":
     content = """
 
     extern "C" void add_client_impl_lifecycle(
@@ -303,7 +306,8 @@ def get_client_factory(srvs, package, node_type):
   else:
     return ""
 
-  content += "\n std::shared_ptr<performance_test::" + node_type + "> n,"
+  performance_node = "performance_test::PerformanceNode<" + node_type + ">"
+  content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
     std::string srv_type,
@@ -377,23 +381,24 @@ def main():
   os.makedirs(outdir, exist_ok=True)
 
   content = """
+  #include <rclcpp/rclcpp.hpp>
+  #include <rclcpp_lifecycle/lifecycle_node.hpp>
   #include "performance_test/node.hpp"
-  #include "performance_test/lifecycle_node.hpp"
 
   """
 
   content += get_include_paths(msgs, srvs, package)
-  content += get_sub_factory(msgs, package, "Node")
-  content += get_sub_factory(msgs, package, "LifecycleNode")
+  content += get_sub_factory(msgs, package, "rclcpp::Node")
+  content += get_sub_factory(msgs, package, "rclcpp_lifecycle::LifecycleNode")
 
-  content += get_pub_factory(msgs, package, "Node")
-  content += get_pub_factory(msgs, package, "LifecycleNode")
+  content += get_pub_factory(msgs, package, "rclcpp::Node")
+  content += get_pub_factory(msgs, package, "rclcpp_lifecycle::LifecycleNode")
 
-  content += get_server_factory(srvs, package, "Node")
-  content += get_server_factory(srvs, package, "LifecycleNode")
+  content += get_server_factory(srvs, package, "rclcpp::Node")
+  content += get_server_factory(srvs, package, "rclcpp_lifecycle::LifecycleNode")
 
-  content += get_client_factory(srvs, package, "Node")
-  content += get_client_factory(srvs, package, "LifecycleNode")
+  content += get_client_factory(srvs, package, "rclcpp::Node")
+  content += get_client_factory(srvs, package, "rclcpp_lifecycle::LifecycleNode")
 
   def create(filename, content):
     if os.path.exists(filename):

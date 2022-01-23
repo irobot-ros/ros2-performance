@@ -1,6 +1,6 @@
 # Performance Test Factory
 
-This package contains a factory for creating multiple instances of `performance_test::Node` with entities of various types.
+This package contains a factory for creating multiple instances of `performance_test::PerformanceNode` with entities of various types.
 
 This package depends on a series of plugin, defined by the group tag `performance_test_factory_plugins`.
 Each plugin will define some custom interfaces that can be used in the factory.
@@ -70,7 +70,7 @@ int n_subscribers = 10;
 float frequency = 10;
 std::string msg_type = "stamped10kb";
 
-std::vector<std::shared_ptr<performance_test::Node>> pub_nodes =
+std::vector<std::shared_ptr<performance_test::PerformanceNode>> pub_nodes =
      factory.create_periodic_publisher_nodes(
           n_subscribers,
           n_subscribers + n_publishers,
@@ -79,7 +79,7 @@ std::vector<std::shared_ptr<performance_test::Node>> pub_nodes =
 
 ros2_system.add_node(pub_nodes);
 
-std::vector<std::shared_ptr<performance_test::Node>> sub_nodes =
+std::vector<std::shared_ptr<performance_test::PerformanceNode>> sub_nodes =
      factory.create_subscriber_nodes(
           0,
           n_subscribers,
@@ -104,7 +104,7 @@ If this is needed, it's better to directly use the json files.
 
 Inside the `examples` directory you can find some C++ executables which, through command line options, allow to create different ROS2 systems.
 
-These executables will use the `performance_test::Node` class and the `performance_test::TemplateFactory` previously described.
+These executables will use the `performance_test::PerformanceNode` class and the `performance_test::TemplateFactory` previously described.
 
 ##### Create a process with both pubs/subs
 
@@ -116,7 +116,7 @@ The simplest system that you can execute is the one in which some publisher node
  - `--subs`  Each of them will subscribe to all the available topics.
  - `--duration` indicates how many seconds the experiment will last.
 
-Each of these nodes will be a `performance_test::Node` object.
+Each of these nodes will be a `performance_test::PerformanceNode` object.
 Once all of them have been initialized, they will start spinning and exchanging messages for the whole duration of the experiment.
 
 ##### Create separate processes for pubs/subs

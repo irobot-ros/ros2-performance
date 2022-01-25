@@ -11,20 +11,21 @@
 
 #include <string>
 
-typedef enum
+enum msg_pass_by_t
 {
-   PASS_BY_UNIQUE_PTR,
-   PASS_BY_SHARED_PTR
-} msg_pass_by_t;
+  PASS_BY_UNIQUE_PTR,
+  PASS_BY_SHARED_PTR
+};
 
-namespace performance_test {
+namespace performance_test
+{
 
 template <typename Interface>
 class CommunicationAbstraction
 {
 public:
   CommunicationAbstraction() = delete;
-  CommunicationAbstraction(const std::string n)
+  CommunicationAbstraction(const std::string& n)
     : name(n){};
   const std::string name;
 };

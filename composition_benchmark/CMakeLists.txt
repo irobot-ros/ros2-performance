@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(performance_composition)
+project(composition_benchmark)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -15,7 +15,6 @@ find_package(irobot_interfaces_plugin REQUIRED)
 find_package(performance_test REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
-find_package(rclcpp_lifecycle REQUIRED)
 
 add_library(global_factory SHARED
   src/global_factory.cpp

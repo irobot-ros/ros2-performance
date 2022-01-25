@@ -2,7 +2,7 @@
 #include <iostream>
 #include <mutex>
 
-#include <performance_composition/global_factory.hpp>
+#include <composition_benchmark/global_factory.hpp>
 
 namespace global_factory
 {

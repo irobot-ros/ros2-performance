@@ -17,7 +17,7 @@ Note that this framework is mostly meant for evaluating single process applicati
 Although it is also able to measure the performance of multi-process applications, not all metrics will be available in this case.
 
 The nodes under test currently don't perform any sort of computation while they are tested.
-This means that most of the measured resource usage is due to the ROS2 communication.
+This means that most of the measured resource usage is due to the overhead of ROS2 communication.
 
 ## Build
 
@@ -64,6 +64,7 @@ If you want to create your own, follow the instructions in the `performance_test
  - **[irobot_benchmark](irobot_benchmark)**: this package provides our main benchmark application.
  This executable can load one or multiple json topologies and it creates a ROS2 system running in a specific process from each of them.
  It also contains the json topologies used for iRobot performance evaluation.
+ - **[composition_benchmark](composition_benchmark)**: this package contains applications and tools that can be used to profile ROS 2 composition concepts.
 
 ## External tools and resources
 

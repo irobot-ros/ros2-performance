@@ -27,7 +27,8 @@ set (LIBRARY_DEPENDENCIES
 )
 
 set(LIBRARY_SRC
-  src/fork_process
+  src/events_logger.cpp
+  src/fork_process.cpp
   src/names_utilities.cpp
   src/resource_usage_logger.cpp
   src/tracker.cpp

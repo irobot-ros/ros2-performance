@@ -3,26 +3,20 @@
 #include <chrono>
 #include <thread>
 #include <composition_benchmark/global_factory.hpp>
+#include <performance_test/utils/cli_args.hpp>
 
 #include <rclcpp/rclcpp.hpp>
 
 template<typename NodeT>
-void do_test(int argc, char** argv)
+void do_simple_nodes_test(int argc, char** argv)
 {
   rclcpp::init(argc, argv);
-
-  auto non_ros_args = rclcpp::remove_ros_arguments(argc, argv);
-  std::vector<char *> non_ros_args_c_strings;
-  for (auto & arg : non_ros_args) {
-    non_ros_args_c_strings.push_back(&arg.front());
-  }
-  size_t non_ros_argc = non_ros_args_c_strings.size();
-  char** non_ros_argv = non_ros_args_c_strings.data();
+  auto non_ros_args = performance_test::get_non_ros_args(argc, argv);
 
   std::vector<global_factory::NodeArguments> node_arguments;
-  for (size_t i = 1; i < non_ros_argc; i ++) {
+  for (size_t i = 1; i < non_ros_args.size(); i ++) {
     global_factory::NodeArguments args;
-    args.name = non_ros_argv[i];
+    args.name = non_ros_args[i];
     node_arguments.push_back(args);
   }
 

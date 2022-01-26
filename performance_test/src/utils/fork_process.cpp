@@ -10,7 +10,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <performance_test/fork_process.hpp>
+#include <performance_test/utils/fork_process.hpp>
+
+namespace performance_test
+{
 
 size_t fork_process(size_t num_processes)
 {
@@ -30,4 +33,6 @@ size_t fork_process(size_t num_processes)
   }
 
   return i;
+}
+
 }

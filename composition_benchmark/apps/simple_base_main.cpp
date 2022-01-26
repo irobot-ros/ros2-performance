@@ -4,5 +4,5 @@
 
 int main(int argc, char** argv)
 {
-  do_test<BaseNode>(argc, argv);
+  do_simple_nodes_test<BaseNode>(argc, argv);
 }

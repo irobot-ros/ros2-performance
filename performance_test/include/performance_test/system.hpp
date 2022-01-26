@@ -15,7 +15,7 @@
 #include <map>
 #include <pthread.h>
 
-#include "performance_test/names_utilities.hpp"
+#include "performance_test/utils/names_utilities.hpp"
 #include "performance_test/node.hpp"
 #include "performance_test/executors.hpp"
 #include "performance_test/events_logger.hpp"

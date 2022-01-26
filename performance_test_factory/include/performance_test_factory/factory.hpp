@@ -17,7 +17,7 @@
 
 #include <rclcpp_lifecycle/lifecycle_node.hpp>
 
-#include "performance_test/names_utilities.hpp"
+#include "performance_test/utils/names_utilities.hpp"
 
 #include "performance_test_factory/load_plugins.hpp"
 #include "nlohmann/json.hpp"

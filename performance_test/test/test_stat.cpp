@@ -11,8 +11,6 @@
 
 #include "performance_test/stat.hpp"
 
-
-
 TEST(StatTest, StatInitTest)
 {
   performance_test::Stat<unsigned long int> stat;
@@ -23,7 +21,6 @@ TEST(StatTest, StatInitTest)
   EXPECT_TRUE(std::isnan(stat.max()));
   ASSERT_EQ((unsigned long int)0, stat.n());
 }
-
 
 TEST(StatTest, StatAddSamplesTest)
 {

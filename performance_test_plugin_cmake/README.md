@@ -3,6 +3,23 @@
 This package defines the CMake function `generate_factory_plugins(MSGS SRVS)`.
 This function should be invoked in a package where custom interfaces are created in order to make them usable in the performance test factory.
 
+## How to use it
+
+1. Create a standard ROS 2 package where new messages and services are defined.
+1. Add to `package.xml`
+```
+<build_depend>performance_test_plugin_cmake</build_depend>
+<member_of_group>performance_test_factory_plugins</member_of_group>
+```
+1. Add to `CMakeLists.txt`
+```
+find_package(performance_test_plugin_cmake REQUIRED)
+generate_factory_plugin("msg/MyNewMsg.msg msg/MyOtherNewMsg.msg" "srv/MyNewSrv.srv")
+```
+
+See [irobot_interfaces_plugin](../irobot_interfaces_plugin) for an example.
+
+## How does it work
 
 The CMake function calls a Python script to generate a C++ library. This library depends on `performance_test` package.
 

@@ -10,8 +10,8 @@ TEST_BASE_DIR="${THIS_DIR}/simple-nodes"
 # trap ctrl + c to kill all subprocesses
 source ${PERF_TEST_UTILITIES_DIR}/kill_all_subprocesses.sh
 
-BASE_SCRIPT="${WS_INSTALL_DIR}/composition_benchmark/lib/composition_benchmark/simple_base_main" 
-COMPOSABLE_SCRIPT="${WS_INSTALL_DIR}/composition_benchmark/lib/composition_benchmark/simple_composable_main" 
+BASE_SCRIPT="${WS_INSTALL_DIR}/composition_benchmark/lib/composition_benchmark/simple_base_main"
+COMPOSABLE_SCRIPT="${WS_INSTALL_DIR}/composition_benchmark/lib/composition_benchmark/simple_composable_main"
 COMPONENT_CONTAINER_SCRIPT="/opt/ros/rolling/lib/rclcpp_components/component_container"
 
 do_test_manual_composition() {

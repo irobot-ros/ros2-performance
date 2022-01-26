@@ -19,6 +19,7 @@ find_package(rclcpp_components REQUIRED)
 add_library(global_factory SHARED
   src/global_factory.cpp
 )
+ament_target_dependencies(global_factory performance_test)
 target_include_directories(global_factory PUBLIC include)
 
 add_library(composable_node SHARED

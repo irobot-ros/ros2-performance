@@ -11,7 +11,6 @@
 
 #include "performance_test/tracker.hpp"
 
-
 void performance_test::Tracker::scan(
     const performance_test_msgs::msg::PerformanceHeader& header,
     const rclcpp::Time& now,

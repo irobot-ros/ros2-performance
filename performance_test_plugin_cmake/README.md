@@ -6,6 +6,7 @@ This function should be invoked in a package where custom interfaces are created
 ## How to use it
 
 1. Create a standard ROS 2 package where new messages and services are defined.
+**Important: all messages need to have a field `PerformanceHeader header` which is defined in the `performance_test_msgs` package.** 
 1. Add to `package.xml`
 ```
 <build_depend>performance_test_plugin_cmake</build_depend>

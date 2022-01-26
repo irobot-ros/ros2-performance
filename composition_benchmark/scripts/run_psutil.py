@@ -14,9 +14,9 @@ def b_to_mb(b):
   return b / (1024 * 1024)
 
 def compute_stats(processes, file_path, t):
-  rss_list = []
   vms_list = []
   pss_mb = 0
+  rss_mb = 0
   cpu_pct = 0
   for p in processes:
     if not process_is_alive(p):
@@ -26,20 +26,19 @@ def compute_stats(processes, file_path, t):
     this_pss_mb = b_to_mb(mem_info.pss)
     this_vms_mb = b_to_mb(mem_info.vms)
 
-    rss_list.append(this_rss_mb)
     vms_list.append(this_vms_mb)
     pss_mb += this_pss_mb
+    rss_mb += this_rss_mb
     cpu_pct += p.cpu_percent()
 
-  mean_rss = statistics.mean(rss_list)
   max_vms = max(vms_list)
 
   if file_path:
     with open(file_path, 'a') as file:
       tsv_writer = csv.writer(file, delimiter='\t')
-      tsv_writer.writerow([t, cpu_pct, round(pss_mb, 4), round(mean_rss, 4), round(max_vms, 4)])
+      tsv_writer.writerow([t, cpu_pct, round(pss_mb, 4), round(rss_mb, 4), round(max_vms, 4)])
   else:
-    print(f"- {t} - CPU[%] {cpu_pct} PSS[MB] {round(pss_mb, 4)} RSS[MB] {round(mean_rss, 4)} VMS[MB] {round(max_vms, 4)}")
+    print(f"- {t} - CPU[%] {cpu_pct} PSS[MB] {round(pss_mb, 4)} RSS[MB] {round(rss_mb, 4)} VMS[MB] {round(max_vms, 4)}")
 
 def start_processes(procs):
   processes = []

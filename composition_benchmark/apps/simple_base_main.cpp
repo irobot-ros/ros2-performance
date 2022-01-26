@@ -1,8 +1,9 @@
-
 #include <composition_benchmark/base_node.hpp>
-#include "simple_nodes_test.hpp"
+#include "factory_setup.hpp"
+#include "run_test.hpp"
 
 int main(int argc, char** argv)
 {
-  do_simple_nodes_test<BaseNode>(argc, argv);
+  generic_factory_setup(argc, argv);
+  run_test<BaseNode>(argc, argv);
 }

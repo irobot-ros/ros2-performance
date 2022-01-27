@@ -44,3 +44,24 @@ void spin_future_complete_task(std::vector<IRobotNodePtr> nodes, std::chrono::mi
   executor->spin_until_future_complete(promise.get_future());
   stop_thread.join();
 }
+
+template<typename ExecutorT=rclcpp::executors::SingleThreadedExecutor>
+void spin_some_task(std::vector<IRobotNodePtr> nodes, std::chrono::milliseconds duration)
+{
+  auto executor = std::make_shared<ExecutorT>();
+
+  for (auto n : nodes) {
+    executor->add_node(n);
+  }
+
+  auto start_time = std::chrono::high_resolution_clock::now();
+  auto duration_elapsed = [start_time, duration](){
+    auto now = std::chrono::high_resolution_clock::now();
+    auto time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time);
+    return time_elapsed > duration;
+  };
+
+  while (rclcpp::ok() && !duration_elapsed()) {
+    executor->spin_some();
+  }
+}

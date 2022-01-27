@@ -7,7 +7,7 @@ import signal
 import time
 
 def process_is_alive(p):
-  return p.status() == psutil.STATUS_RUNNING or p.status() == psutil.STATUS_SLEEPING
+  return p.status() not in [psutil.STATUS_ZOMBIE, psutil.STATUS_DEAD]
 
 def b_to_mb(b):
   # Converts Byte into MegaByte
@@ -15,6 +15,7 @@ def b_to_mb(b):
 
 def compute_stats(processes, file_path, t):
   vms_list = []
+  max_vms = 0
   pss_mb = 0
   rss_mb = 0
   cpu_pct = 0
@@ -87,6 +88,7 @@ def main():
   # Start all processes
   processes = start_processes(args.process)
 
+  time.sleep(0.5)
   # Compute performance metrics while the processes run
   start_time = time.time()
   current_time = time.time() - start_time
@@ -98,6 +100,7 @@ def main():
   # After the test is done, kill all processes that we started
   # We use SIGINT to have a graceful shutdown, ROS does not catch SIGTERM or SIGKILL
   for p in processes:
+    print("Sending SIGINT to process ", p.status(), " ", p.pid)
     p.send_signal(signal.SIGINT)
     p.wait()
 

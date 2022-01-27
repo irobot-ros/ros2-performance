@@ -1,6 +1,9 @@
 #pragma once
 
+#include <chrono>
 #include <future>
+#include <memory>
+#include <thread>
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -22,6 +25,34 @@ void spin_task(std::vector<IRobotNodePtr> nodes, std::chrono::milliseconds durat
 
   executor->spin();
   stop_thread.join();
+}
+
+template<typename ExecutorT=rclcpp::executors::SingleThreadedExecutor>
+void spin_isolated_task(std::vector<IRobotNodePtr> nodes, std::chrono::milliseconds duration)
+{
+  std::vector<typename ExecutorT::SharedPtr> executors;
+  std::vector<std::unique_ptr<std::thread>> executor_threads;
+  for (auto n : nodes) {
+    auto executor = std::make_shared<ExecutorT>();
+    executor->add_node(n);
+    executors.push_back(executor);
+    auto t = std::make_unique<std::thread>([executor]{
+      executor->spin();
+    });
+    executor_threads.push_back(std::move(t));
+  }
+
+  // Note: if duration is too small, we may end up calling cancel before
+  // an executor started to sleep. This causes the function to block forever.
+  std::this_thread::sleep_for(duration);
+
+  for (auto executor : executors) {
+    executor->cancel();
+  }
+
+  for (auto& thread : executor_threads) {
+    thread->join();
+  }
 }
 
 template<typename ExecutorT=rclcpp::executors::SingleThreadedExecutor>

@@ -12,7 +12,7 @@
 #include <ostream>
 #include <vector>
 
-#include "performance_test/node.hpp"
+#include "performance_test/performance_node_base.hpp"
 #include "performance_test/tracker.hpp"
 
 namespace performance_test

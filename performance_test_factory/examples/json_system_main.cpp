@@ -87,7 +87,7 @@ int main(int argc, char** argv)
     performance_test::System ros2_system(static_cast<performance_test::ExecutorType>(executor));
     ros2_system.enable_events_logger(events_output_path);
 
-    performance_test::TemplateFactory<> factory(use_ipc);
+    performance_test::TemplateFactory factory(use_ipc);
 
     auto nodes_vec = factory.parse_topology_from_json(json_path);
 

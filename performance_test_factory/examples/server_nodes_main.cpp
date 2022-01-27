@@ -98,11 +98,11 @@ int main(int argc, char ** argv)
 
     rclcpp::init(argc, argv);
 
-    performance_test::TemplateFactory<> factory(use_ipc, use_ros_params, verbose, ros_namespace);
+    performance_test::TemplateFactory factory(use_ipc, use_ros_params, verbose, ros_namespace);
     performance_test::System ros2_system(static_cast<performance_test::ExecutorType>(executor));
     ros2_system.enable_events_logger(events_file_path);
 
-    std::vector<std::shared_ptr<performance_test::PerformanceNode<>>> server_nodes =
+    auto server_nodes =
         factory.create_server_nodes(
             n_clients,
             n_clients + n_services,

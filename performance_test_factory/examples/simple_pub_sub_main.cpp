@@ -101,11 +101,11 @@ int main(int argc, char ** argv)
 
     rclcpp::init(argc, argv);
 
-    performance_test::TemplateFactory<> factory(use_ipc, use_ros_params, verbose, ros_namespace);
+    performance_test::TemplateFactory factory(use_ipc, use_ros_params, verbose, ros_namespace);
     performance_test::System ros2_system(static_cast<performance_test::ExecutorType>(executor));
     ros2_system.enable_events_logger(events_file_path);
 
-    std::vector<std::shared_ptr<performance_test::PerformanceNode<>>> pub_nodes =
+    auto pub_nodes =
         factory.create_periodic_publisher_nodes(
             n_subscribers,
             n_subscribers + n_publishers,
@@ -119,7 +119,7 @@ int main(int argc, char ** argv)
 
     std::cout<<"Publishers created!"<<std::endl;
 
-    std::vector<std::shared_ptr<performance_test::PerformanceNode<>>> sub_nodes =
+    auto sub_nodes =
         factory.create_subscriber_nodes(
             0,
             n_subscribers,

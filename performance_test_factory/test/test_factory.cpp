@@ -22,12 +22,12 @@ public:
 
 TEST_F(TestFactory, FactoryConstructorTest)
 {
-  performance_test::TemplateFactory<performance_test::PerformanceNode<rclcpp::Node>> factory;
+  performance_test::TemplateFactory factory;
 }
 
 TEST_F(TestFactory, FactoryCreateFromStringTest)
 {
-  performance_test::TemplateFactory<performance_test::PerformanceNode<rclcpp::Node>> factory;
+  performance_test::TemplateFactory factory;
 
   auto node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("node_name");
 
@@ -41,7 +41,7 @@ TEST_F(TestFactory, FactoryCreateFromStringTest)
 
 TEST_F(TestFactory, FactoryCreateFromIndicesTest)
 {
-  performance_test::TemplateFactory<performance_test::PerformanceNode<rclcpp::Node>> factory;
+  performance_test::TemplateFactory factory;
 
   int n_subscriber_nodes = 2;
   int n_publisher_nodes = 2;
@@ -84,7 +84,7 @@ TEST_F(TestFactory, FactoryCreateFromJsonTest)
   std::string this_dir_path = this_file_path.substr(0, this_file_path.rfind("/"));
   std::string json_path = this_dir_path + std::string("/files/test_architecture.json");
 
-  performance_test::TemplateFactory<> factory;
+  performance_test::TemplateFactory factory;
 
   auto nodes_vec = factory.parse_topology_from_json(json_path);
 

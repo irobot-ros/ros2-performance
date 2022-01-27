@@ -11,7 +11,7 @@
 
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 
-#include "performance_test/node.hpp"
+#include "performance_test/performance_node.hpp"
 #include "performance_test_msgs/msg/sample.hpp"
 #include "performance_test_msgs/srv/sample.hpp"
 

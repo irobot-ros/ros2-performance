@@ -11,7 +11,7 @@ We use the `performance_test::Topic<MsgType>` templated structures in order to s
 There exists an equivalent structure for services `performance_test::Service<SrvType>`.
 
 ```
-#include "performance_test/node.hpp"
+#include "performance_test/performance_node_base.hpp"
 auto topic = performance_test::Topic<performance_test_msgs::msg::Stamped10b>("my_topic_name");
 auto sub_node = std::make_shared<performance_test::PerformanceNode>("my_sub_node");
 sub_node->add_subscriber(topic, rmw_qos_profile_default);
@@ -22,7 +22,7 @@ This snippet of code will create a new node called `my_sub_node` and this node w
 Similarly you can create a second node which publishes data periodically.
 
 ```
-#include "performance_test/node.hpp"
+#include "performance_test/performance_node_base.hpp"
 auto topic = performance_test::Topic<performance_test_msgs::msg::Stamped10b>("my_topic_name");
 auto pub_node = std::make_shared<performance_test::PerformanceNode>("my_pub_node");
 pub_node->add_subscriber(topic, rmw_qos_profile_default);

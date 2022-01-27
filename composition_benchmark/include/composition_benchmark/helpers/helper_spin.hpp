@@ -4,8 +4,10 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+#include <composition_benchmark/helpers/helper_types.hpp>
+
 template<typename ExecutorT=rclcpp::executors::SingleThreadedExecutor>
-void spin_task(std::vector<std::shared_ptr<BaseNode>> nodes, std::chrono::milliseconds duration)
+void spin_task(std::vector<IRobotNodePtr> nodes, std::chrono::milliseconds duration)
 {
   auto executor = std::make_shared<ExecutorT>();
 
@@ -23,7 +25,7 @@ void spin_task(std::vector<std::shared_ptr<BaseNode>> nodes, std::chrono::millis
 }
 
 template<typename ExecutorT=rclcpp::executors::SingleThreadedExecutor>
-void spin_future_complete_task(std::vector<std::shared_ptr<BaseNode>> nodes)
+void spin_future_complete_task(std::vector<IRobotNodePtr> nodes, std::chrono::milliseconds duration)
 {
   auto executor = std::make_shared<ExecutorT>();
 
@@ -32,5 +34,13 @@ void spin_future_complete_task(std::vector<std::shared_ptr<BaseNode>> nodes)
   }
 
   std::promise<void> promise;
+
+  std::thread stop_thread([executor, duration, &promise]{
+    std::this_thread::sleep_for(duration);
+    promise.set_value();
+    executor->cancel();
+  });
+
   executor->spin_until_future_complete(promise.get_future());
+  stop_thread.join();
 }

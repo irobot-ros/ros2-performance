@@ -19,20 +19,6 @@ void setup_factory(const std::vector<NodeArguments>& nodes_args);
 
 size_t get_num_registered_nodes();
 
-template<typename NodeT>
-std::vector<std::shared_ptr<NodeT>>
-create_nodes()
-{
-  size_t num_nodes = get_num_registered_nodes();
-  std::vector<std::shared_ptr<NodeT>> nodes;
-  for (size_t i = 0; i < num_nodes; i++) {
-    auto node = std::make_shared<NodeT>();
-    nodes.push_back(node);
-  }
-
-  return nodes;
-}
-
 void mark_node_created();
 
 std::string get_node_name();

@@ -31,14 +31,17 @@ def compute_stats(processes, file_path, t):
     rss_mb += this_rss_mb
     cpu_pct += p.cpu_percent()
 
-  max_vms = max(vms_list)
+  if vms_list:
+    max_vms = max(vms_list)
+  else:
+    print("WARNING! empty vms list")
 
   if file_path:
     with open(file_path, 'a') as file:
       tsv_writer = csv.writer(file, delimiter='\t')
       tsv_writer.writerow([t, cpu_pct, round(pss_mb, 4), round(rss_mb, 4), round(max_vms, 4)])
   else:
-    print(f"- {t} - CPU[%] {cpu_pct} PSS[MB] {round(pss_mb, 4)} RSS[MB] {round(rss_mb, 4)} VMS[MB] {round(max_vms, 4)}")
+    print(f"-T {t} - CPU[%] {cpu_pct} PSS[MB] {round(pss_mb, 4)} RSS[MB] {round(rss_mb, 4)} VMS[MB] {round(max_vms, 4)}")
 
 def start_processes(procs):
   processes = []
@@ -60,7 +63,7 @@ def main():
     '-p', '--process', action='append', nargs='+', default=[],
     help='Command to start a process that will be monitored. You can pass -p more than once.')
   parser.add_argument(
-    '--step', type=float, default=0.5,
+    '--step', type=float, default=0.2,
     help='Interval of time between performance metrics computation in seconds')
   parser.add_argument(
     '-t', '--duration', type=float, default=5.0,

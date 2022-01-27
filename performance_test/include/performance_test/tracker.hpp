@@ -24,15 +24,15 @@ namespace performance_test {
 class Tracker
 {
 public:
-  struct TrackingOptions {
+  struct TrackingOptions
+  {
+    TrackingOptions(bool enable = true) : is_enabled(enable){};
 
-      TrackingOptions(bool enable = true) : is_enabled(enable){};
-
-      bool is_enabled = true;
-      int late_percentage = 20;
-      int late_absolute_us = 5000;
-      int too_late_percentage = 100;
-      int too_late_absolute_us = 50000;
+    bool is_enabled = true;
+    int late_percentage = 20;
+    int late_absolute_us = 5000;
+    int too_late_percentage = 100;
+    int too_late_absolute_us = 50000;
   };
 
   typedef uint32_t TrackingNumber;
@@ -72,7 +72,6 @@ public:
   unsigned long int last() const { return _last_latency; }
 
 private:
-
   std::string _node_name;
   std::string _topic_srv_name;
 
@@ -87,4 +86,5 @@ private:
   TrackingNumber _tracking_number_count = 0;
   TrackingOptions _tracking_options;
 };
+
 }

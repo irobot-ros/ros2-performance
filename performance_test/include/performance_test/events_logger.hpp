@@ -66,4 +66,5 @@ private:
   static const int _p_code_width = 6;
   static const int _p_desc_width = 20;
 };
+
 }

@@ -30,6 +30,22 @@ target_link_libraries(composable_node global_factory)
 target_include_directories(composable_node PUBLIC include)
 rclcpp_components_register_nodes(composable_node "ComposableNode")
 
+add_library(composable_publisher SHARED
+  src/composable_publisher.cpp
+)
+ament_target_dependencies(composable_publisher rclcpp rclcpp_components performance_test irobot_interfaces_plugin)
+target_link_libraries(composable_publisher global_factory)
+target_include_directories(composable_publisher PUBLIC include)
+rclcpp_components_register_nodes(composable_publisher "ComposablePublisher")
+
+add_library(composable_subscriber SHARED
+  src/composable_subscriber.cpp
+)
+ament_target_dependencies(composable_subscriber rclcpp rclcpp_components performance_test irobot_interfaces_plugin)
+target_link_libraries(composable_subscriber global_factory)
+target_include_directories(composable_subscriber PUBLIC include)
+rclcpp_components_register_nodes(composable_subscriber "ComposableSubscriber")
+
 add_library(base_node SHARED
   src/base_node.cpp
 )
@@ -42,6 +58,8 @@ add_subdirectory(apps)
 install(TARGETS
   base_node
   composable_node
+  composable_publisher
+  composable_subscriber
   global_factory
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib

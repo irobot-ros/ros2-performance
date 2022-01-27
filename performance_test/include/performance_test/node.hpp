@@ -43,6 +43,8 @@ public:
     RCLCPP_INFO(this->get_logger(), "PerformanceNode %s created with executor id %d", name.c_str(), m_executor_id);
   }
 
+  virtual ~PerformanceNode() = default;
+
   template <typename Msg>
   void add_subscriber(const Topic<Msg>& topic,
                       msg_pass_by_t msg_pass_by,

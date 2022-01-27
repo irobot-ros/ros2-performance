@@ -3,8 +3,8 @@
 import argparse
 import csv
 import psutil
+import signal
 import time
-import statistics
 
 def process_is_alive(p):
   return p.status() == psutil.STATUS_RUNNING or p.status() == psutil.STATUS_SLEEPING
@@ -93,8 +93,10 @@ def main():
     current_time = time.time() - start_time
 
   # After the test is done, kill all processes that we started
+  # We use SIGINT to have a graceful shutdown, ROS does not catch SIGTERM or SIGKILL
   for p in processes:
-    p.kill()
+    p.send_signal(signal.SIGINT)
+    p.wait()
 
 if __name__ == '__main__':
   main()

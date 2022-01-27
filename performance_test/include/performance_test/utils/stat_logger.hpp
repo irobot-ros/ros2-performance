@@ -47,14 +47,15 @@ void log_total_stats(
 }
 
 template<typename NodeT>
-void log_latency_all_stats(std::ostream& stream, const std::vector<std::shared_ptr<NodeT>>& nodes)
+void log_latency_all_stats(std::ostream& stream, const std::vector<NodeT*>& nodes)
 {
   const char separator = ' ';
   const int wide_space = 15;
   const int narrow_space = 10;
 
-  auto log_header = [&stream, wide_space, narrow_space, separator]()
+  auto log_header = [&stream, wide_space, narrow_space, separator](const std::string& title)
   {
+    stream << title <<std::endl;
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << "node";
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << "topic";
     stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "size[b]";
@@ -91,28 +92,45 @@ void log_latency_all_stats(std::ostream& stream, const std::vector<std::shared_p
   };
 
   // Print all subscriptions and clients
-  stream << "Subscriptions and clients stats:"<<std::endl;
-  log_header();
+  bool subs_header = false;
   for (const auto& n : nodes)
   {
     auto trackers = n->all_trackers();
     for(const auto& tracker : *trackers)
     {
+      if (!subs_header) {
+        log_header("Subscriptions and clients stats:");
+        subs_header = true;
+      }
       log_stats_line(n->get_name(), tracker);
     }
   }
 
   // Print publishers
-  stream << "Publishers stats:"<<std::endl;
-  log_header();
+  bool pubs_header = false;
   for (const auto& n : nodes)
   {
     auto trackers = n->pub_trackers();
     for(const auto& tracker : *trackers)
     {
+      if (!pubs_header) {
+        log_header("Publishers stats:");
+        pubs_header = true;
+      }
       log_stats_line(n->get_name(), tracker);
     }
   }
+}
+
+template<typename NodeT>
+void log_latency_all_stats(std::ostream& stream, const std::vector<std::shared_ptr<NodeT>>& nodes)
+{
+  std::vector<NodeT*> nodes_raw;
+  for (const auto& n : nodes) {
+    nodes_raw.push_back(n.get());
+  }
+
+  log_latency_all_stats(stream, nodes_raw);
 }
 
 template<typename NodeT>

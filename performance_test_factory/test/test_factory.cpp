@@ -90,9 +90,9 @@ TEST_F(TestFactory, FactoryCreateFromJsonTest)
 
   ASSERT_EQ((size_t)3, nodes_vec.size());
 
-  ASSERT_STREQ("node_0", nodes_vec[0]->get_name());
-  ASSERT_STREQ("node_1", nodes_vec[1]->get_name());
-  ASSERT_STREQ("node_2", nodes_vec[2]->get_name());
+  ASSERT_STREQ("node_0", nodes_vec[0]->get_node_name());
+  ASSERT_STREQ("node_1", nodes_vec[1]->get_node_name());
+  ASSERT_STREQ("node_2", nodes_vec[2]->get_node_name());
 
   ASSERT_EQ((size_t)0, nodes_vec[0]->all_trackers()->size());
   ASSERT_EQ((size_t)1, nodes_vec[1]->all_trackers()->size());

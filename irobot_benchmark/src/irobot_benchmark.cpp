@@ -46,7 +46,7 @@ void run_test(int argc, char** argv,
 
     rclcpp::init(argc, argv);
 
-    performance_test::System<NodeT> ros2_system(static_cast<performance_test::ExecutorType>(options.executor));
+    performance_test::System ros2_system(static_cast<performance_test::ExecutorType>(options.executor));
 
     // Load topology from json file
     auto factory = performance_test::TemplateFactory<NodeT>(options.ipc, options.ros_params);

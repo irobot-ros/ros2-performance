@@ -8,7 +8,6 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <composition_benchmark/global_factory.hpp>
-#include <performance_test/utils/stat_logger.hpp>
 
 template<typename NodeT>
 using NodesVector = std::vector<std::shared_ptr<NodeT>>;
@@ -32,8 +31,6 @@ void run_test(
 
   auto nodes = create_func();
   run_func(nodes);
-
-  performance_test::log_latency_all_stats<NodeT>(std::cout, nodes);
 
   rclcpp::shutdown();
 }

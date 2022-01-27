@@ -24,11 +24,13 @@ set (LIBRARY_DEPENDENCIES
 set(LIBRARY_SRC
   src/events_logger.cpp
   src/resource_usage_logger.cpp
+  src/system.cpp
   src/tracker.cpp
   src/utils/cli_args.cpp
   src/utils/cli_options.cpp
   src/utils/fork_process.cpp
   src/utils/names_utilities.cpp
+  src/utils/stat_logger.cpp
 )
 
 set(LIBRARY_NAME ${PROJECT_NAME})

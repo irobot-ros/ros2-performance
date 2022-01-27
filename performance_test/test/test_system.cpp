@@ -32,7 +32,7 @@ TEST_F(TestSystem, SystemAddNodesTest)
     std::vector<std::shared_ptr<performance_test::PerformanceNode<rclcpp::Node>>> nodes_vec = {node_2, node_3};
 
     auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
-    performance_test::System<> system(system_executor);
+    performance_test::System system(system_executor);
 
     system.add_node(node_1);
     system.add_node(nodes_vec);
@@ -44,7 +44,7 @@ TEST_F(TestSystem, SystemPubSubTest)
 
     int duration_sec = 1;
     auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
-    performance_test::System<> ros2_system(system_executor);
+    performance_test::System ros2_system(system_executor);
 
     // Create 1 pulisher node and 1 subscriber node
     auto pub_node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("pub_node");
@@ -70,7 +70,7 @@ TEST_F(TestSystem, SystemClientServerTest)
 
     int duration_sec = 2;
     auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
-    performance_test::System<> ros2_system(system_executor);
+    performance_test::System ros2_system(system_executor);
 
     // Create 1 client node and 1 server node
     auto client_node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("client_node");
@@ -97,7 +97,7 @@ TEST_F(TestSystem, SystemDifferentQoSTest)
 
     int duration_sec = 1;
     auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
-    performance_test::System<> ros2_system(system_executor);
+    performance_test::System ros2_system(system_executor);
     rmw_qos_profile_t qos_profile = rmw_qos_profile_default;
 
     // Create 1 pulisher node and 1 subscriber node

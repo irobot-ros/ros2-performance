@@ -19,7 +19,9 @@ ComposableSubscriber::ComposableSubscriber(const rclcpp::NodeOptions & options)
 
 ComposableSubscriber::~ComposableSubscriber()
 {
-  performance_test::log_latency_all_stats<performance_test::PerformanceNode<rclcpp::Node>>(std::cout, {this});
+  auto node_ptr = dynamic_cast<performance_test::PerformanceNodeBase*>(this);
+  std::vector<performance_test::PerformanceNodeBase*> nodes_vec = {node_ptr};
+  performance_test::log_latency_all_stats(std::cout, nodes_vec);
 }
 
 #include "rclcpp_components/register_node_macro.hpp"

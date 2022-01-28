@@ -46,10 +46,10 @@ The results will be printed to screen and also saved in the directory `./sierra_
 
 ## Extending the performance framework and testing your own system
 
-The `irobot_benchmark/topology` directory contains some examples of json files that can be used to create a system.
-If you want to create your own, follow the instructions in the `performance_test_factory` package:
+The `irobot_benchmark/topology` directory contains some examples of json files that can be used to define a system.
 
-[How to create a new topology](performance_test_factory/create_new_topology.md)
+If you want to create your own JSON topology, follow the instructions on [how to create a new topology](performance_test_factory/create_new_topology.md).
+If you want to use your custom ROS 2 message interfaces in the topology, you should look at the [performance_test_plugin_cmake](performance_test_plugin_cmake).
 
 ### Structure of the framework
 

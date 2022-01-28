@@ -33,7 +33,6 @@ namespace performance_test
 class PerformanceNodeBase
 {
 public:
-
   PerformanceNodeBase(int executor_id = 0);
 
   virtual ~PerformanceNodeBase() = default;
@@ -70,7 +69,7 @@ public:
     Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
     rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
-    typename rclcpp::Subscription<Msg>::SharedPtr sub;
+    rclcpp::SubscriptionBase::SharedPtr sub;
     auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile);
     
     switch (msg_pass_by)
@@ -113,9 +112,7 @@ public:
       }
     }
 
-    _subs.insert({ topic_name, { sub, Tracker(m_node_base->get_name(), topic_name, tracking_options) } });
-
-    RCLCPP_INFO(m_node_logging->get_logger(), "Subscriber to %s created", topic_name.c_str());
+    this->store_subscription(sub, topic_name, tracking_options);
   }
 
   template <typename Msg>
@@ -144,15 +141,12 @@ public:
   {
     auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile);
 
-    auto pub = rclcpp::create_publisher<Msg>(
+    rclcpp::PublisherBase::SharedPtr = rclcpp::create_publisher<Msg>(
       m_node_topics,
       topic_name,
       qos);
 
-    auto tracking_options = Tracker::TrackingOptions();
-    _pubs.insert({ topic_name, { pub, Tracker(m_node_base->get_name(), topic_name, tracking_options) } });
-
-    RCLCPP_INFO(m_node_logging->get_logger(),"Publisher to %s created", topic_name.c_str());
+    this->store_publisher(pub, topic_name, Tracker::TrackingOptions());
   }
 
   template <typename Srv>
@@ -170,7 +164,7 @@ public:
         std::placeholders::_3
     );
 
-    typename rclcpp::Service<Srv>::SharedPtr server = rclcpp::create_service<Srv>(
+    rclcpp::ServiceBase::SharedPtr server = rclcpp::create_service<Srv>(
       m_node_base,
       m_node_services,
       service_name,
@@ -178,9 +172,7 @@ public:
       qos_profile,
       nullptr);
 
-    _servers.insert({ service_name, { server, Tracker(m_node_base->get_name(), service_name, Tracker::TrackingOptions()) } });
-
-    RCLCPP_INFO(m_node_logging->get_logger(),"Server to %s created", service_name.c_str());
+    this->store_server(server, service_name, Tracker::TrackingOptions());
   }
 
   template <typename Srv>
@@ -208,7 +200,7 @@ public:
   template <typename Srv>
   void add_client(const std::string& service_name, rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
-    typename rclcpp::Client<Srv>::SharedPtr client = rclcpp::create_client<Srv>(
+    rclcpp::ClientBase::SharedPtr client = rclcpp::create_client<Srv>(
       m_node_base,
       m_node_graph,
       m_node_services,
@@ -216,17 +208,7 @@ public:
       qos_profile,
       nullptr);
 
-    _clients.insert(
-      {
-        service_name,
-        std::tuple<std::shared_ptr<void>, Tracker, Tracker::TrackingNumber>{
-          client,
-          Tracker(m_node_base->get_name(), service_name, Tracker::TrackingOptions()),
-          0
-        }
-      });
-
-    RCLCPP_INFO(m_node_logging->get_logger(),"Client to %s created", service_name.c_str());
+    this->store_client(client, service_name, Tracker::TrackingOptions());
   }
 
   void add_timer(std::chrono::microseconds period, std::function<void()> callback);
@@ -244,6 +226,25 @@ public:
   std::vector<std::string> get_published_topics();
 
 private:
+  void store_subscription(
+    rclcpp::SubscriptionBase::SharedPtr sub,
+    const std::string& topic_name,
+    const Tracker::TrackingOptions& tracking_options);
+
+  void store_publisher(
+    rclcpp::PublisherBase::SharedPtr pub,
+    const std::string& topic_name,
+    const Tracker::TrackingOptions& tracking_options);
+
+  void store_client(
+    rclcpp::ClientBase::SharedPtr client,
+    const std::string& service_name,
+    const Tracker::TrackingOptions& tracking_options);
+
+  void store_server(
+    rclcpp::ServiceBase::SharedPtr server,
+    const std::string& service_name,
+    const Tracker::TrackingOptions& tracking_options);
 
   performance_test_msgs::msg::PerformanceHeader create_msg_header(
     rclcpp::Time publish_time,
@@ -465,19 +466,19 @@ private:
 
   // A topic-name indexed map to store the publisher pointers with their
   // trackers.
-  std::map<std::string, std::pair<std::shared_ptr<void>, Tracker>> _pubs;
+  std::map<std::string, std::pair<rclcpp::PublisherBase::SharedPtr, Tracker>> _pubs;
 
   // A topic-name indexed map to store the subscriber pointers with their
   // trackers.
-  std::map<std::string, std::pair<std::shared_ptr<void>, Tracker>> _subs;
+  std::map<std::string, std::pair<rclcpp::SubscriptionBase::SharedPtr, Tracker>> _subs;
 
   // A service-name indexed map to store the client pointers with their
   // trackers.
-  std::map<std::string, std::tuple<std::shared_ptr<void>, Tracker, Tracker::TrackingNumber>> _clients;
+  std::map<std::string, std::tuple<rclcpp::ClientBase::SharedPtr, Tracker, Tracker::TrackingNumber>> _clients;
 
   // A service-name indexed map to store the server pointers with their
   // trackers.
-  std::map<std::string, std::pair<std::shared_ptr<void>, Tracker>> _servers;
+  std::map<std::string, std::pair<rclcpp::ServiceBase::SharedPtr, Tracker>> _servers;
 
   std::vector<rclcpp::TimerBase::SharedPtr> _timers;
 

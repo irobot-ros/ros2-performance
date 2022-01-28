@@ -122,6 +122,51 @@ std::vector<std::string> PerformanceNodeBase::get_published_topics()
   return topics;
 }
 
+void PerformanceNodeBase::store_subscription(
+  rclcpp::SubscriptionBase::SharedPtr sub,
+  const std::string& topic_name,
+  const Tracker::TrackingOptions& tracking_options)
+{
+  _subs.insert({ topic_name, { sub, Tracker(m_node_base->get_name(), topic_name, tracking_options) } });
+  RCLCPP_INFO(m_node_logging->get_logger(), "Subscriber to %s created", topic_name.c_str());
+}
+
+void PerformanceNodeBase::store_publisher(
+  rclcpp::PublisherBase::SharedPtr pub,
+  const std::string& topic_name,
+  const Tracker::TrackingOptions& tracking_options)
+{
+  _pubs.insert({ topic_name, { pub, Tracker(m_node_base->get_name(), topic_name, tracking_options) } });
+  RCLCPP_INFO(m_node_logging->get_logger(),"Publisher to %s created", topic_name.c_str());
+}
+
+void PerformanceNodeBase::store_client(
+  rclcpp::ClientBase::SharedPtr client,
+  const std::string& service_name,
+  const Tracker::TrackingOptions& tracking_options)
+{
+  _clients.insert(
+    {
+      service_name,
+      std::tuple<std::shared_ptr<rclcpp::ClientBase>, Tracker, Tracker::TrackingNumber>{
+        client,
+        Tracker(m_node_base->get_name(), service_name, tracking_options),
+        0
+      }
+    });
+
+  RCLCPP_INFO(m_node_logging->get_logger(),"Client to %s created", service_name.c_str());
+}
+
+void PerformanceNodeBase::store_server(
+  rclcpp::ServiceBase::SharedPtr server,
+  const std::string& service_name,
+  const Tracker::TrackingOptions& tracking_options)
+{
+  _servers.insert({ service_name, { server, Tracker(m_node_base->get_name(), service_name, tracking_options) } });
+  RCLCPP_INFO(m_node_logging->get_logger(),"Server to %s created", service_name.c_str());
+}
+
 performance_test_msgs::msg::PerformanceHeader
 PerformanceNodeBase::create_msg_header(
   rclcpp::Time publish_time,

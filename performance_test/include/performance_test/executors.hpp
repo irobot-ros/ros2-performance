@@ -30,7 +30,7 @@ enum ExecutorType
   STATIC_SINGLE_THREADED_EXECUTOR = 2,
 };
 
-inline std::ostream &operator<<(std::ostream &os, const ExecutorType &t)
+inline std::ostream & operator<<(std::ostream & os, const ExecutorType & t)
 {
   std::string executor_name;
   switch (t) {

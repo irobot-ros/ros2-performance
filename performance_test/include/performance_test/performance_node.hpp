@@ -25,8 +25,8 @@ class PerformanceNode : public NodeT, public PerformanceNodeBase
 {
 public:
   PerformanceNode(
-    const std::string& name,
-    const std::string& ros2_namespace = "",
+    const std::string & name,
+    const std::string & ros2_namespace = "",
     const rclcpp::NodeOptions& node_options = rclcpp::NodeOptions(),
     int executor_id = 0)
   : NodeT(name, ros2_namespace, node_options), PerformanceNodeBase(executor_id)

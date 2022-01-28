@@ -15,8 +15,9 @@
 #include <memory>
 #include <random>
 #include <string>
-#include <vector>
 #include <tuple>
+#include <utility>
+#include <vector>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
@@ -25,15 +26,13 @@
 #include "performance_test/events_logger.hpp"
 #include "performance_test/tracker.hpp"
 
-using namespace std::chrono_literals;
-
 namespace performance_test
 {
 
 class PerformanceNodeBase
 {
 public:
-  PerformanceNodeBase(int executor_id = 0);
+  explicit PerformanceNodeBase(int executor_id = 0);
 
   virtual ~PerformanceNodeBase() = default;
 
@@ -64,14 +63,14 @@ public:
 
   template <typename Msg>
   void add_subscriber(
-    const std::string& topic_name,
+    const std::string & topic_name,
     msg_pass_by_t msg_pass_by,
     Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
     rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
     rclcpp::SubscriptionBase::SharedPtr sub;
     auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile);
-    
+
     switch (msg_pass_by)
     {
       case PASS_BY_SHARED_PTR:
@@ -117,7 +116,7 @@ public:
 
   template <typename Msg>
   void add_periodic_publisher(
-    const std::string& topic_name,
+    const std::string & topic_name,
     std::chrono::microseconds period,
     msg_pass_by_t msg_pass_by,
     rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
@@ -137,11 +136,13 @@ public:
   }
 
   template <typename Msg>
-  void add_publisher(const std::string& topic_name, rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
+  void add_publisher(
+    const std::string & topic_name,
+    rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
     auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile);
 
-    rclcpp::PublisherBase::SharedPtr = rclcpp::create_publisher<Msg>(
+    rclcpp::PublisherBase::SharedPtr pub = rclcpp::create_publisher<Msg>(
       m_node_topics,
       topic_name,
       qos);
@@ -150,7 +151,9 @@ public:
   }
 
   template <typename Srv>
-  void add_server(const std::string& service_name, rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
+  void add_server(
+    const std::string & service_name,
+    rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
     std::function<void(
       const std::shared_ptr<rmw_request_id_t> request_header,
@@ -177,7 +180,7 @@ public:
 
   template <typename Srv>
   void add_periodic_client(
-    const std::string& service_name,
+    const std::string & service_name,
     std::chrono::microseconds period,
     rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
     size_t size = 0)
@@ -198,7 +201,9 @@ public:
   }
 
   template <typename Srv>
-  void add_client(const std::string& service_name, rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
+  void add_client(
+    const std::string & service_name,
+    rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
     rclcpp::ClientBase::SharedPtr client = rclcpp::create_client<Srv>(
       m_node_base,
@@ -228,22 +233,22 @@ public:
 private:
   void store_subscription(
     rclcpp::SubscriptionBase::SharedPtr sub,
-    const std::string& topic_name,
+    const std::string & topic_name,
     const Tracker::TrackingOptions& tracking_options);
 
   void store_publisher(
     rclcpp::PublisherBase::SharedPtr pub,
-    const std::string& topic_name,
+    const std::string & topic_name,
     const Tracker::TrackingOptions& tracking_options);
 
   void store_client(
     rclcpp::ClientBase::SharedPtr client,
-    const std::string& service_name,
+    const std::string & service_name,
     const Tracker::TrackingOptions& tracking_options);
 
   void store_server(
     rclcpp::ServiceBase::SharedPtr server,
-    const std::string& service_name,
+    const std::string & service_name,
     const Tracker::TrackingOptions& tracking_options);
 
   performance_test_msgs::msg::PerformanceHeader create_msg_header(
@@ -253,12 +258,16 @@ private:
     size_t msg_size);
 
   template <typename Msg>
-  void _publish(const std::string& name, msg_pass_by_t msg_pass_by, size_t size, std::chrono::microseconds period)
+  void _publish(
+    const std::string & name,
+    msg_pass_by_t msg_pass_by,
+    size_t size,
+    std::chrono::microseconds period)
   {
     // Get publisher and tracking count from map
-    auto& pub_pair = _pubs.at(name);
+    auto & pub_pair = _pubs.at(name);
     auto pub = std::static_pointer_cast<rclcpp::Publisher<Msg>>(pub_pair.first);
-    auto& tracker = pub_pair.second;
+    auto & tracker = pub_pair.second;
 
     float pub_frequency = 1000000.0 / period.count();
 
@@ -279,12 +288,12 @@ private:
           pub_frequency,
           tracking_number,
           msg_size);
-  
+
         pub->publish(*msg);
 
         auto end_time = m_node_clock->get_clock()->now();
         pub_time_us = (end_time - publish_time).nanoseconds() / 1000.0f;
-  
+
         break;
       }
       case PASS_BY_UNIQUE_PTR:
@@ -336,34 +345,34 @@ private:
   }
 
   template <typename MsgType>
-  void _topic_callback(const std::string& name, MsgType msg)
+  void _topic_callback(const std::string & name, MsgType msg)
   {
     this->_handle_sub_received_msg(name, msg->header);
   }
 
   void _handle_sub_received_msg(
-    const std::string& topic_name,
+    const std::string & topic_name,
     const performance_test_msgs::msg::PerformanceHeader& msg_header);
 
   template <typename Srv>
-  void _request(const std::string& name, size_t size)
+  void _request(const std::string & name, size_t size)
   {
     (void)size;
 
-    if (_client_lock){
+    if (_client_lock) {
       return;
     }
     _client_lock = true;
 
     // Get client and tracking count from map
-    auto& client_tuple = _clients.at(name);
+    auto & client_tuple = _clients.at(name);
     auto client = std::static_pointer_cast<rclcpp::Client<Srv>>(std::get<0>(client_tuple));
-    auto& tracker = std::get<1>(client_tuple);
-    auto& tracking_number = std::get<2>(client_tuple);
+    auto & tracker = std::get<1>(client_tuple);
+    auto & tracking_number = std::get<2>(client_tuple);
 
-    //Wait for service to come online
-    if (!client->wait_for_service(1.0s)){
-      if (_events_logger != nullptr){
+    // Wait for service to come online
+    if (!client->wait_for_service(1.0s)) {
+      if (_events_logger != nullptr) {
         // Create a descrption for the event
         std::stringstream description;
         description << "[service] '"<< name.c_str() << "' unavailable after 1s";
@@ -422,7 +431,7 @@ private:
   }
 
   template <typename Srv>
-  void _response_received_callback(const std::string& name, std::shared_ptr<typename Srv::Request> request, typename rclcpp::Client<Srv>::SharedFuture result_future)
+  void _response_received_callback(const std::string & name, std::shared_ptr<typename Srv::Request> request, typename rclcpp::Client<Srv>::SharedFuture result_future)
   {
     // This is not used at the moment
     auto response = result_future.get();
@@ -431,7 +440,7 @@ private:
   }
 
   void _handle_client_received_response(
-    const std::string& service_name,
+    const std::string & service_name,
     const performance_test_msgs::msg::PerformanceHeader& request_header,
     const performance_test_msgs::msg::PerformanceHeader& response_header);
 
@@ -441,7 +450,7 @@ private:
 
   template <typename Srv>
   void _service_callback(
-    const std::string& name,
+    const std::string & name,
     const std::shared_ptr<rmw_request_id_t> request_header,
     const std::shared_ptr<typename Srv::Request> request,
     const std::shared_ptr<typename Srv::Response> response)
@@ -452,7 +461,7 @@ private:
 
   performance_test_msgs::msg::PerformanceHeader
   _handle_server_received_request(
-    const std::string& service_name,
+    const std::string & service_name,
     const performance_test_msgs::msg::PerformanceHeader& request_header);
 
   rclcpp::node_interfaces::NodeBaseInterface::SharedPtr m_node_base;

@@ -23,7 +23,6 @@ public:
   }
 };
 
-
 TEST_F(TestSystem, SystemAddNodesTest)
 {
   auto node_1 = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("node_1");

@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
-<package format="2">
+<package format="3">
   <name>irobot_benchmark</name>
   <version>0.1.0</version>
   <description>Benchmark applications to test ros2 performance</description>
   <maintainer email="joxoby@irobot.com">Juan Oxoby</maintainer>
-  <author>Juan Oxoby</author>
   <license>BSD 3.0</license>
+  <author>Juan Oxoby</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
@@ -20,6 +20,12 @@
   <exec_depend>performance_test</exec_depend>
   <exec_depend>performance_test_factory</exec_depend>
 
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_cmake_cppcheck</test_depend>
+  <test_depend>ament_cmake_cpplint</test_depend>
+  <test_depend>ament_cmake_lint_cmake</test_depend>
+  <test_depend>ament_cmake_uncrustify</test_depend>
+  <test_depend>ament_cmake_xmllint</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

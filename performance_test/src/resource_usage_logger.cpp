@@ -19,7 +19,7 @@
 namespace performance_test
 {
 
-ResourceUsageLogger::ResourceUsageLogger(const std::string& filename)
+ResourceUsageLogger::ResourceUsageLogger(const std::string & filename)
 : _filename(filename)
 {
   _pid = getpid();
@@ -80,7 +80,7 @@ void ResourceUsageLogger::print_resource_usage()
 
 void ResourceUsageLogger::set_system_info(int pubs, int subs, float frequency)
 {
-  if (_log == true){
+  if (_log == true) {
     std::cout<<"[ResourceUsageLogger]: You have to set system info before starting the logger!"<<std::endl;
     return;
   }
@@ -152,7 +152,7 @@ void ResourceUsageLogger::_print_header(std::ostream& stream)
   stream << std::left << std::setw(wide_space) << std::setfill(separator) << "rss[KB]";
   stream << std::left << std::setw(wide_space) << std::setfill(separator) << "vsz[KB]";
 
-  if (_got_system_info){
+  if (_got_system_info) {
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << "pubs";
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << "subs";
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << "frequency";
@@ -175,7 +175,7 @@ void ResourceUsageLogger::_print(std::ostream& stream)
   stream << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_max_rss_KB;
   stream << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_virtual_KB;
 
-  if (_got_system_info){
+  if (_got_system_info) {
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << _pubs;
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << _subs;
     stream << std::left << std::setw(wide_space) << std::setfill(separator)<<  std::fixed << _frequency << std::defaultfloat;

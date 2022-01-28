@@ -50,7 +50,7 @@ void spin_isolated_task(std::vector<IRobotNodePtr> nodes, std::chrono::milliseco
     executor->cancel();
   }
 
-  for (auto& thread : executor_threads) {
+  for (auto & thread : executor_threads) {
     thread->join();
   }
 }
@@ -86,7 +86,7 @@ void spin_some_task(std::vector<IRobotNodePtr> nodes, std::chrono::milliseconds 
   }
 
   auto start_time = std::chrono::high_resolution_clock::now();
-  auto duration_elapsed = [start_time, duration](){
+  auto duration_elapsed = [start_time, duration]() {
     auto now = std::chrono::high_resolution_clock::now();
     auto time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time);
     return time_elapsed > duration;

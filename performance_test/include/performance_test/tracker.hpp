@@ -19,14 +19,17 @@
 #include "performance_test_msgs/msg/performance_header.hpp"
 
 
-namespace performance_test {
+namespace performance_test
+{
 
 class Tracker
 {
 public:
   struct TrackingOptions
   {
-    TrackingOptions(bool enable = true) : is_enabled(enable){};
+    explicit TrackingOptions(bool enable = true)
+    : is_enabled(enable)
+    { }
 
     bool is_enabled = true;
     int late_percentage = 20;
@@ -39,37 +42,41 @@ public:
 
   Tracker() = delete;
 
-  Tracker(const std::string& node_name, const std::string& topic_srv_name, const TrackingOptions& tracking_options)
-  : _node_name(node_name), _topic_srv_name(topic_srv_name), _tracking_options(tracking_options) {};
+  Tracker(
+    const std::string & node_name,
+    const std::string & topic_srv_name,
+    const TrackingOptions & tracking_options)
+  : _node_name(node_name), _topic_srv_name(topic_srv_name), _tracking_options(tracking_options)
+  { }
 
   void scan(
-    const performance_test_msgs::msg::PerformanceHeader& header,
-    const rclcpp::Time& now,
+    const performance_test_msgs::msg::PerformanceHeader & header,
+    const rclcpp::Time & now,
     std::shared_ptr<EventsLogger> elog = nullptr);
 
   void add_sample(unsigned long latency_sample);
 
   TrackingNumber get_and_update_tracking_number();
 
-  unsigned long int lost() const { return _lost_messages; }
+  unsigned long int lost() const {return _lost_messages;}
 
-  unsigned long int late() const { return _late_messages; }
+  unsigned long int late() const {return _late_messages;}
 
-  unsigned long int too_late() const { return _too_late_messages; }
+  unsigned long int too_late() const {return _too_late_messages;}
 
-  unsigned long int received() const { return _received_messages; }
+  unsigned long int received() const {return _received_messages;}
 
-  size_t size() const { return _size; }
+  size_t size() const {return _size;}
 
-  float frequency() const { return _frequency; }
+  float frequency() const {return _frequency;}
 
-  Stat<unsigned long int> stat() const { return _stat; }
+  Stat<unsigned long int> stat() const {return _stat;}
 
-  void set_frequency(float f) { _frequency = f; }
+  void set_frequency(float f) {_frequency = f;}
 
-  void set_size(size_t s) { _size = s; }
+  void set_size(size_t s) {_size = s;}
 
-  unsigned long int last() const { return _last_latency; }
+  unsigned long int last() const {return _last_latency;}
 
 private:
   std::string _node_name;

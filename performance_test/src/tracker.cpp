@@ -7,6 +7,8 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
+#include <algorithm>
+#include <memory>
 #include <sstream>
 
 #include "performance_test/tracker.hpp"
@@ -71,7 +73,7 @@ void performance_test::Tracker::scan(
     late = lat_us > latency_late_threshold_us && !too_late;
 
     if(late) {
-      if (elog != nullptr){
+      if (elog != nullptr) {
         // Create a description for the event
         std::stringstream description;
         description << "msg "<< header.tracking_number << " late. "
@@ -88,7 +90,7 @@ void performance_test::Tracker::scan(
     }
 
     if(too_late) {
-      if (elog != nullptr){
+      if (elog != nullptr) {
         // Create a descrption for the event
         std::stringstream description;
         description << "msg "<< header.tracking_number << " too late. "

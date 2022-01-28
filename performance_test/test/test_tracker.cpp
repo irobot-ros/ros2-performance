@@ -11,7 +11,6 @@
 
 #include "performance_test/tracker.hpp"
 
-
 TEST(TrackerTest, TrackerInitTest)
 {
   performance_test::Tracker tracker("", "", performance_test::Tracker::TrackingOptions());
@@ -28,7 +27,6 @@ TEST(TrackerTest, TrackerInitTest)
   EXPECT_TRUE(std::isnan(tracker.stat().max()));
   ASSERT_EQ((unsigned long int)0, tracker.stat().n());
 }
-
 
 TEST(TrackerTest, TrackerScanTest)
 {
@@ -66,7 +64,6 @@ TEST(TrackerTest, TrackerScanTest)
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(1e9), tracker.stat().max());
   ASSERT_EQ((unsigned long int)RCL_NS_TO_US(1e9),tracker.last());
 }
-
 
 TEST(TrackerTest, TrackingOptionsTest)
 {

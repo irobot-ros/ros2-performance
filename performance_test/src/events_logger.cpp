@@ -6,12 +6,13 @@
  *  This file is part of ros2-performance, which is released under BSD-3-Clause.
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
+#include <sys/resource.h>
+#include <sys/types.h>
 
 #include <cmath>
 #include <ctime>
 #include <iomanip>
-#include <sys/resource.h>
-#include <sys/types.h>
+#include <string>
 #include <thread>
 
 #include <performance_test/events_logger.hpp>
@@ -19,7 +20,7 @@
 namespace performance_test
 {
 
-EventsLogger::EventsLogger(const std::string& filename)
+EventsLogger::EventsLogger(const std::string & filename)
 {
   _filename = filename;
 
@@ -38,7 +39,7 @@ EventsLogger::EventsLogger(const std::string& filename)
   _file << std::left << std::setw(_p_desc_width) << std::setfill(_p_separator) << "Description" << std::endl;
 }
 
-void EventsLogger::write_event(const Event& event)
+void EventsLogger::write_event(const Event & event)
 {
   if(!_file.is_open()) {
     return;

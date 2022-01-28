@@ -32,7 +32,7 @@ template<typename NodeT>
 void log_latency_all_stats(std::ostream& stream, const std::vector<std::shared_ptr<NodeT>>& nodes)
 {
   std::vector<NodeT*> nodes_raw;
-  for (const auto& n : nodes) {
+  for (const auto & n : nodes) {
     nodes_raw.push_back(n.get());
   }
 

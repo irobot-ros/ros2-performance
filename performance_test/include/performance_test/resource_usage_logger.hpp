@@ -35,7 +35,7 @@ public:
 
   ResourceUsageLogger() = delete;
 
-  ResourceUsageLogger(const std::string& filename);
+  ResourceUsageLogger(const std::string & filename);
 
   void start(std::chrono::milliseconds period = std::chrono::milliseconds(1000));
 

@@ -11,7 +11,8 @@
 
 #include <string>
 
-namespace performance_test {
+namespace performance_test
+{
 
 // converts a numeric id (e.g. 7) into a node name (e.g. node_7)
 std::string id_to_node_name(int id);

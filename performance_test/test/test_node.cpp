@@ -35,7 +35,7 @@ TEST_F(TestNode, NodeConstructorTest)
 
   auto node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("node_name", ros2_namespace, node_options);
 
-  auto trackers_vector_ptr = node->all_trackers();
+  auto trackers_vector_ptr = node->sub_and_client_trackers();
 
   ASSERT_EQ((size_t)0, trackers_vector_ptr->size());
 }
@@ -49,7 +49,7 @@ TEST_F(TestNode, NodeAddItemsTest)
   node->add_server<performance_test_msgs::srv::Sample>("my_service");
   node->add_periodic_client<performance_test_msgs::srv::Sample>("my_service", std::chrono::milliseconds(10));
 
-  ASSERT_EQ((size_t)2, node->all_trackers()->size());
+  ASSERT_EQ((size_t)2, node->sub_and_client_trackers()->size());
 }
 
 TEST_F(TestNode, LifecycleNodeConstructorTest)
@@ -63,7 +63,7 @@ TEST_F(TestNode, LifecycleNodeConstructorTest)
 
   auto node = std::make_shared<performance_test::PerformanceNode<rclcpp_lifecycle::LifecycleNode>>("node_name", ros2_namespace, node_options);
 
-  auto trackers_vector_ptr = node->all_trackers();
+  auto trackers_vector_ptr = node->sub_and_client_trackers();
 
   ASSERT_EQ((size_t)0, trackers_vector_ptr->size());
 }
@@ -77,5 +77,5 @@ TEST_F(TestNode, LifecycleNodeAddItemsTest)
   node->add_server<performance_test_msgs::srv::Sample>("my_service");
   node->add_periodic_client<performance_test_msgs::srv::Sample>("my_service", std::chrono::milliseconds(10));
 
-  ASSERT_EQ((size_t)2, node->all_trackers()->size());
+  ASSERT_EQ((size_t)2, node->sub_and_client_trackers()->size());
 }

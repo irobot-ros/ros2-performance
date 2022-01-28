@@ -300,7 +300,7 @@ void System::wait_edp_discovery(
   // count the number of subscribers for each topic
   std::map<std::string, int> subs_per_topic;
   for (const auto& n : _nodes){
-    auto trackers = n->all_trackers();
+    auto trackers = n->sub_and_client_trackers();
     for (const auto& tracker : *trackers){
       subs_per_topic[tracker.first] += 1;
     }

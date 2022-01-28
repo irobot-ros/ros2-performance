@@ -17,7 +17,8 @@
 
 using namespace std::chrono_literals;
 
-namespace performance_test {
+namespace performance_test
+{
 
 template<typename NodeT=rclcpp::Node>
 class PerformanceNode : public NodeT, public PerformanceNodeBase

@@ -55,7 +55,7 @@ TEST_F(TestSystem, SystemPubSubTest)
 
   ros2_system.spin(duration_sec);
 
-  auto trackers_vec_ptr = sub_node->all_trackers();
+  auto trackers_vec_ptr = sub_node->sub_and_client_trackers();
   auto tracker = (*trackers_vec_ptr)[0];
 
   ASSERT_EQ("my_topic", tracker.first);
@@ -80,7 +80,7 @@ TEST_F(TestSystem, SystemClientServerTest)
   // discovery check does not work with client/server yet
   ros2_system.spin(duration_sec, false);
 
-  auto trackers_vec_ptr = client_node->all_trackers();
+  auto trackers_vec_ptr = client_node->sub_and_client_trackers();
   auto tracker = (*trackers_vec_ptr)[0];
 
   ASSERT_EQ("my_service", tracker.first);
@@ -107,7 +107,7 @@ TEST_F(TestSystem, SystemDifferentQoSTest)
 
   ros2_system.spin(duration_sec);
 
-  auto trackers_vec_ptr = sub_node->all_trackers();
+  auto trackers_vec_ptr = sub_node->sub_and_client_trackers();
   auto tracker = (*trackers_vec_ptr)[0];
 
   // they have incompatible qos so they shouldn't communicate

@@ -13,7 +13,7 @@ The simplest way of using the factory, consists in creating a json file describi
 
 ```
 #include "rclcpp/rclcpp.hpp"
-#include "performance_test/node.hpp"
+#include "performance_test/performance_node_base.hpp"
 #include "performance_test/system.hpp"
 #include "performance_test_factory/factory.hpp"
 
@@ -38,7 +38,7 @@ A complete example can be found in the [simple architecture example](examples/js
 The `performance_test::TemplateFactory` allows also to directly use strings for creating nodes, instead of parsing them from the json files.
 
 ```
-#include "performance_test/node.hpp"
+#include "performance_test/performance_node_base.hpp"
 #include "performance_test_factory/factory.hpp"
 
 
@@ -60,7 +60,7 @@ Then remember to add the nodes to the `performance_test::System` in order to run
 
 ```
 #include "performance_test_factory/factory.hpp"
-#include "performance_test/node.hpp"
+#include "performance_test/performance_node.hpp"
 #include "performance_test/system.hpp"
 
 performance_test::TemplateFactory factory;

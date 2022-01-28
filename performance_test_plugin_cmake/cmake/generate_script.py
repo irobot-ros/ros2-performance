@@ -30,7 +30,7 @@ def get_interface_name_from_path(interface_path):
 
 def get_lowercased_name(interface_name):
   '''
-  interface_name has the PoseWithCovariance
+  interface_name has the form PoseWithCovariance
   the lowercased version is pose_with_covariance
   '''
 
@@ -80,9 +80,7 @@ def get_include_paths(msgs, srvs, package):
   create include definitions for all the messages and services
   '''
 
-
   content = "\n"
-
   for msg_name in msgs:
     statement = get_cpp_include_statement(msg_name, package, "msg")
     content += statement + "\n"
@@ -92,7 +90,6 @@ def get_include_paths(msgs, srvs, package):
     content += statement + "\n"
 
   return content
-
 
 def get_sub_factory(msgs, package, node_type):
 
@@ -112,7 +109,7 @@ def get_sub_factory(msgs, package, node_type):
   else:
     return ""
 
-  performance_node = "performance_test::PerformanceNode<" + node_type + ">"
+  performance_node = "performance_test::PerformanceNodeBase"
   content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
@@ -158,7 +155,6 @@ def get_sub_factory(msgs, package, node_type):
 
   return content
 
-
 def get_pub_factory(msgs, package, node_type):
 
   if len(msgs) == 0:
@@ -177,7 +173,7 @@ def get_pub_factory(msgs, package, node_type):
   else:
     return ""
 
-  performance_node = "performance_test::PerformanceNode<" + node_type + ">"
+  performance_node = "performance_test::PerformanceNodeBase"
   content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
@@ -224,7 +220,6 @@ def get_pub_factory(msgs, package, node_type):
 
   return content
 
-
 def get_server_factory(srvs, package, node_type):
 
   if len(srvs) == 0:
@@ -243,7 +238,7 @@ def get_server_factory(srvs, package, node_type):
   else:
     return ""
 
-  performance_node = "performance_test::PerformanceNode<" + node_type + ">"
+  performance_node = "performance_test::PerformanceNodeBase"
   content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
@@ -287,7 +282,6 @@ def get_server_factory(srvs, package, node_type):
 
   return content
 
-
 def get_client_factory(srvs, package, node_type):
 
   if len(srvs) == 0:
@@ -306,7 +300,7 @@ def get_client_factory(srvs, package, node_type):
   else:
     return ""
 
-  performance_node = "performance_test::PerformanceNode<" + node_type + ">"
+  performance_node = "performance_test::PerformanceNodeBase"
   content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
@@ -350,7 +344,6 @@ def get_client_factory(srvs, package, node_type):
 
   return content
 
-
 def main():
 
   parser = argparse.ArgumentParser(description='Python script for generating interfaces implementation')
@@ -383,7 +376,7 @@ def main():
   content = """
   #include <rclcpp/rclcpp.hpp>
   #include <rclcpp_lifecycle/lifecycle_node.hpp>
-  #include "performance_test/node.hpp"
+  #include "performance_test/performance_node_base.hpp"
 
   """
 

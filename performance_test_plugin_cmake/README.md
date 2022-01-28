@@ -29,7 +29,7 @@ The library is based on a `.cpp` file that can be found at `build/<PKG_NAME>/gen
 This is how the file should look like.
 
 ```
-#include "performance_test/node.hpp"
+#include "performance_test/performance_node_base.hpp"
 #include "performance_test_msgs/msg/stamped10b.hpp"
 #include "performance_test_msgs/msg/stamped100b.hpp"
 #include "performance_test_msgs/msg/stamped250b.hpp"

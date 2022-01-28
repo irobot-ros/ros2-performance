@@ -16,7 +16,7 @@
 
 #include "performance_test/utils/names_utilities.hpp"
 #include "performance_test/utils/stat_logger.hpp"
-#include "performance_test/node.hpp"
+#include "performance_test/performance_node_base.hpp"
 #include "performance_test/executors.hpp"
 #include "performance_test/events_logger.hpp"
 

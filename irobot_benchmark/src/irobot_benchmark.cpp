@@ -16,14 +16,13 @@
 #include <sys/wait.h>
 
 #include "performance_test/communication.hpp"
-#include "performance_test/node.hpp"
+#include "performance_test/performance_node.hpp"
 #include "performance_test/node_types.hpp"
 #include "performance_test/resource_usage_logger.hpp"
 #include "performance_test/system.hpp"
 #include "performance_test/utils/cli_args.hpp"
 #include "performance_test/utils/cli_options.hpp"
 #include "performance_test/utils/fork_process.hpp"
-
 
 #include "performance_test_factory/factory.hpp"
 
@@ -49,7 +48,7 @@ void run_test(int argc, char** argv,
     performance_test::System ros2_system(static_cast<performance_test::ExecutorType>(options.executor));
 
     // Load topology from json file
-    auto factory = performance_test::TemplateFactory<NodeT>(options.ipc, options.ros_params);
+    auto factory = performance_test::TemplateFactory(options.ipc, options.ros_params);
 
     if (options.tracking_options.is_enabled) {
         ros2_system.enable_events_logger(events_output_path);

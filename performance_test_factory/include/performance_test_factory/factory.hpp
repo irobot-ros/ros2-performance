@@ -23,7 +23,7 @@
 #include "nlohmann/json.hpp"
 
 #include "performance_test/executors.hpp"
-#include "performance_test/node.hpp"
+#include "performance_test/performance_node.hpp"
 #include "performance_test/node_types.hpp"
 
 using namespace std::chrono_literals;
@@ -31,7 +31,6 @@ using json = nlohmann::json;
 
 namespace performance_test {
 
-template <class NodeT = PerformanceNode<rclcpp::Node>>
 class TemplateFactory {
 
 
@@ -41,18 +40,14 @@ class TemplateFactory {
             bool use_ipc = true,
             bool use_ros_params = true,
             bool verbose_mode = false,
-            std::string ros2_namespace = "") :
+            std::string ros2_namespace = "",
+            NodeType node_type = RCLCPP_NODE) :
                 _use_ipc(use_ipc),
                 _use_ros_params(use_ros_params),
                 _verbose_mode(verbose_mode),
-                _ros2_namespace(ros2_namespace)
-        {
-            if (std::is_same<NodeT, PerformanceNode<rclcpp_lifecycle::LifecycleNode>>::value) {
-                _node_type = RCLCPP_LIFECYCLE_NODE;
-            } else if (std::is_same<NodeT, PerformanceNode<rclcpp::Node>>::value) {
-                _node_type = RCLCPP_NODE;
-            }
-        }
+                _ros2_namespace(ros2_namespace),
+                _node_type(node_type)
+        { }
 
         /**
          * Helper functions for creating several nodes at the same time.
@@ -61,7 +56,7 @@ class TemplateFactory {
          * The topic or service type is obtained parsing the msg_type std::string
          */
 
-        std::shared_ptr<NodeT> create_node(
+        std::shared_ptr<PerformanceNodeBase> create_node(
             std::string name,
             bool use_ipc = true,
             bool use_ros_params = true,
@@ -74,7 +69,17 @@ class TemplateFactory {
             node_options.start_parameter_services(use_ros_params);
             node_options.start_parameter_event_publisher(use_ros_params);
 
-            auto node = std::make_shared<NodeT>(name, ros2_namespace, node_options, executor_id);
+            std::shared_ptr<PerformanceNodeBase> node;
+
+            switch (_node_type)
+            {
+              case RCLCPP_NODE:
+                node = std::make_shared<PerformanceNode<rclcpp::Node>>(name, ros2_namespace, node_options, executor_id);
+                break;
+              case RCLCPP_LIFECYCLE_NODE:
+                node = std::make_shared<PerformanceNode<rclcpp_lifecycle::LifecycleNode>>(name, ros2_namespace, node_options, executor_id);
+                break;
+            }
 
             if (verbose){
                 auto ret = rcutils_logging_set_logger_level(node->get_node_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
@@ -84,7 +89,7 @@ class TemplateFactory {
             return node;
         }
 
-        std::vector<std::shared_ptr<NodeT>> create_subscriber_nodes(
+        std::vector<std::shared_ptr<PerformanceNodeBase>> create_subscriber_nodes(
             int start_id,
             int end_id,
             int n_publishers,
@@ -93,7 +98,7 @@ class TemplateFactory {
             Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
             rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default)
         {
-            std::vector<std::shared_ptr<NodeT>> nodes_vector;
+            std::vector<std::shared_ptr<PerformanceNodeBase>> nodes_vector;
 
             for (int node_id = start_id; node_id < end_id; node_id ++){
 
@@ -116,7 +121,7 @@ class TemplateFactory {
             return nodes_vector;
         }
 
-        std::vector<std::shared_ptr<NodeT>> create_periodic_publisher_nodes(
+        std::vector<std::shared_ptr<PerformanceNodeBase>> create_periodic_publisher_nodes(
             int start_id,
             int end_id,
             float frequency,
@@ -125,7 +130,7 @@ class TemplateFactory {
             size_t msg_size = 0,
             rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default)
         {
-            std::vector<std::shared_ptr<NodeT>> nodes_vector;
+            std::vector<std::shared_ptr<PerformanceNodeBase>> nodes_vector;
 
             for (int node_id = start_id; node_id < end_id; node_id++){
 
@@ -146,7 +151,7 @@ class TemplateFactory {
             return nodes_vector;
         }
 
-        std::vector<std::shared_ptr<NodeT>> create_periodic_client_nodes(
+        std::vector<std::shared_ptr<PerformanceNodeBase>> create_periodic_client_nodes(
             int start_id,
             int end_id,
             int n_services,
@@ -154,7 +159,7 @@ class TemplateFactory {
             std::string srv_type,
             rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default)
         {
-            std::vector<std::shared_ptr<NodeT>> nodes_vector;
+            std::vector<std::shared_ptr<PerformanceNodeBase>> nodes_vector;
 
             for (int node_id = start_id; node_id < end_id; node_id++){
 
@@ -180,13 +185,13 @@ class TemplateFactory {
 
         }
 
-        std::vector<std::shared_ptr<NodeT>> create_server_nodes(
+        std::vector<std::shared_ptr<PerformanceNodeBase>> create_server_nodes(
             int start_id,
             int end_id,
             std::string srv_type,
             rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default)
         {
-            std::vector<std::shared_ptr<NodeT>> nodes_vector;
+            std::vector<std::shared_ptr<PerformanceNodeBase>> nodes_vector;
 
             for (int node_id = start_id; node_id < end_id; node_id++){
 
@@ -211,7 +216,7 @@ class TemplateFactory {
          */
 
         void add_subscriber_from_strings(
-            std::shared_ptr<NodeT> n,
+            std::shared_ptr<PerformanceNodeBase> n,
             std::string msg_type,
             std::string topic_name,
             Tracker::TrackingOptions tracking_options,
@@ -221,7 +226,7 @@ class TemplateFactory {
             auto library = performance_test::get_library(msg_type);
 
             typedef void (*function_impl_t)(
-            std::shared_ptr<NodeT>,
+            std::shared_ptr<PerformanceNodeBase>,
             std::string,
             std::string,
             Tracker::TrackingOptions,
@@ -234,7 +239,7 @@ class TemplateFactory {
         }
 
         void add_periodic_publisher_from_strings(
-            std::shared_ptr<NodeT> n,
+            std::shared_ptr<PerformanceNodeBase> n,
             std::string msg_type,
             std::string topic_name,
             msg_pass_by_t msg_pass_by = PASS_BY_UNIQUE_PTR,
@@ -245,7 +250,7 @@ class TemplateFactory {
             auto library = performance_test::get_library(msg_type);
 
             typedef void (*function_impl_t)(
-            std::shared_ptr<NodeT>,
+            std::shared_ptr<PerformanceNodeBase>,
             std::string,
             std::string,
             msg_pass_by_t,
@@ -259,7 +264,7 @@ class TemplateFactory {
         }
 
         void add_periodic_client_from_strings(
-            std::shared_ptr<NodeT> n,
+            std::shared_ptr<PerformanceNodeBase> n,
             std::string srv_type,
             std::string service_name,
             rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default,
@@ -268,7 +273,7 @@ class TemplateFactory {
             auto library = performance_test::get_library(srv_type);
 
             typedef void (*function_impl_t)(
-            std::shared_ptr<NodeT>,
+            std::shared_ptr<PerformanceNodeBase>,
             std::string,
             std::string,
             rmw_qos_profile_t,
@@ -281,7 +286,7 @@ class TemplateFactory {
         }
 
         void add_server_from_strings(
-            std::shared_ptr<NodeT> n,
+            std::shared_ptr<PerformanceNodeBase> n,
             std::string srv_type,
             std::string service_name,
             rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default)
@@ -289,7 +294,7 @@ class TemplateFactory {
             auto library = performance_test::get_library(srv_type);
 
             typedef void (*function_impl_t)(
-            std::shared_ptr<NodeT>,
+            std::shared_ptr<PerformanceNodeBase>,
             std::string,
             std::string,
             rmw_qos_profile_t
@@ -305,12 +310,12 @@ class TemplateFactory {
          * parses it and creates the nodes accordingly
          */
 
-        std::vector<std::shared_ptr<NodeT>> parse_topology_from_json(
+        std::vector<std::shared_ptr<PerformanceNodeBase>> parse_topology_from_json(
             std::string json_path,
             Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions())
         {
 
-            std::vector<std::shared_ptr<NodeT>> nodes_vec;
+            std::vector<std::shared_ptr<PerformanceNodeBase>> nodes_vec;
 
             std::ifstream ifs(json_path);
 
@@ -358,9 +363,8 @@ class TemplateFactory {
 
     private:
 
-        std::shared_ptr<NodeT> create_node_from_json(const nlohmann::json node_json, std::string suffix = "")
+        std::shared_ptr<PerformanceNodeBase> create_node_from_json(const nlohmann::json node_json, std::string suffix = "")
         {
-
             auto node_name = std::string(node_json["node_name"]) + suffix;
             auto node_namespace = _ros2_namespace;
             if (node_json.find("node_namespace") != node_json.end()) {
@@ -377,9 +381,8 @@ class TemplateFactory {
             return node;
         }
 
-        void create_node_entities_from_json(std::shared_ptr<NodeT> node, const nlohmann::json node_json, Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions())
+        void create_node_entities_from_json(std::shared_ptr<PerformanceNodeBase> node, const nlohmann::json node_json, Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions())
         {
-
             if (node_json.find("publishers") != node_json.end()) {
                 // if there is at least 1 publisher, add each of them
                 for(auto p_json : node_json["publishers"]){
@@ -410,9 +413,8 @@ class TemplateFactory {
 
         }
 
-        void add_periodic_publisher_from_json(std::shared_ptr<NodeT> node, const nlohmann::json pub_json)
+        void add_periodic_publisher_from_json(std::shared_ptr<PerformanceNodeBase> node, const nlohmann::json pub_json)
         {
-
             std::string topic_name = pub_json["topic_name"];
             std::string msg_type = pub_json["msg_type"];
 
@@ -449,7 +451,7 @@ class TemplateFactory {
                 msg_size);
         }
 
-        void add_subscriber_from_json(std::shared_ptr<NodeT> node, const nlohmann::json sub_json, Tracker::TrackingOptions t_options)
+        void add_subscriber_from_json(std::shared_ptr<PerformanceNodeBase> node, const nlohmann::json sub_json, Tracker::TrackingOptions t_options)
         {
 
             std::string topic_name = sub_json["topic_name"];
@@ -468,7 +470,7 @@ class TemplateFactory {
                 custom_qos_profile);
         }
 
-        void add_periodic_client_from_json(std::shared_ptr<NodeT> node, const nlohmann::json client_json)
+        void add_periodic_client_from_json(std::shared_ptr<PerformanceNodeBase> node, const nlohmann::json client_json)
         {
 
             std::string service_name = client_json["service_name"];
@@ -498,7 +500,7 @@ class TemplateFactory {
 
         }
 
-        void add_server_from_json(std::shared_ptr<NodeT> node, const nlohmann::json server_json)
+        void add_server_from_json(std::shared_ptr<PerformanceNodeBase> node, const nlohmann::json server_json)
         {
             std::string service_name = server_json["service_name"];
             std::string srv_type = server_json["srv_type"];

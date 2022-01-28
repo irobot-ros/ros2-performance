@@ -329,6 +329,25 @@ public:
 
 private:
 
+  performance_test_msgs::msg::PerformanceHeader create_msg_header(
+    rclcpp::Time publish_time,
+    float pub_frequency,
+    Tracker::TrackingNumber tracking_number,
+    size_t msg_size)
+  {
+    performance_test_msgs::msg::PerformanceHeader header;
+
+    header.size = msg_size;
+    // get the frequency value that we stored when creating the publisher
+    header.frequency = pub_frequency;
+    // set the tracking count for this message
+    header.tracking_number = tracking_number;
+    //attach the timestamp as last operation before publishing
+    header.stamp = publish_time;
+
+    return header;
+  }
+
   template <typename Msg>
   void _publish(const std::string& name, msg_pass_by_t msg_pass_by, size_t size, std::chrono::microseconds period)
   {
@@ -337,64 +356,57 @@ private:
     auto pub = std::static_pointer_cast<rclcpp::Publisher<Msg>>(pub_pair.first);
     auto& tracker = pub_pair.second;
 
+    float pub_frequency = 1000000.0 / period.count();
+
     auto tracking_number = tracker.get_and_update_tracking_number();
     unsigned long pub_time_us = 0;
+    size_t msg_size = 0;
     switch (msg_pass_by)
     {
       case PASS_BY_SHARED_PTR:
       {
         // create a message and eventually resize it
         auto msg = std::make_shared<Msg>();
-        resize_msg(msg->data, msg->header, size);
+        msg_size = resize_msg(msg->data, size);
+        auto publish_time = m_node_clock->get_clock()->now();
 
-        // get the frequency value that we stored when creating the publisher
-        msg->header.frequency = 1000000.0 / period.count();
-        // set the tracking count for this message
-        msg->header.tracking_number = tracking_number;
-        //attach the timestamp as last operation before publishing
-        msg->header.stamp = m_node_clock->get_clock()->now();
+        msg->header = create_msg_header(
+          publish_time,
+          pub_frequency,
+          tracking_number,
+          msg_size);
   
-        tracker.set_frequency(msg->header.frequency);
-        tracker.set_size(msg->header.size);
-
-        auto start_time = std::chrono::high_resolution_clock::now();
-
         pub->publish(*msg);
 
-        auto end_time = std::chrono::high_resolution_clock::now();
-        pub_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+        auto end_time = m_node_clock->get_clock()->now();
+        pub_time_us = (end_time - publish_time).nanoseconds() / 1000.0f;
   
         break;
       }
-
       case PASS_BY_UNIQUE_PTR:
       {
         // create a message and eventually resize it
         auto msg = std::make_unique<Msg>();
-        resize_msg(msg->data, msg->header, size);
+        msg_size = resize_msg(msg->data, size);
+        auto publish_time = m_node_clock->get_clock()->now();
 
-        // get the frequency value that we stored when creating the publisher
-        msg->header.frequency = 1000000.0 / period.count();
-        // set the tracking count for this message
-        msg->header.tracking_number = tracking_number;
-        //attach the timestamp as last operation before publishing
-        msg->header.stamp = m_node_clock->get_clock()->now();
-
-        tracker.set_frequency(msg->header.frequency);
-        tracker.set_size(msg->header.size);
-
-        auto start_time = std::chrono::high_resolution_clock::now();
+        msg->header = create_msg_header(
+          publish_time,
+          pub_frequency,
+          tracking_number,
+          msg_size);
 
         pub->publish(std::move(msg));
 
-        auto end_time = std::chrono::high_resolution_clock::now();
-        pub_time_us = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time).count();
+        auto end_time = m_node_clock->get_clock()->now();
+        pub_time_us = (end_time - publish_time).nanoseconds() / 1000.0f;
 
         break;
       }
-
     }
 
+    tracker.set_frequency(pub_frequency);
+    tracker.set_size(msg_size);
     tracker.add_sample(pub_time_us);
 
     RCLCPP_DEBUG(m_node_logging->get_logger(), "Publishing to %s msg number %d took %lu us", name.c_str(), tracking_number, pub_time_us);
@@ -402,20 +414,21 @@ private:
 
   template <typename DataT>
   typename std::enable_if<
-    (!std::is_same<DataT, std::vector<uint8_t>>::value), void>::type
-  resize_msg(DataT & data, performance_test_msgs::msg::PerformanceHeader & header, size_t size)
+    (!std::is_same<DataT, std::vector<uint8_t>>::value), size_t>::type
+  resize_msg(DataT & data, size_t size)
   {
+    // The payload is not a vector: nothing to resize
     (void)size;
-    header.size = sizeof(data);
+    return sizeof(data);
   }
 
   template <typename DataT>
   typename std::enable_if<
-    (std::is_same<DataT, std::vector<uint8_t>>::value), void>::type
-  resize_msg(DataT & data, performance_test_msgs::msg::PerformanceHeader & header, size_t size)
+    (std::is_same<DataT, std::vector<uint8_t>>::value), size_t>::type
+  resize_msg(DataT & data, size_t size)
   {
     data.resize(size);
-    header.size = size;
+    return size;
   }
 
   template <typename MsgType>
@@ -570,24 +583,6 @@ private:
   std::shared_ptr<EventsLogger> _events_logger;
 
   int m_executor_id = 0;
-};
-
-template<typename NodeT=rclcpp::Node>
-class PerformanceNode : public NodeT, public PerformanceNodeBase
-{
-public:
-  PerformanceNode(
-    const std::string& name,
-    const std::string& ros2_namespace = "",
-    const rclcpp::NodeOptions& node_options = rclcpp::NodeOptions(),
-    int executor_id = 0)
-  : NodeT(name, ros2_namespace, node_options), PerformanceNodeBase(executor_id)
-  {
-    this->set_ros_node(this);
-    RCLCPP_INFO(this->get_logger(), "PerformanceNode %s created with executor id %d", name.c_str(), executor_id);
-  }
-
-  virtual ~PerformanceNode() = default;
 };
 
 }

@@ -17,7 +17,8 @@
 #include <string>
 #include <unistd.h>
 
-namespace performance_test {
+namespace performance_test
+{
 
 class ResourceUsageLogger
 {
@@ -45,7 +46,6 @@ public:
   void set_system_info(int pubs, int subs, float frequency);
 
 private:
-
   // Get shared resources data
   void _get();
 

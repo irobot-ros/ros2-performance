@@ -35,7 +35,7 @@ public:
     int too_late_absolute_us = 50000;
   };
 
-  typedef uint32_t TrackingNumber;
+  using TrackingNumber = uint32_t;
 
   Tracker() = delete;
 

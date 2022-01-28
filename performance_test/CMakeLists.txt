@@ -23,6 +23,7 @@ set (LIBRARY_DEPENDENCIES
 
 set(LIBRARY_SRC
   src/events_logger.cpp
+  src/performance_node_base.cpp
   src/resource_usage_logger.cpp
   src/system.cpp
   src/tracker.cpp

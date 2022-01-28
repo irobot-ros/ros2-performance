@@ -12,7 +12,8 @@
 #include <cmath>
 #include <utility>
 
-namespace performance_test {
+namespace performance_test
+{
 
 // Use shifted data variance algorithm
 // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
@@ -22,7 +23,6 @@ class Stat
 public:
   void add_sample(T x)
   {
-
     if (_n == 0) {
       _max = x;
       _min = x;

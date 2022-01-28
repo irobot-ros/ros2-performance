@@ -101,7 +101,7 @@ void log_latency_all_stats(std::ostream& stream, const std::vector<PerformanceNo
   bool subs_header = false;
   for (const auto& n : nodes)
   {
-    auto trackers = n->all_trackers();
+    auto trackers = n->sub_and_client_trackers();
     for(const auto& tracker : *trackers)
     {
       if (!subs_header) {
@@ -139,7 +139,7 @@ void log_latency_total_stats(std::ostream& stream, const std::vector<std::shared
   // collect total data
   for (const auto& n : nodes)
   {
-    auto trackers = n->all_trackers();
+    auto trackers = n->sub_and_client_trackers();
     for(const auto& tracker : *trackers)
     {
       total_received += tracker.second.received();

@@ -27,8 +27,9 @@ set (LIBRARY_DEPENDENCIES
 )
 
 set(LIBRARY_SRC
-  src/ros2/names_utilities.cpp
-  src/ros2/tracker.cpp
+  src/fork_process
+  src/names_utilities.cpp
+  src/tracker.cpp
 )
 
 set(LIBRARY_NAME ${PROJECT_NAME})

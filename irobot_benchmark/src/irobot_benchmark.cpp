@@ -15,11 +15,12 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 
-#include "performance_test/system.hpp"
+#include "performance_test/communication.hpp"
+#include "performance_test/fork_process.hpp"
 #include "performance_test/node.hpp"
 #include "performance_test/node_types.hpp"
-#include "performance_test/communication.hpp"
 #include "performance_test/resource_usage_logger.hpp"
+#include "performance_test/system.hpp"
 
 #include "performance_test_factory/factory.hpp"
 
@@ -120,26 +121,10 @@ int main(int argc, char** argv)
     std::cout << "Logging events statistics: " << (options.tracking_options.is_enabled ? "on" : "off") << std::endl;
     std::cout << "Start test" << std::endl;
 
-    std::string topology_json;
-
     pid_t pid = getpid();
+    size_t process_index = fork_process(json_list.size());
 
-    for (auto json = json_list.begin(); json != json_list.end(); json++)
-    {
-        topology_json = *json;
-
-        // Fork only the for the first (n-1) topologies
-        if (json != json_list.end() - 1)
-        {
-            pid = fork();
-
-            // If is a child process, break
-            if (pid == 0)
-            {
-                 break;
-            }
-        }
-    }
+    std::string topology_json = json_list[process_index];
 
     // Create results dir based on the topology name
     const size_t last_slash = topology_json.find_last_of("/");
@@ -153,9 +138,6 @@ int main(int argc, char** argv)
     std::string events_output_path        = dir_name + "/events.txt";
     std::string latency_all_output_path   = dir_name + "/latency_all.txt";
     std::string latency_total_output_path = dir_name + "/latency_total.txt";
-
-    // Start resources logger
-    performance_test::ResourceUsageLogger ru_logger(resources_output_path);
 
     switch(node_type)
     {

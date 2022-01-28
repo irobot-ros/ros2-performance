@@ -77,7 +77,7 @@ class TemplateFactory {
             auto node = std::make_shared<NodeT>(name, ros2_namespace, node_options, executor_id);
 
             if (verbose){
-                auto ret = rcutils_logging_set_logger_level(node->get_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+                auto ret = rcutils_logging_set_logger_level(node->get_node_logger().get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
                 if (ret != RCUTILS_RET_OK) { assert(0 && "Error setting logger verbosity"); }
             }
 

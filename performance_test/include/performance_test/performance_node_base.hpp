@@ -371,7 +371,7 @@ private:
     auto & tracking_number = std::get<2>(client_tuple);
 
     // Wait for service to come online
-    if (!client->wait_for_service(1.0s)) {
+    if (!client->wait_for_service(std::chrono::seconds(1))) {
       if (_events_logger != nullptr) {
         // Create a descrption for the event
         std::stringstream description;

@@ -215,9 +215,9 @@ void System::print_agregate_stats(const std::vector<std::string>& topology_json_
 void System::wait_discovery()
 {
   // period at which PDP and EDP are checked
-  std::chrono::milliseconds period = 30ms;
+  std::chrono::milliseconds period = std::chrono::milliseconds(30);
   // maximum discovery time, after which the experiment is shut down
-  std::chrono::milliseconds max_discovery_time = 30s;
+  std::chrono::milliseconds max_discovery_time = std::chrono::seconds(30);
 
   wait_pdp_discovery(period, max_discovery_time);
 

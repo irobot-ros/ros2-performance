@@ -11,6 +11,8 @@
 #include <iostream>
 #include <string>
 
+#include <performance_test/executors.hpp>
+#include <performance_test/node_types.hpp>
 #include <performance_test/utils/cli_options.hpp>
 
 #include "cxxopts.hpp"
@@ -107,6 +109,31 @@ void Options::parse(int argc, char** argv)
   ros_params = (ros_params_option == "on" ? true : false);
   name_threads = (name_threads_option == "on" ? true : false);
   tracking_options.is_enabled = (tracking_enabled_option == "on" ? true : false);
+}
+
+std::ostream &operator<<(std::ostream &os, const Options &options)
+{
+  os << "- Topology file(s): " << std::endl;
+  for(const auto& json : options.topology_json_list) {
+    os << json << std::endl;
+  }
+
+  // Get the system executor from options
+  auto system_executor = static_cast<performance_test::ExecutorType>(options.executor);
+  os << "- System executor: " << system_executor << std::endl;
+
+  // Get the node type from options
+  auto node_type = static_cast<performance_test::NodeType>(options.node);
+  os << "- Node type: " << node_type << std::endl;
+
+  os << "- Intra-process-communication: " << (options.ipc ? "on" : "off") << std::endl;
+  os << "- Parameter services: " << (options.ros_params ? "on" : "off") << std::endl;
+  os << "- Naming threads: " << (options.name_threads ? "on" : "off") << std::endl;
+  os << "- Run test for: " << options.duration_sec << " seconds" << std::endl;
+  os << "- Sampling resources every " << options.resources_sampling_per_ms << "ms" << std::endl;
+  os << "- Logging events statistics: " << (options.tracking_options.is_enabled ? "on" : "off") << std::endl;
+
+  return os;
 }
 
 }

@@ -22,9 +22,10 @@ See [irobot_interfaces_plugin](../irobot_interfaces_plugin) for an example.
 
 ## How does it work
 
-The CMake function calls a Python script to generate a C++ library. This library depends on `performance_test` package.
+**This tool is experimental and hacky!**
 
-The library is based on a `.cpp` file that can be found at `build/<PKG_NAME>/generated/<PKG_NAME>_implementation.cpp`.
+The CMake function `generate_factory_plugin` calls a Python script to automatically generate a `.cpp` file that is then used to build the C++ factory support library.
+The automatically generated file can be found at `build/<PKG_NAME>/generated/<PKG_NAME>_implementation.cpp`, where `<PKG_NAME>` is the name of the package where the CMake function was called.
 
 This is how the file should look like.
 

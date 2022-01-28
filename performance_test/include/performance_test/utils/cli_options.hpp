@@ -35,4 +35,6 @@ public:
   performance_test::Tracker::TrackingOptions tracking_options;
 };
 
+std::ostream &operator<<(std::ostream &os, const Options &options);
+
 }

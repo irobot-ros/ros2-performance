@@ -13,7 +13,7 @@ import argparse
 import os
 import re
 import sys
-
+import textwrap
 
 def get_interface_name_from_path(interface_path):
   '''
@@ -77,10 +77,18 @@ def get_namespaced_cpp_class_name(interface_name, package, interface_type):
 
 def get_include_paths(msgs, srvs, package):
   '''
-  create include definitions for all the messages and services
+  Add all necessary include directives
   '''
 
-  content = "\n"
+  content = """
+  #include <map>
+  #include <memory>
+  #include <string>
+  #include <rclcpp/rclcpp.hpp>
+  #include "performance_test/performance_node_base.hpp"
+
+  """
+
   for msg_name in msgs:
     statement = get_cpp_include_statement(msg_name, package, "msg")
     content += statement + "\n"
@@ -91,23 +99,15 @@ def get_include_paths(msgs, srvs, package):
 
   return content
 
-def get_sub_factory(msgs, package, node_type):
+def get_sub_factory(msgs, package):
 
   if len(msgs) == 0:
     return ""
 
-  if node_type == "rclcpp::Node":
-    content = """
+  content = """
 
-    extern "C" void add_subscriber_impl(
-    """
-  elif node_type == "rclcpp_lifecycle::LifecycleNode":
-    content = """
-
-    extern "C" void add_subscriber_impl_lifecycle(
-    """
-  else:
-    return ""
+  extern "C" void add_subscriber_impl(
+  """
 
   performance_node = "performance_test::PerformanceNodeBase"
   content += "\n std::shared_ptr<" + performance_node + "> n,"
@@ -155,23 +155,15 @@ def get_sub_factory(msgs, package, node_type):
 
   return content
 
-def get_pub_factory(msgs, package, node_type):
+def get_pub_factory(msgs, package):
 
   if len(msgs) == 0:
     return ""
 
-  if node_type == "rclcpp::Node":
-    content = """
+  content = """
 
-    extern "C" void add_publisher_impl(
-    """
-  elif node_type == "rclcpp_lifecycle::LifecycleNode":
-    content = """
-
-    extern "C" void add_publisher_impl_lifecycle(
-    """
-  else:
-    return ""
+  extern "C" void add_publisher_impl(
+  """
 
   performance_node = "performance_test::PerformanceNodeBase"
   content += "\n std::shared_ptr<" + performance_node + "> n,"
@@ -220,23 +212,15 @@ def get_pub_factory(msgs, package, node_type):
 
   return content
 
-def get_server_factory(srvs, package, node_type):
+def get_server_factory(srvs, package):
 
   if len(srvs) == 0:
     return ""
 
-  if node_type == "rclcpp::Node":
-    content = """
+  content = """
 
-    extern "C" void add_server_impl(
-    """
-  elif node_type == "rclcpp_lifecycle::LifecycleNode":
-    content = """
-
-    extern "C" void add_server_impl_lifecycle(
-    """
-  else:
-    return ""
+  extern "C" void add_server_impl(
+  """
 
   performance_node = "performance_test::PerformanceNodeBase"
   content += "\n std::shared_ptr<" + performance_node + "> n,"
@@ -282,23 +266,15 @@ def get_server_factory(srvs, package, node_type):
 
   return content
 
-def get_client_factory(srvs, package, node_type):
+def get_client_factory(srvs, package):
 
   if len(srvs) == 0:
     return ""
 
-  if node_type == "rclcpp::Node":
-    content = """
+  content = """
 
-    extern "C" void add_client_impl(
-    """
-  elif node_type == "rclcpp_lifecycle::LifecycleNode":
-    content = """
-
-    extern "C" void add_client_impl_lifecycle(
-    """
-  else:
-    return ""
+  extern "C" void add_client_impl(
+  """
 
   performance_node = "performance_test::PerformanceNodeBase"
   content += "\n std::shared_ptr<" + performance_node + "> n,"
@@ -373,25 +349,15 @@ def main():
   outdir = os.path.dirname(output_file_path)
   os.makedirs(outdir, exist_ok=True)
 
-  content = """
-  #include <rclcpp/rclcpp.hpp>
-  #include <rclcpp_lifecycle/lifecycle_node.hpp>
-  #include "performance_test/performance_node_base.hpp"
-
-  """
-
+  content = ""
   content += get_include_paths(msgs, srvs, package)
-  content += get_sub_factory(msgs, package, "rclcpp::Node")
-  content += get_sub_factory(msgs, package, "rclcpp_lifecycle::LifecycleNode")
+  content += get_sub_factory(msgs, package)
+  content += get_pub_factory(msgs, package)
+  content += get_server_factory(srvs, package)
+  content += get_client_factory(srvs, package)
 
-  content += get_pub_factory(msgs, package, "rclcpp::Node")
-  content += get_pub_factory(msgs, package, "rclcpp_lifecycle::LifecycleNode")
-
-  content += get_server_factory(srvs, package, "rclcpp::Node")
-  content += get_server_factory(srvs, package, "rclcpp_lifecycle::LifecycleNode")
-
-  content += get_client_factory(srvs, package, "rclcpp::Node")
-  content += get_client_factory(srvs, package, "rclcpp_lifecycle::LifecycleNode")
+  # Remove wacky indentation
+  content = textwrap.dedent(content)
 
   def create(filename, content):
     if os.path.exists(filename):
@@ -402,8 +368,6 @@ def main():
     open(filename, 'w').write(content)
 
   create(output_file_path, content)
-
-
 
 if __name__ == "__main__":
   main()

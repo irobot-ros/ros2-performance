@@ -9,30 +9,33 @@
 
 #pragma once
 
+#include <ostream>
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
 
-namespace performance_test {
+namespace performance_test
+{
 
 enum NodeType
 {
-    RCLCPP_NODE = 1,
-    RCLCPP_LIFECYCLE_NODE = 2,
+  RCLCPP_NODE = 1,
+  RCLCPP_LIFECYCLE_NODE = 2,
 };
 
-std::ostream &operator<<(std::ostream &os, const NodeType &t) {
-    std::string node_type;
-    switch (t) {
-        case RCLCPP_NODE:
-            node_type = "Node";
-            break;
-        case RCLCPP_LIFECYCLE_NODE:
-            node_type = "LifecycleNode";
-            break;
-    }
+inline std::ostream &operator<<(std::ostream &os, const NodeType &t)
+{
+  std::string node_type;
+  switch (t) {
+    case RCLCPP_NODE:
+      node_type = "Node";
+      break;
+    case RCLCPP_LIFECYCLE_NODE:
+      node_type = "LifecycleNode";
+      break;
+  }
 
-    return os << node_type;
+  return os << node_type;
 }
 
 }

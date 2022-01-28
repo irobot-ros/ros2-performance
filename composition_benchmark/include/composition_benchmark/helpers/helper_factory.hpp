@@ -2,13 +2,14 @@
 
 #include <vector>
 
+#include <rclcpp/rclcpp.hpp>
+
 #include <composition_benchmark/global_factory.hpp>
 #include <composition_benchmark/helpers/helper_types.hpp>
-#include <performance_test/utils/cli_args.hpp>
 
 void global_factory_generic_setup(int argc, char** argv)
 {
-  auto non_ros_args = performance_test::get_non_ros_args(argc, argv);
+  auto non_ros_args = rclcpp::remove_ros_arguments(argc, argv);
 
   std::vector<global_factory::NodeArguments> node_arguments;
   for (size_t i = 1; i < non_ros_args.size(); i ++) {

@@ -1,22 +1,23 @@
 #include <cstdlib>
 #include <string>
 
+#include <rclcpp/rclcpp.hpp>
+
 #include <composition_benchmark/composable_publisher.hpp>
 #include <composition_benchmark/composable_subscriber.hpp>
-#include <irobot_interfaces_plugin/msg/stamped_vector.hpp>
-#include <performance_test/utils/cli_args.hpp>
 #include <composition_benchmark/helpers/helper_spin.hpp>
 #include <composition_benchmark/helpers/run_test.hpp>
+#include <irobot_interfaces_plugin/msg/stamped_vector.hpp>
 
 std::vector<IRobotNodePtr> create_pub_sub_system(int argc, char** argv)
 {
-  auto non_ros_args = performance_test::get_non_ros_args(argc, argv);
+  auto non_ros_args = rclcpp::remove_ros_arguments(argc, argv);
 
   assert(non_ros_args.size() >= 5);
-  size_t num_subs = atoi(non_ros_args[1]);
-  int pub_frequency = atoi(non_ros_args[2]);
-  int msg_size = atoi(non_ros_args[3]);
-  bool use_ipc = static_cast<bool>(atoi(non_ros_args[4]));
+  size_t num_subs = atoi(non_ros_args[1].c_str());
+  int pub_frequency = atoi(non_ros_args[2].c_str());
+  int msg_size = atoi(non_ros_args[3].c_str());
+  bool use_ipc = static_cast<bool>(atoi(non_ros_args[4].c_str()));
 
   std::vector<IRobotNodePtr> nodes;
 
@@ -52,7 +53,7 @@ std::vector<IRobotNodePtr> create_pub_sub_system(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-  auto non_ros_args = performance_test::get_non_ros_args(argc, argv);
+  auto non_ros_args = rclcpp::remove_ros_arguments(argc, argv);
   assert(non_ros_args.size() >= 6);
   std::string spin_type = non_ros_args[5];
 

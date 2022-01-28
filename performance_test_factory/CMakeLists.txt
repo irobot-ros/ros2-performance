@@ -17,11 +17,6 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(performance_test REQUIRED)
 
-include_directories(
-  include
-  external/json/single_include
-)
-
 set (LIBRARY_DEPENDENCIES
   rcpputils
   rclcpp
@@ -30,11 +25,18 @@ set (LIBRARY_DEPENDENCIES
 )
 
 set(LIBRARY_SRC
+  src/factory.cpp
   src/load_plugins.cpp
 )
 
 set(LIBRARY_NAME ${PROJECT_NAME})
 add_library(${LIBRARY_NAME} SHARED ${LIBRARY_SRC})
+target_include_directories(
+  ${LIBRARY_NAME}
+  PUBLIC
+    include
+    external/json/single_include
+)
 ament_target_dependencies(${LIBRARY_NAME} ${LIBRARY_DEPENDENCIES})
 
 install(TARGETS

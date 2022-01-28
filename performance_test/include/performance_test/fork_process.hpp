@@ -9,4 +9,6 @@
 
 #pragma once
 
+#include <cstddef>
+
 size_t fork_process(size_t num_processes);

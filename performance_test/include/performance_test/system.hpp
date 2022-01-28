@@ -27,41 +27,41 @@ void log_total_stats(unsigned long int total_received,
                     double average_latency,
                     std::ostream& stream)
 {
-    const char separator = ' ';
-    const int wide_space = 15;
-    const int narrow_space = 10;
+  const char separator = ' ';
+  const int wide_space = 15;
+  const int narrow_space = 10;
 
-    double total_lost_percentage = (double)total_lost / (total_received + total_lost) * 100;
-    double total_late_percentage = (double)total_late / total_received * 100;
-    double total_too_late_percentage = (double)total_too_late / total_received * 100;
+  double total_lost_percentage = (double)total_lost / (total_received + total_lost) * 100;
+  double total_late_percentage = (double)total_late / total_received * 100;
+  double total_too_late_percentage = (double)total_too_late / total_received * 100;
 
-    // log header
-    stream << std::left << std::setw(wide_space)   << std::setfill(separator) << "received[#]";
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "mean[us]";
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[#]";
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[%]";
-    stream << std::left << std::setw(wide_space)   << std::setfill(separator) << "too_late[#]";
-    stream << std::left << std::setw(wide_space)   << std::setfill(separator) << "too_late[%]";
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[#]";
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[%]" << std::endl;
+  // log header
+  stream << std::left << std::setw(wide_space)   << std::setfill(separator) << "received[#]";
+  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "mean[us]";
+  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[#]";
+  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[%]";
+  stream << std::left << std::setw(wide_space)   << std::setfill(separator) << "too_late[#]";
+  stream << std::left << std::setw(wide_space)   << std::setfill(separator) << "too_late[%]";
+  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[#]";
+  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[%]" << std::endl;
 
-    // log total values
-    stream << std::left << std::setw(wide_space)   << std::setfill(separator) << total_received;
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << average_latency;
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << total_late;
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::setprecision(4) << total_late_percentage;
-    stream << std::left << std::setw(wide_space)   << std::setfill(separator) << total_too_late;
-    stream << std::left << std::setw(wide_space)   << std::setfill(separator) << std::setprecision(4) << total_too_late_percentage;
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << total_lost;
-    stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::setprecision(4) << total_lost_percentage << std::endl;
+  // log total values
+  stream << std::left << std::setw(wide_space)   << std::setfill(separator) << total_received;
+  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << average_latency;
+  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << total_late;
+  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::setprecision(4) << total_late_percentage;
+  stream << std::left << std::setw(wide_space)   << std::setfill(separator) << total_too_late;
+  stream << std::left << std::setw(wide_space)   << std::setfill(separator) << std::setprecision(4) << total_too_late_percentage;
+  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << total_lost;
+  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::setprecision(4) << total_lost_percentage << std::endl;
 }
 
 unsigned long int parse_line(std::string& line)
 {
-    std::string split_left = line.substr(0, line.find_first_of(" "));
-    std::string split_right = line.substr(line.find_first_of(" "), line.length());
-    line = split_right.substr(split_right.find_first_not_of(" "), split_right.length());
-    return strtoul(split_left.c_str(), NULL, 0);
+  std::string split_left = line.substr(0, line.find_first_of(" "));
+  std::string split_right = line.substr(line.find_first_of(" "), line.length());
+  line = split_right.substr(split_right.find_first_not_of(" "), split_right.length());
+  return strtoul(split_left.c_str(), NULL, 0);
 }
 
 namespace performance_test {

@@ -6,7 +6,7 @@
   <description>Benchmark applications to test ros2 performance</description>
   <maintainer email="joxoby@irobot.com">Juan Oxoby</maintainer>
   <author>Juan Oxoby</author>
-  <license>MIT</license>
+  <license>BSD 3.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

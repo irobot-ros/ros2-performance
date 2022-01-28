@@ -6,7 +6,7 @@
   <description>Benchmark applications to test ROS 2 composable nodes</description>
   <maintainer email="asoragna@irobot.com">Alberto Soragna</maintainer>
   <author>Alberto Soragna</author>
-  <license>BSD3</license>
+  <license>BSD 3.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

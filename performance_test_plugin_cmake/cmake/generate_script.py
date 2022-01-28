@@ -113,8 +113,8 @@ def get_sub_factory(msgs, package):
   content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
-    const std::string& msg_type,
-    const std::string& topic_name,
+    const std::string & msg_type,
+    const std::string & topic_name,
     const performance_test::Tracker::TrackingOptions& tracking_options,
     msg_pass_by_t msg_pass_by,
     rmw_qos_profile_t custom_qos_profile)
@@ -143,7 +143,7 @@ def get_sub_factory(msgs, package):
 
   content += """
 
-    if (subscribers_factory.find(msg_type) == subscribers_factory.end()){
+    if (subscribers_factory.find(msg_type) == subscribers_factory.end()) {
       throw std::runtime_error("unknown msg type passed to subscribers factory: " + msg_type);
     }
 
@@ -168,8 +168,8 @@ def get_pub_factory(msgs, package):
   content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
-    const std::string& msg_type,
-    const std::string& topic_name,
+    const std::string & msg_type,
+    const std::string & topic_name,
     msg_pass_by_t msg_pass_by,
     rmw_qos_profile_t custom_qos_profile,
     std::chrono::microseconds period,
@@ -199,7 +199,7 @@ def get_pub_factory(msgs, package):
 
   content += """
 
-    if (publishers_factory.find(msg_type) == publishers_factory.end()){
+    if (publishers_factory.find(msg_type) == publishers_factory.end()) {
       throw std::runtime_error("unknown msg type passed to publishers factory: " + msg_type);
     }
 
@@ -224,8 +224,8 @@ def get_server_factory(srvs, package):
   content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
-    const std::string& srv_type,
-    const std::string& service_name,
+    const std::string & srv_type,
+    const std::string & service_name,
     rmw_qos_profile_t custom_qos_profile)
   {
     const std::map<std::string, std::function<void()>> servers_factory{
@@ -252,7 +252,7 @@ def get_server_factory(srvs, package):
 
   content += """
 
-    if (servers_factory.find(srv_type) == servers_factory.end()){
+    if (servers_factory.find(srv_type) == servers_factory.end()) {
       throw std::runtime_error("unknown srv type passed to servers factory: " + srv_type);
     }
 
@@ -277,8 +277,8 @@ def get_client_factory(srvs, package):
   content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
-    const std::string& srv_type,
-    const std::string& service_name,
+    const std::string & srv_type,
+    const std::string & service_name,
     rmw_qos_profile_t custom_qos_profile,
     std::chrono::microseconds period)
   {
@@ -305,7 +305,7 @@ def get_client_factory(srvs, package):
     };"""
 
   content += """
-    if (clients_factory.find(srv_type) == clients_factory.end()){
+    if (clients_factory.find(srv_type) == clients_factory.end()) {
       throw std::runtime_error("unknown srv type passed to clients factory: " + srv_type);
     }
 

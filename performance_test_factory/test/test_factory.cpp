@@ -63,17 +63,16 @@ TEST_F(TestFactory, FactoryCreateFromIndicesTest)
 
   auto pub_nodes =
     factory.create_periodic_publisher_nodes(
-        publisher_start_index,
-        publisher_end_index,
-        frequency,
-        msg_type,
-        PASS_BY_UNIQUE_PTR);
-
+      publisher_start_index,
+      publisher_end_index,
+      frequency,
+      msg_type,
+      PASS_BY_UNIQUE_PTR);
 
   ASSERT_EQ((size_t)2, sub_nodes.size());
   ASSERT_EQ((size_t)2, pub_nodes.size());
 
-  for (const auto& n : sub_nodes){
+  for (const auto & n : sub_nodes) {
     ASSERT_EQ((size_t)2, n->sub_and_client_trackers()->size());
   }
 }

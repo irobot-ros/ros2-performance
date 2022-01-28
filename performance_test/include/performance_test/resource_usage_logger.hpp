@@ -29,16 +29,16 @@ public:
   struct Resources {
     double elasped_ms = 0;
     double cpu_usage = 0;
-    unsigned long int mem_arena_KB = 0;
-    unsigned long int mem_in_use_KB = 0;
-    unsigned long int mem_mmap_KB = 0;
-    unsigned long int mem_max_rss_KB = 0;
-    unsigned long int mem_virtual_KB = 0;
+    uint64_t mem_arena_KB = 0;
+    uint64_t mem_in_use_KB = 0;
+    uint64_t mem_mmap_KB = 0;
+    uint64_t mem_max_rss_KB = 0;
+    uint64_t mem_virtual_KB = 0;
   };
 
   ResourceUsageLogger() = delete;
 
-  ResourceUsageLogger(const std::string& filename);
+  ResourceUsageLogger(const std::string & filename);
 
   void start(std::chrono::milliseconds period = std::chrono::milliseconds(1000));
 

@@ -13,24 +13,24 @@
 
 TEST(StatTest, StatInitTest)
 {
-  performance_test::Stat<unsigned long int> stat;
+  performance_test::Stat<uint64_t> stat;
 
   EXPECT_TRUE(std::isnan(stat.mean()));
   EXPECT_TRUE(std::isnan(stat.stddev()));
   EXPECT_TRUE(std::isnan(stat.min()));
   EXPECT_TRUE(std::isnan(stat.max()));
-  ASSERT_EQ((unsigned long int)0, stat.n());
+  ASSERT_EQ((uint64_t)0, stat.n());
 }
 
 TEST(StatTest, StatAddSamplesTest)
 {
-  performance_test::Stat<unsigned long int> stat;
+  performance_test::Stat<uint64_t> stat;
 
   // Some samples
-  unsigned long s1 = 100000;
-  unsigned long s2 = 1000;
-  unsigned long s3 = 10000;
-  unsigned long s4 = 0;
+  uint64_t s1 = 100000;
+  uint64_t s2 = 1000;
+  uint64_t s3 = 10000;
+  uint64_t s4 = 0;
 
   stat.add_sample(s1);
 

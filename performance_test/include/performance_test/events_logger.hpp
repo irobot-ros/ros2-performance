@@ -16,7 +16,8 @@
 #include <chrono>
 #include <iomanip>
 
-namespace performance_test {
+namespace performance_test
+{
 
 /**
  * This class implements a synchronous writer for events.
@@ -44,14 +45,14 @@ public:
 
   EventsLogger() = delete;
 
-  EventsLogger(const std::string& filename);
+  EventsLogger(const std::string & filename);
 
   void set_start_time(std::chrono::high_resolution_clock::time_point t)
   {
     _start_time = t;
   }
 
-  void write_event(const Event& event);
+  void write_event(const Event & event);
 
 private:
   std::chrono::high_resolution_clock::time_point _start_time;

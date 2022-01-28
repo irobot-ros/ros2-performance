@@ -23,7 +23,6 @@ public:
   }
 };
 
-
 TEST_F(TestSystem, SystemAddNodesTest)
 {
   auto node_1 = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("node_1");
@@ -59,7 +58,7 @@ TEST_F(TestSystem, SystemPubSubTest)
   auto tracker = (*trackers_vec_ptr)[0];
 
   ASSERT_EQ("my_topic", tracker.first);
-  ASSERT_GT(tracker.second.received(), (unsigned long int)1);
+  ASSERT_GT(tracker.second.received(), (uint64_t)1);
 }
 
 TEST_F(TestSystem, SystemClientServerTest)
@@ -84,7 +83,7 @@ TEST_F(TestSystem, SystemClientServerTest)
   auto tracker = (*trackers_vec_ptr)[0];
 
   ASSERT_EQ("my_service", tracker.first);
-  ASSERT_GT(tracker.second.received(), (unsigned long int)1);
+  ASSERT_GT(tracker.second.received(), (uint64_t)1);
 }
 
 TEST_F(TestSystem, SystemDifferentQoSTest)
@@ -111,5 +110,5 @@ TEST_F(TestSystem, SystemDifferentQoSTest)
   auto tracker = (*trackers_vec_ptr)[0];
 
   // they have incompatible qos so they shouldn't communicate
-  ASSERT_EQ(tracker.second.received(), (unsigned long int)0);
+  ASSERT_EQ(tracker.second.received(), (uint64_t)0);
 }

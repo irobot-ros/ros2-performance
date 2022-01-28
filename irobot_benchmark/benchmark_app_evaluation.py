@@ -1,13 +1,13 @@
- # Software License Agreement (BSD License)
- #
- #  Copyright (c) 2019, iRobot ROS
- #  All rights reserved.
- #
- #  This file is part of ros2-performance, which is released under BSD-3-Clause.
- #  You may use, distribute and modify this code under the BSD-3-Clause license.
- #
+# Software License Agreement (BSD License)
+#
+#  Copyright (c) 2019, iRobot ROS
+#  All rights reserved.
+#
+#  This file is part of ros2-performance, which is released under BSD-3-Clause.
+#  You may use, distribute and modify this code under the BSD-3-Clause license.
+#
 
-## Create a bar plots.
+# Create a bar plots.
 
 import argparse
 import matplotlib.pyplot
@@ -16,6 +16,7 @@ import sys
 import cpu_ram_plot
 import data_utils
 import plot_common
+
 
 def parse_total_latency_csv(file_path):
     '''parses a csv into a dictionary structure, given its filepath'''
@@ -71,7 +72,6 @@ def main(argv):
         texts.append(label)
         units.append(unit)
 
-
     for key, val in sorted(target_latency.items()):
         current_val.append(latency[key])
         target_val.append(val)
@@ -79,7 +79,6 @@ def main(argv):
         unit = data_utils.get_unit_of_measure(label)
         texts.append(label)
         units.append(unit)
-
 
     fig, axs = matplotlib.pyplot.subplots(1, len(current_val), figsize=(11, 3))
 

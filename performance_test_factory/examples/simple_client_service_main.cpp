@@ -75,9 +75,9 @@ int main(int argc, char ** argv)
     ;
     options.parse(argc, argv);
 
-    if (!experiment_name.empty()){
+    if (!experiment_name.empty()) {
         latency_file_path = experiment_path + "/lat_rel_" + experiment_name + ".csv";
-        if (monitor_stats){
+        if (monitor_stats) {
             events_file_path = experiment_path + "/events_" + experiment_name + ".csv";
             ru_file_path = experiment_path + "/cpu_ram_" + experiment_name + ".csv";
         }
@@ -86,7 +86,7 @@ int main(int argc, char ** argv)
     performance_test::ResourceUsageLogger ru_logger(ru_file_path);
     ru_logger.set_system_info(n_services, n_clients, frequency);
     // Start resources logger
-    if (monitor_stats){
+    if (monitor_stats) {
         ru_logger.start();
     }
 
@@ -142,7 +142,7 @@ int main(int argc, char ** argv)
      * Visualization
      */
 
-    if (monitor_stats){
+    if (monitor_stats) {
         ru_logger.stop();
     }
 

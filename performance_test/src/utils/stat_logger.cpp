@@ -17,10 +17,10 @@ namespace performance_test
 {
 
 void log_total_stats(
-  unsigned long int total_received,
-  unsigned long int total_lost,
-  unsigned long int total_late,
-  unsigned long int total_too_late,
+  uint64_t total_received,
+  uint64_t total_lost,
+  uint64_t total_late,
+  uint64_t total_too_late,
   double average_latency,
   std::ostream& stream)
 {
@@ -59,7 +59,7 @@ void log_latency_all_stats(std::ostream& stream, const std::vector<PerformanceNo
   const int wide_space = 15;
   const int narrow_space = 10;
 
-  auto log_header = [&stream, wide_space, narrow_space, separator](const std::string& title)
+  auto log_header = [&stream, wide_space, narrow_space, separator](const std::string & title)
   {
     stream << title <<std::endl;
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << "node";
@@ -79,7 +79,7 @@ void log_latency_all_stats(std::ostream& stream, const std::vector<PerformanceNo
   };
 
   auto log_stats_line = [&stream, wide_space, narrow_space, separator](
-    const std::string& node_name, std::pair<std::string, Tracker> tracker)
+    const std::string & node_name, std::pair<std::string, Tracker> tracker)
   {
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << node_name;
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << tracker.first;
@@ -99,10 +99,10 @@ void log_latency_all_stats(std::ostream& stream, const std::vector<PerformanceNo
 
   // Print all subscriptions and clients
   bool subs_header = false;
-  for (const auto& n : nodes)
+  for (const auto & n : nodes)
   {
     auto trackers = n->sub_and_client_trackers();
-    for(const auto& tracker : *trackers)
+    for(const auto & tracker : *trackers)
     {
       if (!subs_header) {
         log_header("Subscriptions and clients stats:");
@@ -114,10 +114,10 @@ void log_latency_all_stats(std::ostream& stream, const std::vector<PerformanceNo
 
   // Print publishers
   bool pubs_header = false;
-  for (const auto& n : nodes)
+  for (const auto & n : nodes)
   {
     auto trackers = n->pub_trackers();
-    for(const auto& tracker : *trackers)
+    for(const auto & tracker : *trackers)
     {
       if (!pubs_header) {
         log_header("Publishers stats:");
@@ -130,17 +130,17 @@ void log_latency_all_stats(std::ostream& stream, const std::vector<PerformanceNo
 
 void log_latency_total_stats(std::ostream& stream, const std::vector<std::shared_ptr<PerformanceNodeBase>>& nodes)
 {
-  unsigned long int total_received = 0;
-  unsigned long int total_lost = 0;
-  unsigned long int total_late = 0;
-  unsigned long int total_too_late = 0;
+  uint64_t total_received = 0;
+  uint64_t total_lost = 0;
+  uint64_t total_late = 0;
+  uint64_t total_too_late = 0;
   double total_latency = 0;
 
   // collect total data
-  for (const auto& n : nodes)
+  for (const auto & n : nodes)
   {
     auto trackers = n->sub_and_client_trackers();
-    for(const auto& tracker : *trackers)
+    for(const auto & tracker : *trackers)
     {
       total_received += tracker.second.received();
       total_lost += tracker.second.lost();

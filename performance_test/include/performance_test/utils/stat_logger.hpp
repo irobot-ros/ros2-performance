@@ -19,10 +19,10 @@ namespace performance_test
 {
 
 void log_total_stats(
-  unsigned long int total_received,
-  unsigned long int total_lost,
-  unsigned long int total_late,
-  unsigned long int total_too_late,
+  uint64_t total_received,
+  uint64_t total_lost,
+  uint64_t total_late,
+  uint64_t total_too_late,
   double average_latency,
   std::ostream& stream);
 
@@ -32,7 +32,7 @@ template<typename NodeT>
 void log_latency_all_stats(std::ostream& stream, const std::vector<std::shared_ptr<NodeT>>& nodes)
 {
   std::vector<NodeT*> nodes_raw;
-  for (const auto& n : nodes) {
+  for (const auto & n : nodes) {
     nodes_raw.push_back(n.get());
   }
 

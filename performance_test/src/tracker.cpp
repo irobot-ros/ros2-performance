@@ -7,6 +7,8 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
+#include <algorithm>
+#include <memory>
 #include <sstream>
 
 #include "performance_test/tracker.hpp"
@@ -25,7 +27,7 @@ void performance_test::Tracker::scan(
   // Compute latency
   rclcpp::Time stamp(header.stamp.sec, header.stamp.nanosec, RCL_ROS_TIME);
   auto lat = std::chrono::nanoseconds((now - stamp).nanoseconds());
-  unsigned long lat_us = lat.count() / 1000;
+  uint64_t lat_us = lat.count() / 1000;
   // store the last latency to be read from node
   _last_latency = lat_us;
 
@@ -71,7 +73,7 @@ void performance_test::Tracker::scan(
     late = lat_us > latency_late_threshold_us && !too_late;
 
     if(late) {
-      if (elog != nullptr){
+      if (elog != nullptr) {
         // Create a description for the event
         std::stringstream description;
         description << "msg "<< header.tracking_number << " late. "
@@ -88,7 +90,7 @@ void performance_test::Tracker::scan(
     }
 
     if(too_late) {
-      if (elog != nullptr){
+      if (elog != nullptr) {
         // Create a descrption for the event
         std::stringstream description;
         description << "msg "<< header.tracking_number << " too late. "
@@ -114,7 +116,7 @@ void performance_test::Tracker::scan(
   _received_messages++;
 }
 
-void performance_test::Tracker::add_sample(unsigned long latency_sample)
+void performance_test::Tracker::add_sample(uint64_t latency_sample)
 {
   _stat.add_sample(latency_sample);
 }

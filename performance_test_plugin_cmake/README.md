@@ -33,8 +33,8 @@ This is how the APIs exposed by the library should look like.
   extern "C" void add_subscriber_impl(
 
  std::shared_ptr<performance_test::PerformanceNodeBase> n,
-    const std::string& msg_type,
-    const std::string& topic_name,
+    const std::string & msg_type,
+    const std::string & topic_name,
     const performance_test::Tracker::TrackingOptions& tracking_options,
     msg_pass_by_t msg_pass_by,
     rmw_qos_profile_t custom_qos_profile)
@@ -49,7 +49,7 @@ This is how the APIs exposed by the library should look like.
 { "stamped_vector", [&] { n->add_subscriber<irobot_interfaces_plugin::msg::StampedVector>(topic_name, msg_pass_by, tracking_options, custom_qos_profile);} }
     };
 
-    if (subscribers_factory.find(msg_type) == subscribers_factory.end()){
+    if (subscribers_factory.find(msg_type) == subscribers_factory.end()) {
       throw std::runtime_error("unknown msg type passed to subscribers factory: " + msg_type);
     }
 

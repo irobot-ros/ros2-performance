@@ -77,7 +77,7 @@ public:
     return _min;
   }
 
-  unsigned long int n() const { return _n; }
+  uint64_t n() const { return _n; }
 
 private:
   double _max;
@@ -85,6 +85,6 @@ private:
   double  K;
   double Ex = 0;
   double Ex2 = 0;
-  long unsigned int _n = 0;
+  uint64_t _n = 0;
 };
 }

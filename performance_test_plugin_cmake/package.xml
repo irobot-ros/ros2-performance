@@ -6,7 +6,7 @@
   <description>CMake function for generating performance_test_factory plugins</description>
   <author>Alberto Soragna</author>
   <maintainer email="asoragna@irobot.com">Alberto Soragna</maintainer>
-  <license>MIT</license>
+  <license>BSD 3.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

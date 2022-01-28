@@ -27,34 +27,32 @@ See [irobot_interfaces_plugin](../irobot_interfaces_plugin) for an example.
 The CMake function `generate_factory_plugin` calls a Python script to automatically generate a `.cpp` file that is then used to build the C++ factory support library.
 The automatically generated file can be found at `build/<PKG_NAME>/generated/<PKG_NAME>_implementation.cpp`, where `<PKG_NAME>` is the name of the package where the CMake function was called.
 
-This is how the file should look like.
+This is how the APIs exposed by the library should look like.
 
 ```
-#include "performance_test/performance_node_base.hpp"
-#include "performance_test_msgs/msg/stamped10b.hpp"
-#include "performance_test_msgs/msg/stamped100b.hpp"
-#include "performance_test_msgs/msg/stamped250b.hpp"
-#include "performance_test_msgs/msg/stamped_vector.hpp"
+  extern "C" void add_subscriber_impl(
 
-void performance_test::TemplateFactory::add_subscriber_from_strings(
-  std::shared_ptr<performance_test::PerformanceNode> n,
-  std::string msg_type,
-  std::string topic_name,
-  Tracker::TrackingOptions tracking_options,
-  msg_pass_by_t msg_pass_by,
-  rmw_qos_profile_t custom_qos_profile)
-{
-  const std::map<std::string, std::function<void()>>  subscribers_factory{
-    {"stamped10b",         [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped10b>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
-    {"stamped100b",        [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped100b>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
-    {"stamped250b",        [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::Stamped250b>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } },
-    {"stamped_vector",      [&] { n->add_subscriber(performance_test::Topic<performance_test_msgs::msg::StampedVector>(topic_name), msg_pass_by, tracking_options, custom_qos_profile); } }
-  };
+ std::shared_ptr<performance_test::PerformanceNodeBase> n,
+    const std::string& msg_type,
+    const std::string& topic_name,
+    const performance_test::Tracker::TrackingOptions& tracking_options,
+    msg_pass_by_t msg_pass_by,
+    rmw_qos_profile_t custom_qos_profile)
+  {
+    const std::map<std::string, std::function<void()>> subscribers_factory{
 
-  if (subscribers_factory.find(msg_type) == subscribers_factory.end()){
-    assert(0 && "unknown msg type passed to factory method!" );
+{ "stamped_int64", [&] { n->add_subscriber<irobot_interfaces_plugin::msg::StampedInt64>(topic_name, msg_pass_by, tracking_options, custom_qos_profile);} },
+{ "stamped3_float32", [&] { n->add_subscriber<irobot_interfaces_plugin::msg::Stamped3Float32>(topic_name, msg_pass_by, tracking_options, custom_qos_profile);} },
+{ "stamped4_float32", [&] { n->add_subscriber<irobot_interfaces_plugin::msg::Stamped4Float32>(topic_name, msg_pass_by, tracking_options, custom_qos_profile);} },
+{ "stamped4_int32", [&] { n->add_subscriber<irobot_interfaces_plugin::msg::Stamped4Int32>(topic_name, msg_pass_by, tracking_options, custom_qos_profile);} },
+{ "stamped9_float32", [&] { n->add_subscriber<irobot_interfaces_plugin::msg::Stamped9Float32>(topic_name, msg_pass_by, tracking_options, custom_qos_profile);} },
+{ "stamped_vector", [&] { n->add_subscriber<irobot_interfaces_plugin::msg::StampedVector>(topic_name, msg_pass_by, tracking_options, custom_qos_profile);} }
+    };
+
+    if (subscribers_factory.find(msg_type) == subscribers_factory.end()){
+      throw std::runtime_error("unknown msg type passed to subscribers factory: " + msg_type);
+    }
+
+    subscribers_factory.at(msg_type)();
   }
-
-  subscribers_factory.at(msg_type)();
-}
 ```

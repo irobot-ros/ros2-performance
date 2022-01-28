@@ -114,12 +114,12 @@ void System::spin(int duration_sec, bool wait_for_discovery, bool name_threads)
   }
 }
 
-void System::enable_events_logger(std::string events_logger_path)
+void System::enable_events_logger(const std::string& events_logger_path)
 {
   _events_logger = std::make_shared<EventsLogger>(events_logger_path);
 }
 
-void System::save_latency_all_stats(std::string filename) const
+void System::save_latency_all_stats(const std::string& filename) const
 {
 
   if (filename.empty()){
@@ -140,7 +140,7 @@ void System::save_latency_all_stats(std::string filename) const
   performance_test::log_latency_all_stats(out_file, _nodes);
 }
 
-void System::save_latency_total_stats(std::string filename) const
+void System::save_latency_total_stats(const std::string& filename) const
 {
 
   if (filename.empty()){
@@ -171,9 +171,8 @@ void System::print_latency_total_stats() const
   performance_test::log_latency_total_stats(std::cout, _nodes);
 }
 
-void System::print_agregate_stats(std::vector<std::string> topology_json_list) const
+void System::print_agregate_stats(const std::vector<std::string>& topology_json_list) const
 {
-
   unsigned long int total_received = 0;
   unsigned long int total_lost = 0;
   unsigned long int total_late = 0;
@@ -248,7 +247,7 @@ void System::wait_pdp_discovery(
 
   // create a vector with all the names of the nodes to be discovered
   std::vector<std::string> reference_names;
-  for (const auto& n : _nodes){
+  for (const auto& n : _nodes) {
     std::string node_name = n->get_node_base()->get_fully_qualified_name();
     reference_names.push_back(node_name);
   }
@@ -257,28 +256,28 @@ void System::wait_pdp_discovery(
   size_t num_nodes = _nodes.size();
 
   bool pdp_ok = false;
-  while (!pdp_ok){
-    for (const auto& n : _nodes){
+  while (!pdp_ok) {
+    for (const auto& n : _nodes) {
       // we use the intersection to avoid counting nodes discovered from other processes
       size_t discovered_participants = get_intersection_size(n->get_node_graph()->get_node_names(), reference_names);
       pdp_ok = (discovered_participants == num_nodes);
-      if (!pdp_ok) break;
+      if (!pdp_ok) { break; }
     }
 
-    if (pdp_ok) break;
+    if (pdp_ok) { break; }
 
     // check if maximum discovery time exceeded
     auto t = std::chrono::high_resolution_clock::now();
     auto duration =
       std::chrono::duration_cast<std::chrono::milliseconds>(t - pdp_start_time - max_pdp_time).count();
-    if (duration > 0){
+    if (duration > 0) {
       assert(0 && "[discovery] PDP took more than maximum discovery time");
     }
 
     rate.sleep();
   }
 
-  if (_events_logger != nullptr){
+  if (_events_logger != nullptr) {
     // Create an event for PDP completed
     EventsLogger::Event pdp_ev;
     pdp_ev.caller_name = "SYSTEM";
@@ -310,8 +309,8 @@ void System::wait_edp_discovery(
   // TODO: the EDP should also take into account if subscriptions have been matched with publishers
   // This is needed in case of processes with only subscriptions
   bool edp_ok = false;
-  while (!edp_ok){
-    for (const auto& n : _nodes){
+  while (!edp_ok) {
+    for (const auto& n : _nodes) {
       auto published_topics = n->get_published_topics();
       // if the node has no publishers, it will be skipped.
       // however, the boolean flag has to be set to true.
@@ -319,7 +318,7 @@ void System::wait_edp_discovery(
         edp_ok = true;
         continue;
       }
-      for (const auto& topic_name : published_topics){
+      for (const auto& topic_name : published_topics) {
         int discovered_endpoints = n->get_node_graph()->count_subscribers(topic_name);
         // we check greater or equal to take into account for other processes
         edp_ok = (discovered_endpoints >= subs_per_topic[topic_name]);
@@ -336,14 +335,14 @@ void System::wait_edp_discovery(
     auto t = std::chrono::high_resolution_clock::now();
     auto duration =
         std::chrono::duration_cast<std::chrono::milliseconds>(t - edp_start_time - max_edp_time).count();
-    if (duration > 0){
+    if (duration > 0) {
         assert(0 && "[discovery] EDP took more than maximum discovery time");
     }
 
     rate.sleep();
   }
 
-  if (_events_logger != nullptr){
+  if (_events_logger != nullptr) {
     // Create an event for EDP completed
     EventsLogger::Event edp_ev;
     edp_ev.caller_name = "SYSTEM";

@@ -79,7 +79,7 @@ public:
 
   template <typename Msg>
   void add_subscriber(
-    const Topic<Msg>& topic,
+    const std::string& topic_name,
     msg_pass_by_t msg_pass_by,
     Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
     rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
@@ -94,14 +94,13 @@ public:
         std::function<void(typename Msg::ConstSharedPtr msg)> callback_function = std::bind(
           &PerformanceNodeBase::_topic_callback<typename Msg::ConstSharedPtr>,
           this,
-          topic.name,
-          std::placeholders::_1
-        );
+          topic_name,
+          std::placeholders::_1);
 
         sub = rclcpp::create_subscription<Msg>(
           m_node_parameters,
           m_node_topics,
-          topic.name,
+          topic_name,
           qos,
           callback_function);
 
@@ -113,14 +112,14 @@ public:
         std::function<void(typename Msg::UniquePtr msg)> callback_function = std::bind(
           &PerformanceNodeBase::_topic_callback<typename Msg::UniquePtr>,
           this,
-          topic.name,
+          topic_name,
           std::placeholders::_1
         );
 
         sub = rclcpp::create_subscription<Msg>(
           m_node_parameters,
           m_node_topics,
-          topic.name,
+          topic_name,
           qos,
           callback_function);
 
@@ -128,51 +127,50 @@ public:
       }
     }
 
-    _subs.insert({ topic.name, { sub, Tracker(m_node_base->get_name(), topic.name, tracking_options) } });
+    _subs.insert({ topic_name, { sub, Tracker(m_node_base->get_name(), topic_name, tracking_options) } });
 
-    RCLCPP_INFO(m_node_logging->get_logger(), "Subscriber to %s created", topic.name.c_str());
+    RCLCPP_INFO(m_node_logging->get_logger(), "Subscriber to %s created", topic_name.c_str());
   }
 
   template <typename Msg>
   void add_periodic_publisher(
-    const Topic<Msg>& topic,
+    const std::string& topic_name,
     std::chrono::microseconds period,
     msg_pass_by_t msg_pass_by,
     rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
     size_t size = 0)
   {
-    this->add_publisher(topic, qos_profile);
+    this->add_publisher<Msg>(topic_name, qos_profile);
 
     auto publisher_task = std::bind(
       &PerformanceNodeBase::_publish<Msg>,
       this,
-      topic.name,
+      topic_name,
       msg_pass_by,
       size,
-      period
-    );
+      period);
 
     this->add_timer(period, publisher_task);
   }
 
   template <typename Msg>
-  void add_publisher(const Topic<Msg>& topic, rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
+  void add_publisher(const std::string& topic_name, rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
     auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile);
 
     auto pub = rclcpp::create_publisher<Msg>(
-        m_node_topics,
-        topic.name,
-        qos);
+      m_node_topics,
+      topic_name,
+      qos);
 
     auto tracking_options = Tracker::TrackingOptions();
-    _pubs.insert({ topic.name, { pub, Tracker(m_node_base->get_name(), topic.name, tracking_options) } });
+    _pubs.insert({ topic_name, { pub, Tracker(m_node_base->get_name(), topic_name, tracking_options) } });
 
-    RCLCPP_INFO(m_node_logging->get_logger(),"Publisher to %s created", topic.name.c_str());
+    RCLCPP_INFO(m_node_logging->get_logger(),"Publisher to %s created", topic_name.c_str());
   }
 
   template <typename Srv>
-  void add_server(const Service<Srv>& service, rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
+  void add_server(const std::string& service_name, rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
     std::function<void(
       const std::shared_ptr<rmw_request_id_t> request_header,
@@ -180,7 +178,7 @@ public:
       const std::shared_ptr<typename Srv::Response> response)> callback_function = std::bind(
         &PerformanceNodeBase::_service_callback<Srv>,
         this,
-        service.name,
+        service_name,
         std::placeholders::_1,
         std::placeholders::_2,
         std::placeholders::_3
@@ -189,61 +187,61 @@ public:
     typename rclcpp::Service<Srv>::SharedPtr server = rclcpp::create_service<Srv>(
       m_node_base,
       m_node_services,
-      service.name,
+      service_name,
       callback_function,
       qos_profile,
       nullptr);
 
-    _servers.insert({ service.name, { server, Tracker(m_node_base->get_name(), service.name, Tracker::TrackingOptions()) } });
+    _servers.insert({ service_name, { server, Tracker(m_node_base->get_name(), service_name, Tracker::TrackingOptions()) } });
 
-    RCLCPP_INFO(m_node_logging->get_logger(),"Server to %s created", service.name.c_str());
+    RCLCPP_INFO(m_node_logging->get_logger(),"Server to %s created", service_name.c_str());
   }
 
   template <typename Srv>
   void add_periodic_client(
-    const Service<Srv>& service,
+    const std::string& service_name,
     std::chrono::microseconds period,
     rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
     size_t size = 0)
   {
-    this->add_client(service, qos_profile);
+    this->add_client<Srv>(service_name, qos_profile);
 
     std::function<void()> client_task = std::bind(
         &PerformanceNodeBase::_request<Srv>,
         this,
-        service.name,
+        service_name,
         size
       );
 
     // store the frequency of this client task
-    std::get<1>(_clients.at(service.name)).set_frequency(1000000 / period.count());
+    std::get<1>(_clients.at(service_name)).set_frequency(1000000 / period.count());
 
     this->add_timer(period, client_task);
 
   }
 
   template <typename Srv>
-  void add_client(const Service<Srv>& service, rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
+  void add_client(const std::string& service_name, rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
     typename rclcpp::Client<Srv>::SharedPtr client = rclcpp::create_client<Srv>(
       m_node_base,
       m_node_graph,
       m_node_services,
-      service.name,
+      service_name,
       qos_profile,
       nullptr);
 
     _clients.insert(
       {
-        service.name,
+        service_name,
         std::tuple<std::shared_ptr<void>, Tracker, Tracker::TrackingNumber>{
           client,
-          Tracker(m_node_base->get_name(), service.name, Tracker::TrackingOptions()),
+          Tracker(m_node_base->get_name(), service_name, Tracker::TrackingOptions()),
           0
         }
       });
 
-    RCLCPP_INFO(m_node_logging->get_logger(),"Client to %s created", service.name.c_str());
+    RCLCPP_INFO(m_node_logging->get_logger(),"Client to %s created", service_name.c_str());
   }
 
   void add_timer(std::chrono::microseconds period, std::function<void()> callback)

@@ -39,7 +39,7 @@ public:
 
   Tracker() = delete;
 
-  Tracker(std::string node_name, std::string topic_srv_name, TrackingOptions tracking_options)
+  Tracker(const std::string& node_name, const std::string& topic_srv_name, const TrackingOptions& tracking_options)
   : _node_name(node_name), _topic_srv_name(topic_srv_name), _tracking_options(tracking_options) {};
 
   void scan(

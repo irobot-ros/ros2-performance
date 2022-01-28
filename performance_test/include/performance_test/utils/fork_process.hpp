@@ -11,6 +11,9 @@
 
 #include <cstddef>
 
+namespace performance_test
+{
+
 /**
  * @brief Creates N-1 forks of the current process.
  * After running this function there will be N total processes (N-1 forked + 1 that invoked this function)
@@ -18,3 +21,5 @@
  * @return index of this process between 0 and N-1
  */ 
 size_t fork_process(size_t num_processes);
+
+}

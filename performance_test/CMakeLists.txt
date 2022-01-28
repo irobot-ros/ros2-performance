@@ -15,11 +15,6 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(performance_test_msgs REQUIRED)
 
-include_directories(
-  include
-  external/cxxopts-2.1.2/include
-)
-
 set (LIBRARY_DEPENDENCIES
   rclcpp
   rclcpp_lifecycle
@@ -28,14 +23,21 @@ set (LIBRARY_DEPENDENCIES
 
 set(LIBRARY_SRC
   src/events_logger.cpp
-  src/fork_process.cpp
-  src/names_utilities.cpp
   src/resource_usage_logger.cpp
   src/tracker.cpp
+  src/utils/cli_args.cpp
+  src/utils/cli_options.cpp
+  src/utils/fork_process.cpp
+  src/utils/names_utilities.cpp
 )
 
 set(LIBRARY_NAME ${PROJECT_NAME})
 add_library(${LIBRARY_NAME} SHARED ${LIBRARY_SRC})
+
+target_include_directories(${LIBRARY_NAME} PUBLIC
+  include
+  external/cxxopts-2.1.2/include
+)
 ament_target_dependencies(${LIBRARY_NAME} ${LIBRARY_DEPENDENCIES})
 
 install(TARGETS

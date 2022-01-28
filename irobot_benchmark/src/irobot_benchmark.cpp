@@ -16,21 +16,22 @@
 #include <sys/wait.h>
 
 #include "performance_test/communication.hpp"
-#include "performance_test/fork_process.hpp"
 #include "performance_test/node.hpp"
 #include "performance_test/node_types.hpp"
 #include "performance_test/resource_usage_logger.hpp"
 #include "performance_test/system.hpp"
+#include "performance_test/utils/cli_args.hpp"
+#include "performance_test/utils/cli_options.hpp"
+#include "performance_test/utils/fork_process.hpp"
+
 
 #include "performance_test_factory/factory.hpp"
-
-#include "cli/options.hpp"
 
 using namespace std::chrono_literals;
 
 template <typename NodeT>
 void run_test(int argc, char** argv,
-                    const irobot_benchmark::Options &options,
+                    const performance_test::Options &options,
                     const std::string &topology_json,
                     pid_t &pid,
                     const std::string &resources_output_path,
@@ -92,13 +93,9 @@ void run_test(int argc, char** argv,
 
 int main(int argc, char** argv)
 {
-    auto non_ros_args = rclcpp::remove_ros_arguments(argc, argv);
-    std::vector<char *> non_ros_args_c_strings;
-    for (auto & arg : non_ros_args) {
-        non_ros_args_c_strings.push_back(&arg.front());
-    }
-    int non_ros_argc = static_cast<int>(non_ros_args_c_strings.size());
-    auto options = irobot_benchmark::Options(non_ros_argc, non_ros_args_c_strings.data());
+    std::vector<char *> non_ros_args = performance_test::get_non_ros_args(argc, argv);
+    int non_ros_argc = static_cast<int>(non_ros_args.size());
+    auto options = performance_test::Options(non_ros_argc, non_ros_args.data());
 
     auto json_list = options.topology_json_list;
 
@@ -122,7 +119,7 @@ int main(int argc, char** argv)
     std::cout << "Start test" << std::endl;
 
     pid_t pid = getpid();
-    size_t process_index = fork_process(json_list.size());
+    size_t process_index = performance_test::fork_process(json_list.size());
 
     std::string topology_json = json_list[process_index];
 

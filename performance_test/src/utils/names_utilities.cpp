@@ -7,7 +7,7 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#include "performance_test/names_utilities.hpp"
+#include "performance_test/utils/names_utilities.hpp"
 
 #include <sstream>
 #include <regex>

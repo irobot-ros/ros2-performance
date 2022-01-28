@@ -7,9 +7,8 @@
 std::vector<IRobotNodePtr> create_subscriber_nodes(int argc, char** argv)
 {
   global_factory_generic_setup(argc, argv);
-  auto topic = performance_test::Topic<irobot_interfaces_plugin::msg::StampedVector>("my_topic");
   IRobotNodePtr node = std::make_shared<BaseNode>();
-  node->add_subscriber(topic, PASS_BY_SHARED_PTR);
+  node->add_subscriber<irobot_interfaces_plugin::msg::StampedVector>("my_topic", PASS_BY_SHARED_PTR);
 
   return {node};
 }

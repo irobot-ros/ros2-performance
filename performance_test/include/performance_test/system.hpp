@@ -26,7 +26,7 @@ public:
   System(ExecutorType executor);
 
   template<typename NodeT>
-  void add_node(std::vector<std::shared_ptr<NodeT>> nodes)
+  void add_node(const std::vector<std::shared_ptr<NodeT>>& nodes)
   {
     for (auto node : nodes){
       this->add_node(node);
@@ -37,17 +37,17 @@ public:
 
   void spin(int duration_sec, bool wait_for_discovery = true, bool name_threads = true);
 
-  void enable_events_logger(std::string events_logger_path);
+  void enable_events_logger(const std::string& events_logger_path);
 
-  void save_latency_all_stats(std::string filename) const;
+  void save_latency_all_stats(const std::string& filename) const;
 
-  void save_latency_total_stats(std::string filename) const;
+  void save_latency_total_stats(const std::string& filename) const;
 
   void print_latency_all_stats() const;
 
   void print_latency_total_stats() const;
 
-  void print_agregate_stats(std::vector<std::string> topology_json_list) const;
+  void print_agregate_stats(const std::vector<std::string>& topology_json_list) const;
 
 private:
 

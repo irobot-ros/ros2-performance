@@ -4,6 +4,7 @@ import argparse
 import csv
 import psutil
 import signal
+import statistics
 import time
 
 def process_is_alive(p):
@@ -13,24 +14,41 @@ def b_to_mb(b):
   # Converts Byte into MegaByte
   return b / (1024 * 1024)
 
+class TotalStats:
+  def  __init__(self):
+    self.cpu_samples = []
+
+  def add_sample(self, cpu):
+    self.cpu_samples.append(cpu)
+
+  def get_avg_cpu(self):
+    if not self.cpu_samples:
+      return 0.0
+    else:
+      return statistics.mean(self.cpu_samples)
+
 def compute_stats(processes, file_path, t):
   vms_list = []
   max_vms = 0
   pss_mb = 0
   rss_mb = 0
+  uss_mb = 0
   cpu_pct = 0
   for p in processes:
     if not process_is_alive(p):
       continue
+    cpu_pct += p.cpu_percent()
+
     mem_info = p.memory_full_info()
     this_rss_mb = b_to_mb(mem_info.rss)
+    this_uss_mb = b_to_mb(mem_info.uss)
     this_pss_mb = b_to_mb(mem_info.pss)
     this_vms_mb = b_to_mb(mem_info.vms)
 
     vms_list.append(this_vms_mb)
     pss_mb += this_pss_mb
     rss_mb += this_rss_mb
-    cpu_pct += p.cpu_percent()
+    uss_mb += this_uss_mb
 
   if vms_list:
     max_vms = max(vms_list)
@@ -43,6 +61,8 @@ def compute_stats(processes, file_path, t):
       tsv_writer.writerow([t, cpu_pct, round(pss_mb, 4), round(rss_mb, 4), round(max_vms, 4)])
   else:
     print(f"-T {t} - CPU[%] {cpu_pct} PSS[MB] {round(pss_mb, 4)} RSS[MB] {round(rss_mb, 4)} VMS[MB] {round(max_vms, 4)}")
+
+  return cpu_pct
 
 def start_processes(procs):
   processes = []
@@ -92,15 +112,19 @@ def main():
   # Compute performance metrics while the processes run
   start_time = time.time()
   current_time = time.time() - start_time
+  total_stats = TotalStats()
   while any(process_is_alive(proc) for proc in processes) and current_time < args.duration:
-    compute_stats(processes, args.file, round(current_time, 2))
+    cpu_pct = compute_stats(processes, args.file, round(current_time, 2))
+    total_stats.add_sample(cpu_pct)
     time.sleep(args.step)
     current_time = time.time() - start_time
+
+  print(f"CPU MEAN: {total_stats.get_avg_cpu()}")
 
   # After the test is done, kill all processes that we started
   # We use SIGINT to have a graceful shutdown, ROS does not catch SIGTERM or SIGKILL
   for p in processes:
-    print("Sending SIGINT to process ", p.status(), " ", p.pid)
+    print(f"Sending SIGINT to {p.status()} process {p.pid}")
     p.send_signal(signal.SIGINT)
     p.wait()
 

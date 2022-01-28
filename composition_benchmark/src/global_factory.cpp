@@ -1,4 +1,3 @@
-#include <atomic>
 #include <iostream>
 #include <mutex>
 
@@ -17,7 +16,6 @@ static NodeArguments get_node_args()
   if (s_current_id < s_nodes_args.size()) {
     return s_nodes_args[s_current_id];
   } else {
-    std::cout<< "Exceeding available node args " << s_nodes_args.size() << " with "<< s_current_id << std::endl;
     return NodeArguments();
   }
 }

@@ -113,9 +113,9 @@ def get_sub_factory(msgs, package):
   content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
-    std::string msg_type,
-    std::string topic_name,
-    performance_test::Tracker::TrackingOptions tracking_options,
+    const std::string& msg_type,
+    const std::string& topic_name,
+    const performance_test::Tracker::TrackingOptions& tracking_options,
     msg_pass_by_t msg_pass_by,
     rmw_qos_profile_t custom_qos_profile)
   {
@@ -123,16 +123,15 @@ def get_sub_factory(msgs, package):
   """
 
   function = "add_subscriber"
-  user_args = "msg_pass_by, tracking_options, custom_qos_profile"
+  user_args = "topic_name, msg_pass_by, tracking_options, custom_qos_profile"
 
   for msg_name in msgs:
 
     msg_class_name = get_namespaced_cpp_class_name(msg_name, package, "msg")
-    topic = "performance_test::Topic<" + msg_class_name + ">(topic_name)"
     lowercased_name = get_lowercased_name(msg_name)
     map_key = "\"" + lowercased_name + "\""
 
-    map_entry = "{" + map_key +",  [&] { n->" + function + "(" + topic +", " + user_args + "); } },"
+    map_entry = f"{{ {map_key}, [&] {{ n->{function}<{msg_class_name}>({user_args});}} }},"
 
     content += "\n" + map_entry
 
@@ -169,8 +168,8 @@ def get_pub_factory(msgs, package):
   content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
-    std::string msg_type,
-    std::string topic_name,
+    const std::string& msg_type,
+    const std::string& topic_name,
     msg_pass_by_t msg_pass_by,
     rmw_qos_profile_t custom_qos_profile,
     std::chrono::microseconds period,
@@ -180,16 +179,15 @@ def get_pub_factory(msgs, package):
   """
 
   function = "add_periodic_publisher"
-  user_args = "period, msg_pass_by, custom_qos_profile, msg_size"
+  user_args = "topic_name, period, msg_pass_by, custom_qos_profile, msg_size"
 
   for msg_name in msgs:
     msg_class_name = get_namespaced_cpp_class_name(msg_name, package, "msg")
-    topic = "performance_test::Topic<" + msg_class_name + ">(topic_name)"
 
     lowercased_name = get_lowercased_name(msg_name)
     map_key = "\"" + lowercased_name + "\""
 
-    map_entry = "{" + map_key +",  [&] { n->" + function + "(" + topic +", " + user_args + "); } },"
+    map_entry = f"{{ {map_key}, [&] {{ n->{function}<{msg_class_name}>({user_args});}} }},"
 
     content += "\n" + map_entry
 
@@ -226,24 +224,23 @@ def get_server_factory(srvs, package):
   content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
-    std::string srv_type,
-    std::string service_name,
+    const std::string& srv_type,
+    const std::string& service_name,
     rmw_qos_profile_t custom_qos_profile)
   {
     const std::map<std::string, std::function<void()>> servers_factory{
   """
 
   function = "add_server"
-  user_args = "custom_qos_profile"
+  user_args = "service_name, custom_qos_profile"
 
   for srv_name in srvs:
 
     srv_class_name = get_namespaced_cpp_class_name(srv_name, package, "srv")
-    service = "performance_test::Service<" + srv_class_name + ">(service_name)"
     lowercased_name = get_lowercased_name(srv_name)
     map_key = "\"" + lowercased_name + "\""
 
-    map_entry = "{" + map_key +",  [&] { n->" + function + "(" + service + ", " + user_args + "); } },"
+    map_entry = f"{{ {map_key}, [&] {{ n->{function}<{srv_class_name}>({user_args});}} }},"
 
     content += "\n" + map_entry
 
@@ -280,8 +277,8 @@ def get_client_factory(srvs, package):
   content += "\n std::shared_ptr<" + performance_node + "> n,"
 
   content += """
-    std::string srv_type,
-    std::string service_name,
+    const std::string& srv_type,
+    const std::string& service_name,
     rmw_qos_profile_t custom_qos_profile,
     std::chrono::microseconds period)
   {
@@ -289,16 +286,15 @@ def get_client_factory(srvs, package):
   """
 
   function = "add_periodic_client"
-  user_args = "period, custom_qos_profile"
+  user_args = "service_name, period, custom_qos_profile"
 
   for srv_name in srvs:
 
     srv_class_name = get_namespaced_cpp_class_name(srv_name, package, "srv")
-    service = "performance_test::Service<" + srv_class_name + ">(service_name)"
     lowercased_name = get_lowercased_name(srv_name)
     map_key = "\"" + lowercased_name + "\""
 
-    map_entry = "{" + map_key +",  [&] { n->" + function + "(" + service +", " + user_args + "); } },"
+    map_entry = f"{{ {map_key}, [&] {{ n->{function}<{srv_class_name}>({user_args});}} }},"
 
     content += "\n" + map_entry
 

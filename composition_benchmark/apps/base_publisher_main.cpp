@@ -7,11 +7,10 @@
 std::vector<IRobotNodePtr> create_publisher_node(int argc, char** argv)
 {
   global_factory_generic_setup(argc, argv);
-  auto topic = performance_test::Topic<irobot_interfaces_plugin::msg::StampedVector>("my_topic");
 
   IRobotNodePtr node = std::make_shared<BaseNode>();
   node->add_periodic_publisher<irobot_interfaces_plugin::msg::StampedVector>(
-    topic,
+    "my_topic",
     std::chrono::milliseconds(10),
     PASS_BY_UNIQUE_PTR,
     rmw_qos_profile_default,

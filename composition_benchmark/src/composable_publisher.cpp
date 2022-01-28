@@ -13,9 +13,8 @@ ComposablePublisher::ComposablePublisher(const rclcpp::NodeOptions & options)
   auto pub_frequency = this->declare_parameter<int>("frequency", 10);
   auto msg_size = this->declare_parameter<int>("size", 10000);
 
-  auto topic = performance_test::Topic<irobot_interfaces_plugin::msg::StampedVector>(topic_name);
   this->add_periodic_publisher<irobot_interfaces_plugin::msg::StampedVector>(
-    topic,
+    topic_name,
     std::chrono::milliseconds(pub_frequency),
     PASS_BY_UNIQUE_PTR,
     rmw_qos_profile_default,

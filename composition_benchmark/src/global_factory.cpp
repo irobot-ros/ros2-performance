@@ -45,13 +45,10 @@ std::string get_node_name()
 {
   return get_node_args().name;
 }
+
 std::string get_namespace()
 {
   return get_node_args().ros_namespace;
-}
-size_t get_executor_id()
-{
-  return get_node_args().executor_id;
 }
 
 }

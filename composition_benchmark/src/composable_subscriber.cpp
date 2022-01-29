@@ -7,8 +7,7 @@ ComposableSubscriber::ComposableSubscriber(const rclcpp::NodeOptions & options)
 : performance_test::PerformanceNode<rclcpp::Node>(
   global_factory::get_node_name(),
   global_factory::get_namespace(),
-  options,
-  global_factory::get_executor_id())
+  options)
 {
   auto topic_name = this->declare_parameter<std::string>("topic", "my_topic");
 

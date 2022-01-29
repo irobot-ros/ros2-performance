@@ -21,14 +21,14 @@ do_test_manual_composition() {
 
   for NUM_NODES in `seq 1 ${MAX_NODES}`;
   do
-    for ITERATION in `seq 1 ${NUM_EXPERIMENTS}`;
+    for EXP_IT in `seq 1 ${NUM_EXPERIMENTS}`;
     do
-      TEST_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${ITERATION}_it.txt"
+      TEST_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${EXP_IT}_it.txt"
 
       CMD_ARGS="-t ${DURATION} --file ${TEST_FILE} -p ${COMPOSABLE_SCRIPT}"
-      for IT in `seq 1 $NUM_NODES`;
+      for NODES_IT in `seq 1 $NUM_NODES`;
       do
-        CMD_ARGS="${CMD_ARGS} node_${IT}"
+        CMD_ARGS="${CMD_ARGS} node_${NODES_IT}"
       done
 
       bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &
@@ -46,18 +46,18 @@ do_test_dynamic_composition() {
 
   for NUM_NODES in `seq 1 ${MAX_NODES}`;
   do
-    for ITERATION in `seq 1 ${NUM_EXPERIMENTS}`;
+    for EXP_IT in `seq 1 ${NUM_EXPERIMENTS}`;
     do
 
-      TEST_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${ITERATION}_it.txt"
+      TEST_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${EXP_IT}_it.txt"
 
       CMD_ARGS="-t ${DURATION} --file ${TEST_FILE} -p ${COMPONENT_CONTAINER_SCRIPT}"
 
       bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &
 
-      for IT in `seq 1 $NUM_NODES`;
+      for NODES_IT in `seq 1 $NUM_NODES`;
       do
-        ros2 component load /ComponentManager composition_benchmark ComposableNode --no-daemon --node-name node_${IT}
+        ros2 component load /ComponentManager composition_benchmark ComposableNode --no-daemon --node-name node_${NODES_IT}
       done
 
       wait
@@ -73,14 +73,14 @@ do_test_base_single_process() {
 
   for NUM_NODES in `seq 1 ${MAX_NODES}`;
   do
-    for ITERATION in `seq 1 ${NUM_EXPERIMENTS}`;
+    for EXP_IT in `seq 1 ${NUM_EXPERIMENTS}`;
     do
-      TEST_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${ITERATION}_it.txt"
+      TEST_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${EXP_IT}_it.txt"
 
       CMD_ARGS="-t ${DURATION} --file ${TEST_FILE} -p ${BASE_SCRIPT}"
-      for IT in `seq 1 $NUM_NODES`;
+      for NODES_IT in `seq 1 $NUM_NODES`;
       do
-        CMD_ARGS="${CMD_ARGS} node_${IT}"
+        CMD_ARGS="${CMD_ARGS} node_${NODES_IT}"
       done
 
       bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &
@@ -97,14 +97,14 @@ do_test_base_multi_process() {
 
   for NUM_NODES in `seq 1 ${MAX_NODES}`;
   do
-    for ITERATION in `seq 1 ${NUM_EXPERIMENTS}`;
+    for EXP_IT in `seq 1 ${NUM_EXPERIMENTS}`;
     do
-      TEST_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${ITERATION}_it.txt"
+      TEST_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${EXP_IT}_it.txt"
 
       CMD_ARGS="-t ${DURATION} --file ${TEST_FILE}"
-      for IT in `seq 1 $NUM_NODES`;
+      for NODES_IT in `seq 1 $NUM_NODES`;
       do
-        CMD_ARGS="${CMD_ARGS} -p ${BASE_SCRIPT} node_${IT}"
+        CMD_ARGS="${CMD_ARGS} -p ${BASE_SCRIPT} node_${NODES_IT}"
       done
 
       bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &

@@ -21,5 +21,9 @@ std::vector<IRobotNodePtr> create_publisher_node(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-  run_test(argc, argv, create_publisher_node, std::bind(spin_task, std::placeholders::_1, std::chrono::seconds(15)));
+  run_test(
+    argc,
+    argv,
+    create_publisher_node,
+    std::bind(spin_task, std::placeholders::_1, MAX_HOURS));
 }

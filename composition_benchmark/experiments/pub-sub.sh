@@ -30,7 +30,7 @@ do_test_dynamic_composition() {
 }
 
 do_test_manual_composition() {
-  DURATION=15
+  DURATION=5
   NUM_SUBS=2
   PUB_FREQUENCY=10
   MSG_SIZE=10
@@ -42,3 +42,4 @@ do_test_manual_composition() {
 }
 
 do_test_manual_composition
+do_test_dynamic_composition

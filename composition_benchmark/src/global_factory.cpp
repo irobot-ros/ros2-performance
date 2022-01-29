@@ -12,7 +12,7 @@ static std::mutex s_mutex {};
 
 static NodeArguments get_node_args()
 {
-  std::lock_guard<std::mutex> lock(s_mutex);
+  std::unique_lock<std::mutex> lock(s_mutex);
   if (s_current_id < s_nodes_args.size()) {
     return s_nodes_args[s_current_id];
   } else {
@@ -22,7 +22,7 @@ static NodeArguments get_node_args()
 
 void setup_factory(const std::vector<NodeArguments>& nodes_args)
 {
-  std::lock_guard<std::mutex> lock(s_mutex);
+  std::unique_lock<std::mutex> lock(s_mutex);
   if (!s_nodes_args.empty()) {
     std::cerr<< "Setting up nodes will erase existing information about " << s_nodes_args.size() << " nodes"<< std::endl;
   }
@@ -31,13 +31,13 @@ void setup_factory(const std::vector<NodeArguments>& nodes_args)
 
 size_t get_num_registered_nodes()
 {
-  std::lock_guard<std::mutex> lock(s_mutex);
+  std::unique_lock<std::mutex> lock(s_mutex);
   return s_nodes_args.size();
 }
 
 void mark_node_created()
 {
-  std::lock_guard<std::mutex> lock(s_mutex);
+  std::unique_lock<std::mutex> lock(s_mutex);
   s_current_id++;
 }
 

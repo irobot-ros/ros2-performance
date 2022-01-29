@@ -59,14 +59,18 @@ int main(int argc, char** argv)
 
   run_func_t run_func;
   if (spin_type == "spin") {
-    run_func = std::bind(spin_task, std::placeholders::_1, std::chrono::seconds(15));
+    run_func = std::bind(spin_task, std::placeholders::_1, MAX_HOURS);
   } else if (spin_type == "spin_future") {
-    run_func = std::bind(spin_future_complete_task, std::placeholders::_1, std::chrono::seconds(15));
+    run_func = std::bind(spin_future_complete_task, std::placeholders::_1, MAX_HOURS);
   } else if (spin_type == "spin_isolated") {
-    run_func = std::bind(spin_isolated_task, std::placeholders::_1, std::chrono::seconds(15));
+    run_func = std::bind(spin_isolated_task, std::placeholders::_1, MAX_HOURS);
   } else if (spin_type == "spin_some") {
-    run_func = std::bind(spin_some_task, std::placeholders::_1, std::chrono::seconds(5));
+    run_func = std::bind(spin_some_task, std::placeholders::_1, MAX_HOURS);
   }
 
-  run_test(argc, argv, create_pub_sub_system, run_func);
+  run_test(
+    argc,
+    argv,
+    create_pub_sub_system,
+    run_func);
 }

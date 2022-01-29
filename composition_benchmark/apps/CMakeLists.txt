@@ -1,0 +1,36 @@
+add_executable(base_simple_main base_simple_main.cpp
+)
+ament_target_dependencies(base_simple_main performance_test)
+target_link_libraries(base_simple_main base_node)
+
+find_package(irobot_interfaces_plugin REQUIRED)
+add_executable(base_publisher_main base_publisher_main.cpp
+)
+ament_target_dependencies(base_publisher_main performance_test irobot_interfaces_plugin)
+target_link_libraries(base_publisher_main base_node)
+
+add_executable(base_subscriber_main base_subscriber_main.cpp
+)
+ament_target_dependencies(base_subscriber_main performance_test irobot_interfaces_plugin)
+target_link_libraries(base_subscriber_main base_node)
+
+add_executable(composable_simple_main composable_simple_main.cpp
+)
+ament_target_dependencies(composable_simple_main performance_test)
+target_link_libraries(composable_simple_main composable_node)
+
+add_executable(composable_pub_sub_main composable_pub_sub_main.cpp
+)
+ament_target_dependencies(composable_pub_sub_main performance_test irobot_interfaces_plugin)
+target_link_libraries(composable_pub_sub_main composable_publisher composable_subscriber)
+
+install(TARGETS
+  base_simple_main
+  base_publisher_main
+  base_subscriber_main
+  composable_simple_main
+  composable_pub_sub_main
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION lib/${PROJECT_NAME}
+)

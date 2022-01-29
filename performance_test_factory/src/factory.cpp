@@ -53,16 +53,19 @@ std::shared_ptr<PerformanceNodeBase> TemplateFactory::create_node(
   node_options.use_intra_process_comms(use_ipc);
   node_options.start_parameter_services(use_ros_params);
   node_options.start_parameter_event_publisher(use_ros_params);
+  node_options.parameter_overrides({
+    {"executor_id", executor_id},
+  });
 
   std::shared_ptr<PerformanceNodeBase> node;
 
   switch (_node_type)
   {
     case RCLCPP_NODE:
-    node = std::make_shared<PerformanceNode<rclcpp::Node>>(name, ros2_namespace, node_options, executor_id);
+    node = std::make_shared<PerformanceNode<rclcpp::Node>>(name, ros2_namespace, node_options);
     break;
     case RCLCPP_LIFECYCLE_NODE:
-    node = std::make_shared<PerformanceNode<rclcpp_lifecycle::LifecycleNode>>(name, ros2_namespace, node_options, executor_id);
+    node = std::make_shared<PerformanceNode<rclcpp_lifecycle::LifecycleNode>>(name, ros2_namespace, node_options);
     break;
   }
 

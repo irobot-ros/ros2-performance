@@ -29,33 +29,35 @@ using namespace std::chrono_literals;
 namespace performance_test
 {
 
-PerformanceNodeBase::PerformanceNodeBase(int executor_id)
+PerformanceNodeBase::PerformanceNodeBase(const NodeInterfaces& node_interfaces)
+: m_node_interfaces(node_interfaces)
 {
-  m_executor_id = executor_id;
+  m_executor_id = m_node_interfaces.parameters->declare_parameter("executor_id", rclcpp::ParameterValue(0)).get<int>();
+  RCLCPP_INFO(this->get_node_logger(), "PerformanceNode %s created with executor id %d", this->get_node_name(), m_executor_id);
 }
 
 rclcpp::node_interfaces::NodeBaseInterface::SharedPtr
 PerformanceNodeBase::get_node_base()
 {
-  return m_node_base;
+  return m_node_interfaces.base;
 }
 
 rclcpp::node_interfaces::NodeGraphInterface::SharedPtr
 PerformanceNodeBase::get_node_graph()
 {
-  return m_node_graph;
+  return m_node_interfaces.graph;
 }
 
 rclcpp::Logger
 PerformanceNodeBase::get_node_logger()
 {
-  return m_node_logging->get_logger();
+  return m_node_interfaces.logging->get_logger();
 }
 
 const char *
 PerformanceNodeBase::get_node_name()
 {
-  return m_node_base->get_name();
+  return m_node_interfaces.base->get_name();
 }
 
 void PerformanceNodeBase::add_timer(
@@ -66,8 +68,8 @@ void PerformanceNodeBase::add_timer(
     period,
     callback,
     nullptr,
-    m_node_base.get(),
-    m_node_timers.get());
+    m_node_interfaces.base.get(),
+    m_node_interfaces.timers.get());
 
   _timers.push_back(timer);
 }
@@ -129,8 +131,8 @@ void PerformanceNodeBase::store_subscription(
   const std::string & topic_name,
   const Tracker::TrackingOptions & tracking_options)
 {
-  _subs.insert({ topic_name, { sub, Tracker(m_node_base->get_name(), topic_name, tracking_options) } });
-  RCLCPP_INFO(m_node_logging->get_logger(), "Subscriber to %s created", topic_name.c_str());
+  _subs.insert({ topic_name, { sub, Tracker(m_node_interfaces.base->get_name(), topic_name, tracking_options) } });
+  RCLCPP_INFO(this->get_node_logger(), "Subscriber to %s created", topic_name.c_str());
 }
 
 void PerformanceNodeBase::store_publisher(
@@ -138,8 +140,8 @@ void PerformanceNodeBase::store_publisher(
   const std::string & topic_name,
   const Tracker::TrackingOptions & tracking_options)
 {
-  _pubs.insert({ topic_name, { pub, Tracker(m_node_base->get_name(), topic_name, tracking_options) } });
-  RCLCPP_INFO(m_node_logging->get_logger(), "Publisher to %s created", topic_name.c_str());
+  _pubs.insert({ topic_name, { pub, Tracker(m_node_interfaces.base->get_name(), topic_name, tracking_options) } });
+  RCLCPP_INFO(this->get_node_logger(), "Publisher to %s created", topic_name.c_str());
 }
 
 void PerformanceNodeBase::store_client(
@@ -152,12 +154,12 @@ void PerformanceNodeBase::store_client(
       service_name,
       std::tuple<std::shared_ptr<rclcpp::ClientBase>, Tracker, Tracker::TrackingNumber>{
         client,
-        Tracker(m_node_base->get_name(), service_name, tracking_options),
+        Tracker(m_node_interfaces.base->get_name(), service_name, tracking_options),
         0
       }
     });
 
-  RCLCPP_INFO(m_node_logging->get_logger(), "Client to %s created", service_name.c_str());
+  RCLCPP_INFO(this->get_node_logger(), "Client to %s created", service_name.c_str());
 }
 
 void PerformanceNodeBase::store_server(
@@ -165,8 +167,8 @@ void PerformanceNodeBase::store_server(
   const std::string & service_name,
   const Tracker::TrackingOptions & tracking_options)
 {
-  _servers.insert({ service_name, { server, Tracker(m_node_base->get_name(), service_name, tracking_options) } });
-  RCLCPP_INFO(m_node_logging->get_logger(), "Server to %s created", service_name.c_str());
+  _servers.insert({ service_name, { server, Tracker(m_node_interfaces.base->get_name(), service_name, tracking_options) } });
+  RCLCPP_INFO(this->get_node_logger(), "Server to %s created", service_name.c_str());
 }
 
 performance_test_msgs::msg::PerformanceHeader
@@ -195,9 +197,9 @@ void PerformanceNodeBase::_handle_sub_received_msg(
 {
   // Scan new message's header
   auto & tracker = _subs.at(topic_name).second;
-  tracker.scan(msg_header, m_node_clock->get_clock()->now(), _events_logger);
+  tracker.scan(msg_header, m_node_interfaces.clock->get_clock()->now(), _events_logger);
 
-  RCLCPP_DEBUG(m_node_logging->get_logger(), "Received on %s msg number %d after %lu us", topic_name.c_str(), msg_header.tracking_number, tracker.last());
+  RCLCPP_DEBUG(this->get_node_logger(), "Received on %s msg number %d after %lu us", topic_name.c_str(), msg_header.tracking_number, tracker.last());
 }
 
 void PerformanceNodeBase::_handle_client_received_response(
@@ -208,9 +210,9 @@ void PerformanceNodeBase::_handle_client_received_response(
   (void)response_header;
 
   auto & tracker = std::get<1>(_clients.at(service_name));
-  tracker.scan(request_header, m_node_clock->get_clock()->now(), _events_logger);
+  tracker.scan(request_header, m_node_interfaces.clock->get_clock()->now(), _events_logger);
 
-  RCLCPP_DEBUG(m_node_logging->get_logger(), "Response on %s request number %d received after %lu us", service_name.c_str(), request_header.tracking_number, tracker.last());
+  RCLCPP_DEBUG(this->get_node_logger(), "Response on %s request number %d received after %lu us", service_name.c_str(), request_header.tracking_number, tracker.last());
 }
 
 performance_test_msgs::msg::PerformanceHeader
@@ -222,13 +224,13 @@ PerformanceNodeBase::_handle_server_received_request(
   auto & tracker = _servers.at(service_name).second;
 
   auto response_header = this->create_msg_header(
-    m_node_clock->get_clock()->now(),
+    m_node_interfaces.clock->get_clock()->now(),
     request_header.frequency,
     tracker.stat().n(),
     0);
 
   tracker.scan(request_header, response_header.stamp, _events_logger);
-  RCLCPP_DEBUG(m_node_logging->get_logger(), "Request on %s request number %d received %lu us", service_name.c_str(), request_header.tracking_number, tracker.last());
+  RCLCPP_DEBUG(this->get_node_logger(), "Request on %s request number %d received %lu us", service_name.c_str(), request_header.tracking_number, tracker.last());
 
   return response_header;
 }

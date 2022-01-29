@@ -18,7 +18,6 @@
 
 #include "performance_test_msgs/msg/performance_header.hpp"
 
-
 namespace performance_test
 {
 

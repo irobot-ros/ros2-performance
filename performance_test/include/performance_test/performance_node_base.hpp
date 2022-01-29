@@ -29,10 +29,22 @@
 namespace performance_test
 {
 
+struct NodeInterfaces
+{
+  rclcpp::node_interfaces::NodeBaseInterface::SharedPtr base;
+  rclcpp::node_interfaces::NodeClockInterface::SharedPtr clock;
+  rclcpp::node_interfaces::NodeGraphInterface::SharedPtr graph;
+  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr logging;
+  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr parameters;
+  rclcpp::node_interfaces::NodeServicesInterface::SharedPtr services;
+  rclcpp::node_interfaces::NodeTimersInterface::SharedPtr timers;
+  rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr topics;
+};
+
 class PerformanceNodeBase
 {
 public:
-  explicit PerformanceNodeBase(int executor_id = 0);
+  explicit PerformanceNodeBase(const NodeInterfaces & node_interfaces);
 
   virtual ~PerformanceNodeBase() = default;
 
@@ -47,19 +59,6 @@ public:
 
   const char *
   get_node_name();
-
-  template<typename NodeT>
-  void set_ros_node(NodeT* node)
-  {
-    m_node_base = node->template get_node_base_interface();
-    m_node_clock = node->template get_node_clock_interface();
-    m_node_graph = node->template get_node_graph_interface();
-    m_node_logging = node->template get_node_logging_interface();
-    m_node_parameters = node->template get_node_parameters_interface();
-    m_node_services = node->template get_node_services_interface();
-    m_node_timers = node->template get_node_timers_interface();
-    m_node_topics = node->template get_node_topics_interface();
-  }
 
   template <typename Msg>
   void add_subscriber(
@@ -82,8 +81,8 @@ public:
           std::placeholders::_1);
 
         sub = rclcpp::create_subscription<Msg>(
-          m_node_parameters,
-          m_node_topics,
+          m_node_interfaces.parameters,
+          m_node_interfaces.topics,
           topic_name,
           qos,
           callback_function);
@@ -101,8 +100,8 @@ public:
         );
 
         sub = rclcpp::create_subscription<Msg>(
-          m_node_parameters,
-          m_node_topics,
+          m_node_interfaces.parameters,
+          m_node_interfaces.topics,
           topic_name,
           qos,
           callback_function);
@@ -143,7 +142,7 @@ public:
     auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile);
 
     rclcpp::PublisherBase::SharedPtr pub = rclcpp::create_publisher<Msg>(
-      m_node_topics,
+      m_node_interfaces.topics,
       topic_name,
       qos);
 
@@ -168,8 +167,8 @@ public:
     );
 
     rclcpp::ServiceBase::SharedPtr server = rclcpp::create_service<Srv>(
-      m_node_base,
-      m_node_services,
+      m_node_interfaces.base,
+      m_node_interfaces.services,
       service_name,
       callback_function,
       qos_profile,
@@ -206,9 +205,9 @@ public:
     rmw_qos_profile_t qos_profile = rmw_qos_profile_default)
   {
     rclcpp::ClientBase::SharedPtr client = rclcpp::create_client<Srv>(
-      m_node_base,
-      m_node_graph,
-      m_node_services,
+      m_node_interfaces.base,
+      m_node_interfaces.graph,
+      m_node_interfaces.services,
       service_name,
       qos_profile,
       nullptr);
@@ -281,7 +280,7 @@ private:
         // create a message and eventually resize it
         auto msg = std::make_shared<Msg>();
         msg_size = resize_msg(msg->data, size);
-        auto publish_time = m_node_clock->get_clock()->now();
+        auto publish_time = m_node_interfaces.clock->get_clock()->now();
 
         msg->header = create_msg_header(
           publish_time,
@@ -291,7 +290,7 @@ private:
 
         pub->publish(*msg);
 
-        auto end_time = m_node_clock->get_clock()->now();
+        auto end_time = m_node_interfaces.clock->get_clock()->now();
         pub_time_us = (end_time - publish_time).nanoseconds() / 1000.0f;
 
         break;
@@ -301,7 +300,7 @@ private:
         // create a message and eventually resize it
         auto msg = std::make_unique<Msg>();
         msg_size = resize_msg(msg->data, size);
-        auto publish_time = m_node_clock->get_clock()->now();
+        auto publish_time = m_node_interfaces.clock->get_clock()->now();
 
         msg->header = create_msg_header(
           publish_time,
@@ -311,7 +310,7 @@ private:
 
         pub->publish(std::move(msg));
 
-        auto end_time = m_node_clock->get_clock()->now();
+        auto end_time = m_node_interfaces.clock->get_clock()->now();
         pub_time_us = (end_time - publish_time).nanoseconds() / 1000.0f;
 
         break;
@@ -322,7 +321,7 @@ private:
     tracker.set_size(msg_size);
     tracker.add_sample(pub_time_us);
 
-    RCLCPP_DEBUG(m_node_logging->get_logger(), "Publishing to %s msg number %d took %lu us", name.c_str(), tracking_number, pub_time_us);
+    RCLCPP_DEBUG(this->get_node_logger(), "Publishing to %s msg number %d took %lu us", name.c_str(), tracking_number, pub_time_us);
   }
 
   template <typename DataT>
@@ -378,7 +377,7 @@ private:
         description << "[service] '"<< name.c_str() << "' unavailable after 1s";
 
         EventsLogger::Event ev;
-        ev.caller_name = name + "->" + m_node_base->get_name();
+        ev.caller_name = name + "->" + m_node_interfaces.base->get_name();
         ev.code = EventsLogger::EventCode::service_unavailable;
         ev.description = description.str();
 
@@ -392,7 +391,7 @@ private:
     auto request = std::make_shared<typename Srv::Request>();
 
     request->header = create_msg_header(
-      m_node_clock->get_clock()->now(),
+      m_node_interfaces.clock->get_clock()->now(),
       tracker.frequency(),
       tracking_number,
       0);
@@ -417,17 +416,17 @@ private:
 
     // send the request and wait for the response
     typename rclcpp::Client<Srv>::SharedFuture result_future = client->async_send_request(request);
-    if (rclcpp::spin_until_future_complete(m_node_base_interface, result_future) !=
+    if (rclcpp::spin_until_future_complete(m_node_interfaces.base_interface, result_future) !=
         rclcpp::executor::FutureReturnCode::SUCCESS)
     {
       // TODO: handle if request fails
       return;
 
     }
-    tracker.scan(request->header, m_node_clock->get_clock()->now(), _events_logger);
+    tracker.scan(request->header, m_node_interfaces.clock->get_clock()->now(), _events_logger);
     */
 
-    RCLCPP_DEBUG(m_node_logging->get_logger(), "Requesting to %s request number %d", name.c_str(), request->header.tracking_number);
+    RCLCPP_DEBUG(this->get_node_logger(), "Requesting to %s request number %d", name.c_str(), request->header.tracking_number);
   }
 
   template <typename Srv>
@@ -464,14 +463,7 @@ private:
     const std::string & service_name,
     const performance_test_msgs::msg::PerformanceHeader& request_header);
 
-  rclcpp::node_interfaces::NodeBaseInterface::SharedPtr m_node_base;
-  rclcpp::node_interfaces::NodeGraphInterface::SharedPtr m_node_graph;
-  rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr m_node_logging;
-  rclcpp::node_interfaces::NodeTimersInterface::SharedPtr m_node_timers;
-  rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr m_node_topics;
-  rclcpp::node_interfaces::NodeServicesInterface::SharedPtr m_node_services;
-  rclcpp::node_interfaces::NodeClockInterface::SharedPtr m_node_clock;
-  rclcpp::node_interfaces::NodeParametersInterface::SharedPtr m_node_parameters;
+  NodeInterfaces m_node_interfaces;
 
   // A topic-name indexed map to store the publisher pointers with their
   // trackers.

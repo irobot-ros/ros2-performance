@@ -113,10 +113,11 @@ void Options::parse(int argc, char** argv)
 
 std::ostream &operator<<(std::ostream &os, const Options &options)
 {
-  os << "- Topology file(s): " << std::endl;
+  os << "- Topology file(s):";
   for(const auto& json : options.topology_json_list) {
-    os << json << std::endl;
+    os << " "<< json;
   }
+  os << std::endl;
 
   // Get the system executor from options
   auto system_executor = static_cast<performance_test::ExecutorType>(options.executor);

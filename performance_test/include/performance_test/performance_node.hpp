@@ -27,15 +27,26 @@ public:
   PerformanceNode(
     const std::string & name,
     const std::string & ros2_namespace = "",
-    const rclcpp::NodeOptions& node_options = rclcpp::NodeOptions(),
-    int executor_id = 0)
-  : NodeT(name, ros2_namespace, node_options), PerformanceNodeBase(executor_id)
-  {
-    this->set_ros_node(this);
-    RCLCPP_INFO(this->get_logger(), "PerformanceNode %s created with executor id %d", name.c_str(), executor_id);
-  }
+    const rclcpp::NodeOptions& node_options = rclcpp::NodeOptions())
+  : NodeT(name, ros2_namespace, node_options), PerformanceNodeBase(get_node_interfaces())
+  { }
 
   virtual ~PerformanceNode() = default;
+
+private:
+  virtual NodeInterfaces get_node_interfaces()
+  {
+    return NodeInterfaces {
+      this->get_node_base_interface(),
+      this->get_node_clock_interface(),
+      this->get_node_graph_interface(),
+      this->get_node_logging_interface(),
+      this->get_node_parameters_interface(),
+      this->get_node_services_interface(),
+      this->get_node_timers_interface(),
+      this->get_node_topics_interface()
+    };
+  }
 };
 
 }

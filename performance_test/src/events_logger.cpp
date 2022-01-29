@@ -39,6 +39,11 @@ EventsLogger::EventsLogger(const std::string & filename)
   _file << std::left << std::setw(_p_desc_width) << std::setfill(_p_separator) << "Description" << std::endl;
 }
 
+void EventsLogger::set_start_time(std::chrono::high_resolution_clock::time_point t)
+{
+  _start_time = t;
+}
+
 void EventsLogger::write_event(const Event & event)
 {
   if(!_file.is_open()) {

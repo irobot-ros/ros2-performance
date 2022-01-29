@@ -47,10 +47,7 @@ public:
 
   EventsLogger(const std::string & filename);
 
-  void set_start_time(std::chrono::high_resolution_clock::time_point t)
-  {
-    _start_time = t;
-  }
+  void set_start_time(std::chrono::high_resolution_clock::time_point t);
 
   void write_event(const Event & event);
 

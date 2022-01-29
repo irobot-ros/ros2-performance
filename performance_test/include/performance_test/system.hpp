@@ -18,7 +18,8 @@
 #include "performance_test/executors.hpp"
 #include "performance_test/events_logger.hpp"
 
-namespace performance_test {
+namespace performance_test
+{
 
 class System
 {
@@ -50,7 +51,6 @@ public:
   void print_agregate_stats(const std::vector<std::string>& topology_json_list) const;
 
 private:
-
   void wait_discovery();
 
   void wait_pdp_discovery(

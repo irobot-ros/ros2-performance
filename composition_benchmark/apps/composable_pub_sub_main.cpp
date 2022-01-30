@@ -5,45 +5,35 @@
 
 #include <composition_benchmark/composable_publisher.hpp>
 #include <composition_benchmark/composable_subscriber.hpp>
+#include <composition_benchmark/helpers/helper_options.hpp>
 #include <composition_benchmark/helpers/helper_spin.hpp>
 #include <composition_benchmark/helpers/run_test.hpp>
-#include <irobot_interfaces_plugin/msg/stamped_vector.hpp>
+#include <performance_test/utils/node_options.hpp>
 
-std::vector<IRobotNodePtr> create_pub_sub_system(int argc, char** argv)
+static
+std::vector<IRobotNodePtr> create_pub_sub_system(int argc, char ** argv)
 {
-  auto non_ros_args = rclcpp::remove_ros_arguments(argc, argv);
-
-  assert(non_ros_args.size() >= 5);
-  size_t num_subs = atoi(non_ros_args[1].c_str());
-  int pub_frequency = atoi(non_ros_args[2].c_str());
-  int msg_size = atoi(non_ros_args[3].c_str());
-  bool use_ipc = static_cast<bool>(atoi(non_ros_args[4].c_str()));
+  auto options = CompositionOptions(argc, argv);
 
   std::vector<IRobotNodePtr> nodes;
 
-  rclcpp::NodeOptions pub_options;
-  pub_options.parameter_overrides({
+  std::vector<rclcpp::Parameter> pub_parameters = {
     {"topic", "dummy_topic"},
-    {"frequency", pub_frequency},
-    {"size", msg_size}
-  });
-  pub_options.arguments({
-    "--ros-args", "-r", "__node:=pub_node"
-  });
-  pub_options.use_intra_process_comms(use_ipc);
+    {"frequency", *options.pub_frequency},
+    {"size", *options.msg_size}
+  };
+  auto pub_options = performance_test::create_node_options("pub_node", "", pub_parameters);
+  pub_options.use_intra_process_comms(*options.use_ipc);
   IRobotNodePtr pub_node = std::make_shared<ComposablePublisher>(pub_options);
   nodes.push_back(pub_node);
 
-  for (size_t i = 0; i < num_subs; i++) {
-    std::string node_name_remap = std::string("__node:=") + std::string("sub_node_") + std::to_string(i);
-    rclcpp::NodeOptions sub_options;
-    sub_options.parameter_overrides({
+  for (size_t i = 0; i < *options.num_subs; i++) {
+    std::string node_name = std::string("sub_node_") + std::to_string(i);
+    std::vector<rclcpp::Parameter> sub_parameters = {
       {"topic", "dummy_topic"}
-    });
-    sub_options.arguments({
-      "--ros-args", "-r", node_name_remap
-    });
-    sub_options.use_intra_process_comms(use_ipc);
+    };
+    auto sub_options = performance_test::create_node_options(node_name, "", sub_parameters);
+    sub_options.use_intra_process_comms(*options.use_ipc);
     IRobotNodePtr sub_node = std::make_shared<ComposableSubscriber>(sub_options);
     nodes.push_back(sub_node);
   }
@@ -51,20 +41,18 @@ std::vector<IRobotNodePtr> create_pub_sub_system(int argc, char** argv)
   return nodes;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char ** argv)
 {
-  auto non_ros_args = rclcpp::remove_ros_arguments(argc, argv);
-  assert(non_ros_args.size() >= 6);
-  std::string spin_type = non_ros_args[5];
+  auto options = CompositionOptions(argc, argv);
 
   run_func_t run_func;
-  if (spin_type == "spin") {
+  if (*options.spin_type == "spin") {
     run_func = std::bind(spin_task, std::placeholders::_1, MAX_HOURS);
-  } else if (spin_type == "spin_future") {
+  } else if (*options.spin_type == "spin_future") {
     run_func = std::bind(spin_future_complete_task, std::placeholders::_1, MAX_HOURS);
-  } else if (spin_type == "spin_isolated") {
+  } else if (*options.spin_type == "spin_isolated") {
     run_func = std::bind(spin_isolated_task, std::placeholders::_1, MAX_HOURS);
-  } else if (spin_type == "spin_some") {
+  } else if (*options.spin_type == "spin_some") {
     run_func = std::bind(spin_some_task, std::placeholders::_1, MAX_HOURS);
   }
 

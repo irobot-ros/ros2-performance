@@ -84,7 +84,7 @@ def main():
     '-p', '--process', action='append', nargs='+', default=[],
     help='Command to start a process that will be monitored. You can pass -p more than once.')
   parser.add_argument(
-    '--step', type=float, default=0.2,
+    '--step', type=float, default=1,
     help='Interval of time between performance metrics computation in seconds')
   parser.add_argument(
     '-t', '--duration', type=float, default=5.0,

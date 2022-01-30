@@ -5,7 +5,7 @@ SCRIPTS_DIR="${THIS_DIR}/../scripts"
 PSUTIL_SCRIPT="${SCRIPTS_DIR}/run_psutil.py"
 PERF_TEST_UTILITIES_DIR="${THIS_DIR}/../../performance_test/scripts/utility_scripts"
 WS_INSTALL_DIR="/root/ws/install"
-TEST_BASE_DIR="${THIS_DIR}/simple-nodes"
+TEST_BASE_DIR="${THIS_DIR}/pub-sub"
 
 # trap ctrl + c to kill all subprocesses
 source ${PERF_TEST_UTILITIES_DIR}/kill_all_subprocesses.sh
@@ -16,30 +16,104 @@ MANUAL_COMPOSITION_SCRIPT="${WS_INSTALL_DIR}/composition_benchmark/lib/compositi
 COMPONENT_CONTAINER_SCRIPT="/opt/ros/rolling/lib/rclcpp_components/component_container"
 
 do_test_multi_process() {
-  CMD_ARGS="-t 20 -p ${SUBSCRIBER_SCRIPT} -p ${PUBLISHER_SCRIPT}"
-  bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &
-  wait
+  TEST_DIR="${TEST_BASE_DIR}/multi-process"
+  bash ${PERF_TEST_UTILITIES_DIR}/create_output_dir.sh ${TEST_DIR}
+  TEST_SUITE_STD_LOG_FILE=${TEST_DIR}/std_log.txt
+
+  for NUM_SUBS in ${ALL_NUM_SUBS};
+  do
+    for PUB_FREQ in ${ALL_PUB_FREQUENCIES};
+    do
+      for MSG_SIZE in ${ALL_MSG_SIZES};
+      do
+        for EXP_IT in `seq 1 ${NUM_EXPERIMENTS}`;
+        do
+          TEST_LOG_FILE="${TEST_DIR}/${NUM_SUBS}_subs_${PUB_FREQ}_freq_${MSG_SIZE}_size_${EXP_IT}_it.txt"
+          CMD_ARGS="-t ${DURATION} --file ${TEST_LOG_FILE}"
+
+          for SUB_IT in `seq 1 $NUM_SUBS`;
+          do
+            CMD_ARGS="${CMD_ARGS} -p ${SUBSCRIBER_SCRIPT} name sub_${SUB_IT}"
+          done
+          CMD_ARGS="${CMD_ARGS} -p ${PUBLISHER_SCRIPT} name pub freq ${PUB_FREQ} size ${MSG_SIZE} ipc 0"
+
+          echo "do_test_multi_process: ${PSUTIL_SCRIPT} ${CMD_ARGS}"
+          bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &>> ${TEST_SUITE_STD_LOG_FILE} &
+
+          wait
+        done
+      done
+    done
+  done
 }
 
 do_test_dynamic_composition() {
-  CMD_ARGS="-t 6 -p ${COMPONENT_CONTAINER_SCRIPT}"
-  bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &
-  ros2 component load /ComponentManager composition_benchmark ComposablePublisher --no-daemon --node-name pub_node -p "topic:=test_topic" -p frequency:=500 -p size:=20
-  ros2 component load /ComponentManager composition_benchmark ComposableSubscriber --no-daemon --node-name sub_node -p "topic:=test_topic"
-  wait
+  TEST_DIR="${TEST_BASE_DIR}/dynamic-composition"
+  bash ${PERF_TEST_UTILITIES_DIR}/create_output_dir.sh ${TEST_DIR}
+  TEST_SUITE_STD_LOG_FILE=${TEST_DIR}/std_log.txt
+
+  for NUM_SUBS in ${ALL_NUM_SUBS};
+  do
+    for PUB_FREQ in ${ALL_PUB_FREQUENCIES};
+    do
+      for MSG_SIZE in ${ALL_MSG_SIZES};
+      do
+        for EXP_IT in `seq 1 ${NUM_EXPERIMENTS}`;
+        do
+          TEST_LOG_FILE="${TEST_DIR}/${NUM_SUBS}_subs_${PUB_FREQ}_freq_${MSG_SIZE}_size_${EXP_IT}_it.txt"
+          CMD_ARGS="-t ${DURATION} --file ${TEST_LOG_FILE} -p ${COMPONENT_CONTAINER_SCRIPT}"
+
+          echo "do_test_dynamic_composition: ${PSUTIL_SCRIPT} ${CMD_ARGS}"
+          bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &>> ${TEST_SUITE_STD_LOG_FILE} &
+
+          for SUB_IT in `seq 1 $NUM_SUBS`;
+          do
+            ros2 component load /ComponentManager composition_benchmark ComposableSubscriber --no-daemon --node-name sub_${SUB_IT}
+          done
+          ros2 component load /ComponentManager composition_benchmark ComposablePublisher --no-daemon --node-name pub_node -p frequency:=${PUB_FREQ} -p size:=${MSG_SIZE}
+          wait
+        done
+      done
+    done
+  done
 }
 
 do_test_manual_composition() {
-  DURATION=5
-  NUM_SUBS=2
-  PUB_FREQUENCY=10
-  MSG_SIZE=10
-  USE_IPC=1
-  SPIN_TYPE="spin_future"
-  CMD_ARGS="-t ${DURATION} -p ${MANUAL_COMPOSITION_SCRIPT} ${NUM_SUBS} ${PUB_FREQUENCY} ${MSG_SIZE} ${USE_IPC} ${SPIN_TYPE}"
-  bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &
-  wait
+  TEST_DIR="${TEST_BASE_DIR}/manual-composition"
+  bash ${PERF_TEST_UTILITIES_DIR}/create_output_dir.sh ${TEST_DIR}
+  TEST_SUITE_STD_LOG_FILE=${TEST_DIR}/std_log.txt
+
+  for NUM_SUBS in ${ALL_NUM_SUBS};
+  do
+    for PUB_FREQ in ${ALL_PUB_FREQUENCIES};
+    do
+      for MSG_SIZE in ${ALL_MSG_SIZES};
+      do
+        for EXP_IT in `seq 1 ${NUM_EXPERIMENTS}`;
+        do
+          TEST_LOG_FILE="${TEST_DIR}/${NUM_SUBS}_subs_${PUB_FREQ}_freq_${MSG_SIZE}_size_${EXP_IT}_it.txt"
+
+          SCRIPT_ARGS="subs ${NUM_SUBS} freq ${PUB_FREQ} size ${MSG_SIZE} ipc 0 spin_t spin"
+          CMD_ARGS="-t ${DURATION} --file ${TEST_LOG_FILE} -p ${MANUAL_COMPOSITION_SCRIPT} ${SCRIPT_ARGS}"
+
+          echo "do_test_manual_composition: ${PSUTIL_SCRIPT} ${CMD_ARGS}"
+          bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &>> ${TEST_SUITE_STD_LOG_FILE} &
+          wait
+        done
+      done
+    done
+  done
 }
 
-do_test_manual_composition
-do_test_dynamic_composition
+ALL_NUM_SUBS="1 2 5"
+ALL_PUB_FREQUENCIES="10 50 100"
+ALL_MSG_SIZES="1 50000 100000"
+NUM_EXPERIMENTS=1
+DURATION=10
+
+#ALL_IPC_VALS="0 1"
+#ALL_SPIN_TYPES="spin"
+
+#do_test_manual_composition
+#do_test_dynamic_composition
+do_test_multi_process

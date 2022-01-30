@@ -15,78 +15,77 @@ COMPOSABLE_SCRIPT="${WS_INSTALL_DIR}/composition_benchmark/lib/composition_bench
 COMPONENT_CONTAINER_SCRIPT="/opt/ros/rolling/lib/rclcpp_components/component_container"
 
 do_test_manual_composition() {
-
   TEST_DIR="${TEST_BASE_DIR}/manual-composition"
   bash ${PERF_TEST_UTILITIES_DIR}/create_output_dir.sh ${TEST_DIR}
+  TEST_SUITE_STD_LOG_FILE="${TEST_DIR}/std_log.txt"
 
-  for NUM_NODES in `seq 1 ${MAX_NODES}`;
+  for NUM_NODES in ${ALL_NUM_NODES};
   do
     for EXP_IT in `seq 1 ${NUM_EXPERIMENTS}`;
     do
-      TEST_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${EXP_IT}_it.txt"
+      TEST_LOG_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${EXP_IT}_it.txt"
 
-      CMD_ARGS="-t ${DURATION} --file ${TEST_FILE} -p ${COMPOSABLE_SCRIPT}"
-      for NODES_IT in `seq 1 $NUM_NODES`;
+      CMD_ARGS="-t ${DURATION} --file ${TEST_LOG_FILE} -p ${COMPOSABLE_SCRIPT}"
+      for NODE_IT in `seq 1 $NUM_NODES`;
       do
-        CMD_ARGS="${CMD_ARGS} node_${NODES_IT}"
+        CMD_ARGS="${CMD_ARGS} node_${NODE_IT}"
       done
 
-      bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &
+      echo "do_test_manual_composition: ${PSUTIL_SCRIPT} ${CMD_ARGS}"
+      bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &>> ${TEST_SUITE_STD_LOG_FILE} &
 
       wait
-
     done
   done
 }
 
 do_test_dynamic_composition() {
-
   TEST_DIR="${TEST_BASE_DIR}/dynamic-composition"
   bash ${PERF_TEST_UTILITIES_DIR}/create_output_dir.sh ${TEST_DIR}
+  TEST_SUITE_STD_LOG_FILE=${TEST_DIR}/std_log.txt
 
-  for NUM_NODES in `seq 1 ${MAX_NODES}`;
+  for NUM_NODES in ${ALL_NUM_NODES};
   do
     for EXP_IT in `seq 1 ${NUM_EXPERIMENTS}`;
     do
+      TEST_LOG_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${EXP_IT}_it.txt"
 
-      TEST_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${EXP_IT}_it.txt"
+      CMD_ARGS="-t ${DURATION} --file ${TEST_LOG_FILE} -p ${COMPONENT_CONTAINER_SCRIPT}"
 
-      CMD_ARGS="-t ${DURATION} --file ${TEST_FILE} -p ${COMPONENT_CONTAINER_SCRIPT}"
+      echo "do_test_dynamic_composition: ${PSUTIL_SCRIPT} ${CMD_ARGS}"
+      bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &>> ${TEST_SUITE_STD_LOG_FILE} &
 
-      bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &
-
-      for NODES_IT in `seq 1 $NUM_NODES`;
+      for NODE_IT in `seq 1 $NUM_NODES`;
       do
-        ros2 component load /ComponentManager composition_benchmark ComposableNode --no-daemon --node-name node_${NODES_IT}
+        ros2 component load /ComponentManager composition_benchmark ComposableNode --no-daemon --node-name node_${NODE_IT}
       done
 
       wait
-
     done
   done
 }
 
 do_test_base_single_process() {
-
   TEST_DIR="${TEST_BASE_DIR}/base-single-proc"
   bash ${PERF_TEST_UTILITIES_DIR}/create_output_dir.sh ${TEST_DIR}
+  TEST_SUITE_STD_LOG_FILE=${TEST_DIR}/std_log.txt
 
-  for NUM_NODES in `seq 1 ${MAX_NODES}`;
+  for NUM_NODES in ${ALL_NUM_NODES};
   do
     for EXP_IT in `seq 1 ${NUM_EXPERIMENTS}`;
     do
-      TEST_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${EXP_IT}_it.txt"
+      TEST_LOG_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${EXP_IT}_it.txt"
 
-      CMD_ARGS="-t ${DURATION} --file ${TEST_FILE} -p ${BASE_SCRIPT}"
-      for NODES_IT in `seq 1 $NUM_NODES`;
+      CMD_ARGS="-t ${DURATION} --file ${TEST_LOG_FILE} -p ${BASE_SCRIPT}"
+      for NODE_IT in `seq 1 $NUM_NODES`;
       do
-        CMD_ARGS="${CMD_ARGS} node_${NODES_IT}"
+        CMD_ARGS="${CMD_ARGS} node_${NODE_IT}"
       done
 
-      bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &
+      echo "do_test_base_single_process: ${PSUTIL_SCRIPT} ${CMD_ARGS}"
+      bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &>> ${TEST_SUITE_STD_LOG_FILE} &
 
       wait
-
     done
   done
 }
@@ -94,33 +93,33 @@ do_test_base_single_process() {
 do_test_base_multi_process() {
   TEST_DIR="${TEST_BASE_DIR}/base-multi-proc"
   bash ${PERF_TEST_UTILITIES_DIR}/create_output_dir.sh ${TEST_DIR}
+  TEST_SUITE_STD_LOG_FILE=${TEST_DIR}/std_log.txt
 
-  for NUM_NODES in `seq 1 ${MAX_NODES}`;
+  for NUM_NODES in ${ALL_NUM_NODES};
   do
     for EXP_IT in `seq 1 ${NUM_EXPERIMENTS}`;
     do
-      TEST_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${EXP_IT}_it.txt"
+      TEST_LOG_FILE="${TEST_DIR}/${NUM_NODES}_nodes_${EXP_IT}_it.txt"
 
-      CMD_ARGS="-t ${DURATION} --file ${TEST_FILE}"
-      for NODES_IT in `seq 1 $NUM_NODES`;
+      CMD_ARGS="-t ${DURATION} --file ${TEST_LOG_FILE}"
+      for NODE_IT in `seq 1 $NUM_NODES`;
       do
-        CMD_ARGS="${CMD_ARGS} -p ${BASE_SCRIPT} node_${NODES_IT}"
+        CMD_ARGS="${CMD_ARGS} -p ${BASE_SCRIPT} node_${NODE_IT}"
       done
 
-      bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &
+      echo "do_test_base_multi_process: ${PSUTIL_SCRIPT} ${CMD_ARGS}"
+      bash ${PERF_TEST_UTILITIES_DIR}/run.sh python3 ${PSUTIL_SCRIPT} ${CMD_ARGS} &>> ${TEST_SUITE_STD_LOG_FILE} &
 
       wait
-
     done
   done
 }
 
-MAX_NODES=5
-DURATION=2
-NUM_EXPERIMENTS=1
-do_test_manual_composition
+NUM_EXPERIMENTS=5
+DURATION=40
+ALL_NUM_NODES="1 2 3 5 10 15 20"
 
-MAX_NODES=1
-DURATION=3
-NUM_EXPERIMENTS=1
 do_test_base_single_process
+do_test_base_multi_process
+do_test_manual_composition
+do_test_dynamic_composition

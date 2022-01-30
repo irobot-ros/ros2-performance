@@ -11,7 +11,7 @@
 
 void run_test(
   int argc,
-  char** argv,
+  char ** argv,
   create_func_t create_func,
   run_func_t run_func)
 {

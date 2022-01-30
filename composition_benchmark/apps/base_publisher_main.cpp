@@ -1,25 +1,31 @@
 #include <composition_benchmark/base_node.hpp>
 #include <irobot_interfaces_plugin/msg/stamped_vector.hpp>
 #include <composition_benchmark/helpers/helper_factory.hpp>
+#include <composition_benchmark/helpers/helper_options.hpp>
 #include <composition_benchmark/helpers/helper_spin.hpp>
 #include <composition_benchmark/helpers/run_test.hpp>
+#include <performance_test/utils/node_options.hpp>
 
-std::vector<IRobotNodePtr> create_publisher_node(int argc, char** argv)
+static
+std::vector<IRobotNodePtr> create_publisher_node(int argc, char ** argv)
 {
-  global_factory_generic_setup(argc, argv);
+  auto cli_options = CompositionOptions(argc, argv);
+  auto node_options = performance_test::create_node_options(*cli_options.name);
 
-  IRobotNodePtr node = std::make_shared<BaseNode>();
+  auto pub_period = std::chrono::milliseconds(1000 / (*cli_options.pub_frequency));
+
+  IRobotNodePtr node = std::make_shared<BaseNode>(node_options);
   node->add_periodic_publisher<irobot_interfaces_plugin::msg::StampedVector>(
     "my_topic",
-    std::chrono::milliseconds(10),
+    pub_period,
     PASS_BY_UNIQUE_PTR,
     rmw_qos_profile_default,
-    10000);
+    *cli_options.msg_size);
 
   return {node};
 }
 
-int main(int argc, char** argv)
+int main(int argc, char ** argv)
 {
   run_test(
     argc,

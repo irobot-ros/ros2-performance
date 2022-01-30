@@ -1,14 +1,11 @@
 #include <composition_benchmark/composable_node.hpp>
-#include <composition_benchmark/global_factory.hpp>
 
 ComposableNode::ComposableNode(const rclcpp::NodeOptions & options)
 : performance_test::PerformanceNode<rclcpp::Node>(
-  global_factory::get_node_name(),
-  global_factory::get_namespace(),
+  "composable_node",
+  "",
   options)
-{
-  global_factory::mark_node_created();
-}
+{ }
 
 #include "rclcpp_components/register_node_macro.hpp"
 

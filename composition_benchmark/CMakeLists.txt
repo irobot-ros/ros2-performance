@@ -16,17 +16,10 @@ find_package(performance_test REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 
-add_library(global_factory SHARED
-  src/global_factory.cpp
-)
-ament_target_dependencies(global_factory performance_test)
-target_include_directories(global_factory PUBLIC include)
-
 add_library(composable_node SHARED
   src/composable_node.cpp
 )
 ament_target_dependencies(composable_node rclcpp rclcpp_components performance_test)
-target_link_libraries(composable_node global_factory)
 target_include_directories(composable_node PUBLIC include)
 rclcpp_components_register_nodes(composable_node "ComposableNode")
 
@@ -34,7 +27,6 @@ add_library(composable_publisher SHARED
   src/composable_publisher.cpp
 )
 ament_target_dependencies(composable_publisher rclcpp rclcpp_components performance_test irobot_interfaces_plugin)
-target_link_libraries(composable_publisher global_factory)
 target_include_directories(composable_publisher PUBLIC include)
 rclcpp_components_register_nodes(composable_publisher "ComposablePublisher")
 
@@ -42,7 +34,6 @@ add_library(composable_subscriber SHARED
   src/composable_subscriber.cpp
 )
 ament_target_dependencies(composable_subscriber rclcpp rclcpp_components performance_test irobot_interfaces_plugin)
-target_link_libraries(composable_subscriber global_factory)
 target_include_directories(composable_subscriber PUBLIC include)
 rclcpp_components_register_nodes(composable_subscriber "ComposableSubscriber")
 
@@ -50,7 +41,6 @@ add_library(base_node SHARED
   src/base_node.cpp
 )
 ament_target_dependencies(base_node rclcpp rclcpp_components performance_test)
-target_link_libraries(base_node global_factory)
 target_include_directories(base_node PUBLIC include)
 
 add_subdirectory(apps)
@@ -60,7 +50,6 @@ install(TARGETS
   composable_node
   composable_publisher
   composable_subscriber
-  global_factory
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}

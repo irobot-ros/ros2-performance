@@ -13,9 +13,12 @@
 
 #include "performance_test/tracker.hpp"
 
-void performance_test::Tracker::scan(
-  const performance_test_msgs::msg::PerformanceHeader& header,
-  const rclcpp::Time& now,
+namespace performance_test
+{
+
+void Tracker::scan(
+  const performance_test_msgs::msg::PerformanceHeader & header,
+  const rclcpp::Time & now,
   std::shared_ptr<EventsLogger> elog)
 {
   // If this is first message received store some info about it
@@ -41,7 +44,7 @@ void performance_test::Tracker::scan(
       _tracking_number_count++;
     } else {
       // We missed some mesages...
-      long unsigned int n_lost = header.tracking_number - _tracking_number_count;
+      int64_t n_lost = header.tracking_number - _tracking_number_count;
       _lost_messages += n_lost;
       _tracking_number_count = header.tracking_number + 1;
 
@@ -52,10 +55,11 @@ void performance_test::Tracker::scan(
         ev.caller_name = _topic_srv_name + "->" + _node_name;
         ev.code = EventsLogger::EventCode::lost_messages;
 
-        if(n_lost == 1) {
+        if (n_lost == 1) {
           description << "msg " << header.tracking_number - 1 << " lost.";
         } else {
-          description << "msgs " << header.tracking_number - 1 << " to " << header.tracking_number - 1 + n_lost << " lost.";
+          int64_t span_lost = header.tracking_number - 1 + n_lost;
+          description << "msgs " << header.tracking_number - 1 << " to " << span_lost << " lost.";
         }
         ev.description = description.str();
         elog->write_event(ev);
@@ -63,21 +67,23 @@ void performance_test::Tracker::scan(
     }
 
     // Check if the message latency qualifies the message as a lost or late message.
-    const int  period_us = 1000000 / _frequency;
-    const unsigned int latency_late_threshold_us = std::min(_tracking_options.late_absolute_us,
-                                                            _tracking_options.late_percentage * period_us / 100);
-    const unsigned int latency_too_late_threshold_us = std::min(_tracking_options.too_late_absolute_us,
-                                                            _tracking_options.too_late_percentage * period_us / 100);
+    const int period_us = 1000000 / _frequency;
+    const unsigned int latency_late_threshold_us = std::min(
+      _tracking_options.late_absolute_us,
+      _tracking_options.late_percentage * period_us / 100);
+    const unsigned int latency_too_late_threshold_us = std::min(
+      _tracking_options.too_late_absolute_us,
+      _tracking_options.too_late_percentage * period_us / 100);
 
     too_late = lat_us > latency_too_late_threshold_us;
     late = lat_us > latency_late_threshold_us && !too_late;
 
-    if(late) {
+    if (late) {
       if (elog != nullptr) {
         // Create a description for the event
         std::stringstream description;
-        description << "msg "<< header.tracking_number << " late. "
-        << lat_us << "us > "<< latency_late_threshold_us << "us";
+        description << "msg " << header.tracking_number << " late. " <<
+          lat_us << "us > " << latency_late_threshold_us << "us";
 
         EventsLogger::Event ev;
         ev.caller_name = _topic_srv_name + "->" + _node_name;
@@ -89,12 +95,12 @@ void performance_test::Tracker::scan(
       _late_messages++;
     }
 
-    if(too_late) {
+    if (too_late) {
       if (elog != nullptr) {
         // Create a descrption for the event
         std::stringstream description;
-        description << "msg "<< header.tracking_number << " too late. "
-        << lat_us << "us > "<< latency_too_late_threshold_us << "us";
+        description << "msg " << header.tracking_number << " too late. " <<
+          lat_us << "us > " << latency_too_late_threshold_us << "us";
 
         EventsLogger::Event ev;
         ev.caller_name = _topic_srv_name + "->" + _node_name;
@@ -107,7 +113,7 @@ void performance_test::Tracker::scan(
     }
   }
 
-  if(!too_late) {
+  if (!too_late) {
     // Compute statistics with new sample. Don't add to this the msgs
     // that arrived too late.
     this->add_sample(lat_us);
@@ -116,14 +122,17 @@ void performance_test::Tracker::scan(
   _received_messages++;
 }
 
-void performance_test::Tracker::add_sample(uint64_t latency_sample)
+void Tracker::add_sample(uint64_t latency_sample)
 {
   _stat.add_sample(latency_sample);
 }
 
-performance_test::Tracker::TrackingNumber performance_test::Tracker::get_and_update_tracking_number()
+Tracker::TrackingNumber
+Tracker::get_and_update_tracking_number()
 {
   TrackingNumber old_number = _tracking_number_count;
   _tracking_number_count++;
   return old_number;
 }
+
+}  // namespace performance_test

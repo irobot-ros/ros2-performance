@@ -9,6 +9,9 @@
 
 #include <gtest/gtest.h>
 
+#include <memory>
+#include <string>
+
 #include "performance_test_factory/factory.hpp"
 
 class TestFactory : public ::testing::Test
@@ -29,12 +32,26 @@ TEST_F(TestFactory, FactoryCreateFromStringTest)
 {
   performance_test::TemplateFactory factory;
 
-  auto node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("node_name");
+  auto node =
+    std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("node_name");
 
-  factory.add_subscriber_from_strings(node, "stamped10b", "my_topic", performance_test::Tracker::TrackingOptions());
-  factory.add_periodic_publisher_from_strings(node, "stamped10b", "my_topic");
-  factory.add_server_from_strings(node, "stamped10b", "my_service");
-  factory.add_periodic_client_from_strings(node, "stamped10b", "my_service");
+  factory.add_subscriber_from_strings(
+    node,
+    "stamped10b",
+    "my_topic",
+    performance_test::Tracker::TrackingOptions());
+  factory.add_periodic_publisher_from_strings(
+    node,
+    "stamped10b",
+    "my_topic");
+  factory.add_server_from_strings(
+    node,
+    "stamped10b",
+    "my_service");
+  factory.add_periodic_client_from_strings(
+    node,
+    "stamped10b",
+    "my_service");
 
   ASSERT_EQ(static_cast<size_t>(2), node->sub_and_client_trackers()->size());
 }
@@ -53,21 +70,19 @@ TEST_F(TestFactory, FactoryCreateFromIndicesTest)
   int publisher_start_index = n_subscriber_nodes;
   int publisher_end_index = n_subscriber_nodes + n_publisher_nodes;
 
-  auto sub_nodes =
-    factory.create_subscriber_nodes(
-      subscriber_start_index,
-      subscriber_end_index,
-      n_publisher_nodes,
-      msg_type,
-      PASS_BY_SHARED_PTR);
+  auto sub_nodes = factory.create_subscriber_nodes(
+    subscriber_start_index,
+    subscriber_end_index,
+    n_publisher_nodes,
+    msg_type,
+    PASS_BY_SHARED_PTR);
 
-  auto pub_nodes =
-    factory.create_periodic_publisher_nodes(
-      publisher_start_index,
-      publisher_end_index,
-      frequency,
-      msg_type,
-      PASS_BY_UNIQUE_PTR);
+  auto pub_nodes = factory.create_periodic_publisher_nodes(
+    publisher_start_index,
+    publisher_end_index,
+    frequency,
+    msg_type,
+    PASS_BY_UNIQUE_PTR);
 
   ASSERT_EQ(static_cast<size_t>(2), sub_nodes.size());
   ASSERT_EQ(static_cast<size_t>(2), pub_nodes.size());

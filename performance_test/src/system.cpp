@@ -24,9 +24,10 @@
 #include "performance_test/executors.hpp"
 #include "performance_test/events_logger.hpp"
 
-namespace performance_test {
+namespace performance_test
+{
 
-static uint64_t parse_line(std::string& line)
+static uint64_t parse_line(std::string & line)
 {
   std::string split_left = line.substr(0, line.find_first_of(" "));
   std::string split_right = line.substr(line.find_first_of(" "), line.length());
@@ -54,8 +55,7 @@ void System::add_node(std::shared_ptr<performance_test::PerformanceNodeBase> nod
   } else {
     auto ex = NamedExecutor();
 
-    switch (_system_executor)
-    {
+    switch (_system_executor) {
       case SINGLE_THREADED_EXECUTOR:
         ex.executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
         break;
@@ -81,7 +81,7 @@ void System::spin(int duration_sec, bool wait_for_discovery, bool name_threads)
   _start_time = std::chrono::high_resolution_clock::now();
 
   // Check if some nodes have been added to this System
-  if(_nodes.empty()) {
+  if (_nodes.empty()) {
     assert(0 && "Error. Calling performance_test::System::spin when no nodes have been added.");
   }
 
@@ -100,10 +100,10 @@ void System::spin(int duration_sec, bool wait_for_discovery, bool name_threads)
     auto & executor = pair.second.executor;
 
     // Spin each executor in a separate thread
-    std::thread thread([=]() {
-      executor->spin();
-    });
-    if(name_threads) {
+    std::thread thread([ = ]() {
+        executor->spin();
+      });
+    if (name_threads) {
       pthread_setname_np(thread.native_handle(), name.c_str());
     }
     thread.detach();
@@ -135,7 +135,7 @@ void System::save_latency_all_stats(const std::string & filename) const
   std::ofstream out_file;
   out_file.open(filename);
 
-  if(!out_file.is_open()) {
+  if (!out_file.is_open()) {
     std::cout << "[SystemLatencyLogger]: Error. Could not open file " << filename << std::endl;
     std::cout << "[SystemLatencyLogger]: Not logging." << std::endl;
     return;
@@ -155,7 +155,7 @@ void System::save_latency_total_stats(const std::string & filename) const
   std::ofstream out_file;
   out_file.open(filename);
 
-  if(!out_file.is_open()) {
+  if (!out_file.is_open()) {
     std::cout << "[SystemLatencyLogger]: Error. Could not open file " << filename << std::endl;
     std::cout << "[SystemLatencyLogger]: Not logging." << std::endl;
     return;
@@ -174,7 +174,7 @@ void System::print_latency_total_stats() const
   performance_test::log_latency_total_stats(std::cout, _nodes);
 }
 
-void System::print_agregate_stats(const std::vector<std::string>& topology_json_list) const
+void System::print_agregate_stats(const std::vector<std::string> & topology_json_list) const
 {
   uint64_t total_received = 0;
   uint64_t total_lost = 0;
@@ -182,16 +182,16 @@ void System::print_agregate_stats(const std::vector<std::string>& topology_json_
   uint64_t total_too_late = 0;
   uint64_t total_latency = 0;
 
-  for(const auto & json : topology_json_list) {
+  for (const auto & json : topology_json_list) {
     std::string basename = json.substr(json.find_last_of("/") + 1, json.length());
     std::string filename = basename.substr(0, basename.length() - 5) + "_log/latency_total.txt";
     std::string line;
     std::ifstream log_file(filename);
 
     if (log_file.is_open()) {
-      getline (log_file, line);
+      getline(log_file, line);
       // The second line contains the data to parse
-      getline (log_file, line);
+      getline(log_file, line);
 
       total_received += parse_line(line);
       total_latency += parse_line(line);
@@ -208,7 +208,8 @@ void System::print_agregate_stats(const std::vector<std::string>& topology_json_
 
   double average_latency = std::round(total_latency / topology_json_list.size());
 
-  log_total_stats(total_received, total_lost, total_late, total_too_late,
+  log_total_stats(
+    total_received, total_lost, total_late, total_too_late,
     average_latency, std::cout);
 }
 
@@ -233,16 +234,17 @@ void System::wait_pdp_discovery(
 
   auto pdp_start_time = std::chrono::high_resolution_clock::now();
 
-  auto get_intersection_size = [=] (std::vector<std::string> A, std::vector<std::string> B) {
-    // returns how many values are present in both A and B
-    std::sort(A.begin(), A.end());
-    std::sort(B.begin(), B.end());
-    std::vector<std::string> v_intersection;
-    std::set_intersection ( A.begin(), A.end(),
-                            B.begin(), B.end(),
-                            std::back_inserter(v_intersection));
-    return v_intersection.size();
-  };
+  auto get_intersection_size = [ = ](std::vector<std::string> A, std::vector<std::string> B) {
+      // returns how many values are present in both A and B
+      std::sort(A.begin(), A.end());
+      std::sort(B.begin(), B.end());
+      std::vector<std::string> v_intersection;
+      std::set_intersection(
+        A.begin(), A.end(),
+        B.begin(), B.end(),
+        std::back_inserter(v_intersection));
+      return v_intersection.size();
+    };
 
   // create a vector with all the names of the nodes to be discovered
   std::vector<std::string> reference_names;
@@ -258,18 +260,18 @@ void System::wait_pdp_discovery(
   while (!pdp_ok) {
     for (const auto & n : _nodes) {
       // we use the intersection to avoid counting nodes discovered from other processes
-      size_t discovered_participants = get_intersection_size(n->get_node_graph()->get_node_names(), reference_names);
+      size_t discovered_participants =
+        get_intersection_size(n->get_node_graph()->get_node_names(), reference_names);
       pdp_ok = (discovered_participants == num_nodes);
-      if (!pdp_ok) { break; }
+      if (!pdp_ok) {break;}
     }
 
-    if (pdp_ok) { break; }
+    if (pdp_ok) {break;}
 
     // check if maximum discovery time exceeded
     auto t = std::chrono::high_resolution_clock::now();
-    auto duration =
-      std::chrono::duration_cast<std::chrono::milliseconds>(t - pdp_start_time - max_pdp_time).count();
-    if (duration > 0) {
+    auto duration = t - pdp_start_time;
+    if (duration > max_pdp_time) {
       assert(0 && "[discovery] PDP took more than maximum discovery time");
     }
 
@@ -304,7 +306,7 @@ void System::wait_edp_discovery(
     }
   }
 
-  // TODO: the EDP should also take into account if subscriptions have been matched with publishers
+  // The EDP should also take into account if subscriptions have been matched with publishers
   // This is needed in case of processes with only subscriptions
   bool edp_ok = false;
   while (!edp_ok) {
@@ -331,10 +333,9 @@ void System::wait_edp_discovery(
 
     // check if maximum discovery time exceeded
     auto t = std::chrono::high_resolution_clock::now();
-    auto duration =
-        std::chrono::duration_cast<std::chrono::milliseconds>(t - edp_start_time - max_edp_time).count();
-    if (duration > 0) {
-        assert(0 && "[discovery] EDP took more than maximum discovery time");
+    auto duration = t - edp_start_time;
+    if (duration > max_edp_time) {
+      assert(0 && "[discovery] EDP took more than maximum discovery time");
     }
 
     rate.sleep();
@@ -350,4 +351,4 @@ void System::wait_edp_discovery(
   }
 }
 
-}
+}  // namespace performance_test

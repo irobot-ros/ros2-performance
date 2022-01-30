@@ -7,6 +7,9 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
+#include <string>
+#include <vector>
+
 #include "performance_test/utils/node_options.hpp"
 
 namespace performance_test
@@ -37,4 +40,4 @@ rclcpp::NodeOptions create_node_options(
   return options;
 }
 
-}
+}  // namespace performance_test

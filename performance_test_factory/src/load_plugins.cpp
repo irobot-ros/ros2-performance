@@ -7,11 +7,15 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
+#include <memory>
+#include <string>
+
 #include "performance_test_factory/load_plugins.hpp"
 
-using namespace performance_test;
+namespace performance_test
+{
 
-static std::string get_library_name(std::string& msg_type)
+static std::string get_library_name(std::string & msg_type)
 {
   static const std::string DEFAULT_LIBRARY_NAME = "irobot_interfaces_plugin";
   static const std::string namespace_delimiter = "::";
@@ -28,7 +32,7 @@ static std::string get_library_name(std::string& msg_type)
   return library_name;
 }
 
-std::shared_ptr<rcpputils::SharedLibrary> performance_test::get_library(std::string& msg_type)
+std::shared_ptr<rcpputils::SharedLibrary> get_library(std::string & msg_type)
 {
   std::string library_name = get_library_name(msg_type);
 
@@ -37,3 +41,5 @@ std::shared_ptr<rcpputils::SharedLibrary> performance_test::get_library(std::str
 
   return library;
 }
+
+}  // namespace performance_test

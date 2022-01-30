@@ -7,7 +7,8 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#pragma once
+#ifndef PERFORMANCE_TEST__PERFORMANCE_NODE_BASE_HPP_
+#define PERFORMANCE_TEST__PERFORMANCE_NODE_BASE_HPP_
 
 #include <chrono>
 #include <functional>
@@ -15,6 +16,7 @@
 #include <memory>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 #include "rclcpp/rclcpp.hpp"
@@ -42,6 +44,8 @@ struct NodeInterfaces
 class PerformanceNodeBase
 {
 public:
+  using SharedPtr = std::shared_ptr<PerformanceNodeBase>;
+
   explicit PerformanceNodeBase(const NodeInterfaces & node_interfaces);
 
   virtual ~PerformanceNodeBase() = default;
@@ -58,42 +62,42 @@ public:
   const char *
   get_node_name();
 
-  template <typename Msg>
+  template<typename Msg>
   void add_subscriber(
     const std::string & topic_name,
     msg_pass_by_t msg_pass_by,
     Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
-    rmw_qos_profile_t qos_profile = rmw_qos_profile_default);
+    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default);
 
-  template <typename Msg>
+  template<typename Msg>
   void add_periodic_publisher(
     const std::string & topic_name,
     std::chrono::microseconds period,
     msg_pass_by_t msg_pass_by,
-    rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
+    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default,
     size_t size = 0);
 
-  template <typename Msg>
+  template<typename Msg>
   void add_publisher(
     const std::string & topic_name,
-    rmw_qos_profile_t qos_profile = rmw_qos_profile_default);
+    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default);
 
-  template <typename Srv>
+  template<typename Srv>
   void add_server(
     const std::string & service_name,
-    rmw_qos_profile_t qos_profile = rmw_qos_profile_default);
+    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default);
 
-  template <typename Srv>
+  template<typename Srv>
   void add_periodic_client(
     const std::string & service_name,
     std::chrono::microseconds period,
-    rmw_qos_profile_t qos_profile = rmw_qos_profile_default,
+    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default,
     size_t size = 0);
 
-  template <typename Srv>
+  template<typename Srv>
   void add_client(
     const std::string & service_name,
-    rmw_qos_profile_t qos_profile = rmw_qos_profile_default);
+    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default);
 
   void add_timer(std::chrono::microseconds period, std::function<void()> callback);
 
@@ -113,22 +117,22 @@ private:
   void store_subscription(
     rclcpp::SubscriptionBase::SharedPtr sub,
     const std::string & topic_name,
-    const Tracker::TrackingOptions& tracking_options);
+    const Tracker::TrackingOptions & tracking_options);
 
   void store_publisher(
     rclcpp::PublisherBase::SharedPtr pub,
     const std::string & topic_name,
-    const Tracker::TrackingOptions& tracking_options);
+    const Tracker::TrackingOptions & tracking_options);
 
   void store_client(
     rclcpp::ClientBase::SharedPtr client,
     const std::string & service_name,
-    const Tracker::TrackingOptions& tracking_options);
+    const Tracker::TrackingOptions & tracking_options);
 
   void store_server(
     rclcpp::ServiceBase::SharedPtr server,
     const std::string & service_name,
-    const Tracker::TrackingOptions& tracking_options);
+    const Tracker::TrackingOptions & tracking_options);
 
   performance_test_msgs::msg::PerformanceHeader create_msg_header(
     rclcpp::Time publish_time,
@@ -136,34 +140,34 @@ private:
     Tracker::TrackingNumber tracking_number,
     size_t msg_size);
 
-  template <typename Msg>
+  template<typename Msg>
   void _publish(
     const std::string & name,
     msg_pass_by_t msg_pass_by,
     size_t size,
     std::chrono::microseconds period);
 
-  template <typename DataT>
+  template<typename DataT>
   typename std::enable_if<
     (!std::is_same<DataT, std::vector<uint8_t>>::value), size_t>::type
   resize_msg(DataT & data, size_t size);
 
-  template <typename DataT>
+  template<typename DataT>
   typename std::enable_if<
     (std::is_same<DataT, std::vector<uint8_t>>::value), size_t>::type
   resize_msg(DataT & data, size_t size);
 
-  template <typename MsgType>
+  template<typename MsgType>
   void _topic_callback(const std::string & name, MsgType msg);
 
   void _handle_sub_received_msg(
     const std::string & topic_name,
-    const performance_test_msgs::msg::PerformanceHeader& msg_header);
+    const performance_test_msgs::msg::PerformanceHeader & msg_header);
 
-  template <typename Srv>
+  template<typename Srv>
   void _request(const std::string & name, size_t size);
 
-  template <typename Srv>
+  template<typename Srv>
   void _response_received_callback(
     const std::string & name,
     std::shared_ptr<typename Srv::Request> request,
@@ -171,10 +175,10 @@ private:
 
   void _handle_client_received_response(
     const std::string & service_name,
-    const performance_test_msgs::msg::PerformanceHeader& request_header,
-    const performance_test_msgs::msg::PerformanceHeader& response_header);
+    const performance_test_msgs::msg::PerformanceHeader & request_header,
+    const performance_test_msgs::msg::PerformanceHeader & response_header);
 
-  template <typename Srv>
+  template<typename Srv>
   void _service_callback(
     const std::string & name,
     const std::shared_ptr<rmw_request_id_t> request_header,
@@ -184,7 +188,7 @@ private:
   performance_test_msgs::msg::PerformanceHeader
   _handle_server_received_request(
     const std::string & service_name,
-    const performance_test_msgs::msg::PerformanceHeader& request_header);
+    const performance_test_msgs::msg::PerformanceHeader & request_header);
 
   // Client blocking call does not work with timers
   // Use a lock variable to avoid calling when you are already waiting
@@ -200,9 +204,10 @@ private:
   // trackers.
   std::map<std::string, std::pair<rclcpp::SubscriptionBase::SharedPtr, Tracker>> _subs;
 
+  using ClientsTuple = std::tuple<rclcpp::ClientBase::SharedPtr, Tracker, Tracker::TrackingNumber>;
   // A service-name indexed map to store the client pointers with their
   // trackers.
-  std::map<std::string, std::tuple<rclcpp::ClientBase::SharedPtr, Tracker, Tracker::TrackingNumber>> _clients;
+  std::map<std::string, ClientsTuple> _clients;
 
   // A service-name indexed map to store the server pointers with their
   // trackers.
@@ -215,7 +220,11 @@ private:
   int m_executor_id = 0;
 };
 
-}
+}  // namespace performance_test
 
+#ifndef PERFORMANCE_TEST__PERFORMANCE_NODE_BASE_IMPL_HPP_
 // Template implementations
 #include "performance_node_base_impl.hpp"
+#endif
+
+#endif  // PERFORMANCE_TEST__PERFORMANCE_NODE_BASE_HPP_

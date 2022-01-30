@@ -7,7 +7,8 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#pragma once
+#ifndef PERFORMANCE_TEST__UTILS__NAMES_UTILITIES_HPP_
+#define PERFORMANCE_TEST__UTILS__NAMES_UTILITIES_HPP_
 
 #include <string>
 
@@ -26,4 +27,6 @@ std::string id_to_topic_name(int id);
 // extracts a numeric id from an item name (e.g. node_5, topic_10), eventually using hashing
 int item_name_to_id(std::string name);
 
-}
+}  // namespace performance_test
+
+#endif  // PERFORMANCE_TEST__UTILS__NAMES_UTILITIES_HPP_

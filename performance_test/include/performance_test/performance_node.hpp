@@ -7,7 +7,8 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#pragma once
+#ifndef PERFORMANCE_TEST__PERFORMANCE_NODE_HPP_
+#define PERFORMANCE_TEST__PERFORMANCE_NODE_HPP_
 
 #include <string>
 
@@ -15,21 +16,19 @@
 
 #include "performance_test/performance_node_base.hpp"
 
-using namespace std::chrono_literals;
-
 namespace performance_test
 {
 
-template<typename NodeT=rclcpp::Node>
+template<typename NodeT = rclcpp::Node>
 class PerformanceNode : public NodeT, public PerformanceNodeBase
 {
 public:
   PerformanceNode(
     const std::string & name,
     const std::string & ros2_namespace = "",
-    const rclcpp::NodeOptions& node_options = rclcpp::NodeOptions())
+    const rclcpp::NodeOptions & node_options = rclcpp::NodeOptions())
   : NodeT(name, ros2_namespace, node_options), PerformanceNodeBase(get_node_interfaces())
-  { }
+  {}
 
   virtual ~PerformanceNode() = default;
 
@@ -49,4 +48,6 @@ private:
   }
 };
 
-}
+}  // namespace performance_test
+
+#endif  // PERFORMANCE_TEST__PERFORMANCE_NODE_HPP_

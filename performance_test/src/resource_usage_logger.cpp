@@ -7,14 +7,16 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
+#include <sys/resource.h>
+#include <sys/types.h>
+
 #include <cmath>
 #include <ctime>
 #include <iomanip>
-#include <sys/resource.h>
-#include <sys/types.h>
+#include <string>
 #include <thread>
 
-#include <performance_test/resource_usage_logger.hpp>
+#include "performance_test/resource_usage_logger.hpp"
 
 namespace performance_test
 {
@@ -31,8 +33,8 @@ ResourceUsageLogger::ResourceUsageLogger(const std::string & filename)
 
 void ResourceUsageLogger::start(std::chrono::milliseconds period)
 {
-  _file.open(_filename,  std::fstream::out);
-  if(!_file.is_open()) {
+  _file.open(_filename, std::fstream::out);
+  if (!_file.is_open()) {
     std::cout << "[ResourceUsageLogger]: Error. Could not open file " << _filename << std::endl;
     std::cout << "[ResourceUsageLogger]: Not logging." << std::endl;
     return;
@@ -47,28 +49,31 @@ void ResourceUsageLogger::start(std::chrono::milliseconds period)
   _done = false;
 
   // create a detached thread that monitors resource usage periodically
-  std::thread logger_thread([=]() {
-    int64_t i = 1;
-    while(this->_log) {
-      std::this_thread::sleep_until(_t1_real_start + period * i);
-      if (i == 1) {
-        _print_header(_file);
-        // print a line of zeros for better visualization
+  std::thread logger_thread([ = ]() {
+      int64_t i = 1;
+      while (this->_log) {
+        std::this_thread::sleep_until(_t1_real_start + period * i);
+        if (i == 1) {
+          _print_header(_file);
+          // print a line of zeros for better visualization
+          _print(_file);
+        }
+        _get();
         _print(_file);
+        i++;
+        _done = true;
       }
-      _get();
-      _print(_file);
-      i++;
-      _done = true;
-    }
-  });
+    });
   logger_thread.detach();
 }
 
 void ResourceUsageLogger::stop()
 {
   _log = false;
-  while(_done == false); // Wait until we are done logging.
+  while (_done == false) {
+    // Wait until we are done logging.
+    continue;
+  }
   _file.close();
 }
 
@@ -81,7 +86,9 @@ void ResourceUsageLogger::print_resource_usage()
 void ResourceUsageLogger::set_system_info(int pubs, int subs, float frequency)
 {
   if (_log == true) {
-    std::cout<<"[ResourceUsageLogger]: You have to set system info before starting the logger!"<<std::endl;
+    std::cout <<
+      "[ResourceUsageLogger]: You have to set system info before starting the logger!" <<
+      std::endl;
     return;
   }
 
@@ -97,14 +104,16 @@ void ResourceUsageLogger::_get()
 {
   // Get elapsed time since we started logging
   auto t2_real_start = std::chrono::steady_clock::now();
-  _resources.elasped_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2_real_start - _t1_real_start).count();
+  _resources.elasped_ms =
+    std::chrono::duration_cast<std::chrono::milliseconds>(t2_real_start - _t1_real_start).count();
 
   // Get CPU usage percentage
   auto t2_user = std::clock();
   auto t2_real = std::chrono::steady_clock::now();
-  double time_elapsed_user_ms = 1000.0 * (t2_user-_t1_user) / CLOCKS_PER_SEC;
+  double time_elapsed_user_ms = 1000.0 * (t2_user - _t1_user) / CLOCKS_PER_SEC;
   int n_threads = std::thread::hardware_concurrency();
-  double time_elapsed_real_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t2_real - _t1_real).count();
+  double time_elapsed_real_ms =
+    std::chrono::duration_cast<std::chrono::milliseconds>(t2_real - _t1_real).count();
   _resources.cpu_usage = time_elapsed_user_ms / (time_elapsed_real_ms * n_threads) * 100;
 
   // Get mallinfo
@@ -126,19 +135,16 @@ void ResourceUsageLogger::_get()
   std::ifstream in;
   in.open(statm_path);
 
-  if(in.is_open())
-  {
+  if (in.is_open()) {
     in >> virtual_mem_pages_string;
     _resources.mem_virtual_KB = ((uint64_t)std::stoi(virtual_mem_pages_string) * _pagesize) >> 10;
     in.close();
-  }
-  else
-  {
+  } else {
     _resources.mem_virtual_KB = -1;
   }
 }
 
-void ResourceUsageLogger::_print_header(std::ostream& stream)
+void ResourceUsageLogger::_print_header(std::ostream & stream)
 {
   const char separator = ' ';
   const int wide_space = 15;
@@ -161,27 +167,35 @@ void ResourceUsageLogger::_print_header(std::ostream& stream)
   stream << std::endl;
 }
 
-void ResourceUsageLogger::_print(std::ostream& stream)
+void ResourceUsageLogger::_print(std::ostream & stream)
 {
   const char separator = ' ';
   const int wide_space = 15;
   const int narrow_space = 10;
 
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << std::setprecision(wide_space-1) << std::round(_resources.elasped_ms);
-  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << std::setprecision(2) << _resources.cpu_usage;
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_arena_KB;
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_in_use_KB;
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_mmap_KB;
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_max_rss_KB;
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << _resources.mem_virtual_KB;
+  stream << std::left << std::setw(wide_space) << std::setfill(separator) << std::setprecision(
+    wide_space - 1) << std::round(_resources.elasped_ms);
+  stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
+    std::setprecision(2) << _resources.cpu_usage;
+  stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
+    _resources.mem_arena_KB;
+  stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
+    _resources.mem_in_use_KB;
+  stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
+    _resources.mem_mmap_KB;
+  stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
+    _resources.mem_max_rss_KB;
+  stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
+    _resources.mem_virtual_KB;
 
   if (_got_system_info) {
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << _pubs;
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << _subs;
-    stream << std::left << std::setw(wide_space) << std::setfill(separator)<<  std::fixed << _frequency << std::defaultfloat;
+    stream << std::left << std::setw(wide_space) << std::setfill(separator) << std::fixed <<
+      _frequency << std::defaultfloat;
   }
 
   stream << std::endl;
 }
 
-}
+}  // namespace performance_test

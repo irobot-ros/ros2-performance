@@ -35,9 +35,9 @@ This is how the APIs exposed by the library should look like.
  std::shared_ptr<performance_test::PerformanceNodeBase> n,
     const std::string & msg_type,
     const std::string & topic_name,
-    const performance_test::Tracker::TrackingOptions& tracking_options,
+    const performance_test::Tracker::TrackingOptions & tracking_options,
     msg_pass_by_t msg_pass_by,
-    rmw_qos_profile_t custom_qos_profile)
+    const rmw_qos_profile_t & custom_qos_profile)
   {
     const std::map<std::string, std::function<void()>> subscribers_factory{
 

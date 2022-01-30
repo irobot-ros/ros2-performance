@@ -15,7 +15,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(performance_test_msgs REQUIRED)
 
-set (LIBRARY_DEPENDENCIES
+set(LIBRARY_DEPENDENCIES
   rclcpp
   rclcpp_lifecycle
   performance_test_msgs
@@ -61,6 +61,30 @@ install(DIRECTORY
 ##
 if(BUILD_TESTING)
   add_subdirectory(test)
+
+  # Linters
+  find_package(ament_cmake_cppcheck REQUIRED)
+  find_package(ament_cmake_cpplint REQUIRED)
+  find_package(ament_cmake_lint_cmake REQUIRED)
+  find_package(ament_cmake_uncrustify REQUIRED)
+  find_package(ament_cmake_xmllint REQUIRED)
+
+  set(_linter_excludes
+    external
+    external/cxxopts-2.1.2/include/cxxopts.hpp
+  )
+
+  ament_cppcheck(
+    EXCLUDE ${_linter_excludes}
+    LANGUAGE C++
+  )
+  ament_cpplint(EXCLUDE ${_linter_excludes})
+  ament_lint_cmake()
+  ament_uncrustify(
+    EXCLUDE ${_linter_excludes}
+    LANGUAGE C++
+  )
+  ament_xmllint()
 endif()
 
 ament_export_include_directories(include)

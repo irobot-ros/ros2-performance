@@ -15,17 +15,17 @@ TEST(TrackerTest, TrackerInitTest)
 {
   performance_test::Tracker tracker("", "", performance_test::Tracker::TrackingOptions());
 
-  ASSERT_EQ((uint64_t)0, tracker.lost());
-  ASSERT_EQ((uint64_t)0, tracker.late());
-  ASSERT_EQ((uint64_t)0, tracker.too_late());
-  ASSERT_EQ((uint64_t)0, tracker.received());
-  ASSERT_EQ((uint64_t)0, tracker.last());
+  ASSERT_EQ(0u, tracker.lost());
+  ASSERT_EQ(0u, tracker.late());
+  ASSERT_EQ(0u, tracker.too_late());
+  ASSERT_EQ(0u, tracker.received());
+  ASSERT_EQ(0u, tracker.last());
 
   EXPECT_TRUE(std::isnan(tracker.stat().mean()));
   EXPECT_TRUE(std::isnan(tracker.stat().stddev()));
   EXPECT_TRUE(std::isnan(tracker.stat().min()));
   EXPECT_TRUE(std::isnan(tracker.stat().max()));
-  ASSERT_EQ((uint64_t)0, tracker.stat().n());
+  ASSERT_EQ(0u, tracker.stat().n());
 }
 
 TEST(TrackerTest, TrackerScanTest)
@@ -62,7 +62,7 @@ TEST(TrackerTest, TrackerScanTest)
   EXPECT_NEAR((double)RCL_NS_TO_US(471404471.29356), tracker.stat().stddev(), 1e-1);
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(10), tracker.stat().min());
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(1e9), tracker.stat().max());
-  ASSERT_EQ((uint64_t)RCL_NS_TO_US(1e9),tracker.last());
+  ASSERT_EQ((uint64_t)RCL_NS_TO_US(1e9), tracker.last());
 }
 
 TEST(TrackerTest, TrackingOptionsTest)
@@ -83,22 +83,22 @@ TEST(TrackerTest, TrackingOptionsTest)
   rclcpp::Time t_now1(0, 1, RCL_ROS_TIME);
   tracker.scan(header, t_now1, nullptr);
 
-  ASSERT_EQ((uint64_t)0, tracker.late());
-  ASSERT_EQ((uint64_t)0, tracker.too_late());
+  ASSERT_EQ(0u, tracker.late());
+  ASSERT_EQ(0u, tracker.too_late());
 
   // this message is late because it exceeds late_percentage
   rclcpp::Time t_now2(0, 3e6, RCL_ROS_TIME);
   tracker.scan(header, t_now2, nullptr);
 
-  ASSERT_EQ((uint64_t)1,tracker.late());
-  ASSERT_EQ((uint64_t)0, tracker.too_late());
+  ASSERT_EQ(1u, tracker.late());
+  ASSERT_EQ(0u, tracker.too_late());
 
   // this message is late because it exceeds late_absolute_us
   rclcpp::Time t_now3(0, 6e6, RCL_ROS_TIME);
   tracker.scan(header, t_now3, nullptr);
 
-  ASSERT_EQ((uint64_t)2, tracker.late());
-  ASSERT_EQ((uint64_t)0, tracker.too_late());
+  ASSERT_EQ(2u, tracker.late());
+  ASSERT_EQ(0u, tracker.too_late());
 
   // store mean as it should not be updated with too late messages
   double mean = tracker.stat().mean();
@@ -107,15 +107,15 @@ TEST(TrackerTest, TrackingOptionsTest)
   rclcpp::Time t_now4(0, 11e6, RCL_ROS_TIME);
   tracker.scan(header, t_now4, nullptr);
 
-  ASSERT_EQ((uint64_t)2, tracker.late());
-  ASSERT_EQ((uint64_t)1, tracker.too_late());
+  ASSERT_EQ(2u, tracker.late());
+  ASSERT_EQ(1u, tracker.too_late());
   ASSERT_DOUBLE_EQ(mean, tracker.stat().mean());
 
   // this message is too late because it exceeds too_late_absolute_us
   rclcpp::Time t_now5(0, 111e6, RCL_ROS_TIME);
   tracker.scan(header, t_now5, nullptr);
 
-  ASSERT_EQ((uint64_t)2, tracker.late());
-  ASSERT_EQ((uint64_t)2, tracker.too_late());
+  ASSERT_EQ(2u, tracker.late());
+  ASSERT_EQ(2u, tracker.too_late());
   ASSERT_DOUBLE_EQ(mean, tracker.stat().mean());
 }

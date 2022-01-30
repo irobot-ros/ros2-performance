@@ -7,7 +7,8 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#pragma once
+#ifndef PERFORMANCE_TEST__EXECUTORS_HPP_
+#define PERFORMANCE_TEST__EXECUTORS_HPP_
 
 #include <memory>
 #include <ostream>
@@ -48,4 +49,6 @@ inline std::ostream & operator<<(std::ostream & os, const ExecutorType & t)
   return os << executor_name;
 }
 
-}
+}  // namespace performance_test
+
+#endif  // PERFORMANCE_TEST__EXECUTORS_HPP_

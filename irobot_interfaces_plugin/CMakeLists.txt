@@ -49,7 +49,6 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   DEPENDENCIES std_msgs performance_test_msgs
 )
 
-
 generate_factory_plugin("${CUSTOM_MSGS}" "${CUSTOM_SRVS}")
 
 ament_export_dependencies(rosidl_default_runtime)

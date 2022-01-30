@@ -7,18 +7,17 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#pragma once
+#ifndef PERFORMANCE_TEST__RESOURCE_USAGE_LOGGER_HPP_
+#define PERFORMANCE_TEST__RESOURCE_USAGE_LOGGER_HPP_
+
+#include <malloc.h>
+#include <unistd.h>
 
 #include <atomic>
-#include <iostream>
-#include <fstream>
-#include <string>
 #include <chrono>
 #include <fstream>
 #include <iostream>
-#include <malloc.h>
 #include <string>
-#include <unistd.h>
 
 namespace performance_test
 {
@@ -26,7 +25,8 @@ namespace performance_test
 class ResourceUsageLogger
 {
 public:
-  struct Resources {
+  struct Resources
+  {
     double elasped_ms = 0;
     double cpu_usage = 0;
     uint64_t mem_arena_KB = 0;
@@ -38,7 +38,7 @@ public:
 
   ResourceUsageLogger() = delete;
 
-  ResourceUsageLogger(const std::string & filename);
+  explicit ResourceUsageLogger(const std::string & filename);
 
   void start(std::chrono::milliseconds period = std::chrono::milliseconds(1000));
 
@@ -52,10 +52,10 @@ private:
   // Get shared resources data
   void _get();
 
-  void _print_header(std::ostream& stream);
+  void _print_header(std::ostream & stream);
 
   // Print data to file
-  void _print(std::ostream& stream);
+  void _print(std::ostream & stream);
 
   Resources _resources;
   std::fstream _file;
@@ -75,4 +75,6 @@ private:
   float _frequency;
 };
 
-}
+}  // namespace performance_test
+
+#endif  // PERFORMANCE_TEST__RESOURCE_USAGE_LOGGER_HPP_

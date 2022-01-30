@@ -17,7 +17,7 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(performance_test REQUIRED)
 
-set (LIBRARY_DEPENDENCIES
+set(LIBRARY_DEPENDENCIES
   rcpputils
   rclcpp
   rclcpp_lifecycle
@@ -62,6 +62,31 @@ add_subdirectory(examples)
 ##
 if(BUILD_TESTING)
   add_subdirectory(test)
+
+  # Linters
+  find_package(ament_cmake_copyright REQUIRED)
+  find_package(ament_cmake_cppcheck REQUIRED)
+  find_package(ament_cmake_cpplint REQUIRED)
+  find_package(ament_cmake_lint_cmake REQUIRED)
+  find_package(ament_cmake_uncrustify REQUIRED)
+  find_package(ament_cmake_xmllint REQUIRED)
+
+  set(_linter_excludes
+    external
+    external/json/single_include/nlohmann/json.hpp
+  )
+
+  ament_cppcheck(
+    EXCLUDE external/json/single_include/nlohmann/json.hpp
+    LANGUAGE C++
+  )
+  ament_cpplint(EXCLUDE ${_linter_excludes})
+  ament_lint_cmake()
+  ament_uncrustify(
+    EXCLUDE ${_linter_excludes}
+    LANGUAGE C++
+  )
+  ament_xmllint()
 endif()
 
 ament_export_include_directories(include)

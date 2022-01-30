@@ -7,9 +7,12 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#pragma once
+#ifndef PERFORMANCE_TEST__TRACKER_HPP_
+#define PERFORMANCE_TEST__TRACKER_HPP_
 
 #include <iostream>
+#include <memory>
+#include <string>
 
 #include "rclcpp/time.hpp"
 
@@ -28,7 +31,7 @@ public:
   {
     explicit TrackingOptions(bool enable = true)
     : is_enabled(enable)
-    { }
+    {}
 
     bool is_enabled = true;
     int late_percentage = 20;
@@ -46,7 +49,7 @@ public:
     const std::string & topic_srv_name,
     const TrackingOptions & tracking_options)
   : _node_name(node_name), _topic_srv_name(topic_srv_name), _tracking_options(tracking_options)
-  { }
+  {}
 
   void scan(
     const performance_test_msgs::msg::PerformanceHeader & header,
@@ -93,4 +96,6 @@ private:
   TrackingOptions _tracking_options;
 };
 
-}
+}  // namespace performance_test
+
+#endif  // PERFORMANCE_TEST__TRACKER_HPP_

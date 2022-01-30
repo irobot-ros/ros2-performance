@@ -102,8 +102,8 @@ struct position_t
     }
 };
 
-} // namespace detail
-} // namespace nlohmann
+}  // namespace detail
+}  // namespace nlohmann
 
 
 namespace nlohmann
@@ -695,7 +695,7 @@ template <typename ...Ts> struct make_void
     using type = void;
 };
 template <typename ...Ts> using void_t = typename make_void<Ts...>::type;
-} // namespace detail
+}  // namespace detail
 }  // namespace nlohmann
 
 // #include <nlohmann/detail/meta/cpp_future.hpp>
@@ -743,8 +743,8 @@ struct iterator_traits<T*, enable_if_t<std::is_object<T>::value>>
     using pointer = T*;
     using reference = T&;
 };
-} // namespace detail
-} // namespace nlohmann
+}  // namespace detail
+}  // namespace nlohmann
 
 // #include <nlohmann/detail/macro_scope.hpp>
 
@@ -1673,7 +1673,7 @@ struct from_json_fn
 namespace
 {
 constexpr const auto& from_json = detail::static_const<detail::from_json_fn>::value;
-} // namespace
+}  // namespace
 }  // namespace nlohmann
 
 // #include <nlohmann/detail/conversions/to_json.hpp>
@@ -1861,7 +1861,7 @@ class tuple_element<N, ::nlohmann::detail::iteration_proxy_value<IteratorType >>
 #if defined(__clang__)
     #pragma clang diagnostic pop
 #endif
-} // namespace std
+}  // namespace std
 
 // #include <nlohmann/detail/meta/cpp_future.hpp>
 
@@ -2195,7 +2195,7 @@ struct to_json_fn
 namespace
 {
 constexpr const auto& to_json = detail::static_const<detail::to_json_fn>::value;
-} // namespace
+}  // namespace
 }  // namespace nlohmann
 
 
@@ -8313,7 +8313,7 @@ class iter_impl
     internal_iterator<typename std::remove_const<BasicJsonType>::type> m_it {};
 };
 }  // namespace detail
-} // namespace nlohmann
+}  // namespace nlohmann
 
 // #include <nlohmann/detail/iterators/iteration_proxy.hpp>
 
@@ -11977,7 +11977,7 @@ inline char* format_buffer(char* buf, int len, int decimal_exponent,
     return append_exponent(buf, n - 1);
 }
 
-} // namespace dtoa_impl
+}  // namespace dtoa_impl
 
 /*!
 @brief generates a decimal representation of the floating-point number value in [first, last).
@@ -12035,8 +12035,8 @@ char* to_chars(char* first, const char* last, FloatType value)
     return dtoa_impl::format_buffer(first, len, decimal_exponent, kMinExp, kMaxExp);
 }
 
-} // namespace detail
-} // namespace nlohmann
+}  // namespace detail
+}  // namespace nlohmann
 
 // #include <nlohmann/detail/exceptions.hpp>
 
@@ -20766,7 +20766,7 @@ class basic_json
 
     /// @}
 };
-} // namespace nlohmann
+}  // namespace nlohmann
 
 ///////////////////////
 // nonmember support //
@@ -20824,7 +20824,7 @@ inline void swap<nlohmann::json>(nlohmann::json& j1, nlohmann::json& j2) noexcep
     j1.swap(j2);
 }
 
-} // namespace std
+}  // namespace std
 
 /*!
 @brief user-defined string literal for JSON values

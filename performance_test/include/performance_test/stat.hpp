@@ -7,7 +7,8 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#pragma once
+#ifndef PERFORMANCE_TEST__STAT_HPP_
+#define PERFORMANCE_TEST__STAT_HPP_
 
 #include <cmath>
 #include <utility>
@@ -17,7 +18,7 @@ namespace performance_test
 
 // Use shifted data variance algorithm
 // https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
-template <typename T>
+template<typename T>
 class Stat
 {
 public:
@@ -77,14 +78,17 @@ public:
     return _min;
   }
 
-  uint64_t n() const { return _n; }
+  uint64_t n() const {return _n;}
 
 private:
   double _max;
   double _min;
-  double  K;
+  double K;
   double Ex = 0;
   double Ex2 = 0;
   uint64_t _n = 0;
 };
-}
+
+}  // namespace performance_test
+
+#endif  // PERFORMANCE_TEST__STAT_HPP_

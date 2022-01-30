@@ -8,149 +8,102 @@
  */
 
 #include <iostream>
+#include <string>
 
 #include "rclcpp/rclcpp.hpp"
 
+#include "cxxopts.hpp"
 #include "performance_test/system.hpp"
 #include "performance_test/resource_usage_logger.hpp"
-
-#include "cxxopts.hpp"
-
 #include "performance_test_factory/factory.hpp"
+#include "examples_options.hpp"
+
+using namespace std::chrono_literals;
 
 int main(int argc, char ** argv)
 {
-    /**
-     * Configuration
-     */
+  auto options = ExamplesOptions(argc, argv);
 
-    // experiment default values
-    int executor = 3; // ID corresponding to the StaticSingleThreadedExecutor
-    int n_subscribers = 2;
-    int n_publishers = 1;
-    std::string msg_type = "stamped10b";
-    int msg_size = 0;
-    float frequency = 10;
-    int use_ipc = 0;
-    int use_ros_params = 1;
-    std::string ros_namespace = "";
-    int experiment_duration = 5;
-    int monitor_stats = 0;
-    std::string experiment_name = "";
-    std::string experiment_path = ".";
-    int verbose = 0;
-
-    std::string events_file_path = "";
-    std::string ru_file_path = "";
-    std::string latency_file_path = "";
-
-    // parse the command line arguments and eventually overwrite the default values
-    cxxopts::Options options("publisher_nodes_main", "Run some ROS2 publisher nodes");
-    options.add_options()
-    ("x, executor", "the system executor:\n\t\t\t\t1:EventsExecutor. 2:SingleThreadedExecutor. 3:StaticSingleThreadedExecutor",
-        cxxopts::value<int>(executor)->default_value(std::to_string(executor)),"<1/2/3>")
-    ("s,subs", "Number of subscriber nodes",
-        cxxopts::value<int>(n_subscribers)->default_value(std::to_string(n_subscribers)))
-    ("p,pubs", "Number of publisher ndoes",
-        cxxopts::value<int>(n_publishers)->default_value(std::to_string(n_publishers)))
-    ("msg_type", "Type of message",
-        cxxopts::value<std::string>(msg_type)->default_value(msg_type))
-    ("msg_size", "Size of message if dynamic",
-        cxxopts::value<int>(msg_size)->default_value(std::to_string(msg_size)))
-    ("f,frequency", "Request frequency",
-        cxxopts::value<float>(frequency)->default_value(std::to_string(frequency)))
-    ("use_ipc", "Activate IntraProcessCommunication (0 or 1 accepted arguments)",
-        cxxopts::value<int>(use_ipc)->default_value(std::to_string(use_ipc)))
-    ("use_ros_params", "Use parameter services (0 or 1 accepted arguments)",
-        cxxopts::value<int>(use_ros_params)->default_value(std::to_string(use_ros_params)))
-    ("ros_namespace", "Create every node under this namespace",
-        cxxopts::value<std::string>(ros_namespace)->default_value(ros_namespace))
-    ("t, duration", "Duration in seconds",
-        cxxopts::value<int>(experiment_duration)->default_value(std::to_string(experiment_duration)))
-    ("monitor_stats", "Monitor CPU, RAM and events and print them to file (0 or 1 accepted arguments)",
-        cxxopts::value<int>(monitor_stats)->default_value(std::to_string(monitor_stats)))
-    ("experiment_name", "Experiment name",
-        cxxopts::value<std::string>(experiment_name)->default_value(experiment_name))
-    ("experiment_path", "Experiment path",
-        cxxopts::value<std::string>(experiment_path)->default_value(experiment_path))
-    ("verbose", "Print runtime debug information (0 or 1 accepted arguments)",
-        cxxopts::value<int>(verbose)->default_value(std::to_string(verbose)))
-    ;
-    options.parse(argc, argv);
-
-    if (!experiment_name.empty()) {
-        latency_file_path = experiment_path + "/lat_rel_" + experiment_name + ".csv";
-        if (monitor_stats) {
-            events_file_path = experiment_path + "/events_" + experiment_name + ".csv";
-            ru_file_path = experiment_path + "/cpu_ram_" + experiment_name + ".csv";
-        }
+  std::string events_file_path = "";
+  std::string ru_file_path = "";
+  std::string latency_file_path = "";
+  if (!options.experiment_name.empty()) {
+    latency_file_path = options.experiment_path + "/lat_rel_" + options.experiment_name + ".csv";
+    if (options.monitor_stats) {
+      events_file_path = options.experiment_path + "/events_" + options.experiment_name + ".csv";
+      ru_file_path = options.experiment_path + "/cpu_ram_" + options.experiment_name + ".csv";
     }
+  }
 
-    performance_test::ResourceUsageLogger ru_logger(ru_file_path);
-    ru_logger.set_system_info(n_publishers, n_subscribers, frequency);
-    // Start resources logger
-    if (monitor_stats) {
-        ru_logger.start();
-    }
+  performance_test::ResourceUsageLogger ru_logger(ru_file_path);
+  ru_logger.set_system_info(
+    options.n_publishers,
+    options.n_subscribers,
+    options.frequency);
+  // Start resources logger
+  if (options.monitor_stats) {
+    ru_logger.start();
+  }
 
-    /**
-     * Execution
-     */
+  /**
+   * Execution
+   */
 
-    std::cout<<"Start test"<<std::endl;
+  std::cout << "Start test" << std::endl;
 
-    rclcpp::init(argc, argv);
+  rclcpp::init(argc, argv);
 
-    performance_test::TemplateFactory factory(use_ipc, use_ros_params, verbose, ros_namespace);
+  performance_test::TemplateFactory factory(
+    options.use_ipc,
+    options.use_ros_params,
+    options.verbose,
+    options.ros_namespace);
 
-    performance_test::System ros2_system(static_cast<performance_test::ExecutorType>(executor));
-    ros2_system.enable_events_logger(events_file_path);
+  performance_test::System ros2_system(
+    static_cast<performance_test::ExecutorType>(options.executor));
+  ros2_system.enable_events_logger(events_file_path);
 
-    auto sub_nodes =
-        factory.create_subscriber_nodes(
-            0,
-            n_subscribers,
-            n_publishers,
-            msg_type,
-            PASS_BY_SHARED_PTR,
-            performance_test::Tracker::TrackingOptions(),
-            rmw_qos_profile_default);
+  auto sub_nodes = factory.create_subscriber_nodes(
+    0,
+    options.n_subscribers,
+    options.n_publishers,
+    options.msg_type,
+    PASS_BY_SHARED_PTR,
+    performance_test::Tracker::TrackingOptions(),
+    rmw_qos_profile_default);
 
-    ros2_system.add_node(sub_nodes);
+  ros2_system.add_node(sub_nodes);
 
-    std::cout<<"Subscribers created!"<<std::endl;
+  std::cout << "Subscribers created!" << std::endl;
 
-    // allow some time for all the nodes to be created/discovered
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+  // allow some time for all the nodes to be created/discovered
+  std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    // the publisher will send messages for "experiment_duration" seconds,
-    // but we sleep more to ensure that all messages are delivered
-    // useful if the publishers are created slightly after the subscribers as in separate processes
-    bool wait_discovery = false;
-    ros2_system.spin(experiment_duration + 5, wait_discovery);
+  // the publisher will send messages for "options.experiment_duration" seconds,
+  // but we sleep more to ensure that all messages are delivered
+  // useful if the publishers are created slightly after the subscribers as in separate processes
+  bool wait_discovery = false;
+  ros2_system.spin(options.experiment_duration + 5, wait_discovery);
 
+  rclcpp::shutdown();
 
-    rclcpp::shutdown();
+  std::this_thread::sleep_for(500ms);
 
-    std::this_thread::sleep_for(500ms);
+  std::cout << "End test" << std::endl << std::endl;
 
-    std::cout << "End test" << std::endl << std::endl;
+  /**
+   * Visualization
+   */
 
-    /**
-     * Visualization
-     */
+  if (options.monitor_stats) {
+    ru_logger.stop();
+  }
 
-    if (monitor_stats) {
-        ru_logger.stop();
-    }
+  ros2_system.print_latency_all_stats();
+  std::cout << std::endl;
+  std::cout << "System total:" << std::endl;
+  ros2_system.print_latency_total_stats();
+  ros2_system.save_latency_all_stats(latency_file_path);
 
-    ros2_system.print_latency_all_stats();
-    std::cout << std::endl;
-    std::cout << "System total:" << std::endl;
-    ros2_system.print_latency_total_stats();
-    ros2_system.save_latency_all_stats(latency_file_path);
-
-    return 0;
+  return 0;
 }
-
-

@@ -7,8 +7,10 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#pragma once
+#ifndef PERFORMANCE_TEST__UTILS__STAT_LOGGER_HPP_
+#define PERFORMANCE_TEST__UTILS__STAT_LOGGER_HPP_
 
+#include <memory>
 #include <ostream>
 #include <vector>
 
@@ -24,14 +26,18 @@ void log_total_stats(
   uint64_t total_late,
   uint64_t total_too_late,
   double average_latency,
-  std::ostream& stream);
+  std::ostream & stream);
 
-void log_latency_all_stats(std::ostream& stream, const std::vector<PerformanceNodeBase*>& nodes);
+void log_latency_all_stats(
+  std::ostream & stream,
+  const std::vector<PerformanceNodeBase *> & nodes);
 
 template<typename NodeT>
-void log_latency_all_stats(std::ostream& stream, const std::vector<std::shared_ptr<NodeT>>& nodes)
+void log_latency_all_stats(
+  std::ostream & stream,
+  const std::vector<std::shared_ptr<NodeT>> & nodes)
 {
-  std::vector<NodeT*> nodes_raw;
+  std::vector<NodeT *> nodes_raw;
   for (const auto & n : nodes) {
     nodes_raw.push_back(n.get());
   }
@@ -39,6 +45,10 @@ void log_latency_all_stats(std::ostream& stream, const std::vector<std::shared_p
   log_latency_all_stats(stream, nodes_raw);
 }
 
-void log_latency_total_stats(std::ostream& stream, const std::vector<std::shared_ptr<PerformanceNodeBase>>& nodes);
+void log_latency_total_stats(
+  std::ostream & stream,
+  const std::vector<PerformanceNodeBase::SharedPtr> & nodes);
 
-}
+}  // namespace performance_test
+
+#endif  // PERFORMANCE_TEST__UTILS__STAT_LOGGER_HPP_

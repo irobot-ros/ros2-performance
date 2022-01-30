@@ -7,10 +7,13 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#pragma once
+#ifndef PERFORMANCE_TEST__COMMUNICATION_HPP_
+#define PERFORMANCE_TEST__COMMUNICATION_HPP_
 
 enum msg_pass_by_t
 {
   PASS_BY_UNIQUE_PTR,
   PASS_BY_SHARED_PTR
 };
+
+#endif  // PERFORMANCE_TEST__COMMUNICATION_HPP_

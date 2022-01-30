@@ -7,7 +7,8 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#pragma once
+#ifndef PERFORMANCE_TEST__NODE_TYPES_HPP_
+#define PERFORMANCE_TEST__NODE_TYPES_HPP_
 
 #include <ostream>
 #include <string>
@@ -23,7 +24,7 @@ enum NodeType
   RCLCPP_LIFECYCLE_NODE = 2,
 };
 
-inline std::ostream &operator<<(std::ostream &os, const NodeType &t)
+inline std::ostream & operator<<(std::ostream & os, const NodeType & t)
 {
   std::string node_type;
   switch (t) {
@@ -38,4 +39,6 @@ inline std::ostream &operator<<(std::ostream &os, const NodeType &t)
   return os << node_type;
 }
 
-}
+}  // namespace performance_test
+
+#endif  // PERFORMANCE_TEST__NODE_TYPES_HPP_

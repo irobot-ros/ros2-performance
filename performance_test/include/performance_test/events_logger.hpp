@@ -7,7 +7,8 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#pragma once
+#ifndef PERFORMANCE_TEST__EVENTS_LOGGER_HPP_
+#define PERFORMANCE_TEST__EVENTS_LOGGER_HPP_
 
 #include <iostream>
 #include <fstream>
@@ -26,7 +27,6 @@ namespace performance_test
 class EventsLogger
 {
 public:
-
   enum EventCode
   {
     discovery,
@@ -45,7 +45,7 @@ public:
 
   EventsLogger() = delete;
 
-  EventsLogger(const std::string & filename);
+  explicit EventsLogger(const std::string & filename);
 
   void set_start_time(std::chrono::high_resolution_clock::time_point t);
 
@@ -60,9 +60,11 @@ private:
   // For print formatting
   static const char _p_separator = ' ';
   static const int _p_time_width = 12;
-  static const int _p_caller_name_width = 25;
+  static const int _p_caller_width = 25;
   static const int _p_code_width = 6;
   static const int _p_desc_width = 20;
 };
 
-}
+}  // namespace performance_test
+
+#endif  // PERFORMANCE_TEST__EVENTS_LOGGER_HPP_

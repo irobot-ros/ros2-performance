@@ -7,7 +7,8 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#pragma once
+#ifndef PERFORMANCE_TEST__UTILS__NODE_OPTIONS_HPP_
+#define PERFORMANCE_TEST__UTILS__NODE_OPTIONS_HPP_
 
 #include <string>
 #include <vector>
@@ -22,4 +23,6 @@ rclcpp::NodeOptions create_node_options(
   const std::string & node_namespace = "",
   const std::vector<rclcpp::Parameter> & parameters = {});
 
-}
+}  // namespace performance_test
+
+#endif  // PERFORMANCE_TEST__UTILS__NODE_OPTIONS_HPP_

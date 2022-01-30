@@ -7,16 +7,19 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-
-#pragma once
+#ifndef PERFORMANCE_TEST_FACTORY__LOAD_PLUGINS_HPP_
+#define PERFORMANCE_TEST_FACTORY__LOAD_PLUGINS_HPP_
 
 #include <memory>
 #include <string>
 
-#include <rcpputils/shared_library.hpp>
+#include "rcpputils/shared_library.hpp"
 
-namespace performance_test {
+namespace performance_test
+{
 
-std::shared_ptr<rcpputils::SharedLibrary> get_library(std::string& msg_type);
+std::shared_ptr<rcpputils::SharedLibrary> get_library(std::string & msg_type);
 
-}
+}  // namespace performance_test
+
+#endif  // PERFORMANCE_TEST_FACTORY__LOAD_PLUGINS_HPP_

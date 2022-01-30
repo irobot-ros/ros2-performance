@@ -7,11 +7,13 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#pragma once
+#ifndef PERFORMANCE_TEST__SYSTEM_HPP_
+#define PERFORMANCE_TEST__SYSTEM_HPP_
 
 #include <chrono>
 #include <map>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "performance_test/performance_node_base.hpp"
@@ -24,10 +26,10 @@ namespace performance_test
 class System
 {
 public:
-  System(ExecutorType executor);
+  explicit System(ExecutorType executor);
 
   template<typename NodeT>
-  void add_node(const std::vector<std::shared_ptr<NodeT>>& nodes)
+  void add_node(const std::vector<std::shared_ptr<NodeT>> & nodes)
   {
     for (auto node : nodes) {
       this->add_node(node);
@@ -48,7 +50,7 @@ public:
 
   void print_latency_total_stats() const;
 
-  void print_agregate_stats(const std::vector<std::string>& topology_json_list) const;
+  void print_agregate_stats(const std::vector<std::string> & topology_json_list) const;
 
 private:
   void wait_discovery();
@@ -80,4 +82,7 @@ private:
   float _frequency;
   size_t _msg_size;
 };
-}
+
+}  // namespace performance_test
+
+#endif  // PERFORMANCE_TEST__SYSTEM_HPP_

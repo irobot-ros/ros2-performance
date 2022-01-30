@@ -745,7 +745,7 @@ namespace ns {
         j.at("address").get_to(p.address);
         j.at("age").get_to(p.age);
     }
-} // namespace ns
+}  // namespace ns
 ```
 
 That's all! When calling the `json` constructor with your type, your custom `to_json` method will be automatically called.

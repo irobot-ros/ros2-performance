@@ -91,6 +91,8 @@ if(BUILD_TESTING)
 
   ament_cppcheck(
     EXCLUDE
+      external/cxxopts/test/catch.hpp
+      external/cxxopts/test/options.cpp
       external/json/test/src/unit-iterators1.cpp
       external/json/test/src/unit-iterators2.cpp
       external/json/benchmarks/thirdparty/benchmark/src/benchmark_register.cc

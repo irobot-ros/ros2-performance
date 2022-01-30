@@ -17,6 +17,10 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(performance_test REQUIRED)
 
+## Build external dependencies
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(external/json)
+
 set(LIBRARY_DEPENDENCIES
   rcpputils
   rclcpp
@@ -35,9 +39,9 @@ target_include_directories(
   ${LIBRARY_NAME}
   PUBLIC
     include
-    external/json/single_include
 )
 ament_target_dependencies(${LIBRARY_NAME} ${LIBRARY_DEPENDENCIES})
+target_link_libraries(${LIBRARY_NAME} nlohmann_json::nlohmann_json)
 
 install(TARGETS
   ${LIBRARY_NAME}

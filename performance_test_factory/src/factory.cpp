@@ -616,7 +616,7 @@ rmw_qos_profile_t TemplateFactory::get_qos_from_json(const nlohmann::json & enti
 
   // Look in the entity json file for QoS settings
   if (entity_json.find("qos_history") != entity_json.end()) {
-    custom_qos_profile.history = history_qos_map[entity_json["qos_history"]];
+    custom_qos_profile.history = history_qos_map.at(entity_json["qos_history"]);
   }
 
   if (entity_json.find("qos_depth") != entity_json.end()) {
@@ -624,33 +624,33 @@ rmw_qos_profile_t TemplateFactory::get_qos_from_json(const nlohmann::json & enti
   }
 
   if (entity_json.find("qos_reliability") != entity_json.end()) {
-    custom_qos_profile.reliability = reliability_qos_map[entity_json["qos_reliability"]];
+    custom_qos_profile.reliability = reliability_qos_map.at(entity_json["qos_reliability"]);
   }
 
   if (entity_json.find("qos_durability") != entity_json.end()) {
-    custom_qos_profile.durability = durability_qos_map[entity_json["qos_durability"]];
+    custom_qos_profile.durability = durability_qos_map.at(entity_json["qos_durability"]);
   }
 
   if (entity_json.find("qos_liveliness") != entity_json.end()) {
-    custom_qos_profile.liveliness = liveliness_qos_map[entity_json["qos_liveliness"]];
+    custom_qos_profile.liveliness = liveliness_qos_map.at(entity_json["qos_liveliness"]);
   }
 
   if (entity_json.find("qos_avoid_ros_namespace_conventions") != entity_json.end()) {
     custom_qos_profile.avoid_ros_namespace_conventions =
-      namespace_conventions_qos_map[entity_json["qos_avoid_ros_namespace_conventions"]];
+      namespace_conventions_qos_map.at(entity_json["qos_avoid_ros_namespace_conventions"]);
   }
 
   if (entity_json.find("qos_deadline") != entity_json.end()) {
-    custom_qos_profile.deadline = deadline_qos_map[entity_json["qos_deadline"]];
+    custom_qos_profile.deadline = deadline_qos_map.at(entity_json["qos_deadline"]);
   }
 
   if (entity_json.find("qos_lifespan") != entity_json.end()) {
-    custom_qos_profile.lifespan = lifespan_qos_map[entity_json["qos_lifespan"]];
+    custom_qos_profile.lifespan = lifespan_qos_map.at(entity_json["qos_lifespan"]);
   }
 
   if (entity_json.find("qos_liveliness_lease_duration") != entity_json.end()) {
     custom_qos_profile.liveliness_lease_duration =
-      liveliness_lease_duration_qos_map[entity_json["qos_liveliness_lease_duration"]];
+      liveliness_lease_duration_qos_map.at(entity_json["qos_liveliness_lease_duration"]);
   }
 
   return custom_qos_profile;

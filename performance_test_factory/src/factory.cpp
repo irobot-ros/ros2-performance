@@ -569,48 +569,48 @@ rmw_qos_profile_t TemplateFactory::get_qos_from_json(const nlohmann::json & enti
   rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
 
   // Crete map for each QoS
-  std::map<std::string, rmw_qos_history_policy_t> history_qos_map{
+  const std::map<std::string, rmw_qos_history_policy_t> history_qos_map{
     {"system_default", RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT},
     {"keep_last", RMW_QOS_POLICY_HISTORY_KEEP_LAST},
     {"keep_all", RMW_QOS_POLICY_HISTORY_KEEP_ALL},
     {"unknown", RMW_QOS_POLICY_HISTORY_UNKNOWN}
   };
 
-  std::map<std::string, rmw_qos_reliability_policy_t> reliability_qos_map{
+  const std::map<std::string, rmw_qos_reliability_policy_t> reliability_qos_map{
     {"system_default", RMW_QOS_POLICY_RELIABILITY_SYSTEM_DEFAULT},
     {"reliable", RMW_QOS_POLICY_RELIABILITY_RELIABLE},
     {"best_effort", RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT},
     {"unknown", RMW_QOS_POLICY_RELIABILITY_UNKNOWN}
   };
 
-  std::map<std::string, rmw_qos_durability_policy_t> durability_qos_map{
+  const std::map<std::string, rmw_qos_durability_policy_t> durability_qos_map{
     {"system_default", RMW_QOS_POLICY_DURABILITY_SYSTEM_DEFAULT},
     {"transient_local", RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL},
     {"volatile", RMW_QOS_POLICY_DURABILITY_VOLATILE},
     {"unknown", RMW_QOS_POLICY_DURABILITY_UNKNOWN},
   };
 
-  std::map<std::string, rmw_qos_liveliness_policy_t> liveliness_qos_map{
+  const std::map<std::string, rmw_qos_liveliness_policy_t> liveliness_qos_map{
     {"system_default", RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT},
     {"automatic", RMW_QOS_POLICY_LIVELINESS_AUTOMATIC},
     {"manual_by_topic", RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_TOPIC},
     {"unknown", RMW_QOS_POLICY_LIVELINESS_UNKNOWN}
   };
 
-  std::map<std::string, bool> namespace_conventions_qos_map{
+  const std::map<std::string, bool> namespace_conventions_qos_map{
     {"false", false},
     {"true", true}
   };
 
-  std::map<std::string, rmw_time_t> deadline_qos_map{
+  const std::map<std::string, rmw_time_t> deadline_qos_map{
     {"default", RMW_QOS_DEADLINE_DEFAULT}
   };
 
-  std::map<std::string, rmw_time_t> lifespan_qos_map{
+  const std::map<std::string, rmw_time_t> lifespan_qos_map{
     {"default", RMW_QOS_LIFESPAN_DEFAULT}
   };
 
-  std::map<std::string, rmw_time_t> liveliness_lease_duration_qos_map{
+  const std::map<std::string, rmw_time_t> liveliness_lease_duration_qos_map{
     {"default", RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT}
   };
 
@@ -620,7 +620,7 @@ rmw_qos_profile_t TemplateFactory::get_qos_from_json(const nlohmann::json & enti
   }
 
   if (entity_json.find("qos_depth") != entity_json.end()) {
-    custom_qos_profile.depth = (size_t) entity_json["qos_depth"];
+    custom_qos_profile.depth = static_cast<size_t>(entity_json["qos_depth"]);
   }
 
   if (entity_json.find("qos_reliability") != entity_json.end()) {

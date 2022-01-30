@@ -20,9 +20,9 @@ class Options
 public:
   Options();
 
-  Options(int argc, char** argv);
+  Options(int argc, char ** argv);
 
-  void parse(int argc, char** argv);
+  void parse(int argc, char ** argv);
 
   bool ipc;
   bool ros_params;

@@ -56,7 +56,7 @@ void EventsLogger::write_event(const Event & event)
       std::chrono::duration_cast<std::chrono::milliseconds>(t - _start_time).count();
 
   // the event logger can be used from multiple threads, so we add a mutex
-  std::lock_guard<std::mutex> lock(_writerMutex);
+  std::unique_lock<std::mutex> lock(_writerMutex);
 
   _file << std::left << std::setw(_p_time_width) << std::setfill(_p_separator) << event_timestamp_ms;
   _file << std::left << std::setw(_p_caller_name_width) << std::setfill(_p_separator) << event.caller_name;

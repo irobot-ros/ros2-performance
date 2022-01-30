@@ -30,6 +30,7 @@ set(LIBRARY_SRC
   src/utils/cli_options.cpp
   src/utils/fork_process.cpp
   src/utils/names_utilities.cpp
+  src/utils/node_options.cpp
   src/utils/stat_logger.cpp
 )
 

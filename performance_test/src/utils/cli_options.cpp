@@ -35,13 +35,13 @@ Options::Options()
   tracking_options.too_late_absolute_us = 50000;
 }
 
-Options::Options(int argc, char** argv)
+Options::Options(int argc, char ** argv)
 : Options()
 {
   parse(argc, argv);
 }
 
-void Options::parse(int argc, char** argv)
+void Options::parse(int argc, char ** argv)
 {
   // Parse arguments
   cxxopts::Options options(argv[0], "ROS2 performance benchmark");

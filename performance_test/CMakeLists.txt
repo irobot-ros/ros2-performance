@@ -38,7 +38,6 @@ add_library(${LIBRARY_NAME} SHARED ${LIBRARY_SRC})
 
 target_include_directories(${LIBRARY_NAME} PUBLIC
   include
-  external/cxxopts-2.1.2/include
 )
 ament_target_dependencies(${LIBRARY_NAME} ${LIBRARY_DEPENDENCIES})
 
@@ -51,7 +50,6 @@ install(TARGETS
 
 install(DIRECTORY
   include/
-  external/cxxopts-2.1.2/include/
   DESTINATION include/
 )
 
@@ -68,19 +66,12 @@ if(BUILD_TESTING)
   find_package(ament_cmake_uncrustify REQUIRED)
   find_package(ament_cmake_xmllint REQUIRED)
 
-  set(_linter_excludes
-    external
-    external/cxxopts-2.1.2/include/cxxopts.hpp
-  )
-
   ament_cppcheck(
-    EXCLUDE ${_linter_excludes}
     LANGUAGE C++
   )
-  ament_cpplint(EXCLUDE ${_linter_excludes})
+  ament_cpplint()
   ament_lint_cmake()
   ament_uncrustify(
-    EXCLUDE ${_linter_excludes}
     LANGUAGE C++
   )
   ament_xmllint()

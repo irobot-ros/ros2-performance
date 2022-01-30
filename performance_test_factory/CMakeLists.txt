@@ -39,8 +39,10 @@ add_library(${LIBRARY_NAME} SHARED ${LIBRARY_SRC})
 target_include_directories(
   ${LIBRARY_NAME}
   PUBLIC
+    external/cxxopts/include
     include
 )
+
 ament_target_dependencies(${LIBRARY_NAME} ${LIBRARY_DEPENDENCIES})
 target_link_libraries(${LIBRARY_NAME} nlohmann_json::nlohmann_json)
 
@@ -54,6 +56,7 @@ install(TARGETS
 install(DIRECTORY
   include/
   external/json/single_include/
+  external/cxxopts/include/
   DESTINATION include/
 )
 
@@ -92,10 +95,10 @@ if(BUILD_TESTING)
       external/json/test/src/unit-iterators2.cpp
       external/json/benchmarks/thirdparty/benchmark/src/benchmark_register.cc
       external/json/benchmarks/src/benchmarks.cpp
-      external/json/test/thirdparty/Fuzzer/FuzzerLoop.cpp
-      external/json/test/thirdparty/Fuzzer/afl/afl_driver.cpp
       external/json/single_include/nlohmann/json.hpp
       external/json/test/thirdparty/catch/catch.hpp
+      external/json/test/thirdparty/Fuzzer/FuzzerLoop.cpp
+      external/json/test/thirdparty/Fuzzer/afl/afl_driver.cpp
     LANGUAGE C++
   )
   ament_cpplint(EXCLUDE ${_linter_excludes_files})

@@ -7,8 +7,8 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#ifndef PERFORMANCE_TEST__UTILS__CLI_OPTIONS_HPP_
-#define PERFORMANCE_TEST__UTILS__CLI_OPTIONS_HPP_
+#ifndef PERFORMANCE_TEST_FACTORY__CLI_OPTIONS_HPP_
+#define PERFORMANCE_TEST_FACTORY__CLI_OPTIONS_HPP_
 
 #include <string>
 #include <vector>
@@ -41,4 +41,4 @@ std::ostream & operator<<(std::ostream & os, const Options & options);
 
 }  // namespace performance_test
 
-#endif  // PERFORMANCE_TEST__UTILS__CLI_OPTIONS_HPP_
+#endif  // PERFORMANCE_TEST_FACTORY__CLI_OPTIONS_HPP_

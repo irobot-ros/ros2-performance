@@ -23,9 +23,8 @@
 #include "performance_test/node_types.hpp"
 #include "performance_test/resource_usage_logger.hpp"
 #include "performance_test/system.hpp"
-#include "performance_test/utils/cli_options.hpp"
 #include "performance_test/utils/fork_process.hpp"
-
+#include "performance_test_factory/cli_options.hpp"
 #include "performance_test_factory/factory.hpp"
 
 using namespace std::chrono_literals;

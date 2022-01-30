@@ -15,7 +15,7 @@
 #include "cxxopts.hpp"
 #include "performance_test/executors.hpp"
 #include "performance_test/node_types.hpp"
-#include "performance_test/utils/cli_options.hpp"
+#include "performance_test_factory/cli_options.hpp"
 
 namespace performance_test
 {

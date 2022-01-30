@@ -29,6 +29,7 @@ set(LIBRARY_DEPENDENCIES
 )
 
 set(LIBRARY_SRC
+  src/cli_options.cpp
   src/factory.cpp
   src/load_plugins.cpp
 )
@@ -75,19 +76,31 @@ if(BUILD_TESTING)
   find_package(ament_cmake_uncrustify REQUIRED)
   find_package(ament_cmake_xmllint REQUIRED)
 
-  set(_linter_excludes
-    external
-    external/json/single_include/nlohmann/json.hpp
+  set(_linter_excludes_dir external)
+  file(GLOB_RECURSE _linter_excludes_files FOLLOW_SYMLINKS
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/*.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/*.hh"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/*.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/*.cc"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/*.c"
   )
 
   ament_cppcheck(
-    EXCLUDE external/json/single_include/nlohmann/json.hpp
+    EXCLUDE
+      external/json/test/src/unit-iterators1.cpp
+      external/json/test/src/unit-iterators2.cpp
+      external/json/benchmarks/thirdparty/benchmark/src/benchmark_register.cc
+      external/json/benchmarks/src/benchmarks.cpp
+      external/json/test/thirdparty/Fuzzer/FuzzerLoop.cpp
+      external/json/test/thirdparty/Fuzzer/afl/afl_driver.cpp
+      external/json/single_include/nlohmann/json.hpp
+      external/json/test/thirdparty/catch/catch.hpp
     LANGUAGE C++
   )
-  ament_cpplint(EXCLUDE ${_linter_excludes})
-  ament_lint_cmake()
+  ament_cpplint(EXCLUDE ${_linter_excludes_files})
   ament_uncrustify(
-    EXCLUDE ${_linter_excludes}
+    EXCLUDE ${_linter_excludes_files}
     LANGUAGE C++
   )
   ament_xmllint()

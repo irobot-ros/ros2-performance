@@ -28,7 +28,9 @@ The build machine requires Python 3, CMake and colcon.
 mkdir -p ~/performance_ws/src
 cd ~/performance_ws/src
 git clone https://github.com/irobot-ros/ros2-performance
-cd ..
+cd ros2-performance
+git submodule update --init --recursive
+cd ../..
 colcon build
 ```
 

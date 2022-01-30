@@ -76,12 +76,10 @@ public:
       cxxopts::value<std::string>(experiment_name)->default_value(experiment_name))(
       "experiment_path", "Experiment path",
       cxxopts::value<std::string>(experiment_path)->default_value(experiment_path))(
-      "verbose", "Print runtime debug information [0/1]",
       cxxopts::value<int>(verbose)->default_value(std::to_string(verbose)));
-
-    try {
-      auto result = options.parse(argc, argv);
-
+        cxxopts::value<std::string>(experiment_name)->default_value(experiment_name))(
+      "experiment_path", "Experiment path",
+        cxxopts::value<std::string>(experiment_path)->default_value(experiment_path))(
       if (result.count("help")) {
         std::cout << options.help() << std::endl;
         exit(0);

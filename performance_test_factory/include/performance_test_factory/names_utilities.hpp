@@ -7,12 +7,12 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#ifndef PERFORMANCE_TEST__UTILS__NAMES_UTILITIES_HPP_
-#define PERFORMANCE_TEST__UTILS__NAMES_UTILITIES_HPP_
+#ifndef PERFORMANCE_TEST_FACTORY__NAMES_UTILITIES_HPP_
+#define PERFORMANCE_TEST_FACTORY__NAMES_UTILITIES_HPP_
 
 #include <string>
 
-namespace performance_test
+namespace performance_test_factory
 {
 
 // converts a numeric id (e.g. 7) into a node name (e.g. node_7)
@@ -27,6 +27,6 @@ std::string id_to_topic_name(int id);
 // extracts a numeric id from an item name (e.g. node_5, topic_10), eventually using hashing
 int item_name_to_id(std::string name);
 
-}  // namespace performance_test
+}  // namespace performance_test_factory
 
-#endif  // PERFORMANCE_TEST__UTILS__NAMES_UTILITIES_HPP_
+#endif  // PERFORMANCE_TEST_FACTORY__NAMES_UTILITIES_HPP_

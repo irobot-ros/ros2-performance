@@ -12,7 +12,7 @@
 
 #include "performance_test_factory/load_plugins.hpp"
 
-namespace performance_test
+namespace performance_test_factory
 {
 
 static std::string get_library_name(std::string & msg_type)
@@ -42,4 +42,4 @@ std::shared_ptr<rcpputils::SharedLibrary> get_library(std::string & msg_type)
   return library;
 }
 
-}  // namespace performance_test
+}  // namespace performance_test_factory

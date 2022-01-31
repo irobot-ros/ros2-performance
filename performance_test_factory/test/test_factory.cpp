@@ -25,12 +25,12 @@ public:
 
 TEST_F(TestFactory, FactoryConstructorTest)
 {
-  performance_test::TemplateFactory factory;
+  performance_test_factory::TemplateFactory factory;
 }
 
 TEST_F(TestFactory, FactoryCreateFromStringTest)
 {
-  performance_test::TemplateFactory factory;
+  performance_test_factory::TemplateFactory factory;
 
   auto node =
     std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("node_name");
@@ -39,7 +39,7 @@ TEST_F(TestFactory, FactoryCreateFromStringTest)
     node,
     "stamped10b",
     "my_topic",
-    performance_test::Tracker::TrackingOptions());
+    performance_test::Tracker::Options());
   factory.add_periodic_publisher_from_strings(
     node,
     "stamped10b",
@@ -58,7 +58,7 @@ TEST_F(TestFactory, FactoryCreateFromStringTest)
 
 TEST_F(TestFactory, FactoryCreateFromIndicesTest)
 {
-  performance_test::TemplateFactory factory;
+  performance_test_factory::TemplateFactory factory;
 
   int n_subscriber_nodes = 2;
   int n_publisher_nodes = 2;
@@ -75,7 +75,8 @@ TEST_F(TestFactory, FactoryCreateFromIndicesTest)
     subscriber_end_index,
     n_publisher_nodes,
     msg_type,
-    PASS_BY_SHARED_PTR);
+    PASS_BY_SHARED_PTR,
+    performance_test::Tracker::Options());
 
   auto pub_nodes = factory.create_periodic_publisher_nodes(
     publisher_start_index,
@@ -98,9 +99,11 @@ TEST_F(TestFactory, FactoryCreateFromJsonTest)
   std::string this_dir_path = this_file_path.substr(0, this_file_path.rfind("/"));
   std::string json_path = this_dir_path + std::string("/files/test_architecture.json");
 
-  performance_test::TemplateFactory factory;
+  performance_test_factory::TemplateFactory factory;
 
-  auto nodes_vec = factory.parse_topology_from_json(json_path);
+  auto nodes_vec = factory.parse_topology_from_json(
+    json_path,
+    performance_test::Tracker::Options());
 
   ASSERT_EQ(static_cast<size_t>(3), nodes_vec.size());
 

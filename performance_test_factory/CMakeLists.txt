@@ -32,6 +32,7 @@ set(LIBRARY_SRC
   src/cli_options.cpp
   src/factory.cpp
   src/load_plugins.cpp
+  src/names_utilities.cpp
 )
 
 set(LIBRARY_NAME ${PROJECT_NAME})

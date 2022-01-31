@@ -27,9 +27,9 @@ namespace performance_test
 class Tracker
 {
 public:
-  struct TrackingOptions
+  struct Options
   {
-    explicit TrackingOptions(bool enable = true)
+    explicit Options(bool enable = true)
     : is_enabled(enable)
     {}
 
@@ -47,7 +47,7 @@ public:
   Tracker(
     const std::string & node_name,
     const std::string & topic_srv_name,
-    const TrackingOptions & tracking_options)
+    const Options & tracking_options)
   : _node_name(node_name), _topic_srv_name(topic_srv_name), _tracking_options(tracking_options)
   {}
 
@@ -70,11 +70,11 @@ public:
 
   size_t size() const {return _size;}
 
-  float frequency() const {return _frequency;}
+  float frequency() const {return m_frequency;}
 
   Stat<uint64_t> stat() const {return _stat;}
 
-  void set_frequency(float f) {_frequency = f;}
+  void set_frequency(float f) {m_frequency = f;}
 
   void set_size(size_t s) {_size = s;}
 
@@ -90,10 +90,10 @@ private:
   uint64_t _late_messages = 0;
   uint64_t _too_late_messages = 0;
   size_t _size = 0;
-  float _frequency = 0;
+  float m_frequency = 0;
   Stat<uint64_t> _stat;
   TrackingNumber _tracking_number_count = 0;
-  TrackingOptions _tracking_options;
+  Options _tracking_options;
 };
 
 }  // namespace performance_test

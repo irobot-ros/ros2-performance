@@ -18,7 +18,6 @@
 #include <vector>
 
 #include "performance_test/system.hpp"
-#include "performance_test/utils/names_utilities.hpp"
 #include "performance_test/utils/stat_logger.hpp"
 #include "performance_test/performance_node_base.hpp"
 #include "performance_test/executors.hpp"
@@ -37,25 +36,25 @@ static uint64_t parse_line(std::string & line)
 
 System::System(ExecutorType executor)
 {
-  _system_executor = executor;
+  m_system_executor = executor;
 }
 
 void System::add_node(std::shared_ptr<performance_test::PerformanceNodeBase> node)
 {
-  if (_events_logger != nullptr) {
-    node->set_events_logger(_events_logger);
+  if (m_events_logger != nullptr) {
+    node->set_events_logger(m_events_logger);
   }
 
   int executor_id = node->get_executor_id();
-  auto it = _executors_map.find(executor_id);
-  if (it != _executors_map.end()) {
+  auto it = m_executors_map.find(executor_id);
+  if (it != m_executors_map.end()) {
     auto & ex = it->second;
     ex.executor->add_node(node->get_node_base());
     ex.name = ex.name + "_" + node->get_node_name();
   } else {
     auto ex = NamedExecutor();
 
-    switch (_system_executor) {
+    switch (m_system_executor) {
       case SINGLE_THREADED_EXECUTOR:
         ex.executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
         break;
@@ -68,25 +67,25 @@ void System::add_node(std::shared_ptr<performance_test::PerformanceNodeBase> nod
     ex.executor->add_node(node->get_node_base());
     ex.name = node->get_node_name();
 
-    _executors_map.insert(std::make_pair(executor_id, ex));
+    m_executors_map.insert(std::make_pair(executor_id, ex));
   }
 
-  _nodes.push_back(node);
+  m_nodes.push_back(node);
 }
 
 void System::spin(int duration_sec, bool wait_for_discovery, bool name_threads)
 {
-  _experiment_duration_sec = duration_sec;
+  m_experiment_duration_sec = duration_sec;
   // Store the instant when the experiment started
-  _start_time = std::chrono::high_resolution_clock::now();
+  m_start_time = std::chrono::high_resolution_clock::now();
 
   // Check if some nodes have been added to this System
-  if (_nodes.empty()) {
+  if (m_nodes.empty()) {
     assert(0 && "Error. Calling performance_test::System::spin when no nodes have been added.");
   }
 
-  if (_events_logger != nullptr) {
-    _events_logger->set_start_time(_start_time);
+  if (m_events_logger != nullptr) {
+    m_events_logger->set_start_time(m_start_time);
   }
 
   if (wait_for_discovery) {
@@ -95,7 +94,7 @@ void System::spin(int duration_sec, bool wait_for_discovery, bool name_threads)
     this->wait_discovery();
   }
 
-  for (const auto & pair : _executors_map) {
+  for (const auto & pair : m_executors_map) {
     auto & name = pair.second.name;
     auto & executor = pair.second.executor;
 
@@ -110,10 +109,10 @@ void System::spin(int duration_sec, bool wait_for_discovery, bool name_threads)
   }
 
   // let the nodes spin for the specified amount of time
-  std::this_thread::sleep_for(std::chrono::seconds(_experiment_duration_sec));
+  std::this_thread::sleep_for(std::chrono::seconds(m_experiment_duration_sec));
 
   // after the timer, stop all the spin functions
-  for (const auto & pair : _executors_map) {
+  for (const auto & pair : m_executors_map) {
     auto & executor = pair.second.executor;
     executor->cancel();
   }
@@ -121,7 +120,7 @@ void System::spin(int duration_sec, bool wait_for_discovery, bool name_threads)
 
 void System::enable_events_logger(const std::string & events_logger_path)
 {
-  _events_logger = std::make_shared<EventsLogger>(events_logger_path);
+  m_events_logger = std::make_shared<EventsLogger>(events_logger_path);
 }
 
 void System::save_latency_all_stats(const std::string & filename) const
@@ -141,7 +140,7 @@ void System::save_latency_all_stats(const std::string & filename) const
     return;
   }
 
-  performance_test::log_latency_all_stats(out_file, _nodes);
+  performance_test::log_latency_all_stats(out_file, m_nodes);
 }
 
 void System::save_latency_total_stats(const std::string & filename) const
@@ -161,17 +160,17 @@ void System::save_latency_total_stats(const std::string & filename) const
     return;
   }
 
-  performance_test::log_latency_total_stats(out_file, _nodes);
+  performance_test::log_latency_total_stats(out_file, m_nodes);
 }
 
 void System::print_latency_all_stats() const
 {
-  performance_test::log_latency_all_stats(std::cout, _nodes);
+  performance_test::log_latency_all_stats(std::cout, m_nodes);
 }
 
 void System::print_latency_total_stats() const
 {
-  performance_test::log_latency_total_stats(std::cout, _nodes);
+  performance_test::log_latency_total_stats(std::cout, m_nodes);
 }
 
 void System::print_agregate_stats(const std::vector<std::string> & topology_json_list) const
@@ -248,17 +247,17 @@ void System::wait_pdp_discovery(
 
   // create a vector with all the names of the nodes to be discovered
   std::vector<std::string> reference_names;
-  for (const auto & n : _nodes) {
+  for (const auto & n : m_nodes) {
     std::string node_name = n->get_node_base()->get_fully_qualified_name();
     reference_names.push_back(node_name);
   }
 
   // count the total number of nodes
-  size_t num_nodes = _nodes.size();
+  size_t num_nodes = m_nodes.size();
 
   bool pdp_ok = false;
   while (!pdp_ok) {
-    for (const auto & n : _nodes) {
+    for (const auto & n : m_nodes) {
       // we use the intersection to avoid counting nodes discovered from other processes
       size_t discovered_participants =
         get_intersection_size(n->get_node_graph()->get_node_names(), reference_names);
@@ -278,13 +277,13 @@ void System::wait_pdp_discovery(
     rate.sleep();
   }
 
-  if (_events_logger != nullptr) {
+  if (m_events_logger != nullptr) {
     // Create an event for PDP completed
     EventsLogger::Event pdp_ev;
     pdp_ev.caller_name = "SYSTEM";
     pdp_ev.code = EventsLogger::EventCode::discovery;
     pdp_ev.description = "[discovery] PDP completed";
-    _events_logger->write_event(pdp_ev);
+    m_events_logger->write_event(pdp_ev);
   }
 }
 
@@ -299,7 +298,7 @@ void System::wait_edp_discovery(
 
   // count the number of subscribers for each topic
   std::map<std::string, int> subs_per_topic;
-  for (const auto & n : _nodes) {
+  for (const auto & n : m_nodes) {
     auto trackers = n->sub_and_client_trackers();
     for (const auto & tracker : *trackers) {
       subs_per_topic[tracker.first] += 1;
@@ -310,7 +309,7 @@ void System::wait_edp_discovery(
   // This is needed in case of processes with only subscriptions
   bool edp_ok = false;
   while (!edp_ok) {
-    for (const auto & n : _nodes) {
+    for (const auto & n : m_nodes) {
       auto published_topics = n->get_published_topics();
       // if the node has no publishers, it will be skipped.
       // however, the boolean flag has to be set to true.
@@ -341,13 +340,13 @@ void System::wait_edp_discovery(
     rate.sleep();
   }
 
-  if (_events_logger != nullptr) {
+  if (m_events_logger != nullptr) {
     // Create an event for EDP completed
     EventsLogger::Event edp_ev;
     edp_ev.caller_name = "SYSTEM";
     edp_ev.code = EventsLogger::EventCode::discovery;
     edp_ev.description = "[discovery] EDP completed";
-    _events_logger->write_event(edp_ev);
+    m_events_logger->write_event(edp_ev);
   }
 }
 

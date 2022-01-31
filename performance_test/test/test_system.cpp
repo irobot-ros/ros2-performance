@@ -65,7 +65,7 @@ TEST_F(TestSystem, SystemPubSubTest)
   sub_node->add_subscriber<performance_test_msgs::msg::Sample>(
     "my_topic",
     PASS_BY_SHARED_PTR,
-    performance_test::Tracker::TrackingOptions(),
+    performance_test::Tracker::Options(),
     rmw_qos_profile_default);
   ros2_system.add_node(sub_node);
 
@@ -136,7 +136,7 @@ TEST_F(TestSystem, SystemDifferentQoSTest)
   sub_node->add_subscriber<performance_test_msgs::msg::Sample>(
     "my_topic",
     PASS_BY_SHARED_PTR,
-    performance_test::Tracker::TrackingOptions(),
+    performance_test::Tracker::Options(),
     qos_profile);
   ros2_system.add_node(sub_node);
 

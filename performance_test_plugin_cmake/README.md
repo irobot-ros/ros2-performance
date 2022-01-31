@@ -27,7 +27,7 @@ See [irobot_interfaces_plugin](../irobot_interfaces_plugin) for an example.
 The CMake function `generate_factory_plugin` calls a Python script to automatically generate a `.cpp` file that is then used to build the C++ factory support library.
 The automatically generated file can be found at `build/<PKG_NAME>/generated/<PKG_NAME>_implementation.cpp`, where `<PKG_NAME>` is the name of the package where the CMake function was called.
 
-This is how the APIs exposed by the library should look like.
+This example shows how some of the APIs exposed by the library should look like given for the messages defined in the [irobot_interfaces_plugin](../irobot_interfaces_plugin) package:
 
 ```
   extern "C" void add_subscriber_impl(
@@ -35,7 +35,7 @@ This is how the APIs exposed by the library should look like.
  std::shared_ptr<performance_test::PerformanceNodeBase> n,
     const std::string & msg_type,
     const std::string & topic_name,
-    const performance_test::Tracker::TrackingOptions & tracking_options,
+    const performance_test::Tracker::Options & tracking_options,
     msg_pass_by_t msg_pass_by,
     const rmw_qos_profile_t & custom_qos_profile)
   {

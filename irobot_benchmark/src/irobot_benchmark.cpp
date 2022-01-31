@@ -20,18 +20,18 @@
 
 #include "performance_test/communication.hpp"
 #include "performance_test/performance_node.hpp"
-#include "performance_test/node_types.hpp"
 #include "performance_test/resource_usage_logger.hpp"
 #include "performance_test/system.hpp"
 #include "performance_test/utils/fork_process.hpp"
 #include "performance_test_factory/cli_options.hpp"
 #include "performance_test_factory/factory.hpp"
+#include "performance_test_factory/node_types.hpp"
 
 using namespace std::chrono_literals;
 
 static void run_test(
   int argc, char ** argv,
-  const performance_test::Options & options,
+  const performance_test_factory::Options & options,
   const std::string & topology_json,
   pid_t & pid,
   const std::string & resources_output_path,
@@ -50,9 +50,9 @@ static void run_test(
     static_cast<performance_test::ExecutorType>(options.executor));
 
   // Get the node type from options
-  auto node_type = static_cast<performance_test::NodeType>(options.node);
+  auto node_type = static_cast<performance_test_factory::NodeType>(options.node);
   // Load topology from json file
-  auto factory = performance_test::TemplateFactory(
+  auto factory = performance_test_factory::TemplateFactory(
     options.ipc,
     options.ros_params,
     false,
@@ -63,7 +63,9 @@ static void run_test(
     ros2_system.enable_events_logger(events_output_path);
   }
 
-  auto nodes_vec = factory.parse_topology_from_json(topology_json, options.tracking_options);
+  auto nodes_vec = factory.parse_topology_from_json(
+    topology_json,
+    options.tracking_options);
   ros2_system.add_node(nodes_vec);
 
   // now the system is complete and we can make it spin for the requested duration
@@ -104,7 +106,7 @@ int main(int argc, char ** argv)
     non_ros_args_c_strings.push_back(&arg.front());
   }
   int non_ros_argc = static_cast<int>(non_ros_args_c_strings.size());
-  auto options = performance_test::Options(non_ros_argc, non_ros_args_c_strings.data());
+  auto options = performance_test_factory::Options(non_ros_argc, non_ros_args_c_strings.data());
 
   std::cout << options << "\n" << "Start test!" << std::endl;
 

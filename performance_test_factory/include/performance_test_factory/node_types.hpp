@@ -7,18 +7,16 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#ifndef PERFORMANCE_TEST__NODE_TYPES_HPP_
-#define PERFORMANCE_TEST__NODE_TYPES_HPP_
+#ifndef PERFORMANCE_TEST_FACTORY__NODE_TYPES_HPP_
+#define PERFORMANCE_TEST_FACTORY__NODE_TYPES_HPP_
 
 #include <ostream>
 #include <string>
 
-#include "rclcpp/rclcpp.hpp"
-
-namespace performance_test
+namespace performance_test_factory
 {
 
-enum NodeType
+enum class NodeType
 {
   RCLCPP_NODE = 1,
   RCLCPP_LIFECYCLE_NODE = 2,
@@ -28,10 +26,10 @@ inline std::ostream & operator<<(std::ostream & os, const NodeType & t)
 {
   std::string node_type;
   switch (t) {
-    case RCLCPP_NODE:
+    case NodeType::RCLCPP_NODE:
       node_type = "Node";
       break;
-    case RCLCPP_LIFECYCLE_NODE:
+    case NodeType::RCLCPP_LIFECYCLE_NODE:
       node_type = "LifecycleNode";
       break;
   }
@@ -39,6 +37,6 @@ inline std::ostream & operator<<(std::ostream & os, const NodeType & t)
   return os << node_type;
 }
 
-}  // namespace performance_test
+}  // namespace performance_test_factory
 
-#endif  // PERFORMANCE_TEST__NODE_TYPES_HPP_
+#endif  // PERFORMANCE_TEST_FACTORY__NODE_TYPES_HPP_

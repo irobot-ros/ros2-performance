@@ -15,11 +15,11 @@
 
 #include "rcpputils/shared_library.hpp"
 
-namespace performance_test
+namespace performance_test_factory
 {
 
 std::shared_ptr<rcpputils::SharedLibrary> get_library(std::string & msg_type);
 
-}  // namespace performance_test
+}  // namespace performance_test_factory
 
 #endif  // PERFORMANCE_TEST_FACTORY__LOAD_PLUGINS_HPP_

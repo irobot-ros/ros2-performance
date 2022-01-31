@@ -38,7 +38,7 @@ template<typename Msg>
 void PerformanceNodeBase::add_subscriber(
   const std::string & topic_name,
   msg_pass_by_t msg_pass_by,
-  Tracker::TrackingOptions tracking_options,
+  Tracker::Options tracking_options,
   const rmw_qos_profile_t & qos_profile)
 {
   rclcpp::SubscriptionBase::SharedPtr sub;
@@ -48,7 +48,7 @@ void PerformanceNodeBase::add_subscriber(
     case PASS_BY_SHARED_PTR:
       {
         std::function<void(typename Msg::ConstSharedPtr msg)> callback_function = std::bind(
-          &PerformanceNodeBase::_topic_callback<typename Msg::ConstSharedPtr>,
+          &PerformanceNodeBase::topic_callback<typename Msg::ConstSharedPtr>,
           this,
           topic_name,
           std::placeholders::_1);
@@ -65,7 +65,7 @@ void PerformanceNodeBase::add_subscriber(
     case PASS_BY_UNIQUE_PTR:
       {
         std::function<void(typename Msg::UniquePtr msg)> callback_function = std::bind(
-          &PerformanceNodeBase::_topic_callback<typename Msg::UniquePtr>,
+          &PerformanceNodeBase::topic_callback<typename Msg::UniquePtr>,
           this,
           topic_name,
           std::placeholders::_1
@@ -96,7 +96,7 @@ void PerformanceNodeBase::add_periodic_publisher(
   this->add_publisher<Msg>(topic_name, qos_profile);
 
   auto publisher_task = std::bind(
-    &PerformanceNodeBase::_publish<Msg>,
+    &PerformanceNodeBase::publish_msg<Msg>,
     this,
     topic_name,
     msg_pass_by,
@@ -118,7 +118,7 @@ void PerformanceNodeBase::add_publisher(
     topic_name,
     qos);
 
-  this->store_publisher(pub, topic_name, Tracker::TrackingOptions());
+  this->store_publisher(pub, topic_name, Tracker::Options());
 }
 
 template<typename Srv>
@@ -130,7 +130,7 @@ void PerformanceNodeBase::add_server(
       const std::shared_ptr<rmw_request_id_t> request_header,
       const std::shared_ptr<typename Srv::Request> request,
       const std::shared_ptr<typename Srv::Response> response)> callback_function = std::bind(
-    &PerformanceNodeBase::_service_callback<Srv>,
+    &PerformanceNodeBase::service_callback<Srv>,
     this,
     service_name,
     std::placeholders::_1,
@@ -146,7 +146,7 @@ void PerformanceNodeBase::add_server(
     qos_profile,
     nullptr);
 
-  this->store_server(server, service_name, Tracker::TrackingOptions());
+  this->store_server(server, service_name, Tracker::Options());
 }
 
 template<typename Srv>
@@ -159,14 +159,14 @@ void PerformanceNodeBase::add_periodic_client(
   this->add_client<Srv>(service_name, qos_profile);
 
   std::function<void()> client_task = std::bind(
-    &PerformanceNodeBase::_request<Srv>,
+    &PerformanceNodeBase::send_request<Srv>,
     this,
     service_name,
     size
   );
 
   // store the frequency of this client task
-  std::get<1>(_clients.at(service_name)).set_frequency(1000000 / period.count());
+  std::get<1>(m_clients.at(service_name)).set_frequency(1000000 / period.count());
 
   this->add_timer(period, client_task);
 }
@@ -184,18 +184,18 @@ void PerformanceNodeBase::add_client(
     qos_profile,
     nullptr);
 
-  this->store_client(client, service_name, Tracker::TrackingOptions());
+  this->store_client(client, service_name, Tracker::Options());
 }
 
 template<typename Msg>
-void PerformanceNodeBase::_publish(
+void PerformanceNodeBase::publish_msg(
   const std::string & name,
   msg_pass_by_t msg_pass_by,
   size_t size,
   std::chrono::microseconds period)
 {
   // Get publisher and tracking count from map
-  auto & pub_pair = _pubs.at(name);
+  auto & pub_pair = m_pubs.at(name);
   auto pub = std::static_pointer_cast<rclcpp::Publisher<Msg>>(pub_pair.first);
   auto & tracker = pub_pair.second;
 
@@ -276,30 +276,30 @@ PerformanceNodeBase::resize_msg(DataT & data, size_t size)
 }
 
 template<typename MsgType>
-void PerformanceNodeBase::_topic_callback(const std::string & name, MsgType msg)
+void PerformanceNodeBase::topic_callback(const std::string & name, MsgType msg)
 {
-  this->_handle_sub_received_msg(name, msg->header);
+  this->handle_sub_received_msg(name, msg->header);
 }
 
 template<typename Srv>
-void PerformanceNodeBase::_request(const std::string & name, size_t size)
+void PerformanceNodeBase::send_request(const std::string & name, size_t size)
 {
   (void)size;
 
-  if (_client_lock) {
+  if (m_client_lock) {
     return;
   }
-  _client_lock = true;
+  m_client_lock = true;
 
   // Get client and tracking count from map
-  auto & client_tuple = _clients.at(name);
+  auto & client_tuple = m_clients.at(name);
   auto client = std::static_pointer_cast<rclcpp::Client<Srv>>(std::get<0>(client_tuple));
   auto & tracker = std::get<1>(client_tuple);
   auto & tracking_number = std::get<2>(client_tuple);
 
   // Wait for service to come online
   if (!client->wait_for_service(std::chrono::seconds(1))) {
-    if (_events_logger != nullptr) {
+    if (m_events_logger != nullptr) {
       // Create a descrption for the event
       std::stringstream description;
       description << "[service] '" << name.c_str() << "' unavailable after 1s";
@@ -309,9 +309,9 @@ void PerformanceNodeBase::_request(const std::string & name, size_t size)
       ev.code = EventsLogger::EventCode::service_unavailable;
       ev.description = description.str();
 
-      _events_logger->write_event(ev);
+      m_events_logger->write_event(ev);
     }
-    _client_lock = false;
+    m_client_lock = false;
     return;
   }
 
@@ -328,7 +328,7 @@ void PerformanceNodeBase::_request(const std::string & name, size_t size)
 
   std::function<void(
       typename rclcpp::Client<Srv>::SharedFuture future)> callback_function = std::bind(
-    &PerformanceNodeBase::_response_received_callback<Srv>,
+    &PerformanceNodeBase::response_received_callback<Srv>,
     this,
     name,
     request,
@@ -337,7 +337,7 @@ void PerformanceNodeBase::_request(const std::string & name, size_t size)
 
   auto result_future = client->async_send_request(request, callback_function);
   tracking_number++;
-  _client_lock = false;
+  m_client_lock = false;
 
   // Client blocking call does not work with timers
   /*
@@ -351,7 +351,7 @@ void PerformanceNodeBase::_request(const std::string & name, size_t size)
     return;
 
   }
-  tracker.scan(request->header, m_node_interfaces.clock->get_clock()->now(), _events_logger);
+  tracker.scan(request->header, m_node_interfaces.clock->get_clock()->now(), m_events_logger);
   */
 
   RCLCPP_DEBUG(
@@ -360,7 +360,7 @@ void PerformanceNodeBase::_request(const std::string & name, size_t size)
 }
 
 template<typename Srv>
-void PerformanceNodeBase::_response_received_callback(
+void PerformanceNodeBase::response_received_callback(
   const std::string & name,
   std::shared_ptr<typename Srv::Request> request,
   typename rclcpp::Client<Srv>::SharedFuture result_future)
@@ -368,18 +368,18 @@ void PerformanceNodeBase::_response_received_callback(
   // This is not used at the moment
   auto response = result_future.get();
 
-  this->_handle_client_received_response(name, request->header, response->header);
+  this->handle_client_received_response(name, request->header, response->header);
 }
 
 template<typename Srv>
-void PerformanceNodeBase::_service_callback(
+void PerformanceNodeBase::service_callback(
   const std::string & name,
   const std::shared_ptr<rmw_request_id_t> request_header,
   const std::shared_ptr<typename Srv::Request> request,
   const std::shared_ptr<typename Srv::Response> response)
 {
   (void)request_header;
-  response->header = this->_handle_server_received_request(name, request->header);
+  response->header = this->handle_server_received_request(name, request->header);
 }
 
 }  // namespace performance_test

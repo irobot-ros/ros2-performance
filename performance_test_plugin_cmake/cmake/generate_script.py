@@ -115,7 +115,7 @@ def get_sub_factory(msgs, package):
   content += """
     const std::string & msg_type,
     const std::string & topic_name,
-    const performance_test::Tracker::TrackingOptions & tracking_options,
+    const performance_test::Tracker::Options & tracking_options,
     msg_pass_by_t msg_pass_by,
     const rmw_qos_profile_t & custom_qos_profile)
   {

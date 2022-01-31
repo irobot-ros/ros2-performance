@@ -14,7 +14,7 @@
 #include <vector>
 #include "performance_test/tracker.hpp"
 
-namespace performance_test
+namespace performance_test_factory
 {
 
 class Options
@@ -34,11 +34,11 @@ public:
   int duration_sec;
   int resources_sampling_per_ms;
   std::vector<std::string> topology_json_list;
-  performance_test::Tracker::TrackingOptions tracking_options;
+  performance_test::Tracker::Options tracking_options;
 };
 
 std::ostream & operator<<(std::ostream & os, const Options & options);
 
-}  // namespace performance_test
+}  // namespace performance_test_factory
 
 #endif  // PERFORMANCE_TEST_FACTORY__CLI_OPTIONS_HPP_

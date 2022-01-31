@@ -67,7 +67,7 @@ void Tracker::scan(
     }
 
     // Check if the message latency qualifies the message as a lost or late message.
-    const int period_us = 1000000 / _frequency;
+    const int period_us = 1000000 / m_frequency;
     const unsigned int latency_late_threshold_us = std::min(
       _tracking_options.late_absolute_us,
       _tracking_options.late_percentage * period_us / 100);

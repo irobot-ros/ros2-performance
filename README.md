@@ -59,7 +59,7 @@ If you want to use your custom ROS 2 message interfaces in the topology, you sho
  Moreover the `performance_test::System` class allows to start multiple nodes at the same time, while ensuring that they discover each other, and to monitor the performance of the whole system.
  Moreover, this pacakge contains scripts for visualizing the performance of applications.
  - **[performance_test_msgs](performance_test_msgs)**: this package contains basic interface definitions that are directly used by the `performance_test` package to measure performance.
- - **[performance_test_factory](performance_test_factory)**: this package provides the `performance_test::TemplateFactory` class that can be used to create `performance_test::PerformanceNode` objects with specific publishers and subscriptions according to some arguments provided at runtime: this can be done through json files or command line options.
+ - **[performance_test_factory](performance_test_factory)**: this package provides the `performance_test_factory::TemplateFactory` class that can be used to create `performance_test::PerformanceNode` objects with specific publishers and subscriptions according to some arguments provided at runtime: this can be done through json files or command line options.
  The interfaces (msg and srv) that can be used in these nodes have to be defined in the so called `performance_test_factory_plugins`.
  - **[performance_test_plugin_cmake](performance_test_plugin_cmake)**: this package provides the CMake function used to generate a factory plugin from interfaces definitions.
  - **[irobot_interfaces_plugin](irobot_interfaces_plugin)**: this package is a `performance_test_factory_plugin` that provides all the interfaces used in the iRobot system topologies.

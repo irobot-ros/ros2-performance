@@ -22,7 +22,7 @@ namespace performance_test
 {
 
 ResourceUsageLogger::ResourceUsageLogger(const std::string & filename)
-: _filename(filename)
+: m_filename(filename)
 {
   _pid = getpid();
   _pagesize = getpagesize();
@@ -33,14 +33,14 @@ ResourceUsageLogger::ResourceUsageLogger(const std::string & filename)
 
 void ResourceUsageLogger::start(std::chrono::milliseconds period)
 {
-  _file.open(_filename, std::fstream::out);
-  if (!_file.is_open()) {
-    std::cout << "[ResourceUsageLogger]: Error. Could not open file " << _filename << std::endl;
+  m_file.open(m_filename, std::fstream::out);
+  if (!m_file.is_open()) {
+    std::cout << "[ResourceUsageLogger]: Error. Could not open file " << m_filename << std::endl;
     std::cout << "[ResourceUsageLogger]: Not logging." << std::endl;
     return;
   }
 
-  std::cout << "[ResourceUsageLogger]: Logging to " << _filename << std::endl;
+  std::cout << "[ResourceUsageLogger]: Logging to " << m_filename << std::endl;
 
   _t1_real_start = std::chrono::steady_clock::now();
   _t1_user = std::clock();
@@ -54,12 +54,12 @@ void ResourceUsageLogger::start(std::chrono::milliseconds period)
       while (this->_log) {
         std::this_thread::sleep_until(_t1_real_start + period * i);
         if (i == 1) {
-          _print_header(_file);
+          _print_header(m_file);
           // print a line of zeros for better visualization
-          _print(_file);
+          _print(m_file);
         }
         _get();
-        _print(_file);
+        _print(m_file);
         i++;
         _done = true;
       }
@@ -74,7 +74,7 @@ void ResourceUsageLogger::stop()
     // Wait until we are done logging.
     continue;
   }
-  _file.close();
+  m_file.close();
 }
 
 void ResourceUsageLogger::print_resource_usage()
@@ -92,11 +92,11 @@ void ResourceUsageLogger::set_system_info(int pubs, int subs, float frequency)
     return;
   }
 
-  _pubs = pubs;
-  _subs = subs;
-  _frequency = frequency;
+  m_pubs = pubs;
+  m_subs = subs;
+  m_frequency = frequency;
 
-  _got_system_info = true;
+  m_got_system_info = true;
 }
 
 // Get shared resources data
@@ -158,7 +158,7 @@ void ResourceUsageLogger::_print_header(std::ostream & stream)
   stream << std::left << std::setw(wide_space) << std::setfill(separator) << "rss[KB]";
   stream << std::left << std::setw(wide_space) << std::setfill(separator) << "vsz[KB]";
 
-  if (_got_system_info) {
+  if (m_got_system_info) {
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << "pubs";
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << "subs";
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << "frequency";
@@ -188,11 +188,11 @@ void ResourceUsageLogger::_print(std::ostream & stream)
   stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
     _resources.mem_virtual_KB;
 
-  if (_got_system_info) {
-    stream << std::left << std::setw(wide_space) << std::setfill(separator) << _pubs;
-    stream << std::left << std::setw(wide_space) << std::setfill(separator) << _subs;
+  if (m_got_system_info) {
+    stream << std::left << std::setw(wide_space) << std::setfill(separator) << m_pubs;
+    stream << std::left << std::setw(wide_space) << std::setfill(separator) << m_subs;
     stream << std::left << std::setw(wide_space) << std::setfill(separator) << std::fixed <<
-      _frequency << std::defaultfloat;
+      m_frequency << std::defaultfloat;
   }
 
   stream << std::endl;

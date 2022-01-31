@@ -53,7 +53,7 @@ int main(int argc, char ** argv)
 
   rclcpp::init(argc, argv);
 
-  performance_test::TemplateFactory factory(
+  performance_test_factory::TemplateFactory factory(
     options.use_ipc,
     options.use_ros_params,
     options.verbose,
@@ -69,7 +69,7 @@ int main(int argc, char ** argv)
     options.n_publishers,
     options.msg_type,
     PASS_BY_SHARED_PTR,
-    performance_test::Tracker::TrackingOptions(),
+    performance_test::Tracker::Options(),
     rmw_qos_profile_default);
 
   ros2_system.add_node(sub_nodes);

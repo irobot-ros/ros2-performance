@@ -63,24 +63,17 @@ private:
     std::chrono::milliseconds period = std::chrono::milliseconds(20),
     std::chrono::milliseconds max_edp_time = std::chrono::milliseconds(30 * 1000));
 
-  std::chrono::high_resolution_clock::time_point _start_time;
+  std::chrono::high_resolution_clock::time_point m_start_time;
 
-  int _experiment_duration_sec;
+  int m_experiment_duration_sec;
 
-  std::vector<std::shared_ptr<performance_test::PerformanceNodeBase>> _nodes;
+  std::vector<std::shared_ptr<performance_test::PerformanceNodeBase>> m_nodes;
 
-  std::map<int, NamedExecutor> _executors_map;
+  std::map<int, NamedExecutor> m_executors_map;
 
-  std::shared_ptr<EventsLogger> _events_logger;
+  std::shared_ptr<EventsLogger> m_events_logger;
 
-  ExecutorType _system_executor;
-
-  // the following values are used for comparing different plots using the python scripts
-  bool _got_system_info;
-  int _pubs;
-  int _subs;
-  float _frequency;
-  size_t _msg_size;
+  ExecutorType m_system_executor;
 };
 
 }  // namespace performance_test

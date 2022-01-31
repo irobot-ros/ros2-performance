@@ -63,9 +63,11 @@ int main(int argc, char ** argv)
     static_cast<performance_test::ExecutorType>(options.executor));
   ros2_system.enable_events_logger(events_output_path);
 
-  performance_test::TemplateFactory factory(options.use_ipc);
+  performance_test_factory::TemplateFactory factory(options.use_ipc);
 
-  auto nodes_vec = factory.parse_topology_from_json(options.json_path);
+  auto nodes_vec = factory.parse_topology_from_json(
+    options.json_path,
+    performance_test::Tracker::Options());
 
   ros2_system.add_node(nodes_vec);
 

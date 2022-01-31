@@ -52,10 +52,10 @@ public:
   void write_event(const Event & event);
 
 private:
-  std::chrono::high_resolution_clock::time_point _start_time;
-  std::fstream _file;
-  std::string _filename;
-  std::mutex _writerMutex;
+  std::chrono::high_resolution_clock::time_point m_start_time;
+  std::fstream m_file;
+  std::string m_filename;
+  std::mutex m_writer_mutex;
 
   // For print formatting
   static const char _p_separator = ' ';

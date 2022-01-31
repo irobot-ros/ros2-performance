@@ -19,15 +19,15 @@
 
 #include "nlohmann/json.hpp"
 #include "performance_test/executors.hpp"
-#include "performance_test/node_types.hpp"
 #include "performance_test/performance_node.hpp"
-#include "performance_test/utils/names_utilities.hpp"
 #include "performance_test_factory/factory.hpp"
 #include "performance_test_factory/load_plugins.hpp"
+#include "performance_test_factory/names_utilities.hpp"
+#include "performance_test_factory/node_types.hpp"
 
 using namespace std::chrono_literals;
 
-namespace performance_test
+namespace performance_test_factory
 {
 
 TemplateFactory::TemplateFactory(
@@ -36,14 +36,15 @@ TemplateFactory::TemplateFactory(
   bool verbose_mode,
   const std::string & ros2_namespace,
   NodeType node_type)
-: _use_ipc(use_ipc),
-  _use_ros_params(use_ros_params),
-  _verbose_mode(verbose_mode),
-  _ros2_namespace(ros2_namespace),
-  _node_type(node_type)
+: m_use_ipc(use_ipc),
+  m_use_ros_params(use_ros_params),
+  m_verbose_mode(verbose_mode),
+  m_ros2_namespace(ros2_namespace),
+  m_node_type(node_type)
 {}
 
-PerformanceNodeBase::SharedPtr TemplateFactory::create_node(
+performance_test::PerformanceNodeBase::SharedPtr
+TemplateFactory::create_node(
   const std::string & name,
   bool use_ipc,
   bool use_ros_params,
@@ -57,17 +58,17 @@ PerformanceNodeBase::SharedPtr TemplateFactory::create_node(
   node_options.start_parameter_event_publisher(use_ros_params);
   node_options.parameter_overrides({{"executor_id", executor_id}});
 
-  PerformanceNodeBase::SharedPtr node;
+  performance_test::PerformanceNodeBase::SharedPtr node;
 
-  switch (_node_type) {
-    case RCLCPP_NODE:
-      node = std::make_shared<PerformanceNode<rclcpp::Node>>(
+  switch (m_node_type) {
+    case NodeType::RCLCPP_NODE:
+      node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>(
         name,
         ros2_namespace,
         node_options);
       break;
-    case RCLCPP_LIFECYCLE_NODE:
-      node = std::make_shared<PerformanceNode<rclcpp_lifecycle::LifecycleNode>>(
+    case NodeType::RCLCPP_LIFECYCLE_NODE:
+      node = std::make_shared<performance_test::PerformanceNode<rclcpp_lifecycle::LifecycleNode>>(
         name,
         ros2_namespace,
         node_options);
@@ -86,26 +87,26 @@ PerformanceNodeBase::SharedPtr TemplateFactory::create_node(
   return node;
 }
 
-std::vector<PerformanceNodeBase::SharedPtr>
+std::vector<performance_test::PerformanceNodeBase::SharedPtr>
 TemplateFactory::create_subscriber_nodes(
   int start_id,
   int end_id,
   int n_publishers,
   const std::string & msg_type,
   msg_pass_by_t msg_pass_by,
-  const Tracker::TrackingOptions & tracking_options,
+  const performance_test::Tracker::Options & tracking_options,
   const rmw_qos_profile_t & custom_qos_profile)
 {
-  std::vector<PerformanceNodeBase::SharedPtr> nodes_vector;
+  std::vector<performance_test::PerformanceNodeBase::SharedPtr> nodes_vector;
 
   for (int node_id = start_id; node_id < end_id; node_id++) {
     std::string node_name = id_to_node_name(node_id);
     auto node = this->create_node(
       node_name,
-      _use_ipc,
-      _use_ros_params,
-      _verbose_mode,
-      _ros2_namespace);
+      m_use_ipc,
+      m_use_ros_params,
+      m_verbose_mode,
+      m_ros2_namespace);
 
     // TO DO: pass publisher list instead of n_publishers, to select the IDs (
     // default is a list from 0 to n_pubs or directly from n_subs to n_pubs)
@@ -128,7 +129,7 @@ TemplateFactory::create_subscriber_nodes(
   return nodes_vector;
 }
 
-std::vector<PerformanceNodeBase::SharedPtr>
+std::vector<performance_test::PerformanceNodeBase::SharedPtr>
 TemplateFactory::create_periodic_publisher_nodes(
   int start_id,
   int end_id,
@@ -138,16 +139,16 @@ TemplateFactory::create_periodic_publisher_nodes(
   size_t msg_size,
   const rmw_qos_profile_t & custom_qos_profile)
 {
-  std::vector<PerformanceNodeBase::SharedPtr> nodes_vector;
+  std::vector<performance_test::PerformanceNodeBase::SharedPtr> nodes_vector;
 
   for (int node_id = start_id; node_id < end_id; node_id++) {
     std::string node_name = id_to_node_name(node_id);
     auto node = this->create_node(
       node_name,
-      _use_ipc,
-      _use_ros_params,
-      _verbose_mode,
-      _ros2_namespace);
+      m_use_ipc,
+      m_use_ros_params,
+      m_verbose_mode,
+      m_ros2_namespace);
 
     int topic_id = node_id;
     std::string topic_name = id_to_topic_name(topic_id);
@@ -170,7 +171,7 @@ TemplateFactory::create_periodic_publisher_nodes(
   return nodes_vector;
 }
 
-std::vector<PerformanceNodeBase::SharedPtr>
+std::vector<performance_test::PerformanceNodeBase::SharedPtr>
 TemplateFactory::create_periodic_client_nodes(
   int start_id,
   int end_id,
@@ -179,16 +180,16 @@ TemplateFactory::create_periodic_client_nodes(
   const std::string & srv_type,
   const rmw_qos_profile_t & custom_qos_profile)
 {
-  std::vector<PerformanceNodeBase::SharedPtr> nodes_vector;
+  std::vector<performance_test::PerformanceNodeBase::SharedPtr> nodes_vector;
 
   for (int node_id = start_id; node_id < end_id; node_id++) {
     std::string node_name = id_to_node_name(node_id);
     auto node = this->create_node(
       node_name,
-      _use_ipc,
-      _use_ros_params,
-      _verbose_mode,
-      _ros2_namespace);
+      m_use_ipc,
+      m_use_ros_params,
+      m_verbose_mode,
+      m_ros2_namespace);
 
     int period_us = (1000000 / frequency);
     std::chrono::microseconds period = std::chrono::microseconds(period_us);
@@ -210,23 +211,23 @@ TemplateFactory::create_periodic_client_nodes(
   return nodes_vector;
 }
 
-std::vector<PerformanceNodeBase::SharedPtr>
+std::vector<performance_test::PerformanceNodeBase::SharedPtr>
 TemplateFactory::create_server_nodes(
   int start_id,
   int end_id,
   const std::string & srv_type,
   const rmw_qos_profile_t & custom_qos_profile)
 {
-  std::vector<PerformanceNodeBase::SharedPtr> nodes_vector;
+  std::vector<performance_test::PerformanceNodeBase::SharedPtr> nodes_vector;
 
   for (int node_id = start_id; node_id < end_id; node_id++) {
     std::string node_name = id_to_node_name(node_id);
     auto node = this->create_node(
       node_name,
-      _use_ipc,
-      _use_ros_params,
-      _verbose_mode,
-      _ros2_namespace);
+      m_use_ipc,
+      m_use_ros_params,
+      m_verbose_mode,
+      m_ros2_namespace);
 
     int service_id = node_id;
     std::string service_name = id_to_service_name(service_id);
@@ -244,21 +245,22 @@ TemplateFactory::create_server_nodes(
 }
 
 void TemplateFactory::add_subscriber_from_strings(
-  PerformanceNodeBase::SharedPtr n,
+  performance_test::PerformanceNodeBase::SharedPtr n,
   const std::string & msg_type,
   const std::string & topic_name,
-  const Tracker::TrackingOptions & tracking_options,
+  const performance_test::Tracker::Options & tracking_options,
   msg_pass_by_t msg_pass_by,
   const rmw_qos_profile_t & custom_qos_profile)
 {
-  std::string _msg_type = msg_type;
-  auto library = performance_test::get_library(_msg_type);
+  // Get library can modify the string, so we create a copy
+  std::string msg_type__ = msg_type;
+  auto library = performance_test_factory::get_library(msg_type__);
 
   typedef void (* function_impl_t)(
-    PerformanceNodeBase::SharedPtr,
+    performance_test::PerformanceNodeBase::SharedPtr,
     const std::string &,
     const std::string &,
-    const Tracker::TrackingOptions &,
+    const performance_test::Tracker::Options &,
     msg_pass_by_t,
     const rmw_qos_profile_t &);
 
@@ -266,7 +268,7 @@ void TemplateFactory::add_subscriber_from_strings(
     reinterpret_cast<function_impl_t>(library->get_symbol("add_subscriber_impl"));
   add_subscriber_impl(
     n,
-    _msg_type,
+    msg_type__,
     topic_name,
     tracking_options,
     msg_pass_by,
@@ -274,7 +276,7 @@ void TemplateFactory::add_subscriber_from_strings(
 }
 
 void TemplateFactory::add_periodic_publisher_from_strings(
-  PerformanceNodeBase::SharedPtr n,
+  performance_test::PerformanceNodeBase::SharedPtr n,
   const std::string & msg_type,
   const std::string & topic_name,
   msg_pass_by_t msg_pass_by,
@@ -282,11 +284,12 @@ void TemplateFactory::add_periodic_publisher_from_strings(
   std::chrono::microseconds period,
   size_t msg_size)
 {
-  std::string _msg_type = msg_type;
-  auto library = performance_test::get_library(_msg_type);
+  // Get library can modify the string, so we create a copy
+  std::string msg_type__ = msg_type;
+  auto library = performance_test_factory::get_library(msg_type__);
 
   typedef void (* function_impl_t)(
-    PerformanceNodeBase::SharedPtr,
+    performance_test::PerformanceNodeBase::SharedPtr,
     const std::string &,
     const std::string &,
     msg_pass_by_t,
@@ -298,7 +301,7 @@ void TemplateFactory::add_periodic_publisher_from_strings(
     reinterpret_cast<function_impl_t>(library->get_symbol("add_publisher_impl"));
   add_publisher_impl(
     n,
-    _msg_type,
+    msg_type__,
     topic_name,
     msg_pass_by,
     custom_qos_profile,
@@ -307,17 +310,18 @@ void TemplateFactory::add_periodic_publisher_from_strings(
 }
 
 void TemplateFactory::add_periodic_client_from_strings(
-  PerformanceNodeBase::SharedPtr n,
+  performance_test::PerformanceNodeBase::SharedPtr n,
   const std::string & srv_type,
   const std::string & service_name,
   const rmw_qos_profile_t & custom_qos_profile,
   std::chrono::microseconds period)
 {
-  std::string _srv_type = srv_type;
-  auto library = performance_test::get_library(_srv_type);
+  // Get library can modify the string, so we create a copy
+  std::string srv_type__ = srv_type;
+  auto library = performance_test_factory::get_library(srv_type__);
 
   typedef void (* function_impl_t)(
-    PerformanceNodeBase::SharedPtr,
+    performance_test::PerformanceNodeBase::SharedPtr,
     const std::string &,
     const std::string &,
     const rmw_qos_profile_t &,
@@ -327,23 +331,24 @@ void TemplateFactory::add_periodic_client_from_strings(
     reinterpret_cast<function_impl_t>(library->get_symbol("add_client_impl"));
   add_client_impl(
     n,
-    _srv_type,
+    srv_type__,
     service_name,
     custom_qos_profile,
     period);
 }
 
 void TemplateFactory::add_server_from_strings(
-  PerformanceNodeBase::SharedPtr n,
+  performance_test::PerformanceNodeBase::SharedPtr n,
   const std::string & srv_type,
   const std::string & service_name,
   const rmw_qos_profile_t & custom_qos_profile)
 {
-  std::string _srv_type = srv_type;
-  auto library = performance_test::get_library(_srv_type);
+  // Get library can modify the string, so we create a copy
+  std::string srv_type__ = srv_type;
+  auto library = performance_test_factory::get_library(srv_type__);
 
   typedef void (* function_impl_t)(
-    PerformanceNodeBase::SharedPtr,
+    performance_test::PerformanceNodeBase::SharedPtr,
     const std::string &,
     const std::string &,
     const rmw_qos_profile_t &);
@@ -352,17 +357,17 @@ void TemplateFactory::add_server_from_strings(
     reinterpret_cast<function_impl_t>(library->get_symbol("add_server_impl"));
   add_server_impl(
     n,
-    _srv_type,
+    srv_type__,
     service_name,
     custom_qos_profile);
 }
 
-std::vector<PerformanceNodeBase::SharedPtr>
+std::vector<performance_test::PerformanceNodeBase::SharedPtr>
 TemplateFactory::parse_topology_from_json(
   const std::string & json_path,
-  const Tracker::TrackingOptions & tracking_options)
+  const performance_test::Tracker::Options & tracking_options)
 {
-  std::vector<PerformanceNodeBase::SharedPtr> nodes_vec;
+  std::vector<performance_test::PerformanceNodeBase::SharedPtr> nodes_vec;
 
   std::ifstream ifs(json_path);
   // Check if file exists
@@ -398,13 +403,13 @@ TemplateFactory::parse_topology_from_json(
   return nodes_vec;
 }
 
-PerformanceNodeBase::SharedPtr
+performance_test::PerformanceNodeBase::SharedPtr
 TemplateFactory::create_node_from_json(
   const nlohmann::json & node_json,
   const std::string & suffix)
 {
   auto node_name = std::string(node_json["node_name"]) + suffix;
-  auto node_namespace = _ros2_namespace;
+  auto node_namespace = m_ros2_namespace;
   if (node_json.find("node_namespace") != node_json.end()) {
     node_namespace += std::string(node_json["node_namespace"]) + suffix;
   }
@@ -416,9 +421,9 @@ TemplateFactory::create_node_from_json(
 
   auto node = this->create_node(
     node_name,
-    _use_ipc,
-    _use_ros_params,
-    _verbose_mode,
+    m_use_ipc,
+    m_use_ros_params,
+    m_verbose_mode,
     node_namespace,
     executor_id);
 
@@ -426,9 +431,9 @@ TemplateFactory::create_node_from_json(
 }
 
 void TemplateFactory::create_node_entities_from_json(
-  PerformanceNodeBase::SharedPtr node,
+  performance_test::PerformanceNodeBase::SharedPtr node,
   const nlohmann::json & node_json,
-  const Tracker::TrackingOptions & tracking_options)
+  const performance_test::Tracker::Options & tracking_options)
 {
   if (node_json.find("publishers") != node_json.end()) {
     // if there is at least 1 publisher, add each of them
@@ -460,7 +465,7 @@ void TemplateFactory::create_node_entities_from_json(
 }
 
 void TemplateFactory::add_periodic_publisher_from_json(
-  PerformanceNodeBase::SharedPtr node,
+  performance_test::PerformanceNodeBase::SharedPtr node,
   const nlohmann::json & pub_json)
 {
   std::string topic_name = pub_json["topic_name"];
@@ -499,9 +504,9 @@ void TemplateFactory::add_periodic_publisher_from_json(
 }
 
 void TemplateFactory::add_subscriber_from_json(
-  PerformanceNodeBase::SharedPtr node,
+  performance_test::PerformanceNodeBase::SharedPtr node,
   const nlohmann::json & sub_json,
-  const Tracker::TrackingOptions & t_options)
+  const performance_test::Tracker::Options & t_options)
 {
   std::string topic_name = sub_json["topic_name"];
   std::string msg_type = sub_json["msg_type"];
@@ -520,7 +525,7 @@ void TemplateFactory::add_subscriber_from_json(
 }
 
 void TemplateFactory::add_periodic_client_from_json(
-  PerformanceNodeBase::SharedPtr node,
+  performance_test::PerformanceNodeBase::SharedPtr node,
   const nlohmann::json & client_json)
 {
   std::string service_name = client_json["service_name"];
@@ -549,7 +554,7 @@ void TemplateFactory::add_periodic_client_from_json(
 }
 
 void TemplateFactory::add_server_from_json(
-  PerformanceNodeBase::SharedPtr node,
+  performance_test::PerformanceNodeBase::SharedPtr node,
   const nlohmann::json & server_json)
 {
   std::string service_name = server_json["service_name"];
@@ -674,4 +679,4 @@ msg_pass_by_t TemplateFactory::get_msg_pass_by_from_json(
   return msg_pass_by;
 }
 
-}  // namespace performance_test
+}  // namespace performance_test_factory

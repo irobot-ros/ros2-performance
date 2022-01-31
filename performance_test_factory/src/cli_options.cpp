@@ -14,10 +14,10 @@
 
 #include "cxxopts.hpp"
 #include "performance_test/executors.hpp"
-#include "performance_test/node_types.hpp"
 #include "performance_test_factory/cli_options.hpp"
+#include "performance_test_factory/node_types.hpp"
 
-namespace performance_test
+namespace performance_test_factory
 {
 
 Options::Options()
@@ -140,7 +140,7 @@ std::ostream & operator<<(std::ostream & os, const Options & options)
   os << "- System executor: " << system_executor << std::endl;
 
   // Get the node type from options
-  auto node_type = static_cast<performance_test::NodeType>(options.node);
+  auto node_type = static_cast<performance_test_factory::NodeType>(options.node);
   os << "- Node type: " << node_type << std::endl;
 
   os << "- Intra-process-communication: " << (options.ipc ? "on" : "off") << std::endl;
@@ -154,4 +154,4 @@ std::ostream & operator<<(std::ostream & os, const Options & options)
   return os;
 }
 
-}  // namespace performance_test
+}  // namespace performance_test_factory

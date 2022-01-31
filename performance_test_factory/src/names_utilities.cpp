@@ -11,9 +11,9 @@
 #include <sstream>
 #include <string>
 
-#include "performance_test/utils/names_utilities.hpp"
+#include "performance_test_factory/names_utilities.hpp"
 
-std::string performance_test::id_to_node_name(int id)
+std::string performance_test_factory::id_to_node_name(int id)
 {
   std::stringstream ss;
   ss << "node_";
@@ -21,7 +21,7 @@ std::string performance_test::id_to_node_name(int id)
   return ss.str();
 }
 
-std::string performance_test::id_to_service_name(int id)
+std::string performance_test_factory::id_to_service_name(int id)
 {
   std::stringstream ss;
   ss << "service_";
@@ -29,7 +29,7 @@ std::string performance_test::id_to_service_name(int id)
   return ss.str();
 }
 
-std::string performance_test::id_to_topic_name(int id)
+std::string performance_test_factory::id_to_topic_name(int id)
 {
   std::stringstream ss;
   ss << "topic_";
@@ -37,7 +37,7 @@ std::string performance_test::id_to_topic_name(int id)
   return ss.str();
 }
 
-int performance_test::item_name_to_id(std::string name)
+int performance_test_factory::item_name_to_id(std::string name)
 {
   // if the name is in the format "node_7", "topic_1", "service_12" extract the number from it
   // otherwise create an hash code from the string

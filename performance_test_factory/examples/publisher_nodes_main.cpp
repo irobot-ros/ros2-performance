@@ -50,7 +50,7 @@ int main(int argc, char ** argv)
 
   rclcpp::init(argc, argv);
 
-  performance_test::TemplateFactory factory(
+  performance_test_factory::TemplateFactory factory(
     options.use_ipc,
     options.use_ros_params,
     options.verbose,

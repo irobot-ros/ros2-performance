@@ -66,7 +66,7 @@ public:
   void add_subscriber(
     const std::string & topic_name,
     msg_pass_by_t msg_pass_by,
-    Tracker::TrackingOptions tracking_options = Tracker::TrackingOptions(),
+    Tracker::Options tracking_options = Tracker::Options(),
     const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default);
 
   template<typename Msg>
@@ -117,22 +117,22 @@ private:
   void store_subscription(
     rclcpp::SubscriptionBase::SharedPtr sub,
     const std::string & topic_name,
-    const Tracker::TrackingOptions & tracking_options);
+    const Tracker::Options & tracking_options);
 
   void store_publisher(
     rclcpp::PublisherBase::SharedPtr pub,
     const std::string & topic_name,
-    const Tracker::TrackingOptions & tracking_options);
+    const Tracker::Options & tracking_options);
 
   void store_client(
     rclcpp::ClientBase::SharedPtr client,
     const std::string & service_name,
-    const Tracker::TrackingOptions & tracking_options);
+    const Tracker::Options & tracking_options);
 
   void store_server(
     rclcpp::ServiceBase::SharedPtr server,
     const std::string & service_name,
-    const Tracker::TrackingOptions & tracking_options);
+    const Tracker::Options & tracking_options);
 
   performance_test_msgs::msg::PerformanceHeader create_msg_header(
     rclcpp::Time publish_time,
@@ -141,7 +141,7 @@ private:
     size_t msg_size);
 
   template<typename Msg>
-  void _publish(
+  void publish_msg(
     const std::string & name,
     msg_pass_by_t msg_pass_by,
     size_t size,
@@ -158,64 +158,64 @@ private:
   resize_msg(DataT & data, size_t size);
 
   template<typename MsgType>
-  void _topic_callback(const std::string & name, MsgType msg);
+  void topic_callback(const std::string & name, MsgType msg);
 
-  void _handle_sub_received_msg(
+  void handle_sub_received_msg(
     const std::string & topic_name,
     const performance_test_msgs::msg::PerformanceHeader & msg_header);
 
   template<typename Srv>
-  void _request(const std::string & name, size_t size);
+  void send_request(const std::string & name, size_t size);
 
   template<typename Srv>
-  void _response_received_callback(
+  void response_received_callback(
     const std::string & name,
     std::shared_ptr<typename Srv::Request> request,
     typename rclcpp::Client<Srv>::SharedFuture result_future);
 
-  void _handle_client_received_response(
+  void handle_client_received_response(
     const std::string & service_name,
     const performance_test_msgs::msg::PerformanceHeader & request_header,
     const performance_test_msgs::msg::PerformanceHeader & response_header);
 
   template<typename Srv>
-  void _service_callback(
+  void service_callback(
     const std::string & name,
     const std::shared_ptr<rmw_request_id_t> request_header,
     const std::shared_ptr<typename Srv::Request> request,
     const std::shared_ptr<typename Srv::Response> response);
 
   performance_test_msgs::msg::PerformanceHeader
-  _handle_server_received_request(
+  handle_server_received_request(
     const std::string & service_name,
     const performance_test_msgs::msg::PerformanceHeader & request_header);
 
   // Client blocking call does not work with timers
   // Use a lock variable to avoid calling when you are already waiting
-  bool _client_lock = false;
+  bool m_client_lock = false;
 
   NodeInterfaces m_node_interfaces;
 
   // A topic-name indexed map to store the publisher pointers with their
   // trackers.
-  std::map<std::string, std::pair<rclcpp::PublisherBase::SharedPtr, Tracker>> _pubs;
+  std::map<std::string, std::pair<rclcpp::PublisherBase::SharedPtr, Tracker>> m_pubs;
 
   // A topic-name indexed map to store the subscriber pointers with their
   // trackers.
-  std::map<std::string, std::pair<rclcpp::SubscriptionBase::SharedPtr, Tracker>> _subs;
+  std::map<std::string, std::pair<rclcpp::SubscriptionBase::SharedPtr, Tracker>> m_subs;
 
   using ClientsTuple = std::tuple<rclcpp::ClientBase::SharedPtr, Tracker, Tracker::TrackingNumber>;
   // A service-name indexed map to store the client pointers with their
   // trackers.
-  std::map<std::string, ClientsTuple> _clients;
+  std::map<std::string, ClientsTuple> m_clients;
 
   // A service-name indexed map to store the server pointers with their
   // trackers.
-  std::map<std::string, std::pair<rclcpp::ServiceBase::SharedPtr, Tracker>> _servers;
+  std::map<std::string, std::pair<rclcpp::ServiceBase::SharedPtr, Tracker>> m_servers;
 
-  std::vector<rclcpp::TimerBase::SharedPtr> _timers;
+  std::vector<rclcpp::TimerBase::SharedPtr> m_timers;
 
-  std::shared_ptr<EventsLogger> _events_logger;
+  std::shared_ptr<EventsLogger> m_events_logger;
 
   int m_executor_id = 0;
 };

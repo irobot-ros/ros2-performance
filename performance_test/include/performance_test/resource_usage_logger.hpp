@@ -58,8 +58,8 @@ private:
   void _print(std::ostream & stream);
 
   Resources _resources;
-  std::fstream _file;
-  std::string _filename;
+  std::fstream m_file;
+  std::string m_filename;
   std::atomic<bool> _log;
   std::atomic<bool> _done;
   std::clock_t _t1_user;
@@ -69,10 +69,10 @@ private:
   int _pagesize;
 
   // the following values are used for comparing different plots using the python scripts
-  bool _got_system_info = false;
-  int _pubs;
-  int _subs;
-  float _frequency;
+  bool m_got_system_info = false;
+  int m_pubs;
+  int m_subs;
+  float m_frequency;
 };
 
 }  // namespace performance_test

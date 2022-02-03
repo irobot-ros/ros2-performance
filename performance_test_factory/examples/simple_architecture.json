@@ -7,7 +7,7 @@
                 {"topic_name": "topic_2", "msg_type": "stamped4mb", "period_ms": 1000,
                     "qos_depth":                           10,
                     "qos_history":                         "keep_last",
-                    "qos_reliability":                     "reliable",
+                    "qos_reliability":                     "best_effort",
                     "qos_durability":                      "volatile",
                     "qos_deadline":                        "default",
                     "qos_lifespan":                        "default",

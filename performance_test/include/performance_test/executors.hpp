@@ -34,6 +34,8 @@ enum ExecutorType
 
 std::ostream & operator<<(std::ostream & os, const ExecutorType & t);
 
+std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type);
+
 void sleep_task(std::chrono::milliseconds task_duration);
 
 }  // namespace performance_test

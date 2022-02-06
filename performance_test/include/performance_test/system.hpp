@@ -73,7 +73,7 @@ private:
 
   std::shared_ptr<performance_metrics::EventsLogger> m_events_logger;
 
-  ExecutorType m_system_executor;
+  ExecutorType m_executor_type;
 };
 
 }  // namespace performance_test

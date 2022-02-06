@@ -36,7 +36,7 @@ static uint64_t parse_line(std::string & line)
 
 System::System(ExecutorType executor)
 {
-  m_system_executor = executor;
+  m_executor_type = executor;
 }
 
 void System::add_node(std::shared_ptr<performance_test::PerformanceNodeBase> node)
@@ -48,22 +48,14 @@ void System::add_node(std::shared_ptr<performance_test::PerformanceNodeBase> nod
   int executor_id = node->get_executor_id();
   auto it = m_executors_map.find(executor_id);
   if (it != m_executors_map.end()) {
+    // An executor with this ID has already been created, so add node
     auto & ex = it->second;
     ex.executor->add_node(node->get_node_base());
     ex.name = ex.name + "_" + node->get_node_name();
   } else {
+    // Create a new executor with this ID
     auto ex = NamedExecutor();
-
-    switch (m_system_executor) {
-      case SINGLE_THREADED_EXECUTOR:
-        ex.executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-        break;
-      case STATIC_SINGLE_THREADED_EXECUTOR:
-      default:
-        ex.executor = std::make_shared<rclcpp::executors::StaticSingleThreadedExecutor>();
-        break;
-    }
-
+    ex.executor = performance_test::make_executor(m_executor_type);
     ex.executor->add_node(node->get_node_base());
     ex.name = node->get_node_name();
 

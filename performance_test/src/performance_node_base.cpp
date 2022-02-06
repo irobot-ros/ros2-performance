@@ -142,7 +142,7 @@ void PerformanceNodeBase::store_subscription(
     tracking_options);
 
   m_subs.insert({topic_name, {sub, tracker}});
-  RCLCPP_INFO(this->get_node_logger(), "Subscriber to %s created", topic_name.c_str());
+  RCLCPP_INFO(this->get_node_logger(), "Subscription to %s created", topic_name.c_str());
 }
 
 void PerformanceNodeBase::store_publisher(

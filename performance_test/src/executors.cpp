@@ -36,6 +36,22 @@ std::ostream & operator<<(std::ostream & os, const ExecutorType & t)
   return os << executor_name;
 }
 
+std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type)
+{
+  std::shared_ptr<rclcpp::Executor> executor;
+
+  switch (type) {
+    case SINGLE_THREADED_EXECUTOR:
+      executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
+      break;
+    case STATIC_SINGLE_THREADED_EXECUTOR:
+      executor = std::make_shared<rclcpp::executors::StaticSingleThreadedExecutor>();
+      break;
+  }
+
+  return executor;
+}
+
 void sleep_task(std::chrono::milliseconds task_duration)
 {
   std::mutex mtx;

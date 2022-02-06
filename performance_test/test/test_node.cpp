@@ -42,9 +42,9 @@ TEST_F(TestNode, NodeConstructorTest)
     ros2_namespace,
     node_options);
 
-  auto trackers = node->sub_and_client_trackers();
-
-  ASSERT_EQ(static_cast<size_t>(0), trackers.size());
+  ASSERT_TRUE(node->sub_trackers().empty());
+  ASSERT_TRUE(node->client_trackers().empty());
+  ASSERT_TRUE(node->pub_trackers().empty());
 }
 
 TEST_F(TestNode, NodeAddItemsTest)
@@ -64,7 +64,9 @@ TEST_F(TestNode, NodeAddItemsTest)
     "my_service",
     std::chrono::milliseconds(10));
 
-  ASSERT_EQ(static_cast<size_t>(2), node->sub_and_client_trackers().size());
+  ASSERT_EQ(1u, node->sub_trackers().size());
+  ASSERT_EQ(1u, node->client_trackers().size());
+  ASSERT_EQ(1u, node->pub_trackers().size());
 }
 
 TEST_F(TestNode, LifecycleNodeConstructorTest)
@@ -82,9 +84,9 @@ TEST_F(TestNode, LifecycleNodeConstructorTest)
     ros2_namespace,
     node_options);
 
-  auto trackers = node->sub_and_client_trackers();
-
-  ASSERT_EQ(static_cast<size_t>(0), trackers.size());
+  ASSERT_TRUE(node->sub_trackers().empty());
+  ASSERT_TRUE(node->client_trackers().empty());
+  ASSERT_TRUE(node->pub_trackers().empty());
 }
 
 TEST_F(TestNode, LifecycleNodeAddItemsTest)
@@ -106,5 +108,7 @@ TEST_F(TestNode, LifecycleNodeAddItemsTest)
     "my_service",
     std::chrono::milliseconds(10));
 
-  ASSERT_EQ(static_cast<size_t>(2), node->sub_and_client_trackers().size());
+  ASSERT_EQ(1u, node->sub_trackers().size());
+  ASSERT_EQ(1u, node->client_trackers().size());
+  ASSERT_EQ(1u, node->pub_trackers().size());
 }

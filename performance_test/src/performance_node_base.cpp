@@ -82,13 +82,19 @@ void PerformanceNodeBase::add_timer(
 }
 
 std::vector<performance_metrics::Tracker>
-PerformanceNodeBase::sub_and_client_trackers()
+PerformanceNodeBase::sub_trackers()
 {
   std::vector<performance_metrics::Tracker> trackers;
   for (const auto & sub : m_subs) {
     trackers.push_back(sub.second.second);
   }
 
+  return trackers;
+}
+
+std::vector<performance_metrics::Tracker> PerformanceNodeBase::client_trackers()
+{
+  std::vector<performance_metrics::Tracker> trackers;
   for (const auto & client : m_clients) {
     trackers.push_back(std::get<1>(client.second));
   }

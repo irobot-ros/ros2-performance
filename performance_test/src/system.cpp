@@ -157,15 +157,25 @@ void System::save_latency_total_stats(const std::string & filename) const
 
 void System::log_latency_all_stats(std::ostream & stream) const
 {
-  std::vector<performance_metrics::Tracker> subs_and_clients;
+  std::vector<performance_metrics::Tracker> subs;
   for (const auto & n : m_nodes) {
-    auto trackers = n->sub_and_client_trackers();
-    subs_and_clients.insert(subs_and_clients.end(), trackers.begin(), trackers.end());
+    auto trackers = n->sub_trackers();
+    subs.insert(subs.end(), trackers.begin(), trackers.end());
   }
   performance_metrics::log_latency_all_stats(
     stream,
-    subs_and_clients,
-    "Subscriptions and clients stats:");
+    subs,
+    "Subscriptions stats:");
+
+  std::vector<performance_metrics::Tracker> clients;
+  for (const auto & n : m_nodes) {
+    auto trackers = n->client_trackers();
+    clients.insert(clients.end(), trackers.begin(), trackers.end());
+  }
+  performance_metrics::log_latency_all_stats(
+    stream,
+    clients,
+    "Clients stats:");
 
   std::vector<performance_metrics::Tracker> publishers;
   for (const auto & n : m_nodes) {
@@ -182,8 +192,10 @@ void System::log_latency_total_stats(std::ostream & stream) const
 {
   std::vector<performance_metrics::Tracker> subs_and_clients;
   for (const auto & n : m_nodes) {
-    auto trackers = n->sub_and_client_trackers();
-    subs_and_clients.insert(subs_and_clients.end(), trackers.begin(), trackers.end());
+    auto sub_trackers = n->sub_trackers();
+    subs_and_clients.insert(subs_and_clients.end(), sub_trackers.begin(), sub_trackers.end());
+    auto client_trackers = n->client_trackers();
+    subs_and_clients.insert(subs_and_clients.end(), client_trackers.begin(), client_trackers.end());
   }
   performance_metrics::log_latency_total_stats(stream, subs_and_clients);
 }
@@ -314,7 +326,7 @@ void System::wait_edp_discovery(
   // count the number of subscribers for each topic
   std::map<std::string, int> subs_per_topic;
   for (const auto & n : m_nodes) {
-    auto trackers = n->sub_and_client_trackers();
+    auto trackers = n->sub_trackers();
     for (const auto & tracker : trackers) {
       subs_per_topic[tracker.get_entity_name()] += 1;
     }

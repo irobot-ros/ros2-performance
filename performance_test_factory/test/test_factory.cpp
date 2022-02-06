@@ -53,7 +53,9 @@ TEST_F(TestFactory, FactoryCreateFromStringTest)
     "stamped10b",
     "my_service");
 
-  ASSERT_EQ(static_cast<size_t>(2), node->sub_and_client_trackers().size());
+  ASSERT_EQ(1u, node->sub_trackers().size());
+  ASSERT_EQ(1u, node->client_trackers().size());
+  ASSERT_EQ(1u, node->pub_trackers().size());
 }
 
 TEST_F(TestFactory, FactoryCreateFromIndicesTest)
@@ -89,7 +91,14 @@ TEST_F(TestFactory, FactoryCreateFromIndicesTest)
   ASSERT_EQ(static_cast<size_t>(2), pub_nodes.size());
 
   for (const auto & n : sub_nodes) {
-    ASSERT_EQ(static_cast<size_t>(2), n->sub_and_client_trackers().size());
+    ASSERT_EQ(2u, n->sub_trackers().size());
+    ASSERT_EQ(0u, n->client_trackers().size());
+    ASSERT_EQ(0u, n->pub_trackers().size());
+  }
+  for (const auto & n : pub_nodes) {
+    ASSERT_EQ(0u, n->sub_trackers().size());
+    ASSERT_EQ(0u, n->client_trackers().size());
+    ASSERT_EQ(1u, n->pub_trackers().size());
   }
 }
 
@@ -111,7 +120,15 @@ TEST_F(TestFactory, FactoryCreateFromJsonTest)
   ASSERT_STREQ("node_1", nodes_vec[1]->get_node_name());
   ASSERT_STREQ("node_2", nodes_vec[2]->get_node_name());
 
-  ASSERT_EQ(static_cast<size_t>(0), nodes_vec[0]->sub_and_client_trackers().size());
-  ASSERT_EQ(static_cast<size_t>(1), nodes_vec[1]->sub_and_client_trackers().size());
-  ASSERT_EQ(static_cast<size_t>(1), nodes_vec[2]->sub_and_client_trackers().size());
+  ASSERT_EQ(0u, nodes_vec[0]->sub_trackers().size());
+  ASSERT_EQ(0u, nodes_vec[0]->client_trackers().size());
+  ASSERT_EQ(2u, nodes_vec[0]->pub_trackers().size());
+
+  ASSERT_EQ(1u, nodes_vec[1]->sub_trackers().size());
+  ASSERT_EQ(0u, nodes_vec[1]->client_trackers().size());
+  ASSERT_EQ(0u, nodes_vec[1]->pub_trackers().size());
+
+  ASSERT_EQ(0u, nodes_vec[2]->sub_trackers().size());
+  ASSERT_EQ(1u, nodes_vec[2]->client_trackers().size());
+  ASSERT_EQ(0u, nodes_vec[2]->pub_trackers().size());
 }

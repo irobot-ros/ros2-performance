@@ -7,8 +7,8 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#ifndef PERFORMANCE_TEST__RESOURCE_USAGE_LOGGER_HPP_
-#define PERFORMANCE_TEST__RESOURCE_USAGE_LOGGER_HPP_
+#ifndef PERFORMANCE_METRICS__RESOURCE_USAGE_LOGGER_HPP_
+#define PERFORMANCE_METRICS__RESOURCE_USAGE_LOGGER_HPP_
 
 #include <malloc.h>
 #include <unistd.h>
@@ -19,7 +19,7 @@
 #include <iostream>
 #include <string>
 
-namespace performance_test
+namespace performance_metrics
 {
 
 class ResourceUsageLogger
@@ -69,12 +69,12 @@ private:
   int _pagesize;
 
   // the following values are used for comparing different plots using the python scripts
-  bool m_got_system_info = false;
-  int m_pubs;
-  int m_subs;
-  float m_frequency;
+  bool m_got_system_info {false};
+  int m_pubs {0};
+  int m_subs {0};
+  float m_frequency {0};
 };
 
-}  // namespace performance_test
+}  // namespace performance_metrics
 
-#endif  // PERFORMANCE_TEST__RESOURCE_USAGE_LOGGER_HPP_
+#endif  // PERFORMANCE_METRICS__RESOURCE_USAGE_LOGGER_HPP_

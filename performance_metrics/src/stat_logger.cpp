@@ -9,15 +9,14 @@
 
 #include <cmath>
 #include <iomanip>
-#include <memory>
 #include <ostream>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "performance_test/utils/stat_logger.hpp"
+#include "performance_metrics/stat_logger.hpp"
 
-namespace performance_test
+namespace performance_metrics
 {
 
 void log_total_stats(
@@ -67,15 +66,16 @@ void log_total_stats(
 
 void log_latency_all_stats(
   std::ostream & stream,
-  const std::vector<PerformanceNodeBase *> & nodes)
+  const std::vector<Tracker> & trackers,
+  const std::string & title)
 {
   const char separator = ' ';
   const int wide_space = 15;
   const int narrow_space = 10;
 
-  auto log_header = [&stream, wide_space, narrow_space, separator](const std::string & title)
+  auto log_header = [&stream, wide_space, narrow_space, separator](const std::string & header_title)
     {
-      stream << title << std::endl;
+      stream << header_title << std::endl;
       stream << std::left << std::setw(wide_space) << std::setfill(separator) << "node";
       stream << std::left << std::setw(wide_space) << std::setfill(separator) << "topic";
       stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "size[b]";
@@ -93,65 +93,49 @@ void log_latency_all_stats(
     };
 
   auto log_stats_line = [&stream, wide_space, narrow_space, separator](
-    const std::string & node_name, std::pair<std::string, Tracker> tracker)
+    const Tracker & tracker)
     {
-      stream << std::left << std::setw(wide_space) << std::setfill(separator) << node_name;
       stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-        tracker.first;
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        tracker.second.size();
+        tracker.get_node_name();
       stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-        tracker.second.received();
+        tracker.get_entity_name();
       stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        tracker.second.late();
+        tracker.size();
       stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-        tracker.second.too_late();
+        tracker.received();
       stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        tracker.second.lost();
+        tracker.late();
+      stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
+        tracker.too_late();
       stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        std::round(tracker.second.stat().mean());
+        tracker.lost();
       stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        std::round(tracker.second.stat().stddev());
+        std::round(tracker.stat().mean());
       stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        std::round(tracker.second.stat().min());
+        std::round(tracker.stat().stddev());
       stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        std::round(tracker.second.stat().max());
+        std::round(tracker.stat().min());
       stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        tracker.second.frequency();
+        std::round(tracker.stat().max());
+      stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
+        tracker.frequency();
 
       stream << std::endl;
     };
 
-  // Print all subscriptions and clients
-  bool subs_header = false;
-  for (const auto & n : nodes) {
-    auto trackers = n->sub_and_client_trackers();
-    for (const auto & tracker : *trackers) {
-      if (!subs_header) {
-        log_header("Subscriptions and clients stats:");
-        subs_header = true;
-      }
-      log_stats_line(n->get_node_name(), tracker);
-    }
+  if (trackers.empty()) {
+    return;
   }
 
-  // Print publishers
-  bool pubs_header = false;
-  for (const auto & n : nodes) {
-    auto trackers = n->pub_trackers();
-    for (const auto & tracker : *trackers) {
-      if (!pubs_header) {
-        log_header("Publishers stats:");
-        pubs_header = true;
-      }
-      log_stats_line(n->get_node_name(), tracker);
-    }
+  log_header(title);
+  for (const auto & tracker : trackers) {
+    log_stats_line(tracker);
   }
 }
 
 void log_latency_total_stats(
   std::ostream & stream,
-  const std::vector<PerformanceNodeBase::SharedPtr> & nodes)
+  const std::vector<Tracker> & trackers)
 {
   uint64_t total_received = 0;
   uint64_t total_lost = 0;
@@ -160,15 +144,12 @@ void log_latency_total_stats(
   double total_latency = 0;
 
   // collect total data
-  for (const auto & n : nodes) {
-    auto trackers = n->sub_and_client_trackers();
-    for (const auto & tracker : *trackers) {
-      total_received += tracker.second.received();
-      total_lost += tracker.second.lost();
-      total_late += tracker.second.late();
-      total_too_late += tracker.second.too_late();
-      total_latency += tracker.second.received() * tracker.second.stat().mean();
-    }
+  for (const auto & tracker : trackers) {
+    total_received += tracker.received();
+    total_lost += tracker.lost();
+    total_late += tracker.late();
+    total_too_late += tracker.too_late();
+    total_latency += tracker.received() * tracker.stat().mean();
   }
 
   double average_latency = std::round(total_latency / total_received);
@@ -178,4 +159,4 @@ void log_latency_total_stats(
     average_latency, stream);
 }
 
-}  // namespace performance_test
+}  // namespace performance_metrics

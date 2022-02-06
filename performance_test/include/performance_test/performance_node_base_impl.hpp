@@ -17,15 +17,16 @@
 #include <random>
 #include <string>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
 
+#include "performance_metrics/events_logger.hpp"
+#include "performance_metrics/tracker.hpp"
 #include "performance_test/communication.hpp"
-#include "performance_test/events_logger.hpp"
-#include "performance_test/tracker.hpp"
 
 #ifndef PERFORMANCE_TEST__PERFORMANCE_NODE_BASE_HPP_
 #include "performance_node_base.hpp"
@@ -38,49 +39,53 @@ template<typename Msg>
 void PerformanceNodeBase::add_subscriber(
   const std::string & topic_name,
   msg_pass_by_t msg_pass_by,
-  Tracker::Options tracking_options,
-  const rmw_qos_profile_t & qos_profile)
+  performance_metrics::Tracker::Options tracking_options,
+  const rmw_qos_profile_t & qos_profile,
+  std::chrono::microseconds work_duration)
+{
+  switch (msg_pass_by) {
+    case PASS_BY_SHARED_PTR:
+      add_subscriber_by_msg_variant<Msg, typename Msg::ConstSharedPtr>(
+        topic_name,
+        tracking_options,
+        qos_profile,
+        work_duration);
+      break;
+    case PASS_BY_UNIQUE_PTR:
+      add_subscriber_by_msg_variant<Msg, typename Msg::UniquePtr>(
+        topic_name,
+        tracking_options,
+        qos_profile,
+        work_duration);
+      break;
+  }
+}
+
+template<
+  typename Msg,
+  typename CallbackType = typename Msg::ConstSharedPtr>
+void PerformanceNodeBase::add_subscriber_by_msg_variant(
+  const std::string & topic_name,
+  performance_metrics::Tracker::Options tracking_options,
+  const rmw_qos_profile_t & qos_profile,
+  std::chrono::microseconds work_duration)
 {
   rclcpp::SubscriptionBase::SharedPtr sub;
   auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile);
 
-  switch (msg_pass_by) {
-    case PASS_BY_SHARED_PTR:
-      {
-        std::function<void(typename Msg::ConstSharedPtr msg)> callback_function = std::bind(
-          &PerformanceNodeBase::topic_callback<typename Msg::ConstSharedPtr>,
-          this,
-          topic_name,
-          std::placeholders::_1);
+  std::function<void(CallbackType msg)> callback_function = std::bind(
+    &PerformanceNodeBase::topic_callback<CallbackType>,
+    this,
+    topic_name,
+    work_duration,
+    std::placeholders::_1);
 
-        sub = rclcpp::create_subscription<Msg>(
-          m_node_interfaces.parameters,
-          m_node_interfaces.topics,
-          topic_name,
-          qos,
-          callback_function);
-
-        break;
-      }
-    case PASS_BY_UNIQUE_PTR:
-      {
-        std::function<void(typename Msg::UniquePtr msg)> callback_function = std::bind(
-          &PerformanceNodeBase::topic_callback<typename Msg::UniquePtr>,
-          this,
-          topic_name,
-          std::placeholders::_1
-        );
-
-        sub = rclcpp::create_subscription<Msg>(
-          m_node_interfaces.parameters,
-          m_node_interfaces.topics,
-          topic_name,
-          qos,
-          callback_function);
-
-        break;
-      }
-  }
+  sub = rclcpp::create_subscription<Msg>(
+    m_node_interfaces.parameters,
+    m_node_interfaces.topics,
+    topic_name,
+    qos,
+    callback_function);
 
   this->store_subscription(sub, topic_name, tracking_options);
 }
@@ -118,7 +123,7 @@ void PerformanceNodeBase::add_publisher(
     topic_name,
     qos);
 
-  this->store_publisher(pub, topic_name, Tracker::Options());
+  this->store_publisher(pub, topic_name, performance_metrics::Tracker::Options());
 }
 
 template<typename Srv>
@@ -135,8 +140,7 @@ void PerformanceNodeBase::add_server(
     service_name,
     std::placeholders::_1,
     std::placeholders::_2,
-    std::placeholders::_3
-      );
+    std::placeholders::_3);
 
   rclcpp::ServiceBase::SharedPtr server = rclcpp::create_service<Srv>(
     m_node_interfaces.base,
@@ -146,7 +150,7 @@ void PerformanceNodeBase::add_server(
     qos_profile,
     nullptr);
 
-  this->store_server(server, service_name, Tracker::Options());
+  this->store_server(server, service_name, performance_metrics::Tracker::Options());
 }
 
 template<typename Srv>
@@ -162,8 +166,7 @@ void PerformanceNodeBase::add_periodic_client(
     &PerformanceNodeBase::send_request<Srv>,
     this,
     service_name,
-    size
-  );
+    size);
 
   // store the frequency of this client task
   std::get<1>(m_clients.at(service_name)).set_frequency(1000000 / period.count());
@@ -184,7 +187,7 @@ void PerformanceNodeBase::add_client(
     qos_profile,
     nullptr);
 
-  this->store_client(client, service_name, Tracker::Options());
+  this->store_client(client, service_name, performance_metrics::Tracker::Options());
 }
 
 template<typename Msg>
@@ -276,9 +279,12 @@ PerformanceNodeBase::resize_msg(DataT & data, size_t size)
 }
 
 template<typename MsgType>
-void PerformanceNodeBase::topic_callback(const std::string & name, MsgType msg)
+void PerformanceNodeBase::topic_callback(
+  const std::string & topic_name,
+  std::chrono::microseconds work_duration,
+  MsgType msg)
 {
-  this->handle_sub_received_msg(name, msg->header);
+  this->handle_sub_received_msg(topic_name, work_duration, msg->header);
 }
 
 template<typename Srv>
@@ -304,9 +310,9 @@ void PerformanceNodeBase::send_request(const std::string & name, size_t size)
       std::stringstream description;
       description << "[service] '" << name.c_str() << "' unavailable after 1s";
 
-      EventsLogger::Event ev;
+      performance_metrics::EventsLogger::Event ev;
       ev.caller_name = name + "->" + m_node_interfaces.base->get_name();
-      ev.code = EventsLogger::EventCode::service_unavailable;
+      ev.code = performance_metrics::EventsLogger::EventCode::service_unavailable;
       ev.description = description.str();
 
       m_events_logger->write_event(ev);
@@ -332,8 +338,7 @@ void PerformanceNodeBase::send_request(const std::string & name, size_t size)
     this,
     name,
     request,
-    std::placeholders::_1
-      );
+    std::placeholders::_1);
 
   auto result_future = client->async_send_request(request, callback_function);
   tracking_number++;

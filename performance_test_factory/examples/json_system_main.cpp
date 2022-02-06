@@ -13,9 +13,9 @@
 #include <vector>
 
 #include "cxxopts.hpp"
+#include "performance_metrics/resource_usage_logger.hpp"
+#include "performance_metrics/tracker.hpp"
 #include "performance_test/system.hpp"
-#include "performance_test/resource_usage_logger.hpp"
-#include "performance_test/tracker.hpp"
 #include "performance_test_factory/factory.hpp"
 #include "examples_options.hpp"
 
@@ -53,7 +53,7 @@ int main(int argc, char ** argv)
     options.experiment_path + std::string("/log/latency_total.txt");
 
   // Start resources logger
-  performance_test::ResourceUsageLogger ru_logger(resources_output_path);
+  performance_metrics::ResourceUsageLogger ru_logger(resources_output_path);
   ru_logger.start(std::chrono::milliseconds(options.resources_sampling_per_ms));
 
   rclcpp::init(argc, argv);
@@ -67,7 +67,7 @@ int main(int argc, char ** argv)
 
   auto nodes_vec = factory.parse_topology_from_json(
     options.json_path,
-    performance_test::Tracker::Options());
+    performance_metrics::Tracker::Options());
 
   ros2_system.add_node(nodes_vec);
 
@@ -79,10 +79,10 @@ int main(int argc, char ** argv)
 
   std::this_thread::sleep_for(500ms);
 
-  ros2_system.print_latency_all_stats();
+  ros2_system.log_latency_all_stats();
   std::cout << std::endl;
   std::cout << "System total:" << std::endl;
-  ros2_system.print_latency_total_stats();
+  ros2_system.log_latency_total_stats();
   ros2_system.save_latency_all_stats(latency_all_output_path);
   ros2_system.save_latency_total_stats(latency_total_output_path);
 

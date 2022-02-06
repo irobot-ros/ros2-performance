@@ -13,24 +13,9 @@ Two default topologies are provided in the [topology](topology) folder, called [
 Sierra Nevada is light 10-node system while Mont Blanc is a heavier and more complex 20-node system.
 
 
-### Building
+### Usage
 
-The repository is based on the [performance_test](../performance_test) library.
-
-To build:
-
-```
-mkdir -p performances_ws/src
-cp -R <path to performances> performances_ws/src
-cd performances_ws
-colcon build --merge-install
-```
-
-It's possible to build and run this application on standard laptops as well as on embedded platforms.
-You can follow these instructions for cross-compiling for RaspberryPi [cross-compiling](../../cross-compiling).
-
-
-### Running
+Follow the instructions for building the [performance_test](../performance_test) framework.
 
 First, source the environment:
 
@@ -48,7 +33,6 @@ cd performances_ws/install/lib/irobot_benchmark
 This will run Sierra Nevada for 60 seconds and with *Intra-Process-Communication* activated.
 For more options, run `./irobot_benchmark --help`.
 
-
 ### Output
 
 After running the application, a folder **log** will be created along with four different files inside it:
@@ -56,7 +40,6 @@ After running the application, a folder **log** will be created along with four 
 - latency_total.txt
 - resources.txt
 - events.txt
-
 
 ### Evaluation results
 

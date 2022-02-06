@@ -53,7 +53,7 @@ public:
     int n_publishers,
     const std::string & msg_type,
     msg_pass_by_t msg_pass_by,
-    const performance_test::Tracker::Options & tracking_options,
+    const performance_metrics::Tracker::Options & tracking_options,
     const rmw_qos_profile_t & custom_qos_profile = rmw_qos_profile_default);
 
   std::vector<performance_test::PerformanceNodeBase::SharedPtr> create_periodic_publisher_nodes(
@@ -88,7 +88,7 @@ public:
     performance_test::PerformanceNodeBase::SharedPtr n,
     const std::string & msg_type,
     const std::string & topic_name,
-    const performance_test::Tracker::Options & tracking_options,
+    const performance_metrics::Tracker::Options & tracking_options,
     msg_pass_by_t msg_pass_by = PASS_BY_SHARED_PTR,
     const rmw_qos_profile_t & custom_qos_profile = rmw_qos_profile_default);
 
@@ -121,7 +121,7 @@ public:
 
   std::vector<performance_test::PerformanceNodeBase::SharedPtr> parse_topology_from_json(
     const std::string & json_path,
-    const performance_test::Tracker::Options & tracking_options);
+    const performance_metrics::Tracker::Options & tracking_options);
 
 private:
   performance_test::PerformanceNodeBase::SharedPtr create_node_from_json(
@@ -131,7 +131,7 @@ private:
   void create_node_entities_from_json(
     performance_test::PerformanceNodeBase::SharedPtr node,
     const nlohmann::json & node_json,
-    const performance_test::Tracker::Options & tracking_options);
+    const performance_metrics::Tracker::Options & tracking_options);
 
   void add_periodic_publisher_from_json(
     performance_test::PerformanceNodeBase::SharedPtr node,
@@ -140,7 +140,7 @@ private:
   void add_subscriber_from_json(
     performance_test::PerformanceNodeBase::SharedPtr node,
     const nlohmann::json & sub_json,
-    const performance_test::Tracker::Options & t_options);
+    const performance_metrics::Tracker::Options & t_options);
 
   void add_periodic_client_from_json(
     performance_test::PerformanceNodeBase::SharedPtr node,

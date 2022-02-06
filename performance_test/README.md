@@ -53,8 +53,8 @@ Events on the other hand are for example the end of the discovery phase and late
 In order to enable monitoring or resource usage you have to add the following snippet to your code:
 
 ```
-#include "performance_test/resource_usage_logger.hpp"
-performance_test::ResourceUsageLogger ru_logger("resource_usage_output.txt");
+#include "performance_metrics/resource_usage_logger.hpp"
+performance_metrics::ResourceUsageLogger ru_logger("resource_usage_output.txt");
 auto sampling_period = std::chrono::milliseconds(500);
 ru_logger.start(sampling_period);
 

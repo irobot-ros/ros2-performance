@@ -18,9 +18,9 @@
 
 #include "rclcpp/rclcpp.hpp"
 
+#include "performance_metrics/resource_usage_logger.hpp"
 #include "performance_test/communication.hpp"
 #include "performance_test/performance_node.hpp"
-#include "performance_test/resource_usage_logger.hpp"
 #include "performance_test/system.hpp"
 #include "performance_test/utils/fork_process.hpp"
 #include "performance_test_factory/cli_options.hpp"
@@ -40,7 +40,7 @@ static void run_test(
   const std::string & latency_total_output_path)
 {
   // Start resources logger
-  performance_test::ResourceUsageLogger ru_logger(resources_output_path);
+  performance_metrics::ResourceUsageLogger ru_logger(resources_output_path);
 
   ru_logger.start(std::chrono::milliseconds(options.resources_sampling_per_ms));
 
@@ -77,11 +77,11 @@ static void run_test(
   rclcpp::shutdown();
   std::this_thread::sleep_for(500ms);
 
-  ros2_system.print_latency_all_stats();
+  ros2_system.log_latency_all_stats();
 
   if (options.topology_json_list.size() > 1) {
     std::cout << std::endl << "Process total:" << std::endl;
-    ros2_system.print_latency_total_stats();
+    ros2_system.log_latency_total_stats();
   }
 
   std::cout << std::endl;

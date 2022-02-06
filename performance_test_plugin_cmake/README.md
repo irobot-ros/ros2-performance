@@ -35,7 +35,7 @@ This example shows how some of the APIs exposed by the library should look like 
  std::shared_ptr<performance_test::PerformanceNodeBase> n,
     const std::string & msg_type,
     const std::string & topic_name,
-    const performance_test::Tracker::Options & tracking_options,
+    const performance_metrics::Tracker::Options & tracking_options,
     msg_pass_by_t msg_pass_by,
     const rmw_qos_profile_t & custom_qos_profile)
   {

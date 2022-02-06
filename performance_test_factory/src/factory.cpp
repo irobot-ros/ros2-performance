@@ -94,7 +94,7 @@ TemplateFactory::create_subscriber_nodes(
   int n_publishers,
   const std::string & msg_type,
   msg_pass_by_t msg_pass_by,
-  const performance_test::Tracker::Options & tracking_options,
+  const performance_metrics::Tracker::Options & tracking_options,
   const rmw_qos_profile_t & custom_qos_profile)
 {
   std::vector<performance_test::PerformanceNodeBase::SharedPtr> nodes_vector;
@@ -248,7 +248,7 @@ void TemplateFactory::add_subscriber_from_strings(
   performance_test::PerformanceNodeBase::SharedPtr n,
   const std::string & msg_type,
   const std::string & topic_name,
-  const performance_test::Tracker::Options & tracking_options,
+  const performance_metrics::Tracker::Options & tracking_options,
   msg_pass_by_t msg_pass_by,
   const rmw_qos_profile_t & custom_qos_profile)
 {
@@ -260,7 +260,7 @@ void TemplateFactory::add_subscriber_from_strings(
     performance_test::PerformanceNodeBase::SharedPtr,
     const std::string &,
     const std::string &,
-    const performance_test::Tracker::Options &,
+    const performance_metrics::Tracker::Options &,
     msg_pass_by_t,
     const rmw_qos_profile_t &);
 
@@ -365,7 +365,7 @@ void TemplateFactory::add_server_from_strings(
 std::vector<performance_test::PerformanceNodeBase::SharedPtr>
 TemplateFactory::parse_topology_from_json(
   const std::string & json_path,
-  const performance_test::Tracker::Options & tracking_options)
+  const performance_metrics::Tracker::Options & tracking_options)
 {
   std::vector<performance_test::PerformanceNodeBase::SharedPtr> nodes_vec;
 
@@ -433,7 +433,7 @@ TemplateFactory::create_node_from_json(
 void TemplateFactory::create_node_entities_from_json(
   performance_test::PerformanceNodeBase::SharedPtr node,
   const nlohmann::json & node_json,
-  const performance_test::Tracker::Options & tracking_options)
+  const performance_metrics::Tracker::Options & tracking_options)
 {
   if (node_json.find("publishers") != node_json.end()) {
     // if there is at least 1 publisher, add each of them
@@ -506,7 +506,7 @@ void TemplateFactory::add_periodic_publisher_from_json(
 void TemplateFactory::add_subscriber_from_json(
   performance_test::PerformanceNodeBase::SharedPtr node,
   const nlohmann::json & sub_json,
-  const performance_test::Tracker::Options & t_options)
+  const performance_metrics::Tracker::Options & t_options)
 {
   std::string topic_name = sub_json["topic_name"];
   std::string msg_type = sub_json["msg_type"];

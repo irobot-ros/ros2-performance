@@ -7,8 +7,8 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#ifndef PERFORMANCE_TEST__EVENTS_LOGGER_HPP_
-#define PERFORMANCE_TEST__EVENTS_LOGGER_HPP_
+#ifndef PERFORMANCE_METRICS__EVENTS_LOGGER_HPP_
+#define PERFORMANCE_METRICS__EVENTS_LOGGER_HPP_
 
 #include <iostream>
 #include <fstream>
@@ -17,7 +17,7 @@
 #include <chrono>
 #include <iomanip>
 
-namespace performance_test
+namespace performance_metrics
 {
 
 /**
@@ -65,6 +65,6 @@ private:
   static const int _p_desc_width = 20;
 };
 
-}  // namespace performance_test
+}  // namespace performance_metrics
 
-#endif  // PERFORMANCE_TEST__EVENTS_LOGGER_HPP_
+#endif  // PERFORMANCE_METRICS__EVENTS_LOGGER_HPP_

@@ -9,11 +9,11 @@
 
 #include <gtest/gtest.h>
 
-#include "performance_test/stat.hpp"
+#include "performance_metrics/stat.hpp"
 
 TEST(StatTest, StatInitTest)
 {
-  performance_test::Stat<uint64_t> stat;
+  performance_metrics::Stat<uint64_t> stat;
 
   EXPECT_TRUE(std::isnan(stat.mean()));
   EXPECT_TRUE(std::isnan(stat.stddev()));
@@ -24,7 +24,7 @@ TEST(StatTest, StatInitTest)
 
 TEST(StatTest, StatAddSamplesTest)
 {
-  performance_test::Stat<uint64_t> stat;
+  performance_metrics::Stat<uint64_t> stat;
 
   // Some samples
   uint64_t s1 = 100000;

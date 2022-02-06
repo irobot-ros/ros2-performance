@@ -7,13 +7,13 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#ifndef PERFORMANCE_TEST__STAT_HPP_
-#define PERFORMANCE_TEST__STAT_HPP_
+#ifndef PERFORMANCE_METRICS__STAT_HPP_
+#define PERFORMANCE_METRICS__STAT_HPP_
 
 #include <cmath>
 #include <utility>
 
-namespace performance_test
+namespace performance_metrics
 {
 
 // Use shifted data variance algorithm
@@ -89,6 +89,6 @@ private:
   uint64_t _n = 0;
 };
 
-}  // namespace performance_test
+}  // namespace performance_metrics
 
-#endif  // PERFORMANCE_TEST__STAT_HPP_
+#endif  // PERFORMANCE_METRICS__STAT_HPP_

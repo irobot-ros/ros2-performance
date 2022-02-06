@@ -9,11 +9,12 @@
 
 #include <gtest/gtest.h>
 
-#include "performance_test/tracker.hpp"
+#include "performance_metrics/tracker.hpp"
+#include "performance_test_msgs/msg/performance_header.hpp"
 
 TEST(TrackerTest, TrackerInitTest)
 {
-  performance_test::Tracker tracker("", "", performance_test::Tracker::Options());
+  performance_metrics::Tracker tracker("", "", performance_metrics::Tracker::Options());
 
   ASSERT_EQ(0u, tracker.lost());
   ASSERT_EQ(0u, tracker.late());
@@ -31,7 +32,7 @@ TEST(TrackerTest, TrackerInitTest)
 TEST(TrackerTest, TrackerScanTest)
 {
   // tracker with disabled tracking options
-  performance_test::Tracker tracker("", "", performance_test::Tracker::Options(false));
+  performance_metrics::Tracker tracker("", "", performance_metrics::Tracker::Options(false));
 
   auto header = performance_test_msgs::msg::PerformanceHeader();
   header.stamp = rclcpp::Time(0, 0, RCL_ROS_TIME);
@@ -67,13 +68,13 @@ TEST(TrackerTest, TrackerScanTest)
 
 TEST(TrackerTest, TrackingOptionsTest)
 {
-  performance_test::Tracker::Options t_options;
+  performance_metrics::Tracker::Options t_options;
   t_options.late_percentage = 20;
   t_options.late_absolute_us = 5000;
   t_options.too_late_percentage = 100;
   t_options.too_late_absolute_us = 50000;
 
-  performance_test::Tracker tracker("", "", t_options);
+  performance_metrics::Tracker tracker("", "", t_options);
 
   auto header = performance_test_msgs::msg::PerformanceHeader();
   header.stamp = rclcpp::Time(0, 0, RCL_ROS_TIME);

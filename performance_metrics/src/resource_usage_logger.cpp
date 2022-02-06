@@ -16,9 +16,9 @@
 #include <string>
 #include <thread>
 
-#include "performance_test/resource_usage_logger.hpp"
+#include "performance_metrics/resource_usage_logger.hpp"
 
-namespace performance_test
+namespace performance_metrics
 {
 
 ResourceUsageLogger::ResourceUsageLogger(const std::string & filename)
@@ -198,4 +198,4 @@ void ResourceUsageLogger::_print(std::ostream & stream)
   stream << std::endl;
 }
 
-}  // namespace performance_test
+}  // namespace performance_metrics

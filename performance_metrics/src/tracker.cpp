@@ -11,9 +11,9 @@
 #include <memory>
 #include <sstream>
 
-#include "performance_test/tracker.hpp"
+#include "performance_metrics/tracker.hpp"
 
-namespace performance_test
+namespace performance_metrics
 {
 
 void Tracker::scan(
@@ -127,12 +127,11 @@ void Tracker::add_sample(uint64_t latency_sample)
   _stat.add_sample(latency_sample);
 }
 
-Tracker::TrackingNumber
-Tracker::get_and_update_tracking_number()
+uint32_t Tracker::get_and_update_tracking_number()
 {
-  TrackingNumber old_number = _tracking_number_count;
+  uint32_t old_number = _tracking_number_count;
   _tracking_number_count++;
   return old_number;
 }
 
-}  // namespace performance_test
+}  // namespace performance_metrics

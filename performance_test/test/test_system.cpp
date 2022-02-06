@@ -65,17 +65,17 @@ TEST_F(TestSystem, SystemPubSubTest)
   sub_node->add_subscriber<performance_test_msgs::msg::Sample>(
     "my_topic",
     PASS_BY_SHARED_PTR,
-    performance_test::Tracker::Options(),
+    performance_metrics::Tracker::Options(),
     rmw_qos_profile_default);
   ros2_system.add_node(sub_node);
 
   ros2_system.spin(duration_sec);
 
-  auto trackers_vec_ptr = sub_node->sub_and_client_trackers();
-  auto tracker = (*trackers_vec_ptr)[0];
+  auto tracker = sub_node->sub_and_client_trackers()[0];
 
-  ASSERT_EQ("my_topic", tracker.first);
-  ASSERT_GT(tracker.second.received(), (uint64_t)1);
+  ASSERT_EQ("sub_node", tracker.get_node_name());
+  ASSERT_EQ("my_topic", tracker.get_entity_name());
+  ASSERT_GT(tracker.received(), (uint64_t)1);
 }
 
 TEST_F(TestSystem, SystemClientServerTest)
@@ -103,11 +103,11 @@ TEST_F(TestSystem, SystemClientServerTest)
   // discovery check does not work with client/server yet
   ros2_system.spin(duration_sec, false);
 
-  auto trackers_vec_ptr = client_node->sub_and_client_trackers();
-  auto tracker = (*trackers_vec_ptr)[0];
+  auto tracker = client_node->sub_and_client_trackers()[0];
 
-  ASSERT_EQ("my_service", tracker.first);
-  ASSERT_GT(tracker.second.received(), (uint64_t)1);
+  ASSERT_EQ("client_node", tracker.get_node_name());
+  ASSERT_EQ("my_service", tracker.get_entity_name());
+  ASSERT_GT(tracker.received(), (uint64_t)1);
 }
 
 TEST_F(TestSystem, SystemDifferentQoSTest)
@@ -136,15 +136,14 @@ TEST_F(TestSystem, SystemDifferentQoSTest)
   sub_node->add_subscriber<performance_test_msgs::msg::Sample>(
     "my_topic",
     PASS_BY_SHARED_PTR,
-    performance_test::Tracker::Options(),
+    performance_metrics::Tracker::Options(),
     qos_profile);
   ros2_system.add_node(sub_node);
 
   ros2_system.spin(duration_sec);
 
-  auto trackers_vec_ptr = sub_node->sub_and_client_trackers();
-  auto tracker = (*trackers_vec_ptr)[0];
+  auto tracker = sub_node->sub_and_client_trackers()[0];
 
   // they have incompatible qos so they shouldn't communicate
-  ASSERT_EQ(tracker.second.received(), (uint64_t)0);
+  ASSERT_EQ(tracker.received(), (uint64_t)0);
 }

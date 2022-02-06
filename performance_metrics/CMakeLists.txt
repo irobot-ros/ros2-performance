@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(performance_test)
+project(performance_metrics)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -11,23 +11,20 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclcpp_lifecycle REQUIRED)
-find_package(performance_metrics REQUIRED)
 find_package(performance_test_msgs REQUIRED)
+find_package(rclcpp REQUIRED)
 
 set(LIBRARY_DEPENDENCIES
-  rclcpp
-  rclcpp_lifecycle
-  performance_metrics
   performance_test_msgs
+  rclcpp
 )
 
 set(LIBRARY_SRC
-  src/performance_node_base.cpp
-  src/system.cpp
-  src/utils/fork_process.cpp
-  src/utils/node_options.cpp
+  src/dummy_work.cpp
+  src/events_logger.cpp
+  src/resource_usage_logger.cpp
+  src/stat_logger.cpp
+  src/tracker.cpp
 )
 
 set(LIBRARY_NAME ${PROJECT_NAME})

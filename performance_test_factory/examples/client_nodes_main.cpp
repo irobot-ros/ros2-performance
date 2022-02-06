@@ -13,8 +13,8 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "cxxopts.hpp"
+#include "performance_metrics/resource_usage_logger.hpp"
 #include "performance_test/system.hpp"
-#include "performance_test/resource_usage_logger.hpp"
 #include "performance_test_factory/factory.hpp"
 #include "examples_options.hpp"
 
@@ -36,7 +36,7 @@ int main(int argc, char ** argv)
     }
   }
 
-  performance_test::ResourceUsageLogger ru_logger(ru_file_path);
+  performance_metrics::ResourceUsageLogger ru_logger(ru_file_path);
   ru_logger.set_system_info(options.n_services, options.n_clients, options.frequency);
   // Start resources logger
   if (options.monitor_stats) {
@@ -92,10 +92,10 @@ int main(int argc, char ** argv)
     ru_logger.stop();
   }
 
-  ros2_system.print_latency_all_stats();
+  ros2_system.log_latency_all_stats();
   std::cout << std::endl;
   std::cout << "System total:" << std::endl;
-  ros2_system.print_latency_total_stats();
+  ros2_system.log_latency_total_stats();
   ros2_system.save_latency_all_stats(latency_file_path);
 
   return 0;

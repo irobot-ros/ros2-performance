@@ -16,9 +16,9 @@
 #include <string>
 #include <vector>
 
+#include "performance_metrics/events_logger.hpp"
 #include "performance_test/performance_node_base.hpp"
 #include "performance_test/executors.hpp"
-#include "performance_test/events_logger.hpp"
 
 namespace performance_test
 {
@@ -46,9 +46,9 @@ public:
 
   void save_latency_total_stats(const std::string & filename) const;
 
-  void print_latency_all_stats() const;
+  void log_latency_all_stats(std::ostream & stream = std::cout) const;
 
-  void print_latency_total_stats() const;
+  void log_latency_total_stats(std::ostream & stream = std::cout) const;
 
   void print_agregate_stats(const std::vector<std::string> & topology_json_list) const;
 
@@ -71,7 +71,7 @@ private:
 
   std::map<int, NamedExecutor> m_executors_map;
 
-  std::shared_ptr<EventsLogger> m_events_logger;
+  std::shared_ptr<performance_metrics::EventsLogger> m_events_logger;
 
   ExecutorType m_system_executor;
 };

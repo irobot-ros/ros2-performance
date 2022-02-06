@@ -17,11 +17,11 @@
 #include <utility>
 #include <vector>
 
+#include "performance_metrics/events_logger.hpp"
+#include "performance_metrics/stat_logger.hpp"
 #include "performance_test/system.hpp"
-#include "performance_test/utils/stat_logger.hpp"
 #include "performance_test/performance_node_base.hpp"
 #include "performance_test/executors.hpp"
-#include "performance_test/events_logger.hpp"
 
 namespace performance_test
 {
@@ -120,7 +120,7 @@ void System::spin(int duration_sec, bool wait_for_discovery, bool name_threads)
 
 void System::enable_events_logger(const std::string & events_logger_path)
 {
-  m_events_logger = std::make_shared<EventsLogger>(events_logger_path);
+  m_events_logger = std::make_shared<performance_metrics::EventsLogger>(events_logger_path);
 }
 
 void System::save_latency_all_stats(const std::string & filename) const
@@ -140,7 +140,7 @@ void System::save_latency_all_stats(const std::string & filename) const
     return;
   }
 
-  performance_test::log_latency_all_stats(out_file, m_nodes);
+  this->log_latency_all_stats(out_file);
 }
 
 void System::save_latency_total_stats(const std::string & filename) const
@@ -160,17 +160,40 @@ void System::save_latency_total_stats(const std::string & filename) const
     return;
   }
 
-  performance_test::log_latency_total_stats(out_file, m_nodes);
+  this->log_latency_total_stats(out_file);
 }
 
-void System::print_latency_all_stats() const
+void System::log_latency_all_stats(std::ostream & stream) const
 {
-  performance_test::log_latency_all_stats(std::cout, m_nodes);
+  std::vector<performance_metrics::Tracker> subs_and_clients;
+  for (const auto & n : m_nodes) {
+    auto trackers = n->sub_and_client_trackers();
+    subs_and_clients.insert(subs_and_clients.end(), trackers.begin(), trackers.end());
+  }
+  performance_metrics::log_latency_all_stats(
+    stream,
+    subs_and_clients,
+    "Subscriptions and clients stats:");
+
+  std::vector<performance_metrics::Tracker> publishers;
+  for (const auto & n : m_nodes) {
+    auto trackers = n->pub_trackers();
+    publishers.insert(publishers.end(), trackers.begin(), trackers.end());
+  }
+  performance_metrics::log_latency_all_stats(
+    stream,
+    publishers,
+    "Publishers stats:");
 }
 
-void System::print_latency_total_stats() const
+void System::log_latency_total_stats(std::ostream & stream) const
 {
-  performance_test::log_latency_total_stats(std::cout, m_nodes);
+  std::vector<performance_metrics::Tracker> subs_and_clients;
+  for (const auto & n : m_nodes) {
+    auto trackers = n->sub_and_client_trackers();
+    subs_and_clients.insert(subs_and_clients.end(), trackers.begin(), trackers.end());
+  }
+  performance_metrics::log_latency_total_stats(stream, subs_and_clients);
 }
 
 void System::print_agregate_stats(const std::vector<std::string> & topology_json_list) const
@@ -207,7 +230,7 @@ void System::print_agregate_stats(const std::vector<std::string> & topology_json
 
   double average_latency = std::round(total_latency / topology_json_list.size());
 
-  log_total_stats(
+  performance_metrics::log_total_stats(
     total_received, total_lost, total_late, total_too_late,
     average_latency, std::cout);
 }
@@ -279,9 +302,9 @@ void System::wait_pdp_discovery(
 
   if (m_events_logger != nullptr) {
     // Create an event for PDP completed
-    EventsLogger::Event pdp_ev;
+    performance_metrics::EventsLogger::Event pdp_ev;
     pdp_ev.caller_name = "SYSTEM";
-    pdp_ev.code = EventsLogger::EventCode::discovery;
+    pdp_ev.code = performance_metrics::EventsLogger::EventCode::discovery;
     pdp_ev.description = "[discovery] PDP completed";
     m_events_logger->write_event(pdp_ev);
   }
@@ -300,8 +323,8 @@ void System::wait_edp_discovery(
   std::map<std::string, int> subs_per_topic;
   for (const auto & n : m_nodes) {
     auto trackers = n->sub_and_client_trackers();
-    for (const auto & tracker : *trackers) {
-      subs_per_topic[tracker.first] += 1;
+    for (const auto & tracker : trackers) {
+      subs_per_topic[tracker.get_entity_name()] += 1;
     }
   }
 
@@ -342,9 +365,9 @@ void System::wait_edp_discovery(
 
   if (m_events_logger != nullptr) {
     // Create an event for EDP completed
-    EventsLogger::Event edp_ev;
+    performance_metrics::EventsLogger::Event edp_ev;
     edp_ev.caller_name = "SYSTEM";
-    edp_ev.code = EventsLogger::EventCode::discovery;
+    edp_ev.code = performance_metrics::EventsLogger::EventCode::discovery;
     edp_ev.description = "[discovery] EDP completed";
     m_events_logger->write_event(edp_ev);
   }

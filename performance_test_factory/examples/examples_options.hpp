@@ -13,6 +13,7 @@
 #include <string>
 
 #include "cxxopts.hpp"
+#include "performance_metrics/tracker.hpp"
 
 struct ExamplesOptions
 {
@@ -107,7 +108,7 @@ public:
   int experiment_duration = 5;
   int monitor_stats = 0;
   int resources_sampling_per_ms = 500;
-  performance_test::Tracker::Options tracking_options {};
+  performance_metrics::Tracker::Options tracking_options {};
   std::string experiment_name = "";
   std::string experiment_path = ".";
   std::string events_file_path = "";

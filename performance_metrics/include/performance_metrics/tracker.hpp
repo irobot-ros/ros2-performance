@@ -7,8 +7,8 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#ifndef PERFORMANCE_TEST__TRACKER_HPP_
-#define PERFORMANCE_TEST__TRACKER_HPP_
+#ifndef PERFORMANCE_METRICS__TRACKER_HPP_
+#define PERFORMANCE_METRICS__TRACKER_HPP_
 
 #include <iostream>
 #include <memory>
@@ -16,12 +16,12 @@
 
 #include "rclcpp/time.hpp"
 
-#include "performance_test/stat.hpp"
-#include "performance_test/events_logger.hpp"
+#include "performance_metrics/stat.hpp"
+#include "performance_metrics/events_logger.hpp"
 
 #include "performance_test_msgs/msg/performance_header.hpp"
 
-namespace performance_test
+namespace performance_metrics
 {
 
 class Tracker
@@ -40,8 +40,6 @@ public:
     int too_late_absolute_us = 50000;
   };
 
-  using TrackingNumber = uint32_t;
-
   Tracker() = delete;
 
   Tracker(
@@ -58,7 +56,7 @@ public:
 
   void add_sample(uint64_t latency_sample);
 
-  TrackingNumber get_and_update_tracking_number();
+  uint32_t get_and_update_tracking_number();
 
   uint64_t lost() const {return _lost_messages;}
 
@@ -80,6 +78,16 @@ public:
 
   uint64_t last() const {return _last_latency;}
 
+  std::string get_node_name() const
+  {
+    return _node_name;
+  }
+
+  std::string get_entity_name() const
+  {
+    return _topic_srv_name;
+  }
+
 private:
   std::string _node_name;
   std::string _topic_srv_name;
@@ -92,10 +100,10 @@ private:
   size_t _size = 0;
   float m_frequency = 0;
   Stat<uint64_t> _stat;
-  TrackingNumber _tracking_number_count = 0;
+  uint32_t _tracking_number_count = 0;
   Options _tracking_options;
 };
 
-}  // namespace performance_test
+}  // namespace performance_metrics
 
-#endif  // PERFORMANCE_TEST__TRACKER_HPP_
+#endif  // PERFORMANCE_METRICS__TRACKER_HPP_

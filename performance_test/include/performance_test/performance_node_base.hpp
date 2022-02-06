@@ -10,6 +10,7 @@
 #ifndef PERFORMANCE_TEST__PERFORMANCE_NODE_BASE_HPP_
 #define PERFORMANCE_TEST__PERFORMANCE_NODE_BASE_HPP_
 
+#include <atomic>
 #include <chrono>
 #include <functional>
 #include <map>
@@ -22,9 +23,9 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
 
+#include "performance_metrics/events_logger.hpp"
+#include "performance_metrics/tracker.hpp"
 #include "performance_test/communication.hpp"
-#include "performance_test/events_logger.hpp"
-#include "performance_test/tracker.hpp"
 
 namespace performance_test
 {
@@ -66,8 +67,10 @@ public:
   void add_subscriber(
     const std::string & topic_name,
     msg_pass_by_t msg_pass_by,
-    Tracker::Options tracking_options = Tracker::Options(),
-    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default);
+    performance_metrics::Tracker::Options tracking_options =
+    performance_metrics::Tracker::Options(),
+    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default,
+    std::chrono::microseconds work_duration = std::chrono::microseconds::zero());
 
   template<typename Msg>
   void add_periodic_publisher(
@@ -101,43 +104,51 @@ public:
 
   void add_timer(std::chrono::microseconds period, std::function<void()> callback);
 
-  using Trackers = std::vector<std::pair<std::string, Tracker>>;
+  std::vector<performance_metrics::Tracker> sub_and_client_trackers();
 
-  std::shared_ptr<Trackers> sub_and_client_trackers();
+  std::vector<performance_metrics::Tracker> pub_trackers();
 
-  std::shared_ptr<Trackers> pub_trackers();
-
-  void set_events_logger(std::shared_ptr<EventsLogger> ev);
+  void set_events_logger(std::shared_ptr<performance_metrics::EventsLogger> ev);
 
   int get_executor_id();
 
   std::vector<std::string> get_published_topics();
 
 private:
+  template<
+    typename Msg,
+    typename CallbackType = typename Msg::ConstSharedPtr>
+  void add_subscriber_by_msg_variant(
+    const std::string & topic_name,
+    performance_metrics::Tracker::Options tracking_options =
+    performance_metrics::Tracker::Options(),
+    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default,
+    std::chrono::microseconds work_duration = std::chrono::microseconds::zero());
+
   void store_subscription(
     rclcpp::SubscriptionBase::SharedPtr sub,
     const std::string & topic_name,
-    const Tracker::Options & tracking_options);
+    const performance_metrics::Tracker::Options & tracking_options);
 
   void store_publisher(
     rclcpp::PublisherBase::SharedPtr pub,
     const std::string & topic_name,
-    const Tracker::Options & tracking_options);
+    const performance_metrics::Tracker::Options & tracking_options);
 
   void store_client(
     rclcpp::ClientBase::SharedPtr client,
     const std::string & service_name,
-    const Tracker::Options & tracking_options);
+    const performance_metrics::Tracker::Options & tracking_options);
 
   void store_server(
     rclcpp::ServiceBase::SharedPtr server,
     const std::string & service_name,
-    const Tracker::Options & tracking_options);
+    const performance_metrics::Tracker::Options & tracking_options);
 
   performance_test_msgs::msg::PerformanceHeader create_msg_header(
     rclcpp::Time publish_time,
     float pub_frequency,
-    Tracker::TrackingNumber tracking_number,
+    uint32_t tracking_number,
     size_t msg_size);
 
   template<typename Msg>
@@ -158,10 +169,14 @@ private:
   resize_msg(DataT & data, size_t size);
 
   template<typename MsgType>
-  void topic_callback(const std::string & name, MsgType msg);
+  void topic_callback(
+    const std::string & topic_name,
+    std::chrono::microseconds work_duration,
+    MsgType msg);
 
   void handle_sub_received_msg(
     const std::string & topic_name,
+    std::chrono::microseconds work_duration,
     const performance_test_msgs::msg::PerformanceHeader & msg_header);
 
   template<typename Srv>
@@ -192,30 +207,37 @@ private:
 
   // Client blocking call does not work with timers
   // Use a lock variable to avoid calling when you are already waiting
-  bool m_client_lock = false;
+  std::atomic<bool> m_client_lock {false};
 
   NodeInterfaces m_node_interfaces;
 
   // A topic-name indexed map to store the publisher pointers with their
   // trackers.
-  std::map<std::string, std::pair<rclcpp::PublisherBase::SharedPtr, Tracker>> m_pubs;
+  std::map<
+    std::string,
+    std::pair<rclcpp::PublisherBase::SharedPtr, performance_metrics::Tracker>> m_pubs;
 
   // A topic-name indexed map to store the subscriber pointers with their
   // trackers.
-  std::map<std::string, std::pair<rclcpp::SubscriptionBase::SharedPtr, Tracker>> m_subs;
+  std::map<
+    std::string,
+    std::pair<rclcpp::SubscriptionBase::SharedPtr, performance_metrics::Tracker>> m_subs;
 
-  using ClientsTuple = std::tuple<rclcpp::ClientBase::SharedPtr, Tracker, Tracker::TrackingNumber>;
+  using ClientsTuple =
+    std::tuple<rclcpp::ClientBase::SharedPtr, performance_metrics::Tracker, uint32_t>;
   // A service-name indexed map to store the client pointers with their
   // trackers.
   std::map<std::string, ClientsTuple> m_clients;
 
   // A service-name indexed map to store the server pointers with their
   // trackers.
-  std::map<std::string, std::pair<rclcpp::ServiceBase::SharedPtr, Tracker>> m_servers;
+  std::map<
+    std::string,
+    std::pair<rclcpp::ServiceBase::SharedPtr, performance_metrics::Tracker>> m_servers;
 
   std::vector<rclcpp::TimerBase::SharedPtr> m_timers;
 
-  std::shared_ptr<EventsLogger> m_events_logger;
+  std::shared_ptr<performance_metrics::EventsLogger> m_events_logger;
 
   int m_executor_id = 0;
 };

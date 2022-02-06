@@ -15,9 +15,9 @@
 #include <string>
 #include <thread>
 
-#include "performance_test/events_logger.hpp"
+#include "performance_metrics/events_logger.hpp"
 
-namespace performance_test
+namespace performance_metrics
 {
 
 EventsLogger::EventsLogger(const std::string & filename)
@@ -70,4 +70,4 @@ void EventsLogger::write_event(const Event & event)
   m_file << std::endl;
 }
 
-}  // namespace performance_test
+}  // namespace performance_metrics

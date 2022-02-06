@@ -10,6 +10,7 @@
 #ifndef PERFORMANCE_TEST__EXECUTORS_HPP_
 #define PERFORMANCE_TEST__EXECUTORS_HPP_
 
+#include <chrono>
 #include <memory>
 #include <ostream>
 #include <string>
@@ -31,23 +32,9 @@ enum ExecutorType
   STATIC_SINGLE_THREADED_EXECUTOR = 2,
 };
 
-inline std::ostream & operator<<(std::ostream & os, const ExecutorType & t)
-{
-  std::string executor_name;
-  switch (t) {
-    case SINGLE_THREADED_EXECUTOR:
-      executor_name = "SingleThreadedExecutor";
-      break;
-    case STATIC_SINGLE_THREADED_EXECUTOR:
-      executor_name = "StaticSingleThreadedExecutor";
-      break;
-    default:
-      executor_name = "Unknown ExecutorType";
-      break;
-  }
+std::ostream & operator<<(std::ostream & os, const ExecutorType & t);
 
-  return os << executor_name;
-}
+void sleep_task(std::chrono::milliseconds task_duration);
 
 }  // namespace performance_test
 

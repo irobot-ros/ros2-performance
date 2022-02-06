@@ -109,7 +109,7 @@ void System::spin(int duration_sec, bool wait_for_discovery, bool name_threads)
   }
 
   // let the nodes spin for the specified amount of time
-  std::this_thread::sleep_for(std::chrono::seconds(m_experiment_duration_sec));
+  performance_test::sleep_task(std::chrono::seconds(m_experiment_duration_sec));
 
   // after the timer, stop all the spin functions
   for (const auto & pair : m_executors_map) {

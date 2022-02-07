@@ -257,8 +257,8 @@ void PerformanceNodeBase::publish_msg(
         rclcpp::LoanedMessage<Msg> loaned_msg(*pub, allocator);
         auto & msg_ref = loaned_msg.get();
         msg_size = resize_msg(msg_ref.data, size);
-        // Fill the loaned msg with 1s.
-        // This simulates a real application: users are expected to populate the loaned msg with new data every time.
+        // Fill the loaned msg with 1s to simulate a real application:
+        // users are expected to populate the loaned msg with new data every time.
         std::fill(std::begin(msg_ref.data), std::end(msg_ref.data), 1);
 
         publish_time = m_node_interfaces.clock->get_clock()->now();

@@ -58,6 +58,7 @@ If you want to use your custom ROS 2 message interfaces in the topology, you sho
  - **[performance_test](performance_test)**: this package provides the `performance_test::PerformanceNode` class, which provides API for easily adding publishers, subscriptions, clients and services and monitor the performance of the communication.
  Moreover the `performance_test::System` class allows to start multiple nodes at the same time, while ensuring that they discover each other, and to monitor the performance of the whole system.
  Moreover, this pacakge contains scripts for visualizing the performance of applications.
+ - **[performance_metrics](performance_metrics)**: provides tools to measure and log various performance-related metrics in ROS 2 systems.
  - **[performance_test_msgs](performance_test_msgs)**: this package contains basic interface definitions that are directly used by the `performance_test` package to measure performance.
  - **[performance_test_factory](performance_test_factory)**: this package provides the `performance_test_factory::TemplateFactory` class that can be used to create `performance_test::PerformanceNode` objects with specific publishers and subscriptions according to some arguments provided at runtime: this can be done through json files or command line options.
  The interfaces (msg and srv) that can be used in these nodes have to be defined in the so called `performance_test_factory_plugins`.
@@ -65,7 +66,7 @@ If you want to use your custom ROS 2 message interfaces in the topology, you sho
  - **[irobot_interfaces_plugin](irobot_interfaces_plugin)**: this package is a `performance_test_factory_plugin` that provides all the interfaces used in the iRobot system topologies.
  - **[irobot_benchmark](irobot_benchmark)**: this package provides our main benchmark application.
  This executable can load one or multiple json topologies and it creates a ROS2 system running in a specific process from each of them.
- It also contains the json topologies used for iRobot performance evaluation.
+ It also contains sample json topologies.
  - **[composition_benchmark](composition_benchmark)**: this package contains applications and tools that can be used to profile ROS 2 composition concepts.
 
 ## External tools and resources

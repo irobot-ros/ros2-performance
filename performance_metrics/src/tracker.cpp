@@ -21,38 +21,32 @@ void Tracker::scan(
   const rclcpp::Time & now,
   std::shared_ptr<EventsLogger> elog)
 {
-  // If this is first message received store some info about it
-  if (stat().n() == 0) {
-    this->set_size(header.size);
-    this->set_frequency(header.frequency);
-  }
-
   // Compute latency
   rclcpp::Time stamp(header.stamp.sec, header.stamp.nanosec, RCL_ROS_TIME);
   auto lat = std::chrono::nanoseconds((now - stamp).nanoseconds());
   uint64_t lat_us = lat.count() / 1000;
   // store the last latency to be read from node
-  _last_latency = lat_us;
+  m_last_latency = lat_us;
 
   bool late = false;
   bool too_late = false;
 
-  if (_tracking_options.is_enabled) {
+  if (m_tracking_options.is_enabled) {
     // Check if we received the correct message. The assumption here is
     // that the messages arrive in chronological order
-    if (header.tracking_number == _tracking_number_count) {
-      _tracking_number_count++;
+    if (header.tracking_number == m_tracking_number_count) {
+      m_tracking_number_count++;
     } else {
       // We missed some mesages...
-      int64_t n_lost = header.tracking_number - _tracking_number_count;
-      _lost_messages += n_lost;
-      _tracking_number_count = header.tracking_number + 1;
+      int64_t n_lost = header.tracking_number - m_tracking_number_count;
+      m_lost_messages += n_lost;
+      m_tracking_number_count = header.tracking_number + 1;
 
       // Log the event
       if (elog != nullptr) {
         EventsLogger::Event ev;
         std::stringstream description;
-        ev.caller_name = _topic_srv_name + "->" + _node_name;
+        ev.caller_name = m_topic_srv_name + "->" + m_node_name;
         ev.code = EventsLogger::EventCode::lost_messages;
 
         if (n_lost == 1) {
@@ -67,13 +61,13 @@ void Tracker::scan(
     }
 
     // Check if the message latency qualifies the message as a lost or late message.
-    const int period_us = 1000000 / m_frequency;
+    const int period_us = 1000000 / header.frequency;
     const unsigned int latency_late_threshold_us = std::min(
-      _tracking_options.late_absolute_us,
-      _tracking_options.late_percentage * period_us / 100);
+      m_tracking_options.late_absolute_us,
+      m_tracking_options.late_percentage * period_us / 100);
     const unsigned int latency_too_late_threshold_us = std::min(
-      _tracking_options.too_late_absolute_us,
-      _tracking_options.too_late_percentage * period_us / 100);
+      m_tracking_options.too_late_absolute_us,
+      m_tracking_options.too_late_percentage * period_us / 100);
 
     too_late = lat_us > latency_too_late_threshold_us;
     late = lat_us > latency_late_threshold_us && !too_late;
@@ -86,13 +80,13 @@ void Tracker::scan(
           lat_us << "us > " << latency_late_threshold_us << "us";
 
         EventsLogger::Event ev;
-        ev.caller_name = _topic_srv_name + "->" + _node_name;
+        ev.caller_name = m_topic_srv_name + "->" + m_node_name;
         ev.code = EventsLogger::EventCode::late_message;
         ev.description = description.str();
 
         elog->write_event(ev);
       }
-      _late_messages++;
+      m_late_messages++;
     }
 
     if (too_late) {
@@ -103,35 +97,63 @@ void Tracker::scan(
           lat_us << "us > " << latency_too_late_threshold_us << "us";
 
         EventsLogger::Event ev;
-        ev.caller_name = _topic_srv_name + "->" + _node_name;
+        ev.caller_name = m_topic_srv_name + "->" + m_node_name;
         ev.code = EventsLogger::EventCode::too_late_message;
         ev.description = description.str();
 
         elog->write_event(ev);
       }
-      _too_late_messages++;
+      m_too_late_messages++;
     }
   }
 
   if (!too_late) {
     // Compute statistics with new sample. Don't add to this the msgs
     // that arrived too late.
-    this->add_sample(lat_us);
+    this->add_sample(now, lat_us, header.size, header.frequency);
   }
 
-  _received_messages++;
+  m_received_messages++;
 }
 
-void Tracker::add_sample(uint64_t latency_sample)
+void Tracker::add_sample(
+  const rclcpp::Time & now,
+  uint64_t latency_sample,
+  size_t size,
+  float frequency)
 {
-  _stat.add_sample(latency_sample);
+  // If this is first message received store some info about it
+  if (m_stat.n() == 0) {
+    m_data_size = size;
+    m_frequency = frequency;
+    m_first_msg_time = now;
+  }
+
+  m_last_msg_time = now;
+  m_stat.add_sample(latency_sample);
 }
 
 uint32_t Tracker::get_and_update_tracking_number()
 {
-  uint32_t old_number = _tracking_number_count;
-  _tracking_number_count++;
+  uint32_t old_number = m_tracking_number_count;
+  m_tracking_number_count++;
   return old_number;
+}
+
+double Tracker::throughput() const
+{
+  // We compute max because currently publishers update only n() and not m_received_messages,
+  // but for subscriptions n() will not include messages received too late.
+  uint64_t num_msg_received = std::max(m_stat.n(), m_received_messages);
+  if (num_msg_received < 2) {
+    return 0.0;
+  }
+
+  rclcpp::Duration msgs_received_interval = m_last_msg_time - m_first_msg_time;
+  double sample_rate_sec = (num_msg_received - 1) / msgs_received_interval.seconds();
+  double throughput = sample_rate_sec * m_data_size;
+
+  return throughput;
 }
 
 }  // namespace performance_metrics

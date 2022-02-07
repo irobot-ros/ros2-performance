@@ -46,7 +46,7 @@ public:
     const std::string & node_name,
     const std::string & topic_srv_name,
     const Options & tracking_options)
-  : _node_name(node_name), _topic_srv_name(topic_srv_name), _tracking_options(tracking_options)
+  : m_node_name(node_name), m_topic_srv_name(topic_srv_name), m_tracking_options(tracking_options)
   {}
 
   void scan(
@@ -54,54 +54,63 @@ public:
     const rclcpp::Time & now,
     std::shared_ptr<EventsLogger> elog = nullptr);
 
-  void add_sample(uint64_t latency_sample);
+  void add_sample(
+    const rclcpp::Time & now,
+    uint64_t latency_sample,
+    size_t size,
+    float frequency);
 
   uint32_t get_and_update_tracking_number();
 
-  uint64_t lost() const {return _lost_messages;}
+  uint64_t lost() const {return m_lost_messages;}
 
-  uint64_t late() const {return _late_messages;}
+  uint64_t late() const {return m_late_messages;}
 
-  uint64_t too_late() const {return _too_late_messages;}
+  uint64_t too_late() const {return m_too_late_messages;}
 
-  uint64_t received() const {return _received_messages;}
+  uint64_t received() const {return m_received_messages;}
 
-  size_t size() const {return _size;}
+  size_t size() const {return m_data_size;}
 
   float frequency() const {return m_frequency;}
 
-  Stat<uint64_t> stat() const {return _stat;}
+  Stat<uint64_t> stat() const {return m_stat;}
+
+  double throughput() const;
 
   void set_frequency(float f) {m_frequency = f;}
 
-  void set_size(size_t s) {_size = s;}
+  void set_size(size_t s) {m_data_size = s;}
 
-  uint64_t last() const {return _last_latency;}
+  uint64_t last() const {return m_last_latency;}
 
   std::string get_node_name() const
   {
-    return _node_name;
+    return m_node_name;
   }
 
   std::string get_entity_name() const
   {
-    return _topic_srv_name;
+    return m_topic_srv_name;
   }
 
 private:
-  std::string _node_name;
-  std::string _topic_srv_name;
+  std::string m_node_name;
+  std::string m_topic_srv_name;
+  Options m_tracking_options;
 
-  uint64_t _last_latency = 0;
-  uint64_t _lost_messages = 0;
-  uint64_t _received_messages = 0;
-  uint64_t _late_messages = 0;
-  uint64_t _too_late_messages = 0;
-  size_t _size = 0;
+  uint64_t m_last_latency = 0;
+  uint64_t m_lost_messages = 0;
+  uint64_t m_received_messages = 0;
+  uint64_t m_late_messages = 0;
+  uint64_t m_too_late_messages = 0;
+  size_t m_data_size = 0;
   float m_frequency = 0;
-  Stat<uint64_t> _stat;
-  uint32_t _tracking_number_count = 0;
-  Options _tracking_options;
+  Stat<uint64_t> m_stat;
+  uint32_t m_tracking_number_count = 0;
+
+  rclcpp::Time m_first_msg_time;
+  rclcpp::Time m_last_msg_time;
 };
 
 }  // namespace performance_metrics

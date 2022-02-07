@@ -45,6 +45,7 @@ void PerformanceNodeBase::add_subscriber(
 {
   switch (msg_pass_by) {
     case PASS_BY_SHARED_PTR:
+    case PASS_BY_LOANED_MSG:
       add_subscriber_by_msg_variant<Msg, typename Msg::ConstSharedPtr>(
         topic_name,
         tracking_options,
@@ -205,7 +206,8 @@ void PerformanceNodeBase::publish_msg(
   float pub_frequency = 1000000.0 / period.count();
 
   auto tracking_number = tracker.get_and_update_tracking_number();
-  uint64_t pub_time_us = 0;
+  rclcpp::Time publish_time;
+  uint64_t pub_duration_us = 0;
   size_t msg_size = 0;
   switch (msg_pass_by) {
     case PASS_BY_SHARED_PTR:
@@ -213,7 +215,7 @@ void PerformanceNodeBase::publish_msg(
         // create a message and eventually resize it
         auto msg = std::make_shared<Msg>();
         msg_size = resize_msg(msg->data, size);
-        auto publish_time = m_node_interfaces.clock->get_clock()->now();
+        publish_time = m_node_interfaces.clock->get_clock()->now();
 
         msg->header = create_msg_header(
           publish_time,
@@ -224,7 +226,7 @@ void PerformanceNodeBase::publish_msg(
         pub->publish(*msg);
 
         auto end_time = m_node_interfaces.clock->get_clock()->now();
-        pub_time_us = (end_time - publish_time).nanoseconds() / 1000.0f;
+        pub_duration_us = (end_time - publish_time).nanoseconds() / 1000.0f;
 
         break;
       }
@@ -233,7 +235,7 @@ void PerformanceNodeBase::publish_msg(
         // create a message and eventually resize it
         auto msg = std::make_unique<Msg>();
         msg_size = resize_msg(msg->data, size);
-        auto publish_time = m_node_interfaces.clock->get_clock()->now();
+        publish_time = m_node_interfaces.clock->get_clock()->now();
 
         msg->header = create_msg_header(
           publish_time,
@@ -244,19 +246,43 @@ void PerformanceNodeBase::publish_msg(
         pub->publish(std::move(msg));
 
         auto end_time = m_node_interfaces.clock->get_clock()->now();
-        pub_time_us = (end_time - publish_time).nanoseconds() / 1000.0f;
+        pub_duration_us = (end_time - publish_time).nanoseconds() / 1000.0f;
+
+        break;
+      }
+    case PASS_BY_LOANED_MSG:
+      {
+        // create a message and eventually resize it
+        std::allocator<void> allocator;
+        rclcpp::LoanedMessage<Msg> loaned_msg(*pub, allocator);
+        auto & msg_ref = loaned_msg.get();
+        msg_size = resize_msg(msg_ref.data, size);
+        // Fill the loaned msg with 1s.
+        // This simulates a real application: users are expected to populate the loaned msg with new data every time.
+        std::fill(std::begin(msg_ref.data), std::end(msg_ref.data), 1);
+
+        publish_time = m_node_interfaces.clock->get_clock()->now();
+
+        msg_ref.header = create_msg_header(
+          publish_time,
+          pub_frequency,
+          tracking_number,
+          msg_size);
+
+        pub->publish(std::move(loaned_msg));
+
+        auto end_time = m_node_interfaces.clock->get_clock()->now();
+        pub_duration_us = (end_time - publish_time).nanoseconds() / 1000.0f;
 
         break;
       }
   }
 
-  tracker.set_frequency(pub_frequency);
-  tracker.set_size(msg_size);
-  tracker.add_sample(pub_time_us);
+  tracker.add_sample(publish_time, pub_duration_us, msg_size, pub_frequency);
 
   RCLCPP_DEBUG(
     this->get_node_logger(),
-    "Publishing to %s msg number %d took %lu us", name.c_str(), tracking_number, pub_time_us);
+    "Publishing to %s msg number %d took %lu us", name.c_str(), tracking_number, pub_duration_us);
 }
 
 template<typename DataT>

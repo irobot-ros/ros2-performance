@@ -89,7 +89,7 @@ void log_latency_all_stats(
       stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "max[us]";
       stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "freq[hz]";
       stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-        "throughput[Mb/s]";
+        "throughput[Kb/s]";
 
       stream << std::endl;
     };
@@ -122,7 +122,7 @@ void log_latency_all_stats(
       stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
         tracker.frequency();
       stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-        (tracker.throughput() / (1024 * 1024));
+        (tracker.throughput() / 1024);
 
       stream << std::endl;
     };

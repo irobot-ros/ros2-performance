@@ -7,108 +7,84 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#include <vector>
 #include <chrono>
 #include <iostream>
 #include <string>
-
-#include "performance_test/system.hpp"
-#include "performance_test/resource_usage_logger.hpp"
-#include "performance_test/tracker.hpp"
+#include <vector>
 
 #include "cxxopts.hpp"
-
+#include "performance_metrics/resource_usage_logger.hpp"
+#include "performance_metrics/tracker.hpp"
+#include "performance_test/system.hpp"
 #include "performance_test_factory/factory.hpp"
+#include "examples_options.hpp"
 
 using namespace std::chrono_literals;
 
-int main(int argc, char** argv)
+int main(int argc, char ** argv)
 {
+  auto options = ExamplesOptions(argc, argv);
 
+  if (options.json_path.empty()) {
     std::string this_file_path = __FILE__;
     std::string this_dir_path = this_file_path.substr(0, this_file_path.rfind("/"));
-    std::string json_path = this_dir_path + std::string("/simple_architecture.json");
-    int executor = 3; // ID corresponding to the StaticSingleThreadedExecutor
-    int use_ipc = 1;
-    int experiment_duration = 5;
-    int resources_sampling_per_ms = 500;
-    performance_test::Tracker::TrackingOptions tracking_options;
-    std::string experiment_path = ".";
+    options.json_path = this_dir_path + std::string("/simple_architecture.json");
+  }
+
+  std::cout << "Json file to load: " << options.json_path << std::endl;
+  std::cout << "Intra-process-communication: " << (options.use_ipc ? "on" : "off") << std::endl;
+  std::cout << "Run test for: " << options.experiment_duration << " seconds" << std::endl;
+  std::cout << "Sampling resources every " << options.resources_sampling_per_ms << "ms" <<
+    std::endl;
+  std::cout << "Start test" << std::endl;
 
 
-    // parse the command line arguments and eventually overwrite the default values
-    cxxopts::Options options("json_system_main", "Create a ROS2 system at runtime as defined by a JSON file");
-    options.add_options()
-    ("x, executor", "the system executor:\n\t\t\t\t1:EventsExecutor. 2:SingleThreadedExecutor. 3:StaticSingleThreadedExecutor",
-        cxxopts::value<int>(executor)->default_value(std::to_string(executor)),"<1/2/3>")
-    ("j, json", "path to the json file to load",
-        cxxopts::value<std::string>(json_path)->default_value(json_path))
-    ("use_ipc", "Activate IntraProcessCommunication (0 or 1 accepted arguments)",
-        cxxopts::value<int>(use_ipc)->default_value(std::to_string(use_ipc)))
-    ("t, duration", "Duration in seconds",
-        cxxopts::value<int>(experiment_duration)->default_value(std::to_string(experiment_duration)))
-    ("s, sampling", "resources sampling period",
-        cxxopts::value<int>(resources_sampling_per_ms)->default_value(std::to_string(resources_sampling_per_ms)),"msec")
-    ("late-percentage", "a msg with greater latency than this percentage of the msg publishing period is considered late",
-        cxxopts::value<int>(tracking_options.late_percentage)->default_value(std::to_string(tracking_options.late_percentage)),"%")
-    ("late-absolute", "a msg with greater latency than this is considered late",
-        cxxopts::value<int>(tracking_options.late_absolute_us)->default_value(std::to_string(tracking_options.late_absolute_us)),"usec")
-    ("too-late-percentage", "a msg with greater latency than this percentage of the msg publishing period is considered lost",
-        cxxopts::value<int>(tracking_options.too_late_percentage)->default_value(std::to_string(tracking_options.too_late_percentage)),"%")
-    ("too-late-absolute", "a msg with greater latency than this is considered lost",
-        cxxopts::value<int>(tracking_options.too_late_absolute_us)->default_value(std::to_string(tracking_options.too_late_absolute_us)),"usec")
-    ("experiment_path", "Experiment path",
-        cxxopts::value<std::string>(experiment_path)->default_value(experiment_path))
-    ;
-    options.parse(argc, argv);
+  std::string create_output_dir_command =
+    std::string("mkdir -p ") + options.experiment_path + std::string("/log");
+  auto ret = system(create_output_dir_command.c_str());
+  static_cast<void>(ret);
+  std::string resources_output_path =
+    options.experiment_path + std::string("/log/resources.txt");
+  std::string events_output_path =
+    options.experiment_path + std::string("/log/events.txt");
+  std::string latency_all_output_path =
+    options.experiment_path + std::string("/log/latency_all.txt");
+  std::string latency_total_output_path =
+    options.experiment_path + std::string("/log/latency_total.txt");
 
-    std::cout << "Json file to load: "<< json_path<<std::endl;
-    std::cout << "Intra-process-communication: " << (use_ipc ? "on" : "off") << std::endl;
-    std::cout << "Run test for: " << experiment_duration << " seconds" << std::endl;
-    std::cout << "Sampling resources every " << resources_sampling_per_ms << "ms" << std::endl;
-    std::cout << "Start test" << std::endl;
+  // Start resources logger
+  performance_metrics::ResourceUsageLogger ru_logger(resources_output_path);
+  ru_logger.start(std::chrono::milliseconds(options.resources_sampling_per_ms));
 
+  rclcpp::init(argc, argv);
 
-    std::string create_output_dir_command = std::string("mkdir -p ") + experiment_path + std::string("/log");
-    auto ret = system(create_output_dir_command.c_str());
-    static_cast<void>(ret);
-    std::string resources_output_path = experiment_path + std::string("/log/resources.txt");
-    std::string events_output_path = experiment_path + std::string("/log/events.txt");
-    std::string latency_all_output_path = experiment_path + std::string("/log/latency_all.txt");
-    std::string latency_total_output_path = experiment_path + std::string("/log/latency_total.txt");
+  // Architecture
+  performance_test::System ros2_system(
+    static_cast<performance_test::ExecutorType>(options.executor));
+  ros2_system.enable_events_logger(events_output_path);
 
-    // Start resources logger
-    performance_test::ResourceUsageLogger ru_logger(resources_output_path);
-    ru_logger.start(std::chrono::milliseconds(resources_sampling_per_ms));
+  performance_test_factory::TemplateFactory factory(options.use_ipc);
 
-    rclcpp::init(argc, argv);
+  auto nodes_vec = factory.parse_topology_from_json(
+    options.json_path,
+    performance_metrics::Tracker::Options());
 
-    // Architecture
-    performance_test::System<> ros2_system(static_cast<performance_test::ExecutorType>(executor));
-    ros2_system.enable_events_logger(events_output_path);
+  ros2_system.add_node(nodes_vec);
 
-    performance_test::TemplateFactory<> factory(use_ipc);
+  ros2_system.spin(options.experiment_duration);
 
-    auto nodes_vec = factory.parse_topology_from_json(json_path);
+  ru_logger.stop();
 
-    ros2_system.add_node(nodes_vec);
+  rclcpp::shutdown();
 
-    ros2_system.spin(experiment_duration);
+  std::this_thread::sleep_for(500ms);
 
-    ru_logger.stop();
+  ros2_system.log_latency_all_stats();
+  std::cout << std::endl;
+  std::cout << "System total:" << std::endl;
+  ros2_system.log_latency_total_stats();
+  ros2_system.save_latency_all_stats(latency_all_output_path);
+  ros2_system.save_latency_total_stats(latency_total_output_path);
 
-    rclcpp::shutdown();
-
-    std::this_thread::sleep_for(500ms);
-
-    ros2_system.print_latency_all_stats();
-    std::cout << std::endl;
-    std::cout << "System total:" << std::endl;
-    ros2_system.print_latency_total_stats();
-    ros2_system.save_latency_all_stats(latency_all_output_path);
-    ros2_system.save_latency_total_stats(latency_total_output_path);
-
-    std::cout << std::endl;
-
-
+  std::cout << std::endl;
 }

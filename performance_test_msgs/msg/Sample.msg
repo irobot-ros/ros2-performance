@@ -1,2 +1,2 @@
 PerformanceHeader header
-byte data
+byte[1] data

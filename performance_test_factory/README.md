@@ -13,14 +13,14 @@ The simplest way of using the factory, consists in creating a json file describi
 
 ```
 #include "rclcpp/rclcpp.hpp"
-#include "performance_test/node.hpp"
+#include "performance_test/performance_node_base.hpp"
 #include "performance_test/system.hpp"
 #include "performance_test_factory/factory.hpp"
 
 rclcpp::init(argc, argv);
 
 performance_test::System ros2_system();
-performance_test::TemplateFactory factory();
+performance_test_factory::TemplateFactory factory();
 
 auto nodes_vec = factory.parse_topology_from_json("path_to_my_topology.json");
 ros2_system.add_node(nodes_vec);
@@ -35,14 +35,14 @@ A complete example can be found in the [simple architecture example](examples/js
 
 ### Manually create ROS2 nodes
 
-The `performance_test::TemplateFactory` allows also to directly use strings for creating nodes, instead of parsing them from the json files.
+The `performance_test_factory::TemplateFactory` allows also to directly use strings for creating nodes, instead of parsing them from the json files.
 
 ```
-#include "performance_test/node.hpp"
+#include "performance_test/performance_node_base.hpp"
 #include "performance_test_factory/factory.hpp"
 
 
-performance_test::TemplateFactory factory();
+performance_test_factory::TemplateFactory factory();
 bool use_ipc = true;
 auto sub_node = factory.create_node("sub_node_name", use_ipc);
 std::string msg_type = "stamped10kb";
@@ -60,10 +60,10 @@ Then remember to add the nodes to the `performance_test::System` in order to run
 
 ```
 #include "performance_test_factory/factory.hpp"
-#include "performance_test/node.hpp"
+#include "performance_test/performance_node.hpp"
 #include "performance_test/system.hpp"
 
-performance_test::TemplateFactory factory;
+performance_test_factory::TemplateFactory factory;
 
 int n_publishers = 2;
 int n_subscribers = 10;
@@ -104,7 +104,7 @@ If this is needed, it's better to directly use the json files.
 
 Inside the `examples` directory you can find some C++ executables which, through command line options, allow to create different ROS2 systems.
 
-These executables will use the `performance_test::PerformanceNode` class and the `performance_test::TemplateFactory` previously described.
+These executables will use the `performance_test::PerformanceNode` class and the `performance_test_factory::TemplateFactory` previously described.
 
 ##### Create a process with both pubs/subs
 

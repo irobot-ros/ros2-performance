@@ -7,34 +7,14 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#pragma once
+#ifndef PERFORMANCE_TEST__COMMUNICATION_HPP_
+#define PERFORMANCE_TEST__COMMUNICATION_HPP_
 
-#include <string>
-
-typedef enum
+enum msg_pass_by_t
 {
-   PASS_BY_UNIQUE_PTR,
-   PASS_BY_SHARED_PTR
-} msg_pass_by_t;
-
-namespace performance_test {
-
-template <typename Interface>
-class CommunicationAbstraction
-{
-public:
-  CommunicationAbstraction() = delete;
-  CommunicationAbstraction(const std::string n)
-    : name(n){};
-  const std::string name;
+  PASS_BY_UNIQUE_PTR,
+  PASS_BY_SHARED_PTR,
+  PASS_BY_LOANED_MSG,
 };
 
-// create alias templates for Topic and Service from common class CommunicationAbstraction
-
-template <typename Msg>
-using Topic = CommunicationAbstraction<Msg>;
-
-template <typename Srv>
-using Service = CommunicationAbstraction<Srv>;
-
-}
+#endif  // PERFORMANCE_TEST__COMMUNICATION_HPP_

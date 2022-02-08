@@ -7,14 +7,10 @@ This class inherits from `rclcpp::Node` and provides APIs for easily adding any 
 
 Each of the `PerformanceNode::add_periodic_publisher`, `PerformanceNode::add_subscriber`, etc. methods are based on a template in order to allow the creation of systems with different types of messages.
 
-We use the `performance_test::Topic<MsgType>` templated structures in order to store the message type and the name of topics.
-There exists an equivalent structure for services `performance_test::Service<SrvType>`.
-
 ```
-#include "performance_test/node.hpp"
-auto topic = performance_test::Topic<performance_test_msgs::msg::Stamped10b>("my_topic_name");
-auto sub_node = std::make_shared<performance_test::PerformanceNode>("my_sub_node");
-sub_node->add_subscriber(topic, rmw_qos_profile_default);
+#include "performance_test/performance_node_base.hpp"
+auto sub_node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("my_sub_node");
+sub_node->add_subscriber<performance_test_msgs::msg::Stamped10b>("my_topic_name");
 ```
 
 This snippet of code will create a new node called `my_sub_node` and this node will have a subscriber on `my_topic_name` where are published messages of type `10b`, i.e. a message with an header field and a statically allocated array of size 10 bytes.
@@ -22,10 +18,9 @@ This snippet of code will create a new node called `my_sub_node` and this node w
 Similarly you can create a second node which publishes data periodically.
 
 ```
-#include "performance_test/node.hpp"
-auto topic = performance_test::Topic<performance_test_msgs::msg::Stamped10b>("my_topic_name");
-auto pub_node = std::make_shared<performance_test::PerformanceNode>("my_pub_node");
-pub_node->add_subscriber(topic, rmw_qos_profile_default);
+#include "performance_test/performance_node_base.hpp"
+auto pub_node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("my_pub_node");
+pub_node->add_periodic_publisher("my_topic_name", std::chrono::milliseconds(100));
 ```
 
 **Note:** you can create nodes with any number of publishers/subscribers/clients/servers, with no constraints on their types.
@@ -58,8 +53,8 @@ Events on the other hand are for example the end of the discovery phase and late
 In order to enable monitoring or resource usage you have to add the following snippet to your code:
 
 ```
-#include "performance_test/resource_usage_logger.hpp"
-performance_test::ResourceUsageLogger ru_logger("resource_usage_output.txt");
+#include "performance_metrics/resource_usage_logger.hpp"
+performance_metrics::ResourceUsageLogger ru_logger("resource_usage_output.txt");
 auto sampling_period = std::chrono::milliseconds(500);
 ru_logger.start(sampling_period);
 

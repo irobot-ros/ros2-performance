@@ -9,9 +9,12 @@
 
 #include <gtest/gtest.h>
 
+#include <memory>
+#include <string>
+
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 
-#include "performance_test/node.hpp"
+#include "performance_test/performance_node.hpp"
 #include "performance_test_msgs/msg/sample.hpp"
 #include "performance_test_msgs/srv/sample.hpp"
 
@@ -33,26 +36,37 @@ TEST_F(TestNode, NodeConstructorTest)
   node_options.start_parameter_services(true);
   node_options.start_parameter_event_publisher(true);
 
-  auto node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("node_name", ros2_namespace, node_options);
+  auto node =
+    std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>(
+    "node_name",
+    ros2_namespace,
+    node_options);
 
-  auto trackers_vector_ptr = node->all_trackers();
-
-  ASSERT_EQ((size_t)0, trackers_vector_ptr->size());
+  ASSERT_TRUE(node->sub_trackers().empty());
+  ASSERT_TRUE(node->client_trackers().empty());
+  ASSERT_TRUE(node->pub_trackers().empty());
 }
 
 TEST_F(TestNode, NodeAddItemsTest)
 {
-  auto topic = performance_test::Topic<performance_test_msgs::msg::Sample>("my_topic");
-  auto service = performance_test::Topic<performance_test_msgs::srv::Sample>("my_service");
-
   auto node = std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("node_name");
 
-  node->add_subscriber(topic, PASS_BY_SHARED_PTR);
-  node->add_periodic_publisher(topic, std::chrono::milliseconds(10), PASS_BY_UNIQUE_PTR);
-  node->add_server(service);
-  node->add_periodic_client(service, std::chrono::milliseconds(10));
+  node->add_subscriber<performance_test_msgs::msg::Sample>(
+    "my_topic",
+    PASS_BY_SHARED_PTR);
+  node->add_periodic_publisher<performance_test_msgs::msg::Sample>(
+    "my_topic",
+    std::chrono::milliseconds(10),
+    PASS_BY_UNIQUE_PTR);
+  node->add_server<performance_test_msgs::srv::Sample>(
+    "my_service");
+  node->add_periodic_client<performance_test_msgs::srv::Sample>(
+    "my_service",
+    std::chrono::milliseconds(10));
 
-  ASSERT_EQ((size_t)2, node->all_trackers()->size());
+  ASSERT_EQ(1u, node->sub_trackers().size());
+  ASSERT_EQ(1u, node->client_trackers().size());
+  ASSERT_EQ(1u, node->pub_trackers().size());
 }
 
 TEST_F(TestNode, LifecycleNodeConstructorTest)
@@ -64,24 +78,37 @@ TEST_F(TestNode, LifecycleNodeConstructorTest)
   node_options.start_parameter_services(true);
   node_options.start_parameter_event_publisher(true);
 
-  auto node = std::make_shared<performance_test::PerformanceNode<rclcpp_lifecycle::LifecycleNode>>("node_name", ros2_namespace, node_options);
+  auto node =
+    std::make_shared<performance_test::PerformanceNode<rclcpp_lifecycle::LifecycleNode>>(
+    "node_name",
+    ros2_namespace,
+    node_options);
 
-  auto trackers_vector_ptr = node->all_trackers();
-
-  ASSERT_EQ((size_t)0, trackers_vector_ptr->size());
+  ASSERT_TRUE(node->sub_trackers().empty());
+  ASSERT_TRUE(node->client_trackers().empty());
+  ASSERT_TRUE(node->pub_trackers().empty());
 }
 
 TEST_F(TestNode, LifecycleNodeAddItemsTest)
 {
-  auto topic = performance_test::Topic<performance_test_msgs::msg::Sample>("my_topic");
-  auto service = performance_test::Topic<performance_test_msgs::srv::Sample>("my_service");
+  auto node =
+    std::make_shared<performance_test::PerformanceNode<rclcpp_lifecycle::LifecycleNode>>(
+    "node_name");
 
-  auto node = std::make_shared<performance_test::PerformanceNode<rclcpp_lifecycle::LifecycleNode>>("node_name");
+  node->add_subscriber<performance_test_msgs::msg::Sample>(
+    "my_topic",
+    PASS_BY_SHARED_PTR);
+  node->add_periodic_publisher<performance_test_msgs::msg::Sample>(
+    "my_topic",
+    std::chrono::milliseconds(10),
+    PASS_BY_UNIQUE_PTR);
+  node->add_server<performance_test_msgs::srv::Sample>(
+    "my_service");
+  node->add_periodic_client<performance_test_msgs::srv::Sample>(
+    "my_service",
+    std::chrono::milliseconds(10));
 
-  node->add_subscriber(topic, PASS_BY_SHARED_PTR);
-  node->add_periodic_publisher(topic, std::chrono::milliseconds(10), PASS_BY_UNIQUE_PTR);
-  node->add_server(service);
-  node->add_periodic_client(service, std::chrono::milliseconds(10));
-
-  ASSERT_EQ((size_t)2, node->all_trackers()->size());
+  ASSERT_EQ(1u, node->sub_trackers().size());
+  ASSERT_EQ(1u, node->client_trackers().size());
+  ASSERT_EQ(1u, node->pub_trackers().size());
 }

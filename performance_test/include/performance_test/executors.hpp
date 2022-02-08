@@ -7,42 +7,37 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#pragma once
+#ifndef PERFORMANCE_TEST__EXECUTORS_HPP_
+#define PERFORMANCE_TEST__EXECUTORS_HPP_
 
+#include <chrono>
 #include <memory>
+#include <ostream>
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
 
-namespace performance_test {
+namespace performance_test
+{
 
 struct NamedExecutor
 {
-    std::shared_ptr<rclcpp::Executor> executor;
-    std::string name;
+  std::shared_ptr<rclcpp::Executor> executor;
+  std::string name;
 };
 
 enum ExecutorType
 {
-    SINGLE_THREADED_EXECUTOR = 1,
-    STATIC_SINGLE_THREADED_EXECUTOR = 2,
+  SINGLE_THREADED_EXECUTOR = 1,
+  STATIC_SINGLE_THREADED_EXECUTOR = 2,
 };
 
-std::ostream &operator<<(std::ostream &os, const ExecutorType &t) {
-    std::string executor_name;
-    switch (t) {
-        case SINGLE_THREADED_EXECUTOR:
-            executor_name = "SingleThreadedExecutor";
-            break;
-        case STATIC_SINGLE_THREADED_EXECUTOR:
-            executor_name = "StaticSingleThreadedExecutor";
-            break;
-        default:
-            executor_name = "Unknown ExecutorType";
-            break;
-    }
+std::ostream & operator<<(std::ostream & os, const ExecutorType & t);
 
-    return os << executor_name;
-}
+std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type);
 
-}
+void sleep_task(std::chrono::milliseconds task_duration);
+
+}  // namespace performance_test
+
+#endif  // PERFORMANCE_TEST__EXECUTORS_HPP_

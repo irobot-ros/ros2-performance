@@ -17,7 +17,7 @@ Note that this framework is mostly meant for evaluating single process applicati
 Although it is also able to measure the performance of multi-process applications, not all metrics will be available in this case.
 
 The nodes under test currently don't perform any sort of computation while they are tested.
-This means that most of the measured resource usage is due to the ROS2 communication.
+This means that most of the measured resource usage is due to the overhead of ROS2 communication.
 
 ## Build
 
@@ -28,7 +28,9 @@ The build machine requires Python 3, CMake and colcon.
 mkdir -p ~/performance_ws/src
 cd ~/performance_ws/src
 git clone https://github.com/irobot-ros/ros2-performance
-cd ..
+cd ros2-performance
+git submodule update --init --recursive
+cd ../..
 colcon build
 ```
 
@@ -46,24 +48,26 @@ The results will be printed to screen and also saved in the directory `./sierra_
 
 ## Extending the performance framework and testing your own system
 
-The `irobot_benchmark/topology` directory contains some examples of json files that can be used to create a system.
-If you want to create your own, follow the instructions in the `performance_test_factory` package:
+The `irobot_benchmark/topology` directory contains some examples of json files that can be used to define a system.
 
-[How to create a new topology](performance_test_factory/create_new_topology.md)
+If you want to create your own JSON topology, follow the instructions on [how to create a new topology](performance_test_factory/create_new_topology.md).
+If you want to use your custom ROS 2 message interfaces in the topology, you should look at the [performance_test_plugin_cmake](performance_test_plugin_cmake).
 
 ### Structure of the framework
 
  - **[performance_test](performance_test)**: this package provides the `performance_test::PerformanceNode` class, which provides API for easily adding publishers, subscriptions, clients and services and monitor the performance of the communication.
  Moreover the `performance_test::System` class allows to start multiple nodes at the same time, while ensuring that they discover each other, and to monitor the performance of the whole system.
  Moreover, this pacakge contains scripts for visualizing the performance of applications.
+ - **[performance_metrics](performance_metrics)**: provides tools to measure and log various performance-related metrics in ROS 2 systems.
  - **[performance_test_msgs](performance_test_msgs)**: this package contains basic interface definitions that are directly used by the `performance_test` package to measure performance.
- - **[performance_test_factory](performance_test_factory)**: this package provides the `performance_test::TemplateFactory` class that can be used to create `performance_test::PerformanceNode` objects with specific publishers and subscriptions according to some arguments provided at runtime: this can be done through json files or command line options.
+ - **[performance_test_factory](performance_test_factory)**: this package provides the `performance_test_factory::TemplateFactory` class that can be used to create `performance_test::PerformanceNode` objects with specific publishers and subscriptions according to some arguments provided at runtime: this can be done through json files or command line options.
  The interfaces (msg and srv) that can be used in these nodes have to be defined in the so called `performance_test_factory_plugins`.
  - **[performance_test_plugin_cmake](performance_test_plugin_cmake)**: this package provides the CMake function used to generate a factory plugin from interfaces definitions.
  - **[irobot_interfaces_plugin](irobot_interfaces_plugin)**: this package is a `performance_test_factory_plugin` that provides all the interfaces used in the iRobot system topologies.
  - **[irobot_benchmark](irobot_benchmark)**: this package provides our main benchmark application.
  This executable can load one or multiple json topologies and it creates a ROS2 system running in a specific process from each of them.
- It also contains the json topologies used for iRobot performance evaluation.
+ It also contains sample json topologies.
+ - **[composition_benchmark](composition_benchmark)**: this package contains applications and tools that can be used to profile ROS 2 composition concepts.
 
 ## External tools and resources
 
@@ -78,6 +82,7 @@ Our implementation is inspired by their work.
 
 #### Other evaluation tools
 
+ - [RealTime Working Group ReferenceSystem](https://github.com/ros-realtime/reference-system)
  - [ROS2 communication performance evaluation](https://github.com/ros2/rclcpp/issues/634)
  - [ROS2 benchmarking framework](https://github.com/piappl/ros2_benchmarking)
  - [ROS2 QOS throughput tests](https://github.com/Adlink-ROS/adlink_ros2_tools)

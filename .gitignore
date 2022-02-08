@@ -36,3 +36,5 @@
 
 # visual studio code settings
 .vscode
+
+__pycache__

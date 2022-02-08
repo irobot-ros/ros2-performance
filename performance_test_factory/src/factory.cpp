@@ -36,24 +36,11 @@ TemplateFactory::TemplateFactory(
   bool verbose_mode,
   const std::string & ros2_namespace,
   NodeType node_type)
-<<<<<<< HEAD
 : m_use_ipc(use_ipc),
   m_use_ros_params(use_ros_params),
   m_verbose_mode(verbose_mode),
   m_ros2_namespace(ros2_namespace),
   m_node_type(node_type)
-=======
-<<<<<<< HEAD
-: _use_ipc(use_ipc),
-=======
-:
-  _use_ipc(use_ipc),
->>>>>>> fix linter errors
-  _use_ros_params(use_ros_params),
-  _verbose_mode(verbose_mode),
-  _ros2_namespace(ros2_namespace),
-  _node_type(node_type)
->>>>>>> fix linter errors
 {}
 
 performance_test::PerformanceNodeBase::SharedPtr

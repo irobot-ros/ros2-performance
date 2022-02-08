@@ -1,6 +1,6 @@
 #include <composition_benchmark/composable_subscriber.hpp>
 #include <irobot_interfaces_plugin/msg/stamped_vector.hpp>
-#include <performance_test/utils/stat_logger.hpp>
+#include <performance_metrics/stat_logger.hpp>
 
 ComposableSubscriber::ComposableSubscriber(const rclcpp::NodeOptions & options)
 : performance_test::PerformanceNode<rclcpp::Node>(
@@ -15,9 +15,7 @@ ComposableSubscriber::ComposableSubscriber(const rclcpp::NodeOptions & options)
 
 ComposableSubscriber::~ComposableSubscriber()
 {
-  auto node_ptr = dynamic_cast<performance_test::PerformanceNodeBase*>(this);
-  std::vector<performance_test::PerformanceNodeBase*> nodes_vec = {node_ptr};
-  performance_test::log_latency_all_stats(std::cout, nodes_vec);
+  performance_metrics::log_latency_all_stats(std::cout, this->sub_trackers());
 }
 
 #include "rclcpp_components/register_node_macro.hpp"

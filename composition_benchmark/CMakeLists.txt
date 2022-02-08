@@ -12,6 +12,7 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(irobot_interfaces_plugin REQUIRED)
+find_package(performance_metrics REQUIRED)
 find_package(performance_test REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
@@ -33,14 +34,14 @@ rclcpp_components_register_nodes(composable_publisher "ComposablePublisher")
 add_library(composable_subscriber SHARED
   src/composable_subscriber.cpp
 )
-ament_target_dependencies(composable_subscriber rclcpp rclcpp_components performance_test irobot_interfaces_plugin)
+ament_target_dependencies(composable_subscriber rclcpp rclcpp_components performance_metrics performance_test irobot_interfaces_plugin)
 target_include_directories(composable_subscriber PUBLIC include)
 rclcpp_components_register_nodes(composable_subscriber "ComposableSubscriber")
 
 add_library(base_node SHARED
   src/base_node.cpp
 )
-ament_target_dependencies(base_node rclcpp rclcpp_components performance_test)
+ament_target_dependencies(base_node rclcpp rclcpp_components performance_metrics performance_test)
 target_include_directories(base_node PUBLIC include)
 
 add_subdirectory(apps)

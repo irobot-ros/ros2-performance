@@ -10,24 +10,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <composition_benchmark/helpers/helper_types.hpp>
-
-void sleep_task(std::chrono::milliseconds task_duration)
-{
-  std::mutex mtx;
-  std::condition_variable cv;
-  bool triggered = false;
-  rclcpp::on_shutdown([&]{
-    {
-      std::unique_lock<std::mutex> lock(mtx);
-      triggered = true;
-    }
-    cv.notify_all();
-  });
-
-  auto wake_up_time = std::chrono::system_clock::now() + task_duration;
-  std::unique_lock<std::mutex> lock(mtx);
-  cv.wait_until(lock, wake_up_time, [&triggered]() {return triggered;});
-}
+#include <performance_test/executors.hpp>
 
 template<typename ExecutorT=rclcpp::executors::SingleThreadedExecutor>
 void spin_task(
@@ -41,7 +24,7 @@ void spin_task(
   }
 
   std::thread stop_thread([executor, task_duration]() {
-    sleep_task(task_duration);
+    performance_test::sleep_task(task_duration);
     executor->cancel();
   });
 
@@ -68,7 +51,7 @@ void spin_isolated_task(
 
   // Note: if task_duration is too small, we may end up calling cancel before
   // an executor started to sleep. This causes the function to block forever.
-  sleep_task(task_duration);
+  performance_test::sleep_task(task_duration);
 
   for (auto executor : executors) {
     executor->cancel();
@@ -92,7 +75,7 @@ void spin_future_complete_task(
 
   std::promise<void> promise;
   std::thread stop_thread([executor, task_duration, &promise]() {
-    sleep_task(task_duration);
+    performance_test::sleep_task(task_duration);
     promise.set_value();
     executor->cancel();
   });

@@ -1,4 +1,14 @@
-#pragma once
+/* Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2022, iRobot ROS
+ *  All rights reserved.
+ *
+ *  This file is part of ros2-performance, which is released under BSD-3-Clause.
+ *  You may use, distribute and modify this code under the BSD-3-Clause license.
+ */
+
+#ifndef COMPOSITION_BENCHMARK__HELPERS__HELPER_SPIN_HPP_
+#define COMPOSITION_BENCHMARK__HELPERS__HELPER_SPIN_HPP_
 
 #include <chrono>
 #include <condition_variable>
@@ -7,10 +17,9 @@
 #include <mutex>
 #include <thread>
 
-#include <rclcpp/rclcpp.hpp>
-
-#include <composition_benchmark/helpers/helper_types.hpp>
-#include <performance_test/executors.hpp>
+#include "composition_benchmark/helpers/helper_types.hpp"
+#include "performance_test/executors.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 template<typename ExecutorT=rclcpp::executors::SingleThreadedExecutor>
 void spin_task(

@@ -37,7 +37,7 @@ public:
       cxxopts::value<int>(n_services)->default_value(std::to_string(n_services)))(
       "msg_type", "Type of msg/service",
       cxxopts::value<std::string>(msg_type)->default_value(msg_type))(
-      "options.msg_size", "Size of message if dynamic",
+      "msg_size", "Size of message if dynamic",
       cxxopts::value<int>(msg_size)->default_value(std::to_string(msg_size)))(
       "f,frequency", "Publish/Request frequency",
       cxxopts::value<float>(frequency)->default_value(std::to_string(frequency)))(

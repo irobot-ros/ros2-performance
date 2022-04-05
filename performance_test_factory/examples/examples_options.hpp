@@ -25,15 +25,15 @@ public:
     cxxopts::Options options(argv[0], "ROS2 performance factory example");
 
     options.add_options()("h,help", "print help")(
-      "x, executor", "the system executor:\n\t\t\t\t1:Events 2:SingleThread 3:StaticSingleThread",
+      "executor", "the system executor:\n\t\t\t\t1:Events 2:SingleThread 3:StaticSingleThread",
       cxxopts::value<int>(executor)->default_value(std::to_string(executor)), "<1/2/3>")(
-      "s,subs", "Number of subscriber nodes",
+      "subs", "Number of subscriber nodes",
       cxxopts::value<int>(n_subscribers)->default_value(std::to_string(n_subscribers)))(
-      "p,pubs", "Number of publisher ndoes",
+      "pubs", "Number of publisher ndoes",
       cxxopts::value<int>(n_publishers)->default_value(std::to_string(n_publishers)))(
-      "c,clients", "Number of client nodes",
+      "clients", "Number of client nodes",
       cxxopts::value<int>(n_clients)->default_value(std::to_string(n_clients)))(
-      "s,services", "Number of service ndoes",
+      "services", "Number of service ndoes",
       cxxopts::value<int>(n_services)->default_value(std::to_string(n_services)))(
       "msg_type", "Type of msg/service",
       cxxopts::value<std::string>(msg_type)->default_value(msg_type))(

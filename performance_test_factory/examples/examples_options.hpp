@@ -53,7 +53,7 @@ public:
       cxxopts::value<int>(experiment_duration)->default_value(std::to_string(experiment_duration)))(
       "monitor_stats", "Monitor CPU, RAM and events and print them to file [0/1]",
       cxxopts::value<int>(monitor_stats)->default_value(std::to_string(monitor_stats)))(
-      "s, sampling", "resources sampling period",
+      "sampling", "resources sampling period",
       cxxopts::value<int>(resources_sampling_per_ms)->default_value(
         std::to_string(resources_sampling_per_ms)), "msec")(
       "late-percentage",

@@ -52,11 +52,11 @@ def organize_data(data_samples, x_key, separator, uncountable_data):
                 # get the already collected data for this separator value
                 plot_data = collected_data[separator_val]
                 # merge the new data into the collected_separated ones at the position indicated by x_val
-                plot_data[x_val] = merge_dictionaries(new_data, plot_data.get(x_val, {}), uncountable_data)
+                plot_data[x_val] = data_utils.merge_dictionaries(new_data, plot_data.get(x_val, {}), uncountable_data)
         else:
             # there is no separator so merge all data together in the first element of data dict (it is a dummy "all" label)
             plot_data = next(iter(collected_data.values()))
-            plot_data[x_val] = merge_dictionaries(new_data, plot_data.get(x_val, {}), uncountable_data)
+            plot_data[x_val] = data_utils.merge_dictionaries(new_data, plot_data.get(x_val, {}), uncountable_data)
 
     return collected_data
 
@@ -126,7 +126,7 @@ def get_title(x_key, y1_keys, y2_keys, separator):
     for i, sep in enumerate(separator):
         if sep == 'directory':
             continue
-        if i is 0:
+        if i == 0:
             title += ' for different values of ' + sep
         else:
             title += ' and ' + sep
@@ -171,8 +171,6 @@ def get_plot_data(data, key):
     plot_data = switcher[key](data)
 
     return plot_data
-
-
 
 
 def plot_function(data_dict, x_key, y1_keys, y2_keys, separator, target = {}):

@@ -14,6 +14,7 @@
 
 #include "cxxopts.hpp"
 #include "performance_metrics/tracker.hpp"
+#include "performance_test/executors.hpp"
 
 struct ExamplesOptions
 {
@@ -25,8 +26,8 @@ public:
     cxxopts::Options options(argv[0], "ROS2 performance factory example");
 
     options.add_options()("h,help", "print help")(
-      "executor", "the system executor:\n\t\t\t\t1:Events 2:SingleThread 3:StaticSingleThread",
-      cxxopts::value<int>(executor)->default_value(std::to_string(executor)), "<1/2/3>")(
+      "executor", "the system executor:\n\t\t\t\t1:SingleThread 2:StaticSingleThread",
+      cxxopts::value<int>(executor)->default_value(std::to_string(executor)), "<1/2>")(
       "subs", "Number of subscriber nodes",
       cxxopts::value<int>(n_subscribers)->default_value(std::to_string(n_subscribers)))(
       "pubs", "Number of publisher ndoes",
@@ -92,6 +93,7 @@ public:
     }
   }
 
+  // Default values
   int n_subscribers = 2;
   int n_publishers = 1;
   int n_clients = 2;
@@ -101,7 +103,8 @@ public:
   float frequency = 10;
   int use_ipc = 0;
   std::string json_path = "";
-  int executor = 3;  // ID corresponding to the StaticSingleThreadedExecutor
+  int executor =
+    static_cast<int>(performance_test::ExecutorType::STATIC_SINGLE_THREADED_EXECUTOR);
   int use_ros_params = 1;
   std::string ros_namespace = "";
   int verbose = 0;

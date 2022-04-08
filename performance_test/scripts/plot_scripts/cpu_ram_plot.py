@@ -199,7 +199,7 @@ def main(argv):
 
     parsed_target_json = {}
     if args.target:
-        parsed_target_json = plot_common.parse_target_json(args.target, "resources")
+        parsed_target_json = data_utils.parse_target_json(args.target, "resources")
         parsed_target_json = fix_target_names(parsed_target_json)
 
     plot_common.plot_function(data, x_key, y1_keys, y2_keys, separator, parsed_target_json)

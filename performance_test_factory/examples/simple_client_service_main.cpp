@@ -29,10 +29,10 @@ int main(int argc, char ** argv)
   std::string latency_file_path = "";
 
   if (!options.experiment_name.empty()) {
-    latency_file_path = options.experiment_path + "/lat_rel_" + options.experiment_name + ".csv";
+    latency_file_path = options.experiment_path + "/lat_rel_" + options.experiment_name;
     if (options.monitor_stats) {
-      events_file_path = options.experiment_path + "/events_" + options.experiment_name + ".csv";
-      ru_file_path = options.experiment_path + "/cpu_ram_" + options.experiment_name + ".csv";
+      events_file_path = options.experiment_path + "/events_" + options.experiment_name ;
+      ru_file_path = options.experiment_path + "/cpu_ram_" + options.experiment_name;
     }
   }
 

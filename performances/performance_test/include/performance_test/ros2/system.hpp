@@ -105,8 +105,12 @@ public:
                   ex.executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
                   break;
               case STATIC_SINGLE_THREADED_EXECUTOR:
-              default:
                   ex.executor = std::make_shared<rclcpp::executors::StaticSingleThreadedExecutor>();
+                  break;
+              case EVENTS_EXECUTOR:
+                  ex.executor = std::make_shared<rclcpp::executors::EventsExecutor>();
+                  break;
+              default:
                   break;
           }
 

@@ -67,7 +67,7 @@ public:
       ("t,time", "test duration", cxxopts::value<int>(duration_sec)->default_value(std::to_string(duration_sec)),"sec")
       ("s, sampling", "resources sampling period",
         cxxopts::value<int>(resources_sampling_per_ms)->default_value(std::to_string(resources_sampling_per_ms)),"msec")
-      ("x, executor", "the system executor:\n\t\t\t\t1:SingleThreadedExecutor. 2:StaticSingleThreadedExecutor",
+      ("x, executor", "the system executor:\n\t\t\t\t1:SingleThreadedExecutor. 2:StaticSingleThreadedExecutor. 3:EventsExecutor",
         cxxopts::value<int>(executor)->default_value(std::to_string(executor)),"<1/2>")
       ("n, node", "the node type:\n\t\t\t\t1:Node. 2:LifecycleNode",
         cxxopts::value<int>(node)->default_value(std::to_string(node)),"<1/2>")

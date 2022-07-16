@@ -19,3 +19,5 @@ public:
 
   ~ComposablePublisher() = default;
 };
+
+#endif  // COMPOSITION_BENCHMARK__COMPOSABLE_PUBLISHER_HPP_

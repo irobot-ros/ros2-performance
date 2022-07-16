@@ -19,3 +19,5 @@ public:
 
   ~ComposableNode() = default;
 };
+
+#endif  // COMPOSITION_BENCHMARK__COMPOSABLE_NODE_HPP_

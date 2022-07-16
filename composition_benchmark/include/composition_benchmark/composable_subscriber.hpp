@@ -19,3 +19,5 @@ public:
 
   ~ComposableSubscriber();
 };
+
+#endif  // COMPOSITION_BENCHMARK__COMPOSABLE_SUBSCRIBER_HPP_

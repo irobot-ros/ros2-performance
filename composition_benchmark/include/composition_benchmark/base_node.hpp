@@ -19,3 +19,5 @@ public:
 
   ~BaseNode();
 };
+
+#endif  // COMPOSITION_BENCHMARK__BASE_NODE_HPP_

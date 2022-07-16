@@ -115,3 +115,5 @@ void spin_some_task(
     executor->spin_some();
   }
 }
+
+#endif  // COMPOSITION_BENCHMARK__HELPERS__HELPER_SPIN_HPP_

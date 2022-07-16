@@ -28,3 +28,5 @@ using create_func_t = std::function<NodesVector (int, char **)>;
 using run_func_t = std::function<void (const NodesVector &)>;
 
 constexpr auto MAX_HOURS = std::chrono::hours(std::numeric_limits<int>::max());
+
+#endif  // COMPOSITION_BENCHMARK__HELPERS__HELPER_TYPES_HPP_

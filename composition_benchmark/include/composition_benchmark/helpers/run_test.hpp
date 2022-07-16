@@ -31,3 +31,5 @@ void run_test(
 
   rclcpp::shutdown();
 }
+
+#endif  // COMPOSITION_BENCHMARK__HELPERS__RUN_TEST_HPP_

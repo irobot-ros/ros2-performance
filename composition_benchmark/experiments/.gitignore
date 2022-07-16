@@ -1,0 +1,7 @@
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!simple-nodes.sh
+!pub-sub.sh

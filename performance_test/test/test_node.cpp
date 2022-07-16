@@ -53,11 +53,11 @@ TEST_F(TestNode, NodeAddItemsTest)
 
   node->add_subscriber<performance_test_msgs::msg::Sample>(
     "my_topic",
-    PASS_BY_SHARED_PTR);
+    performance_test::msg_pass_by_t::PASS_BY_SHARED_PTR);
   node->add_periodic_publisher<performance_test_msgs::msg::Sample>(
     "my_topic",
     std::chrono::milliseconds(10),
-    PASS_BY_UNIQUE_PTR);
+    performance_test::msg_pass_by_t::PASS_BY_UNIQUE_PTR);
   node->add_server<performance_test_msgs::srv::Sample>(
     "my_service");
   node->add_periodic_client<performance_test_msgs::srv::Sample>(
@@ -97,11 +97,11 @@ TEST_F(TestNode, LifecycleNodeAddItemsTest)
 
   node->add_subscriber<performance_test_msgs::msg::Sample>(
     "my_topic",
-    PASS_BY_SHARED_PTR);
+    performance_test::msg_pass_by_t::PASS_BY_SHARED_PTR);
   node->add_periodic_publisher<performance_test_msgs::msg::Sample>(
     "my_topic",
     std::chrono::milliseconds(10),
-    PASS_BY_UNIQUE_PTR);
+    performance_test::msg_pass_by_t::PASS_BY_UNIQUE_PTR);
   node->add_server<performance_test_msgs::srv::Sample>(
     "my_service");
   node->add_periodic_client<performance_test_msgs::srv::Sample>(

@@ -77,7 +77,7 @@ TEST_F(TestFactory, FactoryCreateFromIndicesTest)
     subscriber_end_index,
     n_publisher_nodes,
     msg_type,
-    PASS_BY_SHARED_PTR,
+    performance_test::msg_pass_by_t::PASS_BY_SHARED_PTR,
     performance_metrics::Tracker::Options());
 
   auto pub_nodes = factory.create_periodic_publisher_nodes(
@@ -85,7 +85,7 @@ TEST_F(TestFactory, FactoryCreateFromIndicesTest)
     publisher_end_index,
     frequency,
     msg_type,
-    PASS_BY_UNIQUE_PTR);
+    performance_test::msg_pass_by_t::PASS_BY_UNIQUE_PTR);
 
   ASSERT_EQ(static_cast<size_t>(2), sub_nodes.size());
   ASSERT_EQ(static_cast<size_t>(2), pub_nodes.size());

@@ -34,9 +34,29 @@ static uint64_t parse_line(std::string & line)
   return strtoul(split_left.c_str(), NULL, 0);
 }
 
-System::System(ExecutorType executor)
+System::System(
+  ExecutorType executor_type,
+  SpinType spin_type,
+  const std::optional<std::string> & events_logger_path)
 {
-  m_executor_type = executor;
+  m_executor_type = executor_type;
+  m_spin_type = spin_type;
+  if (events_logger_path) {
+    m_events_logger =
+      std::make_shared<performance_metrics::EventsLogger>(*events_logger_path);
+  }
+}
+
+System::~System()
+{
+  for (auto & pair : m_executors_map) {
+    auto & executor = pair.second.executor;
+    executor->cancel();
+  }
+
+  for (auto & thread : m_threads) {
+    thread->join();
+  }
 }
 
 void System::add_node(std::shared_ptr<performance_test::PerformanceNodeBase> node)
@@ -65,9 +85,9 @@ void System::add_node(std::shared_ptr<performance_test::PerformanceNodeBase> nod
   m_nodes.push_back(node);
 }
 
-void System::spin(int duration_sec, bool wait_for_discovery, bool name_threads)
+void System::spin(std::chrono::seconds duration, bool wait_for_discovery, bool name_threads)
 {
-  m_experiment_duration_sec = duration_sec;
+  m_experiment_duration = duration;
   // Store the instant when the experiment started
   m_start_time = std::chrono::high_resolution_clock::now();
 
@@ -91,17 +111,21 @@ void System::spin(int duration_sec, bool wait_for_discovery, bool name_threads)
     auto & executor = pair.second.executor;
 
     // Spin each executor in a separate thread
-    std::thread thread([ = ]() {
-        executor->spin();
-      });
+    auto thread = create_spin_thread(executor);
+
     if (name_threads) {
-      pthread_setname_np(thread.native_handle(), name.c_str());
+      pthread_setname_np(thread->native_handle(), name.c_str());
     }
-    thread.detach();
+
+    m_threads.push_back(std::move(thread));
   }
 
   // let the nodes spin for the specified amount of time
-  performance_test::sleep_task(std::chrono::seconds(m_experiment_duration_sec));
+  performance_test::sleep_task(m_experiment_duration);
+  // If spin type is waiting on a promise, fulfill the promise
+  if (m_spin_type == SpinType::SPIN_FUTURE_COMPLETE) {
+    m_promise.set_value();
+  }
 
   // after the timer, stop all the spin functions
   for (const auto & pair : m_executors_map) {
@@ -110,9 +134,34 @@ void System::spin(int duration_sec, bool wait_for_discovery, bool name_threads)
   }
 }
 
-void System::enable_events_logger(const std::string & events_logger_path)
+std::unique_ptr<std::thread> System::create_spin_thread(rclcpp::Executor::SharedPtr executor)
 {
-  m_events_logger = std::make_shared<performance_metrics::EventsLogger>(events_logger_path);
+  std::unique_ptr<std::thread> thread;
+
+  switch (m_spin_type) {
+    case SpinType::SPIN:
+      thread = std::make_unique<std::thread>(
+        [executor]() {
+          executor->spin();
+        });
+      break;
+    case SpinType::SPIN_SOME:
+      thread = std::make_unique<std::thread>(
+        [executor]() {
+          while (rclcpp::ok()) {
+            executor->spin_some();
+          }
+        });
+      break;
+    case SpinType::SPIN_FUTURE_COMPLETE:
+      thread = std::make_unique<std::thread>(
+        [executor, this]() {
+          executor->spin_until_future_complete(m_promise.get_future());
+        });
+      break;
+  }
+
+  return thread;
 }
 
 void System::save_latency_all_stats(const std::string & filename) const

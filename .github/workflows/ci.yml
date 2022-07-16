@@ -23,9 +23,12 @@ jobs:
           target-ros2-distro: rolling
           import-token: ${{ secrets.REPO_TOKEN }}
           package-name:
-            irobot_interfaces_plugin
+            composition_benchmark
             irobot_benchmark
+            irobot_interfaces_plugin
+            performance_metrics
             performance_test
+            performance_test_examples
             performance_test_factory
             performance_test_msgs
             performance_test_plugin_cmake

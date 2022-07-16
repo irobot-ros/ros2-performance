@@ -14,6 +14,7 @@ find_package(ament_cmake REQUIRED)
 find_package(irobot_interfaces_plugin REQUIRED)
 find_package(performance_metrics REQUIRED)
 find_package(performance_test REQUIRED)
+find_package(performance_test_factory REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 

@@ -23,7 +23,7 @@ performance_test::System ros2_system();
 performance_test_factory::TemplateFactory factory();
 
 auto nodes_vec = factory.parse_topology_from_json("path_to_my_topology.json");
-ros2_system.add_node(nodes_vec);
+ros2_system.add_nodes(nodes_vec);
 
 ros2_system.spin(std::chrono::seconds(10));
 
@@ -77,7 +77,7 @@ std::vector<std::shared_ptr<performance_test::PerformanceNode>> pub_nodes =
           frequency,
           msg_type);
 
-ros2_system.add_node(pub_nodes);
+ros2_system.add_nodes(pub_nodes);
 
 std::vector<std::shared_ptr<performance_test::PerformanceNode>> sub_nodes =
      factory.create_subscriber_nodes(
@@ -86,11 +86,11 @@ std::vector<std::shared_ptr<performance_test::PerformanceNode>> sub_nodes =
           n_publishers,
           msg_type);
 
-int experiment_duration_sec = 10;
+auto experiment_duration_sec = std::chrono::seconds(10);
 System ros2_system();
 
-ros2_system.add_node(pub_nodes);
-ros2_system.add_node(sub_nodes);
+ros2_system.add_nodes(pub_nodes);
+ros2_system.add_nodes(sub_nodes);
 ros2_system.spin(experiment_duration_sec);
 ```
 

@@ -8,12 +8,11 @@
  */
 
 #include "composition_benchmark/base_node.hpp"
-#include "composition_benchmark/helpers/helper_factory.hpp"
 #include "composition_benchmark/helpers/helper_options.hpp"
-#include "composition_benchmark/helpers/helper_spin.hpp"
-#include "composition_benchmark/helpers/run_test.hpp"
-#include "irobot_interfaces_plugin/msg/stamped_vector.hpp"
+#include "composition_benchmark/helpers/helper_types.hpp"
+#include "performance_test/system.hpp"
 #include "performance_test/utils/node_options.hpp"
+#include "performance_test_factory/factory.hpp"
 
 static
 std::vector<IRobotNodePtr> create_publisher_node(int argc, char ** argv)
@@ -24,11 +23,19 @@ std::vector<IRobotNodePtr> create_publisher_node(int argc, char ** argv)
   auto pub_period = std::chrono::milliseconds(1000 / (*cli_options.pub_frequency));
 
   IRobotNodePtr node = std::make_shared<BaseNode>(node_options);
-  node->add_periodic_publisher<irobot_interfaces_plugin::msg::StampedVector>(
+
+  const bool ipc = false;
+  const bool ros_params = true;
+  auto factory = performance_test_factory::TemplateFactory(
+    ipc,
+    ros_params);
+  factory.add_periodic_publisher_from_strings(
+    node,
+    *cli_options.msg_type,
     "my_topic",
-    pub_period,
-    PASS_BY_UNIQUE_PTR,
+    *cli_options.msg_pass_by,
     rmw_qos_profile_default,
+    pub_period,
     *cli_options.msg_size);
 
   return {node};
@@ -36,9 +43,15 @@ std::vector<IRobotNodePtr> create_publisher_node(int argc, char ** argv)
 
 int main(int argc, char ** argv)
 {
-  run_test(
-    argc,
-    argv,
-    create_publisher_node,
-    std::bind(spin_task, std::placeholders::_1, MAX_HOURS));
+  rclcpp::init(argc, argv);
+
+  auto nodes = create_publisher_node(argc, argv);
+  auto system = std::make_unique<performance_test::System>(
+    performance_test::ExecutorType::SINGLE_THREADED_EXECUTOR,
+    performance_test::SpinType::SPIN);
+
+  system->add_nodes(nodes);
+  system->spin(MAX_HOURS, false, false);
+
+  rclcpp::shutdown();
 }

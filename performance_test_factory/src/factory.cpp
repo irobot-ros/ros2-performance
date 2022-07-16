@@ -93,7 +93,7 @@ TemplateFactory::create_subscriber_nodes(
   int end_id,
   int n_publishers,
   const std::string & msg_type,
-  msg_pass_by_t msg_pass_by,
+  performance_test::msg_pass_by_t msg_pass_by,
   const performance_metrics::Tracker::Options & tracking_options,
   const rmw_qos_profile_t & custom_qos_profile)
 {
@@ -135,7 +135,7 @@ TemplateFactory::create_periodic_publisher_nodes(
   int end_id,
   float frequency,
   const std::string & msg_type,
-  msg_pass_by_t msg_pass_by,
+  performance_test::msg_pass_by_t msg_pass_by,
   size_t msg_size,
   const rmw_qos_profile_t & custom_qos_profile)
 {
@@ -249,7 +249,7 @@ void TemplateFactory::add_subscriber_from_strings(
   const std::string & msg_type,
   const std::string & topic_name,
   const performance_metrics::Tracker::Options & tracking_options,
-  msg_pass_by_t msg_pass_by,
+  performance_test::msg_pass_by_t msg_pass_by,
   const rmw_qos_profile_t & custom_qos_profile)
 {
   // Get library can modify the string, so we create a copy
@@ -261,7 +261,7 @@ void TemplateFactory::add_subscriber_from_strings(
     const std::string &,
     const std::string &,
     const performance_metrics::Tracker::Options &,
-    msg_pass_by_t,
+    performance_test::msg_pass_by_t,
     const rmw_qos_profile_t &);
 
   auto add_subscriber_impl =
@@ -279,7 +279,7 @@ void TemplateFactory::add_periodic_publisher_from_strings(
   performance_test::PerformanceNodeBase::SharedPtr n,
   const std::string & msg_type,
   const std::string & topic_name,
-  msg_pass_by_t msg_pass_by,
+  performance_test::msg_pass_by_t msg_pass_by,
   const rmw_qos_profile_t & custom_qos_profile,
   std::chrono::microseconds period,
   size_t msg_size)
@@ -292,7 +292,7 @@ void TemplateFactory::add_periodic_publisher_from_strings(
     performance_test::PerformanceNodeBase::SharedPtr,
     const std::string &,
     const std::string &,
-    msg_pass_by_t,
+    performance_test::msg_pass_by_t,
     const rmw_qos_profile_t &,
     std::chrono::microseconds,
     size_t);
@@ -491,7 +491,9 @@ void TemplateFactory::add_periodic_publisher_from_json(
 
   rmw_qos_profile_t custom_qos_profile = get_qos_from_json(pub_json);
 
-  msg_pass_by_t msg_pass_by = get_msg_pass_by_from_json(pub_json, PASS_BY_UNIQUE_PTR);
+  performance_test::msg_pass_by_t msg_pass_by = get_msg_pass_by_from_json(
+    pub_json,
+    performance_test::msg_pass_by_t::PASS_BY_UNIQUE_PTR);
 
   this->add_periodic_publisher_from_strings(
     node,
@@ -513,7 +515,9 @@ void TemplateFactory::add_subscriber_from_json(
 
   rmw_qos_profile_t custom_qos_profile = get_qos_from_json(sub_json);
 
-  msg_pass_by_t msg_pass_by = get_msg_pass_by_from_json(sub_json, PASS_BY_SHARED_PTR);
+  performance_test::msg_pass_by_t msg_pass_by = get_msg_pass_by_from_json(
+    sub_json,
+    performance_test::msg_pass_by_t::PASS_BY_SHARED_PTR);
 
   this->add_subscriber_from_strings(
     node,
@@ -661,19 +665,13 @@ rmw_qos_profile_t TemplateFactory::get_qos_from_json(const nlohmann::json & enti
   return custom_qos_profile;
 }
 
-msg_pass_by_t TemplateFactory::get_msg_pass_by_from_json(
+performance_test::msg_pass_by_t TemplateFactory::get_msg_pass_by_from_json(
   const nlohmann::json & entity_json,
-  msg_pass_by_t default_value)
+  performance_test::msg_pass_by_t default_value)
 {
-  msg_pass_by_t msg_pass_by = default_value;
-
-  std::map<std::string, msg_pass_by_t> map_msg_pass_by {
-    {"unique_ptr", PASS_BY_UNIQUE_PTR},
-    {"shared_ptr", PASS_BY_SHARED_PTR}
-  };
-
+  performance_test::msg_pass_by_t msg_pass_by = default_value;
   if (entity_json.find("msg_pass_by") != entity_json.end()) {
-    msg_pass_by = map_msg_pass_by[entity_json["msg_pass_by"]];
+    msg_pass_by = performance_test::string_to_msg_pass_by(entity_json["msg_pass_by"]);
   }
 
   return msg_pass_by;

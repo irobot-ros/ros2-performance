@@ -52,35 +52,6 @@ Depending on whether you installed ROS2 from sources or using the binaries, the 
 If you installed from sources and the ROS2 SDK workspace is for example `~/ros2_ws`, then you have to set the variable to `~/ros2_ws/install`.
 If you installed using the binaries and you are using the Crystal release, then you have to set the variable to `/opt/ros/crystal`.
 
-#### Cross-compilation instructions
-
-Create a ROS2 workspace.
-
-    mkdir -p ~/ros2_performance_ws/src
-
-Populate the `src` directory with the `performance_test_msgs` and `performance_test` package.
-
-    cd ~/ros2_performance_ws/src
-    cp -r <path_to_this_repository>/performances/performance_test_msgs .
-    cp -r <path_to_this_repository>/performances/performance_test .
-
-Cross-compile the workspace.
-
-Copy the cross-compiled package to the target board.
-
-    scp -r ~/ros2_performance_ws/install/ user@address:~/performance_ws_install
-
-Copy the `performance_test` package to the target board.
-
-    scp -r  ~/ros2_performance_ws/src/performance_test/ user@address:~/performance_test
-
-On the target board, open with a text editor `~/performance_test/env.sh` and modify the following variables:
-
- - ROS2_SDK_INSTALL_PATH=<path_to_ros2_sdk_install>
- - ROS2_PERFORMANCE_TEST_INSTALL_PATH=~/performance_ws_install
- - MERGE_INSTALL=<true_or_false>
-
-**Note:** set the `ROS2_SDK_INSTALL_PATH` and `MERGE_INSTALL` according to how you cross-compiled the ROS2 SDK and the performance_test package.
 
 ## Usage
 

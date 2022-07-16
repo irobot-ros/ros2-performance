@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>performance_test_examples</name>
+  <version>0.1.0</version>
+  <description>Example applications using the performance test libraries</description>
+  <maintainer email="asoragna@irobot.com">Alberto Soragna</maintainer>
+  <license>BSD 3.0</license>
+  <author>Alberto Soragna</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <build_depend>rclcpp</build_depend>
+  <build_depend>performance_test</build_depend>
+  <build_depend>performance_test_factory</build_depend>
+  <build_depend>irobot_interfaces_plugin</build_depend>
+
+  <exec_depend>rclcpp</exec_depend>
+  <exec_depend>performance_test</exec_depend>
+  <exec_depend>performance_test_factory</exec_depend>
+  <exec_depend>irobot_interfaces_plugin</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_cmake_cppcheck</test_depend>
+  <test_depend>ament_cmake_cpplint</test_depend>
+  <test_depend>ament_cmake_flake8</test_depend>
+  <test_depend>ament_cmake_lint_cmake</test_depend>
+  <test_depend>ament_cmake_pep257</test_depend>
+  <test_depend>ament_cmake_uncrustify</test_depend>
+  <test_depend>ament_cmake_xmllint</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

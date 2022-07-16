@@ -13,6 +13,7 @@
   <depend>irobot_interfaces_plugin</depend>
   <depend>performance_metrics</depend>
   <depend>performance_test</depend>
+  <depend>performance_test_factory</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
 

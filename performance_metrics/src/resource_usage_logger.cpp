@@ -118,7 +118,7 @@ void ResourceUsageLogger::_get()
 
   // Get mallinfo
 #if (defined(__UCLIBC__) || defined(__GLIBC__))
-  auto mem_info = mallinfo();
+  auto mem_info = mallinfo2();
   _resources.mem_arena_KB = mem_info.arena >> 10;
   _resources.mem_in_use_KB = mem_info.uordblks >> 10;
   _resources.mem_mmap_KB = mem_info.hblkhd >> 10;

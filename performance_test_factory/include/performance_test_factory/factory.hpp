@@ -52,7 +52,7 @@ public:
     int end_id,
     int n_publishers,
     const std::string & msg_type,
-    msg_pass_by_t msg_pass_by,
+    performance_test::msg_pass_by_t msg_pass_by,
     const performance_metrics::Tracker::Options & tracking_options,
     const rmw_qos_profile_t & custom_qos_profile = rmw_qos_profile_default);
 
@@ -61,7 +61,7 @@ public:
     int end_id,
     float frequency,
     const std::string & msg_type,
-    msg_pass_by_t msg_pass_by,
+    performance_test::msg_pass_by_t msg_pass_by,
     size_t msg_size = 0,
     const rmw_qos_profile_t & custom_qos_profile = rmw_qos_profile_default);
 
@@ -89,14 +89,16 @@ public:
     const std::string & msg_type,
     const std::string & topic_name,
     const performance_metrics::Tracker::Options & tracking_options,
-    msg_pass_by_t msg_pass_by = PASS_BY_SHARED_PTR,
+    performance_test::msg_pass_by_t msg_pass_by =
+    performance_test::msg_pass_by_t::PASS_BY_SHARED_PTR,
     const rmw_qos_profile_t & custom_qos_profile = rmw_qos_profile_default);
 
   void add_periodic_publisher_from_strings(
     performance_test::PerformanceNodeBase::SharedPtr n,
     const std::string & msg_type,
     const std::string & topic_name,
-    msg_pass_by_t msg_pass_by = PASS_BY_UNIQUE_PTR,
+    performance_test::msg_pass_by_t msg_pass_by =
+    performance_test::msg_pass_by_t::PASS_BY_UNIQUE_PTR,
     const rmw_qos_profile_t & custom_qos_profile = rmw_qos_profile_default,
     std::chrono::microseconds period = std::chrono::milliseconds(10),
     size_t msg_size = 0);
@@ -152,9 +154,9 @@ private:
 
   rmw_qos_profile_t get_qos_from_json(const nlohmann::json & entity_json);
 
-  msg_pass_by_t get_msg_pass_by_from_json(
+  performance_test::msg_pass_by_t get_msg_pass_by_from_json(
     const nlohmann::json & entity_json,
-    msg_pass_by_t default_value);
+    performance_test::msg_pass_by_t default_value);
 
   bool m_use_ipc;
   bool m_use_ros_params;

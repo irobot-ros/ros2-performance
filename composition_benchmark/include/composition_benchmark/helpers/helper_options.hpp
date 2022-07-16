@@ -14,8 +14,9 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <memory>
 #include <iostream>
+#include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -35,23 +36,22 @@ struct CompositionOptions
       std::string str_value = args[i + 1];
 
       if (key == "subs") {
-        assert(num_subs == nullptr);
-        num_subs = std::make_unique<size_t>(atoi(str_value.c_str()));
+        assert(!num_subs);
+        num_subs = static_cast<size_t>(atoi(str_value.c_str()));
       } else if (key == "freq") {
-        assert(pub_frequency == nullptr);
-        pub_frequency = std::make_unique<int>(atoi(str_value.c_str()));
+        pub_frequency = atoi(str_value.c_str());
       } else if (key == "size") {
-        assert(msg_size == nullptr);
-        msg_size = std::make_unique<int>(atoi(str_value.c_str()));
+        msg_size = atoi(str_value.c_str());
+      } else if (key == "msg_type") {
+        msg_type = str_value;
+      } else if (key == "msg_pass_by") {
+        msg_pass_by = performance_test::string_to_msg_pass_by(str_value);
       } else if (key == "ipc") {
-        assert(use_ipc == nullptr);
-        use_ipc = std::make_unique<bool>(static_cast<bool>(atoi(str_value.c_str())));
+        use_ipc = static_cast<bool>(atoi(str_value.c_str()));
       } else if (key == "spin_t") {
-        assert(spin_type == nullptr);
-        spin_type = std::make_unique<std::string>(str_value);
+        spin_type = str_value;
       } else if (key == "name") {
-        assert(name == nullptr);
-        name = std::make_unique<std::string>(str_value);
+        name = str_value;
       } else {
         std::cout<<"INVALID KEY  "<< key << " WITH VALUE " << str_value << std::endl;
         assert(0);
@@ -59,12 +59,15 @@ struct CompositionOptions
     }
   }
 
-  std::unique_ptr<size_t> num_subs;
-  std::unique_ptr<int> pub_frequency;
-  std::unique_ptr<int> msg_size;
-  std::unique_ptr<bool> use_ipc;
-  std::unique_ptr<std::string> spin_type;
-  std::unique_ptr<std::string> name;
+  std::optional<size_t> num_subs {0};
+  std::optional<int> pub_frequency {0};
+  std::optional<int> msg_size {0};
+  std::optional<std::string> msg_type {"stamped_vector"};
+  std::optional<performance_test::msg_pass_by_t> msg_pass_by {
+    performance_test::msg_pass_by_t::PASS_BY_UNIQUE_PTR};
+  std::optional<bool> use_ipc {false};
+  std::optional<std::string> spin_type {"spin"};
+  std::optional<std::string> name {"node"};
 };
 
 #endif  // COMPOSITION_BENCHMARK__HELPERS__HELPER_FACTORY_HPP_

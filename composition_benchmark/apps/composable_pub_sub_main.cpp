@@ -13,8 +13,8 @@
 #include "composition_benchmark/composable_publisher.hpp"
 #include "composition_benchmark/composable_subscriber.hpp"
 #include "composition_benchmark/helpers/helper_options.hpp"
-#include "composition_benchmark/helpers/helper_spin.hpp"
-#include "composition_benchmark/helpers/run_test.hpp"
+#include "composition_benchmark/helpers/helper_types.hpp"
+#include "performance_test/system.hpp"
 #include "performance_test/utils/node_options.hpp"
 #include "rclcpp/rclcpp.hpp"
 
@@ -23,9 +23,16 @@ std::vector<IRobotNodePtr> create_pub_sub_system(int argc, char ** argv)
 {
   auto options = CompositionOptions(argc, argv);
 
+  bool isolated = false;
+  int executor_id = 0;
+  if (*options.spin_type == "spin_isolated") {
+    isolated = true;
+  }
+
   std::vector<IRobotNodePtr> nodes;
 
   std::vector<rclcpp::Parameter> pub_parameters = {
+    {"executor_id", isolated ? executor_id++ : 0},
     {"topic", "dummy_topic"},
     {"frequency", *options.pub_frequency},
     {"size", *options.msg_size}
@@ -38,6 +45,7 @@ std::vector<IRobotNodePtr> create_pub_sub_system(int argc, char ** argv)
   for (size_t i = 0; i < *options.num_subs; i++) {
     std::string node_name = std::string("sub_node_") + std::to_string(i);
     std::vector<rclcpp::Parameter> sub_parameters = {
+      {"executor_id", isolated ? executor_id++ : 0},
       {"topic", "dummy_topic"}
     };
     auto sub_options = performance_test::create_node_options(node_name, "", sub_parameters);
@@ -53,20 +61,20 @@ int main(int argc, char ** argv)
 {
   auto options = CompositionOptions(argc, argv);
 
-  run_func_t run_func;
-  if (*options.spin_type == "spin") {
-    run_func = std::bind(spin_task, std::placeholders::_1, MAX_HOURS);
-  } else if (*options.spin_type == "spin_future") {
-    run_func = std::bind(spin_future_complete_task, std::placeholders::_1, MAX_HOURS);
-  } else if (*options.spin_type == "spin_isolated") {
-    run_func = std::bind(spin_isolated_task, std::placeholders::_1, MAX_HOURS);
-  } else if (*options.spin_type == "spin_some") {
-    run_func = std::bind(spin_some_task, std::placeholders::_1, MAX_HOURS);
+  performance_test::SpinType spin_type = performance_test::SpinType::SPIN;
+  if (*options.spin_type == "spin_some") {
+    spin_type = performance_test::SpinType::SPIN_SOME;
   }
 
-  run_test(
-    argc,
-    argv,
-    create_pub_sub_system,
-    run_func);
+  rclcpp::init(argc, argv);
+
+  auto nodes = create_pub_sub_system(argc, argv);
+  auto system = std::make_unique<performance_test::System>(
+    performance_test::ExecutorType::SINGLE_THREADED_EXECUTOR,
+    spin_type);
+
+  system->add_nodes(nodes);
+  system->spin(MAX_HOURS, false, false);
+
+  rclcpp::shutdown();
 }

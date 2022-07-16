@@ -37,17 +37,17 @@ TEST_F(TestSystem, SystemAddNodesTest)
   std::vector<std::shared_ptr<performance_test::PerformanceNode<rclcpp::Node>>> nodes_vec =
   {node_2, node_3};
 
-  auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
+  auto system_executor = performance_test::ExecutorType::STATIC_SINGLE_THREADED_EXECUTOR;
   performance_test::System system(system_executor);
 
   system.add_node(node_1);
-  system.add_node(nodes_vec);
+  system.add_nodes(nodes_vec);
 }
 
 TEST_F(TestSystem, SystemPubSubTest)
 {
-  int duration_sec = 1;
-  auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
+  auto duration_sec = std::chrono::seconds(1);
+  auto system_executor = performance_test::ExecutorType::STATIC_SINGLE_THREADED_EXECUTOR;
   performance_test::System ros2_system(system_executor);
 
   // Create 1 pulisher node and 1 subscriber node
@@ -56,7 +56,7 @@ TEST_F(TestSystem, SystemPubSubTest)
   pub_node->add_periodic_publisher<performance_test_msgs::msg::Sample>(
     "my_topic",
     std::chrono::milliseconds(10),
-    PASS_BY_UNIQUE_PTR,
+    performance_test::msg_pass_by_t::PASS_BY_UNIQUE_PTR,
     rmw_qos_profile_default);
   ros2_system.add_node(pub_node);
 
@@ -64,7 +64,7 @@ TEST_F(TestSystem, SystemPubSubTest)
     std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("sub_node");
   sub_node->add_subscriber<performance_test_msgs::msg::Sample>(
     "my_topic",
-    PASS_BY_SHARED_PTR,
+    performance_test::msg_pass_by_t::PASS_BY_SHARED_PTR,
     performance_metrics::Tracker::Options(),
     rmw_qos_profile_default);
   ros2_system.add_node(sub_node);
@@ -80,8 +80,8 @@ TEST_F(TestSystem, SystemPubSubTest)
 
 TEST_F(TestSystem, SystemClientServerTest)
 {
-  int duration_sec = 2;
-  auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
+  auto duration_sec = std::chrono::seconds(2);
+  auto system_executor = performance_test::ExecutorType::STATIC_SINGLE_THREADED_EXECUTOR;
   performance_test::System ros2_system(system_executor);
 
   // Create 1 client node and 1 server node
@@ -112,8 +112,8 @@ TEST_F(TestSystem, SystemClientServerTest)
 
 TEST_F(TestSystem, SystemDifferentQoSTest)
 {
-  int duration_sec = 1;
-  auto system_executor = performance_test::STATIC_SINGLE_THREADED_EXECUTOR;
+  auto duration_sec = std::chrono::seconds(1);
+  auto system_executor = performance_test::ExecutorType::STATIC_SINGLE_THREADED_EXECUTOR;
   performance_test::System ros2_system(system_executor);
   rmw_qos_profile_t qos_profile = rmw_qos_profile_default;
 
@@ -125,7 +125,7 @@ TEST_F(TestSystem, SystemDifferentQoSTest)
   pub_node->add_periodic_publisher<performance_test_msgs::msg::Sample>(
     "my_topic",
     std::chrono::milliseconds(10),
-    PASS_BY_UNIQUE_PTR,
+    performance_test::msg_pass_by_t::PASS_BY_UNIQUE_PTR,
     qos_profile);
   ros2_system.add_node(pub_node);
 
@@ -135,7 +135,7 @@ TEST_F(TestSystem, SystemDifferentQoSTest)
     rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_RELIABLE;
   sub_node->add_subscriber<performance_test_msgs::msg::Sample>(
     "my_topic",
-    PASS_BY_SHARED_PTR,
+    performance_test::msg_pass_by_t::PASS_BY_SHARED_PTR,
     performance_metrics::Tracker::Options(),
     qos_profile);
   ros2_system.add_node(sub_node);

@@ -36,7 +36,6 @@ struct CompositionOptions
       std::string str_value = args[i + 1];
 
       if (key == "subs") {
-        assert(!num_subs);
         num_subs = static_cast<size_t>(atoi(str_value.c_str()));
       } else if (key == "freq") {
         pub_frequency = atoi(str_value.c_str());

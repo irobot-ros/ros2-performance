@@ -17,7 +17,7 @@ jobs:
           required-ros-distributions: humble
       - name: Fetch submodules
         run: git submodule update --init --recursive
-      - uses: ros-tooling/action-ros-ci@0.2.1
+      - uses: ros-tooling/action-ros-ci@0.2.6
         id: action_ros_ci_step
         with:
           target-ros2-distro: humble

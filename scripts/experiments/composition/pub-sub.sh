@@ -30,7 +30,7 @@ do_test_multi_process() {
         do
           for EXP_IT in `seq 1 ${NUM_EXPERIMENTS}`;
           do
-            TEST_LOG_FILE="${TEST_DIR}/${NUM_SUBS}_subs_${PUB_FREQ}_freq_${MSG_SIZE}_size_${EXP_IT}_it.txt"
+            TEST_LOG_FILE="${TEST_DIR}/${NUM_SUBS}_subs_${PUB_FREQ}_freq_${MSG_TYPE}_msg_type_${MSG_SIZE}_size_${EXP_IT}_it.txt"
             CMD_ARGS="-t ${DURATION} --file ${TEST_LOG_FILE}"
 
             for SUB_IT in `seq 1 $NUM_SUBS`;
@@ -94,8 +94,7 @@ do_test_manual_composition() {
       do
         for EXP_IT in `seq 1 ${NUM_EXPERIMENTS}`;
         do
-          TEST_LOG_FILE="${TEST_DIR}/${NUM_SUBS}_subs_${PUB_FREQ}_freq_${MSG_TYPE}_msg_type_${MSG_SIZE}_size_${EXP_IT}_it.txt"
-
+          TEST_LOG_FILE="${TEST_DIR}/${NUM_SUBS}_subs_${PUB_FREQ}_freq_${MSG_SIZE}_size_${EXP_IT}_it.txt"
           SCRIPT_ARGS="subs ${NUM_SUBS} freq ${PUB_FREQ} size ${MSG_SIZE} ipc 0 spin_t spin"
           CMD_ARGS="-t ${DURATION} --file ${TEST_LOG_FILE} -p ${MANUAL_COMPOSITION_SCRIPT} ${SCRIPT_ARGS}"
 

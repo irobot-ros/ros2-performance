@@ -256,9 +256,9 @@ void PerformanceNodeBase::publish_msg(
         auto loaned_msg = pub->borrow_loaned_message();
         auto & msg_ref = loaned_msg.get();
         msg_size = resize_msg(msg_ref.data, size);
-        // Fill the loaned msg with 1s to simulate a real application:
-        // users are expected to populate the loaned msg with new data every time.
-        std::fill(std::begin(msg_ref.data), std::end(msg_ref.data), 1);
+        // Simulate the work required to "default initialize" a message
+        auto dummy_msg = std::make_unique<Msg>();
+        (void)dummy_msg;
 
         publish_time = m_node_interfaces.clock->get_clock()->now();
 

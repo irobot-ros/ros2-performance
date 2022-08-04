@@ -15,11 +15,16 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(performance_test REQUIRED)
 find_package(performance_test_factory REQUIRED)
+find_package(irobot_interfaces_plugin REQUIRED)
 
 add_executable(irobot-benchmark src/irobot-benchmark.cpp)
 ament_target_dependencies(irobot-benchmark rclcpp rclcpp_lifecycle performance_test performance_test_factory)
 
+add_executable(seg-fault-test src/seg-fault-test.cpp)
+ament_target_dependencies(seg-fault-test rclcpp rclcpp_lifecycle performance_test performance_test_factory irobot_interfaces_plugin)
+
 install(TARGETS
+  seg-fault-test
   irobot-benchmark
   DESTINATION lib/${PROJECT_NAME}
 )

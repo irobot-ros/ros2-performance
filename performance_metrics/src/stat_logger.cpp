@@ -75,6 +75,7 @@ void log_latency_all_stats(
 
   auto log_header = [&stream, wide_space, narrow_space, separator](const std::string & header_title)
     {
+      stream << std::endl;
       stream << header_title << std::endl;
       stream << std::left << std::setw(wide_space) << std::setfill(separator) << "node";
       stream << std::left << std::setw(wide_space) << std::setfill(separator) << "topic";

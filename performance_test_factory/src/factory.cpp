@@ -491,7 +491,7 @@ void TemplateFactory::add_periodic_publisher_from_json(
 
   rmw_qos_profile_t custom_qos_profile = get_qos_from_json(pub_json);
 
-  performance_test::msg_pass_by_t msg_pass_by = get_msg_pass_by_from_json(
+  auto msg_pass_by = get_msg_pass_by_from_json(
     pub_json,
     performance_test::msg_pass_by_t::PASS_BY_UNIQUE_PTR);
 
@@ -515,7 +515,7 @@ void TemplateFactory::add_subscriber_from_json(
 
   rmw_qos_profile_t custom_qos_profile = get_qos_from_json(sub_json);
 
-  performance_test::msg_pass_by_t msg_pass_by = get_msg_pass_by_from_json(
+  auto msg_pass_by = get_msg_pass_by_from_json(
     sub_json,
     performance_test::msg_pass_by_t::PASS_BY_SHARED_PTR);
 
@@ -669,7 +669,7 @@ performance_test::msg_pass_by_t TemplateFactory::get_msg_pass_by_from_json(
   const nlohmann::json & entity_json,
   performance_test::msg_pass_by_t default_value)
 {
-  performance_test::msg_pass_by_t msg_pass_by = default_value;
+  auto msg_pass_by = default_value;
   if (entity_json.find("msg_pass_by") != entity_json.end()) {
     msg_pass_by = performance_test::string_to_msg_pass_by(entity_json["msg_pass_by"]);
   }

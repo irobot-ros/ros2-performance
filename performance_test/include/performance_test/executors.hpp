@@ -30,6 +30,7 @@ enum class ExecutorType
 {
   SINGLE_THREADED_EXECUTOR = 1,
   STATIC_SINGLE_THREADED_EXECUTOR = 2,
+  EVENTS_EXECUTOR = 3,
 };
 
 enum class SpinType

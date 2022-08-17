@@ -207,30 +207,36 @@ void System::save_latency_total_stats(const std::string & filename) const
 void System::log_latency_all_stats(std::ostream & stream) const
 {
   std::vector<performance_metrics::Tracker> subs;
+
   for (const auto & n : m_nodes) {
     auto trackers = n->sub_trackers();
     subs.insert(subs.end(), trackers.begin(), trackers.end());
   }
+
   performance_metrics::log_latency_all_stats(
     stream,
     subs,
     "Subscriptions stats:");
 
   std::vector<performance_metrics::Tracker> clients;
+
   for (const auto & n : m_nodes) {
     auto trackers = n->client_trackers();
     clients.insert(clients.end(), trackers.begin(), trackers.end());
   }
+
   performance_metrics::log_latency_all_stats(
     stream,
     clients,
     "Clients stats:");
 
   std::vector<performance_metrics::Tracker> publishers;
+
   for (const auto & n : m_nodes) {
     auto trackers = n->pub_trackers();
     publishers.insert(publishers.end(), trackers.begin(), trackers.end());
   }
+
   performance_metrics::log_latency_all_stats(
     stream,
     publishers,

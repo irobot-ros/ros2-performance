@@ -30,11 +30,11 @@ We provide the `performance_test::System` class for managing the nodes execution
 
 ```
 #include "performance_test/system.hpp"
-int experiment_duration_sec = 10;
+auto experiment_duration = std::chrono::seconds(10);
 System ros2_system();
 ros2_system.add_node(pub_node);
 ros2_system.add_node(sub_node);
-ros2_system.spin(experiment_duration_sec);
+ros2_system.spin(experiment_duration);
 ```
 
 This is enough for running your nodes.
@@ -63,12 +63,6 @@ ru_logger.start(sampling_period);
  */
 
 ru_logger.stop();
-```
-
-Lastly, in order to enable logging events, it's sufficient call the related method on the  `performance_test::System` object before starting to spin.
-
-```
-ros2_system.enable_events_logger("events_output.txt");
 ```
 
 ## Visualizing the results

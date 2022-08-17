@@ -8,12 +8,12 @@
  */
 
 #include "composition_benchmark/base_node.hpp"
-#include "composition_benchmark/helpers/helper_factory.hpp"
 #include "composition_benchmark/helpers/helper_options.hpp"
-#include "composition_benchmark/helpers/helper_spin.hpp"
-#include "composition_benchmark/helpers/run_test.hpp"
-#include "irobot_interfaces_plugin/msg/stamped_vector.hpp"
+#include "composition_benchmark/helpers/helper_types.hpp"
+#include "performance_metrics/stat_logger.hpp"
+#include "performance_test/system.hpp"
 #include "performance_test/utils/node_options.hpp"
+#include "performance_test_factory/factory.hpp"
 
 static
 std::vector<IRobotNodePtr> create_subscriber_nodes(int argc, char ** argv)
@@ -22,16 +22,32 @@ std::vector<IRobotNodePtr> create_subscriber_nodes(int argc, char ** argv)
   auto node_options = performance_test::create_node_options(*cli_options.name);
 
   IRobotNodePtr node = std::make_shared<BaseNode>(node_options);
-  node->add_subscriber<irobot_interfaces_plugin::msg::StampedVector>("my_topic", PASS_BY_SHARED_PTR);
+  const bool ipc = false;
+  const bool ros_params = true;
+  auto factory = performance_test_factory::TemplateFactory(
+    ipc,
+    ros_params);
+  factory.add_subscriber_from_strings(
+    node,
+    *cli_options.msg_type,
+    "my_topic",
+    performance_metrics::Tracker::Options(),
+    *cli_options.msg_pass_by);
 
   return {node};
 }
 
 int main(int argc, char ** argv)
 {
-  run_test(
-    argc,
-    argv,
-    create_subscriber_nodes,
-    std::bind(spin_task, std::placeholders::_1, MAX_HOURS));
+  rclcpp::init(argc, argv);
+
+  auto nodes = create_subscriber_nodes(argc, argv);
+  auto system = std::make_unique<performance_test::System>(
+    performance_test::ExecutorType::SINGLE_THREADED_EXECUTOR,
+    performance_test::SpinType::SPIN);
+
+  system->add_nodes(nodes);
+  system->spin(MAX_HOURS, false, false);
+
+  rclcpp::shutdown();
 }

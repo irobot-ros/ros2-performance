@@ -26,10 +26,18 @@ struct NamedExecutor
   std::string name;
 };
 
-enum ExecutorType
+enum class ExecutorType
 {
   SINGLE_THREADED_EXECUTOR = 1,
   STATIC_SINGLE_THREADED_EXECUTOR = 2,
+  EVENTS_EXECUTOR = 3,
+};
+
+enum class SpinType
+{
+  SPIN = 1,
+  SPIN_SOME = 2,
+  SPIN_FUTURE_COMPLETE = 3,
 };
 
 std::ostream & operator<<(std::ostream & os, const ExecutorType & t);

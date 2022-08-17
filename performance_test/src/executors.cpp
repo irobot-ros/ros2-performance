@@ -22,11 +22,14 @@ std::ostream & operator<<(std::ostream & os, const ExecutorType & t)
 {
   std::string executor_name;
   switch (t) {
-    case SINGLE_THREADED_EXECUTOR:
+    case ExecutorType::SINGLE_THREADED_EXECUTOR:
       executor_name = "SingleThreadedExecutor";
       break;
-    case STATIC_SINGLE_THREADED_EXECUTOR:
+    case ExecutorType::STATIC_SINGLE_THREADED_EXECUTOR:
       executor_name = "StaticSingleThreadedExecutor";
+      break;
+    case ExecutorType::EVENTS_EXECUTOR:
+      executor_name = "EventsExecutor";
       break;
     default:
       executor_name = "Unknown ExecutorType";
@@ -41,11 +44,15 @@ std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type)
   std::shared_ptr<rclcpp::Executor> executor;
 
   switch (type) {
-    case SINGLE_THREADED_EXECUTOR:
+    case ExecutorType::SINGLE_THREADED_EXECUTOR:
       executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
       break;
-    case STATIC_SINGLE_THREADED_EXECUTOR:
+    case ExecutorType::STATIC_SINGLE_THREADED_EXECUTOR:
       executor = std::make_shared<rclcpp::executors::StaticSingleThreadedExecutor>();
+      break;
+    case ExecutorType::EVENTS_EXECUTOR:
+      // executor = std::make_shared<rclcpp::executors::EventsExecutor>();
+      assert(0 && "EventsExecutor not supported");
       break;
   }
 

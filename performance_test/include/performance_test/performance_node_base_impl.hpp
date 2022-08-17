@@ -44,15 +44,15 @@ void PerformanceNodeBase::add_subscriber(
   std::chrono::microseconds work_duration)
 {
   switch (msg_pass_by) {
-    case PASS_BY_SHARED_PTR:
-    case PASS_BY_LOANED_MSG:
+    case msg_pass_by_t::PASS_BY_SHARED_PTR:
+    case msg_pass_by_t::PASS_BY_LOANED_MSG:
       add_subscriber_by_msg_variant<Msg, typename Msg::ConstSharedPtr>(
         topic_name,
         tracking_options,
         qos_profile,
         work_duration);
       break;
-    case PASS_BY_UNIQUE_PTR:
+    case msg_pass_by_t::PASS_BY_UNIQUE_PTR:
       add_subscriber_by_msg_variant<Msg, typename Msg::UniquePtr>(
         topic_name,
         tracking_options,
@@ -210,7 +210,7 @@ void PerformanceNodeBase::publish_msg(
   uint64_t pub_duration_us = 0;
   size_t msg_size = 0;
   switch (msg_pass_by) {
-    case PASS_BY_SHARED_PTR:
+    case msg_pass_by_t::PASS_BY_SHARED_PTR:
       {
         // create a message and eventually resize it
         auto msg = std::make_shared<Msg>();
@@ -230,7 +230,7 @@ void PerformanceNodeBase::publish_msg(
 
         break;
       }
-    case PASS_BY_UNIQUE_PTR:
+    case msg_pass_by_t::PASS_BY_UNIQUE_PTR:
       {
         // create a message and eventually resize it
         auto msg = std::make_unique<Msg>();
@@ -250,16 +250,12 @@ void PerformanceNodeBase::publish_msg(
 
         break;
       }
-    case PASS_BY_LOANED_MSG:
+    case msg_pass_by_t::PASS_BY_LOANED_MSG:
       {
         // create a message and eventually resize it
-        std::allocator<void> allocator;
-        rclcpp::LoanedMessage<Msg> loaned_msg(*pub, allocator);
+        auto loaned_msg = pub->borrow_loaned_message();
         auto & msg_ref = loaned_msg.get();
         msg_size = resize_msg(msg_ref.data, size);
-        // Fill the loaned msg with 1s to simulate a real application:
-        // users are expected to populate the loaned msg with new data every time.
-        std::fill(std::begin(msg_ref.data), std::end(msg_ref.data), 1);
 
         publish_time = m_node_interfaces.clock->get_clock()->now();
 

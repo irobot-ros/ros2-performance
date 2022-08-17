@@ -25,7 +25,7 @@ ComposablePublisher::ComposablePublisher(const rclcpp::NodeOptions & options)
   this->add_periodic_publisher<irobot_interfaces_plugin::msg::StampedVector>(
     topic_name,
     period,
-    PASS_BY_UNIQUE_PTR,
+    performance_test::msg_pass_by_t::PASS_BY_UNIQUE_PTR,
     rmw_qos_profile_default,
     msg_size);
 }

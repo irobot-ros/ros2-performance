@@ -13,6 +13,7 @@
 #include <chrono>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -26,21 +27,27 @@ namespace performance_test
 class System
 {
 public:
-  explicit System(ExecutorType executor);
+  explicit System(
+    ExecutorType executor_type = ExecutorType::SINGLE_THREADED_EXECUTOR,
+    SpinType spin_type = SpinType::SPIN,
+    const std::optional<std::string> & events_logger_path = std::nullopt);
+
+  ~System();
 
   template<typename NodeT>
-  void add_node(const std::vector<std::shared_ptr<NodeT>> & nodes)
+  void add_nodes(const std::vector<std::shared_ptr<NodeT>> & nodes)
   {
-    for (auto node : nodes) {
+    for (auto & node : nodes) {
       this->add_node(node);
     }
   }
 
   void add_node(std::shared_ptr<performance_test::PerformanceNodeBase> node);
 
-  void spin(int duration_sec, bool wait_for_discovery = true, bool name_threads = true);
-
-  void enable_events_logger(const std::string & events_logger_path);
+  void spin(
+    std::chrono::seconds duration,
+    bool wait_for_discovery = true,
+    bool name_threads = true);
 
   void save_latency_all_stats(const std::string & filename) const;
 
@@ -63,17 +70,21 @@ private:
     std::chrono::milliseconds period = std::chrono::milliseconds(20),
     std::chrono::milliseconds max_edp_time = std::chrono::milliseconds(30 * 1000));
 
+  std::unique_ptr<std::thread> create_spin_thread(rclcpp::Executor::SharedPtr executor);
+
   std::chrono::high_resolution_clock::time_point m_start_time;
 
-  int m_experiment_duration_sec;
+  std::chrono::seconds m_experiment_duration;
 
   std::vector<std::shared_ptr<performance_test::PerformanceNodeBase>> m_nodes;
-
   std::map<int, NamedExecutor> m_executors_map;
+  std::vector<std::unique_ptr<std::thread>> m_threads;
+  std::promise<void> m_promise;
 
   std::shared_ptr<performance_metrics::EventsLogger> m_events_logger;
 
   ExecutorType m_executor_type;
+  SpinType m_spin_type;
 };
 
 }  // namespace performance_test

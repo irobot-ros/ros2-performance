@@ -62,11 +62,6 @@ install(DIRECTORY
 )
 
 ##
-## build the performance_test_factory examples
-##
-add_subdirectory(examples)
-
-##
 ## build the unit tests
 ##
 if(BUILD_TESTING)

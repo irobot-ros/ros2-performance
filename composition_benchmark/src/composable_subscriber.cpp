@@ -19,7 +19,9 @@ ComposableSubscriber::ComposableSubscriber(const rclcpp::NodeOptions & options)
 {
   auto topic_name = this->declare_parameter<std::string>("topic", "my_topic");
 
-  this->add_subscriber<irobot_interfaces_plugin::msg::StampedVector>(topic_name, PASS_BY_SHARED_PTR);
+  this->add_subscriber<irobot_interfaces_plugin::msg::StampedVector>(
+    topic_name,
+    performance_test::msg_pass_by_t::PASS_BY_SHARED_PTR);
 }
 
 ComposableSubscriber::~ComposableSubscriber()

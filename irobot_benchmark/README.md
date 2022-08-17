@@ -231,13 +231,13 @@ Moreover, it's possible to directly compare the results with a performance targe
 For example, you can run:
 
 ```
-python3 <path_to_performance_test_pkg>/scripts/plot_scripts/benchmark_app_evaluation.py --target <path_to_benchmark_pkg>/performance_target/sierra_nevada_rpi3.json --resources log/resources.txt --latency log/latency_total.txt
+python3 <path_to_performance_test_pkg>/scripts/visualization/benchmark_app_evaluation.py --target <path_to_benchmark_pkg>/performance_target/sierra_nevada_rpi3.json --resources log/resources.txt --latency log/latency_total.txt
 ```
 
 Also, you can use the performance target *.json* file together with the `cpu_ram_plot.py` script
 
 ```
-python3 <path_to_performance_test_pkg>/scripts/plot_scripts/cpu_ram_plot.py log/resources.txt --x time --y cpu --y2 rss --target <path_to_benchmark_pkg>/perf_target.json
+python3 <path_to_performance_test_pkg>/scripts/visualization/cpu_ram_plot.py log/resources.txt --x time --y cpu --y2 rss --target <path_to_benchmark_pkg>/perf_target.json
 ```
 
 ### Results

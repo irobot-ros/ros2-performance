@@ -38,3 +38,6 @@
 .vscode
 
 __pycache__
+
+# Experiments results directory
+_results

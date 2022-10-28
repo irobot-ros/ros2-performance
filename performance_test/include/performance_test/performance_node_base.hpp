@@ -26,6 +26,7 @@
 #include "performance_metrics/events_logger.hpp"
 #include "performance_metrics/tracker.hpp"
 #include "performance_test/communication.hpp"
+#include "performance_test/utils/introspection.hpp"
 
 namespace performance_test
 {
@@ -160,15 +161,23 @@ protected:
     size_t size,
     std::chrono::microseconds period);
 
+  template<typename MsgT>
+  typename std::enable_if<(msg_has_data_field<MsgT>::value), size_t>::type
+  resize_msg(MsgT & msg, size_t size);
+
+  template<typename MsgT>
+  typename std::enable_if<(!msg_has_data_field<MsgT>::value), size_t>::type
+  resize_msg(MsgT & msg, size_t size);
+
   template<typename DataT>
   typename std::enable_if<
     (!std::is_same<DataT, std::vector<uint8_t>>::value), size_t>::type
-  resize_msg(DataT & data, size_t size);
+  resize_data(DataT & data, size_t size);
 
   template<typename DataT>
   typename std::enable_if<
     (std::is_same<DataT, std::vector<uint8_t>>::value), size_t>::type
-  resize_msg(DataT & data, size_t size);
+  resize_data(DataT & data, size_t size);
 
   template<typename MsgType>
   void topic_callback(

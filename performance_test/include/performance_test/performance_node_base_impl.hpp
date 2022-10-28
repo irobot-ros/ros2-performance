@@ -218,7 +218,7 @@ void PerformanceNodeBase::publish_msg(
       {
         // create a message and eventually resize it
         auto msg = std::make_shared<Msg>();
-        msg_size = resize_msg(msg->data, size);
+        msg_size = resize_msg(*msg, size);
         publish_time = m_node_interfaces.clock->get_clock()->now();
 
         msg->header = create_msg_header(
@@ -238,7 +238,7 @@ void PerformanceNodeBase::publish_msg(
       {
         // create a message and eventually resize it
         auto msg = std::make_unique<Msg>();
-        msg_size = resize_msg(msg->data, size);
+        msg_size = resize_msg(*msg, size);
         publish_time = m_node_interfaces.clock->get_clock()->now();
 
         msg->header = create_msg_header(
@@ -259,7 +259,7 @@ void PerformanceNodeBase::publish_msg(
         // create a message and eventually resize it
         auto loaned_msg = pub->borrow_loaned_message();
         auto & msg_ref = loaned_msg.get();
-        msg_size = resize_msg(msg_ref.data, size);
+        msg_size = resize_msg(msg_ref, size);
 
         publish_time = m_node_interfaces.clock->get_clock()->now();
 
@@ -285,10 +285,26 @@ void PerformanceNodeBase::publish_msg(
     "Publishing to %s msg number %d took %lu us", name.c_str(), tracking_number, pub_duration_us);
 }
 
+template<typename MsgT>
+typename std::enable_if<(msg_has_data_field<MsgT>::value), size_t>::type
+PerformanceNodeBase::resize_msg(MsgT & msg, size_t size)
+{
+  return resize_data(msg.data, size);
+}
+
+template<typename MsgT>
+typename std::enable_if<(!msg_has_data_field<MsgT>::value), size_t>::type
+PerformanceNodeBase::resize_msg(MsgT & msg, size_t size)
+{
+  (void)msg;
+  (void)size;
+  return 0;
+}
+
 template<typename DataT>
 typename std::enable_if<
   (!std::is_same<DataT, std::vector<uint8_t>>::value), size_t>::type
-PerformanceNodeBase::resize_msg(DataT & data, size_t size)
+PerformanceNodeBase::resize_data(DataT & data, size_t size)
 {
   // The payload is not a vector: nothing to resize
   (void)size;
@@ -298,7 +314,7 @@ PerformanceNodeBase::resize_msg(DataT & data, size_t size)
 template<typename DataT>
 typename std::enable_if<
   (std::is_same<DataT, std::vector<uint8_t>>::value), size_t>::type
-PerformanceNodeBase::resize_msg(DataT & data, size_t size)
+PerformanceNodeBase::resize_data(DataT & data, size_t size)
 {
   data.resize(size);
   return size;

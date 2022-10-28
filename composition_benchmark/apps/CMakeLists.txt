@@ -20,12 +20,17 @@ add_executable(composable_pub_sub_main composable_pub_sub_main.cpp)
 ament_target_dependencies(composable_pub_sub_main performance_test irobot_interfaces_plugin)
 target_link_libraries(composable_pub_sub_main composable_publisher composable_subscriber)
 
+add_executable(multi_producer multi-producer-node.cpp)
+ament_target_dependencies(multi_producer performance_test irobot_interfaces_plugin)
+target_link_libraries(multi_producer composable_publisher composable_subscriber)
+
 install(TARGETS
   base_simple_main
   base_publisher_main
   base_subscriber_main
   composable_simple_main
   composable_pub_sub_main
+  multi_producer
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}

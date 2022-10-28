@@ -5,10 +5,10 @@
 #####
 
 # Set the ROS2 SDK workspace install path:
-ROS2_SDK_INSTALL_PATH="/root/ros2_ws/install"
+ROS2_SDK_INSTALL_PATH="/opt/ros/rolling"
 
 # Set the performance test workspace install path:
-ROS2_PERFORMANCE_TEST_INSTALL_PATH="/root/perf_ws/install"
+ROS2_PERFORMANCE_TEST_INSTALL_PATH="/root/ws/install"
 
 # Have the workspaces (ROS2 SDK and performance test) been compiled using --merge-install option?
 MERGE_INSTALL=false

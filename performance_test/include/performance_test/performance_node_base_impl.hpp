@@ -44,8 +44,12 @@ void PerformanceNodeBase::add_subscriber(
   std::chrono::microseconds work_duration)
 {
   switch (msg_pass_by) {
-    case msg_pass_by_t::PASS_BY_SHARED_PTR:
     case msg_pass_by_t::PASS_BY_LOANED_MSG:
+      RCLCPP_WARN(this->get_node_logger(),
+        "Requested to create sub '%s' using PASS_BY_LOANED_MSG; this will fallback to PASS_BY_SHARED_PTR",
+        topic_name.c_str());
+      [[fallthrough]];
+    case msg_pass_by_t::PASS_BY_SHARED_PTR:
       add_subscriber_by_msg_variant<Msg, typename Msg::ConstSharedPtr>(
         topic_name,
         tracking_options,
@@ -64,7 +68,7 @@ void PerformanceNodeBase::add_subscriber(
 
 template<
   typename Msg,
-  typename CallbackType = typename Msg::ConstSharedPtr>
+  typename CallbackType>
 void PerformanceNodeBase::add_subscriber_by_msg_variant(
   const std::string & topic_name,
   performance_metrics::Tracker::Options tracking_options,

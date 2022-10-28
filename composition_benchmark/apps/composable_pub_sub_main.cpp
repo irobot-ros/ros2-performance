@@ -33,7 +33,7 @@ std::vector<IRobotNodePtr> create_pub_sub_system(int argc, char ** argv)
 
   std::vector<rclcpp::Parameter> pub_parameters = {
     {"executor_id", isolated ? executor_id++ : 0},
-    {"topic", "dummy_topic"},
+    {"topic", "topic"},
     {"frequency", *options.pub_frequency},
     {"size", *options.msg_size}
   };
@@ -46,7 +46,7 @@ std::vector<IRobotNodePtr> create_pub_sub_system(int argc, char ** argv)
     std::string node_name = std::string("sub_node_") + std::to_string(i);
     std::vector<rclcpp::Parameter> sub_parameters = {
       {"executor_id", isolated ? executor_id++ : 0},
-      {"topic", "dummy_topic"}
+      {"topic", "topic"}
     };
     auto sub_options = performance_test::create_node_options(node_name, "", sub_parameters);
     sub_options.use_intra_process_comms(*options.use_ipc);

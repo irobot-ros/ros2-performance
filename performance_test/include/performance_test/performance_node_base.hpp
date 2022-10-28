@@ -116,7 +116,7 @@ public:
 
   std::vector<std::string> get_published_topics();
 
-private:
+protected:
   template<
     typename Msg,
     typename CallbackType = typename Msg::ConstSharedPtr>

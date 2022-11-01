@@ -68,7 +68,7 @@ int main(int argc, char ** argv)
     options.n_clients,
     options.n_clients + options.n_services,
     options.msg_type,
-    rmw_qos_profile_default);
+    rclcpp::ServicesQoS());
 
   ros2_system.add_nodes(server_nodes);
 
@@ -80,7 +80,7 @@ int main(int argc, char ** argv)
     options.n_services,
     options.frequency,
     options.msg_type,
-    rmw_qos_profile_default);
+    rclcpp::ServicesQoS());
 
   ros2_system.add_nodes(client_nodes);
 

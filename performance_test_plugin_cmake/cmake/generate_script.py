@@ -118,7 +118,7 @@ def get_sub_factory(msgs, package):
     const std::string & topic_name,
     const performance_metrics::Tracker::Options & tracking_options,
     performance_test::msg_pass_by_t msg_pass_by,
-    const rmw_qos_profile_t & custom_qos_profile)
+    const rclcpp::QoS & custom_qos_profile)
   {
     const std::map<std::string, std::function<void()>> subscribers_factory{
   """
@@ -172,7 +172,7 @@ def get_pub_factory(msgs, package):
     const std::string & msg_type,
     const std::string & topic_name,
     performance_test::msg_pass_by_t msg_pass_by,
-    const rmw_qos_profile_t & custom_qos_profile,
+    const rclcpp::QoS & custom_qos_profile,
     std::chrono::microseconds period,
     size_t msg_size)
   {
@@ -227,7 +227,7 @@ def get_server_factory(srvs, package):
   content += """
     const std::string & srv_type,
     const std::string & service_name,
-    const rmw_qos_profile_t & custom_qos_profile)
+    const rclcpp::QoS & custom_qos_profile)
   {
     const std::map<std::string, std::function<void()>> servers_factory{
   """
@@ -280,7 +280,7 @@ def get_client_factory(srvs, package):
   content += """
     const std::string & srv_type,
     const std::string & service_name,
-    const rmw_qos_profile_t & custom_qos_profile,
+    const rclcpp::QoS & custom_qos_profile,
     std::chrono::microseconds period)
   {
     const std::map<std::string, std::function<void()>> clients_factory{

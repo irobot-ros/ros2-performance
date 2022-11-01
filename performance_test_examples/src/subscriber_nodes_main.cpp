@@ -71,7 +71,7 @@ int main(int argc, char ** argv)
     options.msg_type,
     performance_test::msg_pass_by_t::PASS_BY_SHARED_PTR,
     performance_metrics::Tracker::Options(),
-    rmw_qos_profile_default);
+    rclcpp::SensorDataQoS());
 
   ros2_system.add_nodes(sub_nodes);
 

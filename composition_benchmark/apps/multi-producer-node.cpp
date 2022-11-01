@@ -32,7 +32,7 @@ public:
             using Msg = irobot_interfaces_plugin::msg::Stamped10b;
 
             std::string topic_name = "topic_" + std::to_string(i);
-            this->add_publisher<Msg>(topic_name, rmw_qos_profile_default);
+            this->add_publisher<Msg>(topic_name, rclcpp::SensorDataQoS());
 
             auto publish_func = std::bind(
                 &MultiProducerNode::publish_msg<Msg>,
@@ -54,7 +54,7 @@ public:
             "slow_topic",
             std::chrono::milliseconds(111),
             performance_test::msg_pass_by_t::PASS_BY_UNIQUE_PTR,
-            rmw_qos_profile_default);
+            rclcpp::SensorDataQoS());
     }
 };
 

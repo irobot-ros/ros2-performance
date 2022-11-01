@@ -70,7 +70,7 @@ public:
     msg_pass_by_t msg_pass_by,
     performance_metrics::Tracker::Options tracking_options =
     performance_metrics::Tracker::Options(),
-    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default,
+    const rclcpp::QoS & qos_profile = rclcpp::SensorDataQoS(),
     std::chrono::microseconds work_duration = std::chrono::microseconds::zero());
 
   template<typename Msg>
@@ -78,30 +78,30 @@ public:
     const std::string & topic_name,
     std::chrono::microseconds period,
     msg_pass_by_t msg_pass_by,
-    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default,
+    const rclcpp::QoS & qos_profile = rclcpp::SensorDataQoS(),
     size_t size = 0);
 
   template<typename Msg>
   void add_publisher(
     const std::string & topic_name,
-    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default);
+    const rclcpp::QoS & qos_profile = rclcpp::SensorDataQoS());
 
   template<typename Srv>
   void add_server(
     const std::string & service_name,
-    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default);
+    const rclcpp::QoS & qos_profile = rclcpp::ServicesQoS());
 
   template<typename Srv>
   void add_periodic_client(
     const std::string & service_name,
     std::chrono::microseconds period,
-    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default,
+    const rclcpp::QoS & qos_profile = rclcpp::ServicesQoS(),
     size_t size = 0);
 
   template<typename Srv>
   void add_client(
     const std::string & service_name,
-    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default);
+    const rclcpp::QoS & qos_profile = rclcpp::ServicesQoS());
 
   void add_timer(std::chrono::microseconds period, std::function<void()> callback);
 
@@ -125,7 +125,7 @@ protected:
     const std::string & topic_name,
     performance_metrics::Tracker::Options tracking_options =
     performance_metrics::Tracker::Options(),
-    const rmw_qos_profile_t & qos_profile = rmw_qos_profile_default,
+    const rclcpp::QoS & qos_profile = rclcpp::SensorDataQoS(),
     std::chrono::microseconds work_duration = std::chrono::microseconds::zero());
 
   void store_subscription(

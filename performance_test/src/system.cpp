@@ -103,9 +103,11 @@ void System::spin(std::chrono::seconds duration, bool wait_for_discovery, bool n
   if (wait_for_discovery) {
     // wait until PDP and EDP are finished before starting
     // log events when each is completed
+    RCLCPP_INFO(rclcpp::get_logger("ros2-performance"), "Waiting for discovery");
     this->wait_discovery();
   }
 
+  RCLCPP_INFO(rclcpp::get_logger("ros2-performance"), "Starting to spin");
   for (const auto & pair : m_executors_map) {
     auto & name = pair.second.name;
     auto & executor = pair.second.executor;

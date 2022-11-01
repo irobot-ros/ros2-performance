@@ -26,7 +26,7 @@ ComposablePublisher::ComposablePublisher(const rclcpp::NodeOptions & options)
     topic_name,
     period,
     performance_test::msg_pass_by_t::PASS_BY_UNIQUE_PTR,
-    rmw_qos_profile_default,
+    rclcpp::SensorDataQoS(),
     msg_size);
 }
 

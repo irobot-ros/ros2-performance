@@ -57,7 +57,7 @@ TEST_F(TestSystem, SystemPubSubTest)
     "my_topic",
     std::chrono::milliseconds(10),
     performance_test::msg_pass_by_t::PASS_BY_UNIQUE_PTR,
-    rmw_qos_profile_default);
+    rclcpp::SensorDataQoS());
   ros2_system.add_node(pub_node);
 
   auto sub_node =
@@ -66,7 +66,7 @@ TEST_F(TestSystem, SystemPubSubTest)
     "my_topic",
     performance_test::msg_pass_by_t::PASS_BY_SHARED_PTR,
     performance_metrics::Tracker::Options(),
-    rmw_qos_profile_default);
+    rclcpp::SensorDataQoS());
   ros2_system.add_node(sub_node);
 
   ros2_system.spin(duration_sec);
@@ -90,14 +90,14 @@ TEST_F(TestSystem, SystemClientServerTest)
   client_node->add_periodic_client<performance_test_msgs::srv::Sample>(
     "my_service",
     std::chrono::milliseconds(10),
-    rmw_qos_profile_default);
+    rclcpp::ServicesQoS());
   ros2_system.add_node(client_node);
 
   auto server_node =
     std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("server_node");
   server_node->add_server<performance_test_msgs::srv::Sample>(
     "my_service",
-    rmw_qos_profile_default);
+    rclcpp::ServicesQoS());
   ros2_system.add_node(server_node);
 
   // discovery check does not work with client/server yet
@@ -115,13 +115,12 @@ TEST_F(TestSystem, SystemDifferentQoSTest)
   auto duration_sec = std::chrono::seconds(1);
   auto system_executor = performance_test::ExecutorType::STATIC_SINGLE_THREADED_EXECUTOR;
   performance_test::System ros2_system(system_executor);
-  rmw_qos_profile_t qos_profile = rmw_qos_profile_default;
+  auto qos_profile = rclcpp::QoS(10);
 
   // Create 1 pulisher node and 1 subscriber node
   auto pub_node =
     std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("pub_node");
-  qos_profile.reliability =
-    rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT;
+  qos_profile.reliability(rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT);
   pub_node->add_periodic_publisher<performance_test_msgs::msg::Sample>(
     "my_topic",
     std::chrono::milliseconds(10),
@@ -131,8 +130,7 @@ TEST_F(TestSystem, SystemDifferentQoSTest)
 
   auto sub_node =
     std::make_shared<performance_test::PerformanceNode<rclcpp::Node>>("sub_node");
-  qos_profile.reliability =
-    rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_RELIABLE;
+  qos_profile.reliability(rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_RELIABLE);
   sub_node->add_subscriber<performance_test_msgs::msg::Sample>(
     "my_topic",
     performance_test::msg_pass_by_t::PASS_BY_SHARED_PTR,

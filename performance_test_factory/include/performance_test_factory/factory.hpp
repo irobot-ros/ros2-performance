@@ -54,7 +54,7 @@ public:
     const std::string & msg_type,
     performance_test::msg_pass_by_t msg_pass_by,
     const performance_metrics::Tracker::Options & tracking_options,
-    const rmw_qos_profile_t & custom_qos_profile = rmw_qos_profile_default);
+    const rclcpp::QoS & custom_qos_profile = rclcpp::SensorDataQoS());
 
   std::vector<performance_test::PerformanceNodeBase::SharedPtr> create_periodic_publisher_nodes(
     int start_id,
@@ -63,7 +63,7 @@ public:
     const std::string & msg_type,
     performance_test::msg_pass_by_t msg_pass_by,
     size_t msg_size = 0,
-    const rmw_qos_profile_t & custom_qos_profile = rmw_qos_profile_default);
+    const rclcpp::QoS & custom_qos_profile = rclcpp::SensorDataQoS());
 
   std::vector<performance_test::PerformanceNodeBase::SharedPtr> create_periodic_client_nodes(
     int start_id,
@@ -71,13 +71,13 @@ public:
     int n_services,
     float frequency,
     const std::string & srv_type,
-    const rmw_qos_profile_t & custom_qos_profile = rmw_qos_profile_default);
+    const rclcpp::QoS & custom_qos_profile = rclcpp::ServicesQoS());
 
   std::vector<performance_test::PerformanceNodeBase::SharedPtr> create_server_nodes(
     int start_id,
     int end_id,
     const std::string & srv_type,
-    const rmw_qos_profile_t & custom_qos_profile = rmw_qos_profile_default);
+    const rclcpp::QoS & custom_qos_profile = rclcpp::ServicesQoS());
 
   /**
    * Helper functions that, given a node and a std::string describing the msg_type,
@@ -91,7 +91,7 @@ public:
     const performance_metrics::Tracker::Options & tracking_options,
     performance_test::msg_pass_by_t msg_pass_by =
     performance_test::msg_pass_by_t::PASS_BY_SHARED_PTR,
-    const rmw_qos_profile_t & custom_qos_profile = rmw_qos_profile_default);
+    const rclcpp::QoS & custom_qos_profile = rclcpp::SensorDataQoS());
 
   void add_periodic_publisher_from_strings(
     performance_test::PerformanceNodeBase::SharedPtr n,
@@ -99,7 +99,7 @@ public:
     const std::string & topic_name,
     performance_test::msg_pass_by_t msg_pass_by =
     performance_test::msg_pass_by_t::PASS_BY_UNIQUE_PTR,
-    const rmw_qos_profile_t & custom_qos_profile = rmw_qos_profile_default,
+    const rclcpp::QoS & custom_qos_profile = rclcpp::SensorDataQoS(),
     std::chrono::microseconds period = std::chrono::milliseconds(10),
     size_t msg_size = 0);
 
@@ -107,14 +107,14 @@ public:
     performance_test::PerformanceNodeBase::SharedPtr n,
     const std::string & srv_type,
     const std::string & service_name,
-    const rmw_qos_profile_t & custom_qos_profile = rmw_qos_profile_default,
+    const rclcpp::QoS & custom_qos_profile = rclcpp::ServicesQoS(),
     std::chrono::microseconds period = std::chrono::milliseconds(10));
 
   void add_server_from_strings(
     performance_test::PerformanceNodeBase::SharedPtr n,
     const std::string & srv_type,
     const std::string & service_name,
-    const rmw_qos_profile_t & custom_qos_profile = rmw_qos_profile_default);
+    const rclcpp::QoS & custom_qos_profile = rclcpp::ServicesQoS());
 
   /**
    * Helper function that, given a given a json file describing a system,
@@ -152,7 +152,7 @@ private:
     performance_test::PerformanceNodeBase::SharedPtr node,
     const nlohmann::json & server_json);
 
-  rmw_qos_profile_t get_qos_from_json(const nlohmann::json & entity_json);
+  rclcpp::QoS get_qos_from_json(const nlohmann::json & entity_json);
 
   performance_test::msg_pass_by_t get_msg_pass_by_from_json(
     const nlohmann::json & entity_json,

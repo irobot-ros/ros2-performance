@@ -291,9 +291,8 @@ template<typename MsgT>
 typename std::enable_if<(!msg_has_data_field<MsgT>::value), size_t>::type
 PerformanceNodeBase::resize_msg(MsgT & msg, size_t size)
 {
-  (void)msg;
   (void)size;
-  return 0;
+  return sizeof(msg);
 }
 
 template<typename DataT>

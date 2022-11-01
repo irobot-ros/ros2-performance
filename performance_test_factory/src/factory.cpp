@@ -95,7 +95,7 @@ TemplateFactory::create_subscriber_nodes(
   const std::string & msg_type,
   performance_test::msg_pass_by_t msg_pass_by,
   const performance_metrics::Tracker::Options & tracking_options,
-  const rmw_qos_profile_t & custom_qos_profile)
+  const rclcpp::QoS & custom_qos_profile)
 {
   std::vector<performance_test::PerformanceNodeBase::SharedPtr> nodes_vector;
 
@@ -137,7 +137,7 @@ TemplateFactory::create_periodic_publisher_nodes(
   const std::string & msg_type,
   performance_test::msg_pass_by_t msg_pass_by,
   size_t msg_size,
-  const rmw_qos_profile_t & custom_qos_profile)
+  const rclcpp::QoS & custom_qos_profile)
 {
   std::vector<performance_test::PerformanceNodeBase::SharedPtr> nodes_vector;
 
@@ -178,7 +178,7 @@ TemplateFactory::create_periodic_client_nodes(
   int n_services,
   float frequency,
   const std::string & srv_type,
-  const rmw_qos_profile_t & custom_qos_profile)
+  const rclcpp::QoS & custom_qos_profile)
 {
   std::vector<performance_test::PerformanceNodeBase::SharedPtr> nodes_vector;
 
@@ -216,7 +216,7 @@ TemplateFactory::create_server_nodes(
   int start_id,
   int end_id,
   const std::string & srv_type,
-  const rmw_qos_profile_t & custom_qos_profile)
+  const rclcpp::QoS & custom_qos_profile)
 {
   std::vector<performance_test::PerformanceNodeBase::SharedPtr> nodes_vector;
 
@@ -250,7 +250,7 @@ void TemplateFactory::add_subscriber_from_strings(
   const std::string & topic_name,
   const performance_metrics::Tracker::Options & tracking_options,
   performance_test::msg_pass_by_t msg_pass_by,
-  const rmw_qos_profile_t & custom_qos_profile)
+  const rclcpp::QoS & custom_qos_profile)
 {
   // Get library can modify the string, so we create a copy
   std::string msg_type__ = msg_type;
@@ -262,7 +262,7 @@ void TemplateFactory::add_subscriber_from_strings(
     const std::string &,
     const performance_metrics::Tracker::Options &,
     performance_test::msg_pass_by_t,
-    const rmw_qos_profile_t &);
+    const rclcpp::QoS &);
 
   auto add_subscriber_impl =
     reinterpret_cast<function_impl_t>(library->get_symbol("add_subscriber_impl"));
@@ -280,7 +280,7 @@ void TemplateFactory::add_periodic_publisher_from_strings(
   const std::string & msg_type,
   const std::string & topic_name,
   performance_test::msg_pass_by_t msg_pass_by,
-  const rmw_qos_profile_t & custom_qos_profile,
+  const rclcpp::QoS & custom_qos_profile,
   std::chrono::microseconds period,
   size_t msg_size)
 {
@@ -293,7 +293,7 @@ void TemplateFactory::add_periodic_publisher_from_strings(
     const std::string &,
     const std::string &,
     performance_test::msg_pass_by_t,
-    const rmw_qos_profile_t &,
+    const rclcpp::QoS &,
     std::chrono::microseconds,
     size_t);
 
@@ -313,7 +313,7 @@ void TemplateFactory::add_periodic_client_from_strings(
   performance_test::PerformanceNodeBase::SharedPtr n,
   const std::string & srv_type,
   const std::string & service_name,
-  const rmw_qos_profile_t & custom_qos_profile,
+  const rclcpp::QoS & custom_qos_profile,
   std::chrono::microseconds period)
 {
   // Get library can modify the string, so we create a copy
@@ -324,7 +324,7 @@ void TemplateFactory::add_periodic_client_from_strings(
     performance_test::PerformanceNodeBase::SharedPtr,
     const std::string &,
     const std::string &,
-    const rmw_qos_profile_t &,
+    const rclcpp::QoS &,
     std::chrono::microseconds);
 
   auto add_client_impl =
@@ -341,7 +341,7 @@ void TemplateFactory::add_server_from_strings(
   performance_test::PerformanceNodeBase::SharedPtr n,
   const std::string & srv_type,
   const std::string & service_name,
-  const rmw_qos_profile_t & custom_qos_profile)
+  const rclcpp::QoS & custom_qos_profile)
 {
   // Get library can modify the string, so we create a copy
   std::string srv_type__ = srv_type;
@@ -351,7 +351,7 @@ void TemplateFactory::add_server_from_strings(
     performance_test::PerformanceNodeBase::SharedPtr,
     const std::string &,
     const std::string &,
-    const rmw_qos_profile_t &);
+    const rclcpp::QoS &);
 
   auto add_server_impl =
     reinterpret_cast<function_impl_t>(library->get_symbol("add_server_impl"));
@@ -489,7 +489,7 @@ void TemplateFactory::add_periodic_publisher_from_json(
     msg_size = pub_json["msg_size"];
   }
 
-  rmw_qos_profile_t custom_qos_profile = get_qos_from_json(pub_json);
+  rclcpp::QoS custom_qos_profile = get_qos_from_json(pub_json);
 
   auto msg_pass_by = get_msg_pass_by_from_json(
     pub_json,
@@ -513,7 +513,7 @@ void TemplateFactory::add_subscriber_from_json(
   std::string topic_name = sub_json["topic_name"];
   std::string msg_type = sub_json["msg_type"];
 
-  rmw_qos_profile_t custom_qos_profile = get_qos_from_json(sub_json);
+  rclcpp::QoS custom_qos_profile = get_qos_from_json(sub_json);
 
   auto msg_pass_by = get_msg_pass_by_from_json(
     sub_json,
@@ -547,7 +547,7 @@ void TemplateFactory::add_periodic_client_from_json(
 
   auto period = std::chrono::microseconds(static_cast<int>(period_ms * 1000));
 
-  rmw_qos_profile_t custom_qos_profile = get_qos_from_json(client_json);
+  rclcpp::QoS custom_qos_profile = get_qos_from_json(client_json);
 
   this->add_periodic_client_from_strings(
     node,
@@ -563,7 +563,7 @@ void TemplateFactory::add_server_from_json(
 {
   std::string service_name = server_json["service_name"];
   std::string srv_type = server_json["srv_type"];
-  rmw_qos_profile_t custom_qos_profile = get_qos_from_json(server_json);
+  rclcpp::QoS custom_qos_profile = get_qos_from_json(server_json);
 
   this->add_server_from_strings(
     node,
@@ -572,7 +572,7 @@ void TemplateFactory::add_server_from_json(
     custom_qos_profile);
 }
 
-rmw_qos_profile_t TemplateFactory::get_qos_from_json(const nlohmann::json & entity_json)
+rclcpp::QoS TemplateFactory::get_qos_from_json(const nlohmann::json & entity_json)
 {
   // Create custom QoS profile with default values
   rmw_qos_profile_t custom_qos_profile = rmw_qos_profile_default;
@@ -662,7 +662,9 @@ rmw_qos_profile_t TemplateFactory::get_qos_from_json(const nlohmann::json & enti
       liveliness_lease_duration_qos_map.at(entity_json["qos_liveliness_lease_duration"]);
   }
 
-  return custom_qos_profile;
+  auto qos = rclcpp::QoS(
+    rclcpp::QoSInitialization::from_rmw(custom_qos_profile), custom_qos_profile);
+  return qos;
 }
 
 performance_test::msg_pass_by_t TemplateFactory::get_msg_pass_by_from_json(

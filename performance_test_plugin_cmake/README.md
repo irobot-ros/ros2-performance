@@ -37,7 +37,7 @@ This example shows how some of the APIs exposed by the library should look like 
     const std::string & topic_name,
     const performance_metrics::Tracker::Options & tracking_options,
     msg_pass_by_t msg_pass_by,
-    const rmw_qos_profile_t & custom_qos_profile)
+    const rclcpp::QoS & custom_qos_profile)
   {
     const std::map<std::string, std::function<void()>> subscribers_factory{
 

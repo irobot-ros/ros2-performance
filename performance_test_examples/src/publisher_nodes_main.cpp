@@ -67,7 +67,7 @@ int main(int argc, char ** argv)
     options.msg_type,
     performance_test::msg_pass_by_t::PASS_BY_UNIQUE_PTR,
     options.msg_size,
-    rmw_qos_profile_default);
+    rclcpp::SensorDataQoS());
 
   ros2_system.add_nodes(pub_nodes);
 

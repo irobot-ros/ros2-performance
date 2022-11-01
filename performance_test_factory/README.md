@@ -47,7 +47,7 @@ bool use_ipc = true;
 auto sub_node = factory.create_node("sub_node_name", use_ipc);
 std::string msg_type = "stamped10kb";
 std::string topic_name = "my_topic";
-factory.add_subscriber_from_strings(sub_node, msg_type, topic_name, rmw_qos_profile_default);
+factory.add_subscriber_from_strings(sub_node, msg_type, topic_name, rclcpp::SensorDataQoS());
 ```
 
 You can also create many similar nodes all at once.

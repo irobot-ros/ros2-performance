@@ -34,7 +34,7 @@ std::vector<IRobotNodePtr> create_publisher_node(int argc, char ** argv)
     *cli_options.msg_type,
     "my_topic",
     *cli_options.msg_pass_by,
-    rmw_qos_profile_default,
+    rclcpp::SensorDataQoS(),
     pub_period,
     *cli_options.msg_size);
 

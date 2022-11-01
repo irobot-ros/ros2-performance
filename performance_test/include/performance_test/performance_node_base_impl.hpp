@@ -40,7 +40,7 @@ void PerformanceNodeBase::add_subscriber(
   const std::string & topic_name,
   msg_pass_by_t msg_pass_by,
   performance_metrics::Tracker::Options tracking_options,
-  const rmw_qos_profile_t & qos_profile,
+  const rclcpp::QoS & qos_profile,
   std::chrono::microseconds work_duration)
 {
   switch (msg_pass_by) {
@@ -72,12 +72,9 @@ template<
 void PerformanceNodeBase::add_subscriber_by_msg_variant(
   const std::string & topic_name,
   performance_metrics::Tracker::Options tracking_options,
-  const rmw_qos_profile_t & qos_profile,
+  const rclcpp::QoS & qos_profile,
   std::chrono::microseconds work_duration)
 {
-  rclcpp::SubscriptionBase::SharedPtr sub;
-  auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile);
-
   std::function<void(CallbackType msg)> callback_function = std::bind(
     &PerformanceNodeBase::topic_callback<CallbackType>,
     this,
@@ -85,11 +82,11 @@ void PerformanceNodeBase::add_subscriber_by_msg_variant(
     work_duration,
     std::placeholders::_1);
 
-  sub = rclcpp::create_subscription<Msg>(
+  rclcpp::SubscriptionBase::SharedPtr sub = rclcpp::create_subscription<Msg>(
     m_node_interfaces.parameters,
     m_node_interfaces.topics,
     topic_name,
-    qos,
+    qos_profile,
     callback_function);
 
   this->store_subscription(sub, topic_name, tracking_options);
@@ -100,7 +97,7 @@ void PerformanceNodeBase::add_periodic_publisher(
   const std::string & topic_name,
   std::chrono::microseconds period,
   msg_pass_by_t msg_pass_by,
-  const rmw_qos_profile_t & qos_profile,
+  const rclcpp::QoS & qos_profile,
   size_t size)
 {
   this->add_publisher<Msg>(topic_name, qos_profile);
@@ -119,14 +116,12 @@ void PerformanceNodeBase::add_periodic_publisher(
 template<typename Msg>
 void PerformanceNodeBase::add_publisher(
   const std::string & topic_name,
-  const rmw_qos_profile_t & qos_profile)
+  const rclcpp::QoS & qos_profile)
 {
-  auto qos = rclcpp::QoS(rclcpp::QoSInitialization::from_rmw(qos_profile), qos_profile);
-
   rclcpp::PublisherBase::SharedPtr pub = rclcpp::create_publisher<Msg>(
     m_node_interfaces.topics,
     topic_name,
-    qos);
+    qos_profile);
 
   this->store_publisher(pub, topic_name, performance_metrics::Tracker::Options());
 }
@@ -134,7 +129,7 @@ void PerformanceNodeBase::add_publisher(
 template<typename Srv>
 void PerformanceNodeBase::add_server(
   const std::string & service_name,
-  const rmw_qos_profile_t & qos_profile)
+  const rclcpp::QoS & qos_profile)
 {
   std::function<void(
       const std::shared_ptr<rmw_request_id_t> request_header,
@@ -152,7 +147,7 @@ void PerformanceNodeBase::add_server(
     m_node_interfaces.services,
     service_name,
     callback_function,
-    qos_profile,
+    qos_profile.get_rmw_qos_profile(),
     nullptr);
 
   this->store_server(server, service_name, performance_metrics::Tracker::Options());
@@ -162,7 +157,7 @@ template<typename Srv>
 void PerformanceNodeBase::add_periodic_client(
   const std::string & service_name,
   std::chrono::microseconds period,
-  const rmw_qos_profile_t & qos_profile,
+  const rclcpp::QoS & qos_profile,
   size_t size)
 {
   this->add_client<Srv>(service_name, qos_profile);
@@ -182,14 +177,14 @@ void PerformanceNodeBase::add_periodic_client(
 template<typename Srv>
 void PerformanceNodeBase::add_client(
   const std::string & service_name,
-  const rmw_qos_profile_t & qos_profile)
+  const rclcpp::QoS & qos_profile)
 {
   rclcpp::ClientBase::SharedPtr client = rclcpp::create_client<Srv>(
     m_node_interfaces.base,
     m_node_interfaces.graph,
     m_node_interfaces.services,
     service_name,
-    qos_profile,
+    qos_profile.get_rmw_qos_profile(),
     nullptr);
 
   this->store_client(client, service_name, performance_metrics::Tracker::Options());

@@ -49,15 +49,23 @@ public:
     bool wait_for_discovery = true,
     bool name_threads = true);
 
-  void save_latency_all_stats(const std::string & filename) const;
+  void save_latency_all_stats(
+    const std::string & filename,
+    bool include_services = true) const;
 
-  void save_latency_total_stats(const std::string & filename) const;
+  void save_latency_total_stats(
+    const std::string & filename,
+    bool include_services = true) const;
 
-  void log_latency_all_stats(std::ostream & stream = std::cout) const;
+  void log_latency_all_stats(
+    std::ostream & stream = std::cout,
+    bool include_services = true) const;
 
-  void log_latency_total_stats(std::ostream & stream = std::cout) const;
+  void log_latency_total_stats(
+    std::ostream & stream = std::cout,
+    bool include_services = true) const;
 
-  void print_agregate_stats(const std::vector<std::string> & topology_json_list) const;
+  void print_aggregate_stats(const std::vector<std::string> & topology_json_list) const;
 
 private:
   void wait_discovery();

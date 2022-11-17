@@ -18,6 +18,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <thread>
 
 namespace performance_metrics
 {
@@ -40,6 +41,8 @@ public:
 
   explicit ResourceUsageLogger(const std::string & filename);
 
+  ~ResourceUsageLogger();
+
   void start(std::chrono::milliseconds period = std::chrono::milliseconds(1000));
 
   void stop();
@@ -57,19 +60,20 @@ private:
   // Print data to file
   void _print(std::ostream & stream);
 
-  Resources _resources;
+  Resources m_resources;
   std::fstream m_file;
   std::string m_filename;
-  std::atomic<bool> _log;
-  std::atomic<bool> _done;
-  std::clock_t _t1_user;
-  std::chrono::time_point<std::chrono::steady_clock> _t1_real;
-  std::chrono::time_point<std::chrono::steady_clock> _t1_real_start;
-  pid_t _pid;
-  int _pagesize;
+  std::thread m_logger_thread;
+  std::atomic<bool> m_is_logging;
+  std::atomic<bool> m_logger_thread_done;
+  std::clock_t m_t1_user;
+  std::chrono::time_point<std::chrono::steady_clock> m_t1_real;
+  std::chrono::time_point<std::chrono::steady_clock> m_t1_real_start;
+  pid_t m_pid;
+  int m_pagesize;
 
   // the following values are used for comparing different plots using the python scripts
-  bool m_got_system_info {false};
+  bool m_has_system_info {false};
   int m_pubs {0};
   int m_subs {0};
   float m_frequency {0};

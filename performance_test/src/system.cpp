@@ -166,7 +166,9 @@ std::unique_ptr<std::thread> System::create_spin_thread(rclcpp::Executor::Shared
   return thread;
 }
 
-void System::save_latency_all_stats(const std::string & filename) const
+void System::save_latency_all_stats(
+    const std::string & filename,
+    bool include_services) const
 {
   if (filename.empty()) {
     std::cout << "[SystemLatencyLogger]: Error. Provided an empty filename." << std::endl;
@@ -183,10 +185,12 @@ void System::save_latency_all_stats(const std::string & filename) const
     return;
   }
 
-  this->log_latency_all_stats(out_file);
+  this->log_latency_all_stats(out_file, include_services);
 }
 
-void System::save_latency_total_stats(const std::string & filename) const
+void System::save_latency_total_stats(
+    const std::string & filename,
+    bool include_services) const
 {
   if (filename.empty()) {
     std::cout << "[SystemLatencyLogger]: Error. Provided an empty filename." << std::endl;
@@ -203,10 +207,12 @@ void System::save_latency_total_stats(const std::string & filename) const
     return;
   }
 
-  this->log_latency_total_stats(out_file);
+  this->log_latency_total_stats(out_file, include_services);
 }
 
-void System::log_latency_all_stats(std::ostream & stream) const
+void System::log_latency_all_stats(
+    std::ostream & stream,
+    bool include_services) const
 {
   std::vector<performance_metrics::Tracker> subs;
 
@@ -215,22 +221,24 @@ void System::log_latency_all_stats(std::ostream & stream) const
     subs.insert(subs.end(), trackers.begin(), trackers.end());
   }
 
-  performance_metrics::log_latency_all_stats(
+  performance_metrics::log_trackers_latency_all_stats(
     stream,
     subs,
     "Subscriptions stats:");
 
-  std::vector<performance_metrics::Tracker> clients;
+  if (include_services) {
+    std::vector<performance_metrics::Tracker> clients;
 
-  for (const auto & n : m_nodes) {
-    auto trackers = n->client_trackers();
-    clients.insert(clients.end(), trackers.begin(), trackers.end());
+    for (const auto & n : m_nodes) {
+        auto trackers = n->client_trackers();
+        clients.insert(clients.end(), trackers.begin(), trackers.end());
+    }
+
+    performance_metrics::log_trackers_latency_all_stats(
+        stream,
+        clients,
+        "Clients stats:");
   }
-
-  performance_metrics::log_latency_all_stats(
-    stream,
-    clients,
-    "Clients stats:");
 
   std::vector<performance_metrics::Tracker> publishers;
 
@@ -239,25 +247,29 @@ void System::log_latency_all_stats(std::ostream & stream) const
     publishers.insert(publishers.end(), trackers.begin(), trackers.end());
   }
 
-  performance_metrics::log_latency_all_stats(
+  performance_metrics::log_trackers_latency_all_stats(
     stream,
     publishers,
     "Publishers stats:");
 }
 
-void System::log_latency_total_stats(std::ostream & stream) const
+void System::log_latency_total_stats(
+    std::ostream & stream,
+    bool include_services) const
 {
-  std::vector<performance_metrics::Tracker> subs_and_clients;
+  std::vector<performance_metrics::Tracker> all_trackers;
   for (const auto & n : m_nodes) {
     auto sub_trackers = n->sub_trackers();
-    subs_and_clients.insert(subs_and_clients.end(), sub_trackers.begin(), sub_trackers.end());
-    auto client_trackers = n->client_trackers();
-    subs_and_clients.insert(subs_and_clients.end(), client_trackers.begin(), client_trackers.end());
+    all_trackers.insert(all_trackers.end(), sub_trackers.begin(), sub_trackers.end());
+    if (include_services) {
+        auto client_trackers = n->client_trackers();
+        all_trackers.insert(all_trackers.end(), client_trackers.begin(), client_trackers.end());
+    }
   }
-  performance_metrics::log_latency_total_stats(stream, subs_and_clients);
+  performance_metrics::log_trackers_latency_total_stats(stream, all_trackers);
 }
 
-void System::print_agregate_stats(const std::vector<std::string> & topology_json_list) const
+void System::print_aggregate_stats(const std::vector<std::string> & topology_json_list) const
 {
   uint64_t total_received = 0;
   uint64_t total_lost = 0;

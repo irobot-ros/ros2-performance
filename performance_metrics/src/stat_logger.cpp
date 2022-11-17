@@ -64,7 +64,7 @@ void log_total_stats(
   stream << std::endl;
 }
 
-void log_latency_all_stats(
+void log_trackers_latency_all_stats(
   std::ostream & stream,
   const std::vector<Tracker> & trackers,
   const std::string & title)
@@ -138,7 +138,7 @@ void log_latency_all_stats(
   }
 }
 
-void log_latency_total_stats(
+void log_trackers_latency_total_stats(
   std::ostream & stream,
   const std::vector<Tracker> & trackers)
 {

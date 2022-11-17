@@ -20,5 +20,5 @@ BaseNode::BaseNode(
 
 BaseNode::~BaseNode()
 {
-  performance_metrics::log_latency_all_stats(std::cout, this->sub_trackers());
+  performance_metrics::log_trackers_latency_all_stats(std::cout, this->sub_trackers());
 }

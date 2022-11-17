@@ -7,10 +7,10 @@
  *  You may use, distribute and modify this code under the BSD-3-Clause license.
  */
 
-#include <stdlib.h>
 #include <sys/wait.h>
 
 #include <chrono>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -164,6 +164,6 @@ int main(int argc, char ** argv)
       waitpid(getpid() + 1, &pid, 0);
     }
     std::cout << "System total:" << std::endl;
-    ros2_system->print_agregate_stats(options.topology_json_list);
+    ros2_system->print_aggregate_stats(options.topology_json_list);
   }
 }

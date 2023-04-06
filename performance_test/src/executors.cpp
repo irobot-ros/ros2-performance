@@ -13,6 +13,8 @@
 #include <ostream>
 #include <string>
 
+#include "rclcpp/executors.hpp"
+
 #include "performance_test/executors.hpp"
 
 namespace performance_test
@@ -51,8 +53,8 @@ std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type)
       executor = std::make_shared<rclcpp::executors::StaticSingleThreadedExecutor>();
       break;
     case ExecutorType::EVENTS_EXECUTOR:
-      // executor = std::make_shared<rclcpp::executors::EventsExecutor>();
-      assert(0 && "EventsExecutor not supported");
+      executor = std::make_shared<rclcpp::experimental::executors::EventsExecutor>();
+      //assert(0 && "EventsExecutor not supported");
       break;
   }
 

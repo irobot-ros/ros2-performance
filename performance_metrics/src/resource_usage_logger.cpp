@@ -32,7 +32,7 @@ ResourceUsageLogger::ResourceUsageLogger(const std::string & filename)
 
 ResourceUsageLogger::~ResourceUsageLogger()
 {
-    this->stop();
+  this->stop();
 }
 
 void ResourceUsageLogger::start(std::chrono::milliseconds period)
@@ -54,7 +54,8 @@ void ResourceUsageLogger::start(std::chrono::milliseconds period)
   m_logger_thread_done = false;
 
   // create a detached thread that monitors resource usage periodically
-  m_logger_thread = std::thread([ = ]() {
+  m_logger_thread = std::thread(
+    [ = ]() {
       int64_t i = 1;
       while (m_is_logging) {
         std::this_thread::sleep_until(m_t1_real_start + period * i);

@@ -16,6 +16,7 @@ find_package(rcpputils REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(performance_test REQUIRED)
+find_package(irobot_events_executor REQUIRED)
 
 include_directories(
   include
@@ -25,6 +26,7 @@ include_directories(
 set (LIBRARY_DEPENDENCIES
   rcpputils
   rclcpp
+  irobot_events_executor
   rclcpp_lifecycle
   performance_test
 )

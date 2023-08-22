@@ -11,6 +11,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <build_depend>rcpputils</build_depend>
+  <build_depend>irobot_events_executor</build_depend>
   <build_depend>rclcpp</build_depend>
   <build_depend>rclcpp_lifecycle</build_depend>
   <build_depend>performance_test</build_depend>
@@ -18,6 +19,7 @@
 
   <exec_depend>rcpputils</exec_depend>
   <exec_depend>rclcpp</exec_depend>
+  <exec_depend>irobot_events_executor</exec_depend>
   <exec_depend>rclcpp_lifecycle</exec_depend>
   <exec_depend>performance_test</exec_depend>
   <exec_depend>irobot_interfaces_plugin</exec_depend>

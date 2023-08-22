@@ -15,6 +15,8 @@
 #include <map>
 #include <pthread.h>
 
+#include "rclcpp/executors/events_executor/events_executor.hpp"
+
 #include "performance_test/ros2/names_utilities.hpp"
 #include "performance_test/ros2/node.hpp"
 #include "performance_test/ros2/lifecycle_node.hpp"

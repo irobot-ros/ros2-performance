@@ -550,15 +550,15 @@ class TemplateFactory {
                 {"true",  true}
             };
 
-            std::map<std::string, struct rmw_time_t> deadline_qos_map{
+            std::map<std::string, rmw_time_t> deadline_qos_map{
                 {"default", RMW_QOS_DEADLINE_DEFAULT}
             };
 
-            std::map<std::string, struct rmw_time_t> lifespan_qos_map{
+            std::map<std::string, rmw_time_t> lifespan_qos_map{
                 {"default", RMW_QOS_LIFESPAN_DEFAULT}
             };
 
-            std::map<std::string, struct rmw_time_t> liveliness_lease_duration_qos_map{
+            std::map<std::string, rmw_time_t> liveliness_lease_duration_qos_map{
                 {"default", RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT}
             };
 

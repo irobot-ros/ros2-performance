@@ -286,7 +286,7 @@ private:
       case PASS_BY_SHARED_PTR:
       {
           // create a message and eventually resize it
-          auto msg = std::make_shared<Msg>();
+          auto msg = std::make_shared<Msg>(rosidl_runtime_cpp::MessageInitialization::SKIP);
           resize_msg(msg->data, msg->header, size);
 
           // get the frequency value that we stored when creating the publisher
@@ -312,7 +312,7 @@ private:
       case PASS_BY_UNIQUE_PTR:
       {
           // create a message and eventually resize it
-          auto msg = std::make_unique<Msg>();
+          auto msg = std::make_unique<Msg>(rosidl_runtime_cpp::MessageInitialization::SKIP);
           resize_msg(msg->data, msg->header, size);
 
           // get the frequency value that we stored when creating the publisher

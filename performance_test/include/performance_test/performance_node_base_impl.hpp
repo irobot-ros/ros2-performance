@@ -45,8 +45,9 @@ void PerformanceNodeBase::add_subscriber(
 {
   switch (msg_pass_by) {
     case msg_pass_by_t::PASS_BY_LOANED_MSG:
-      RCLCPP_WARN(this->get_node_logger(),
-        "Requested to create sub '%s' using PASS_BY_LOANED_MSG; this will fallback to PASS_BY_SHARED_PTR",
+      RCLCPP_WARN(
+        this->get_node_logger(),
+        "Can't create sub '%s' using PASS_BY_LOANED_MSG; fallback to PASS_BY_SHARED_PTR",
         topic_name.c_str());
       [[fallthrough]];
     case msg_pass_by_t::PASS_BY_SHARED_PTR:
@@ -212,7 +213,7 @@ void PerformanceNodeBase::publish_msg(
     case msg_pass_by_t::PASS_BY_SHARED_PTR:
       {
         // create a message and eventually resize it
-        auto msg = std::make_shared<Msg>();
+        auto msg = std::make_shared<Msg>(rosidl_runtime_cpp::MessageInitialization::SKIP);
         msg_size = resize_msg(*msg, size);
         publish_time = m_node_interfaces.clock->get_clock()->now();
 
@@ -232,7 +233,7 @@ void PerformanceNodeBase::publish_msg(
     case msg_pass_by_t::PASS_BY_UNIQUE_PTR:
       {
         // create a message and eventually resize it
-        auto msg = std::make_unique<Msg>();
+        auto msg = std::make_unique<Msg>(rosidl_runtime_cpp::MessageInitialization::SKIP);
         msg_size = resize_msg(*msg, size);
         publish_time = m_node_interfaces.clock->get_clock()->now();
 

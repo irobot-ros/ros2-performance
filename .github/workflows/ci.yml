@@ -14,13 +14,13 @@ jobs:
       - uses: actions/checkout@v3.0.2
       - uses: ros-tooling/setup-ros@v0.4
         with:
-          required-ros-distributions: humble
+          required-ros-distributions: rolling
       - name: Fetch submodules
         run: git submodule update --init --recursive
       - uses: ros-tooling/action-ros-ci@0.2.6
         id: action_ros_ci_step
         with:
-          target-ros2-distro: humble
+          target-ros2-distro: rolling
           import-token: ${{ secrets.REPO_TOKEN }}
           package-name:
             composition_benchmark

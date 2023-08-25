@@ -14,14 +14,14 @@ namespace performance_test
 {
 
 // SFINAE test to verify is a ROS 2 message has a `data` field
-template <typename T>
+template<typename T>
 class msg_has_data_field
 {
   using one = char;
   struct two { char x[2]; };
 
-  template <typename C> static one test(decltype(&C::set__data));
-  template <typename C> static two test(...);    
+  template<typename C> static one test(decltype(&C::set__data));
+  template<typename C> static two test(...);
 
 public:
   enum { value = sizeof(test<T>(0)) == sizeof(char) };

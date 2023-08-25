@@ -167,8 +167,8 @@ std::unique_ptr<std::thread> System::create_spin_thread(rclcpp::Executor::Shared
 }
 
 void System::save_latency_all_stats(
-    const std::string & filename,
-    bool include_services) const
+  const std::string & filename,
+  bool include_services) const
 {
   if (filename.empty()) {
     std::cout << "[SystemLatencyLogger]: Error. Provided an empty filename." << std::endl;
@@ -189,8 +189,8 @@ void System::save_latency_all_stats(
 }
 
 void System::save_latency_total_stats(
-    const std::string & filename,
-    bool include_services) const
+  const std::string & filename,
+  bool include_services) const
 {
   if (filename.empty()) {
     std::cout << "[SystemLatencyLogger]: Error. Provided an empty filename." << std::endl;
@@ -211,8 +211,8 @@ void System::save_latency_total_stats(
 }
 
 void System::log_latency_all_stats(
-    std::ostream & stream,
-    bool include_services) const
+  std::ostream & stream,
+  bool include_services) const
 {
   std::vector<performance_metrics::Tracker> subs;
 
@@ -230,14 +230,14 @@ void System::log_latency_all_stats(
     std::vector<performance_metrics::Tracker> clients;
 
     for (const auto & n : m_nodes) {
-        auto trackers = n->client_trackers();
-        clients.insert(clients.end(), trackers.begin(), trackers.end());
+      auto trackers = n->client_trackers();
+      clients.insert(clients.end(), trackers.begin(), trackers.end());
     }
 
     performance_metrics::log_trackers_latency_all_stats(
-        stream,
-        clients,
-        "Clients stats:");
+      stream,
+      clients,
+      "Clients stats:");
   }
 
   std::vector<performance_metrics::Tracker> publishers;
@@ -254,16 +254,16 @@ void System::log_latency_all_stats(
 }
 
 void System::log_latency_total_stats(
-    std::ostream & stream,
-    bool include_services) const
+  std::ostream & stream,
+  bool include_services) const
 {
   std::vector<performance_metrics::Tracker> all_trackers;
   for (const auto & n : m_nodes) {
     auto sub_trackers = n->sub_trackers();
     all_trackers.insert(all_trackers.end(), sub_trackers.begin(), sub_trackers.end());
     if (include_services) {
-        auto client_trackers = n->client_trackers();
-        all_trackers.insert(all_trackers.end(), client_trackers.begin(), client_trackers.end());
+      auto client_trackers = n->client_trackers();
+      all_trackers.insert(all_trackers.end(), client_trackers.begin(), client_trackers.end());
     }
   }
   performance_metrics::log_trackers_latency_total_stats(stream, all_trackers);

@@ -14,10 +14,11 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(performance_test REQUIRED)
+find_package(irobot_events_executor REQUIRED)
 find_package(performance_test_factory REQUIRED)
 
 add_executable(irobot_benchmark src/irobot_benchmark.cpp)
-ament_target_dependencies(irobot_benchmark rclcpp rclcpp_lifecycle performance_test performance_test_factory)
+ament_target_dependencies(irobot_benchmark rclcpp rclcpp_lifecycle performance_test performance_test_factory irobot_events_executor)
 
 install(TARGETS
   irobot_benchmark
@@ -38,6 +39,37 @@ set(TOPOLOGY_FILES
 install(FILES
   ${TOPOLOGY_FILES}
   DESTINATION lib/${PROJECT_NAME}/topology)
+
+set(TOPOLOGY_FILES_SINGLE_PROCESS
+  topology/tests/single_process/loaned_10b.json
+  topology/tests/single_process/loaned_1mb.json
+  topology/tests/single_process/loaned_4mb.json
+  topology/tests/single_process/pub_sub_10b_ipc_off.json
+  topology/tests/single_process/pub_sub_10b_ipc_on.json
+  topology/tests/single_process/pub_sub_4mb_ipc_off.json
+  topology/tests/single_process/pub_sub_4mb_ipc_on.json
+)
+
+install(FILES
+  ${TOPOLOGY_FILES_SINGLE_PROCESS}
+  DESTINATION lib/${PROJECT_NAME}/topology/tests/single_process)
+
+set(TOPOLOGY_FILES_MULTI_PROCESS
+  topology/tests/multi_process/pub_ipc_off_10b.json
+  topology/tests/multi_process/pub_ipc_off_4mb.json
+  topology/tests/multi_process/pub_loaned_10b.json
+  topology/tests/multi_process/pub_loaned_1mb.json
+  topology/tests/multi_process/pub_loaned_4mb.json
+  topology/tests/multi_process/sub_ipc_off_10b.json
+  topology/tests/multi_process/sub_ipc_off_4mb.json
+  topology/tests/multi_process/sub_loaned_10b.json
+  topology/tests/multi_process/sub_loaned_1mb.json
+  topology/tests/multi_process/sub_loaned_4mb.json
+)
+
+install(FILES
+  ${TOPOLOGY_FILES_MULTI_PROCESS}
+  DESTINATION lib/${PROJECT_NAME}/topology/tests/multi_process)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

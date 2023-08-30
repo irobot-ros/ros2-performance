@@ -13,6 +13,7 @@
 
   <depend>rclcpp</depend>
   <depend>performance_metrics</depend>
+  <depend>irobot_events_executor</depend>
   <depend>performance_test_msgs</depend>
 
   <test_depend>ament_lint_common</test_depend>

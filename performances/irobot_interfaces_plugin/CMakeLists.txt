@@ -26,10 +26,14 @@ set( CUSTOM_MSGS
   "msg/Stamped9Float32.msg"
   "msg/Stamped12Float32.msg"
   "msg/Stamped10b.msg"
+  "msg/Stamped50b.msg"
   "msg/Stamped100b.msg"
   "msg/Stamped250b.msg"
   "msg/Stamped1kb.msg"
+  "msg/Stamped5kb.msg"
   "msg/Stamped10kb.msg"
+  "msg/Stamped25kb.msg"
+  "msg/Stamped50kb.msg"
   "msg/Stamped100kb.msg"
   "msg/Stamped250kb.msg"
   "msg/Stamped600kb.msg"
@@ -48,7 +52,6 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   ${CUSTOM_SRVS}
   DEPENDENCIES std_msgs performance_test_msgs
 )
-
 
 generate_factory_plugin("${CUSTOM_MSGS}" "${CUSTOM_SRVS}")
 

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dds xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+    <profiles>
+        <!-- SHM Transport profile -->
+        <transport_descriptors>
+            <transport_descriptor>
+                <transport_id>shm_transport</transport_id>
+                <type>SHM</type>
+            </transport_descriptor>
+        </transport_descriptors>
+
+        <!-- Domain Participant Profile -->
+        <participant profile_name="domainparticipant_profile_name" is_default_profile="true">
+            <rtps>
+                <!-- Use user defined UDPv4 transport -->
+                <userTransports>
+                    <transport_id>shm_transport</transport_id>
+                </userTransports>
+                <!-- Disable builtin transports -->
+                <useBuiltinTransports>false</useBuiltinTransports>
+            </rtps>
+        </participant>
+    </profiles>
+</dds>

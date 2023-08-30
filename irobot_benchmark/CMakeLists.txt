@@ -33,11 +33,88 @@ set(TOPOLOGY_FILES
   topology/debug_sierra_nevada_best_effort.json
   topology/debug_mont_blanc_reliable.json
   topology/debug_mont_blanc_best_effort.json
+  topology/debug_white_mountain_best_effort.json
 )
 
 install(FILES
   ${TOPOLOGY_FILES}
   DESTINATION lib/${PROJECT_NAME}/topology)
+
+set(SP topology/tests/single_process)
+
+set(TOPOLOGY_FILES_SINGLE_PROCESS
+  ${SP}/pub_sub_loaned_10b.json
+  ${SP}/pub_sub_loaned_100kb.json
+  ${SP}/pub_sub_loaned_1mb.json
+  ${SP}/pub_sub_loaned_4mb.json
+
+  ${SP}/pub_sub_10b_ipc_on.json
+  ${SP}/pub_sub_100kb_ipc_on.json
+  ${SP}/pub_sub_1mb_ipc_on.json
+  ${SP}/pub_sub_4mb_ipc_on.json
+
+  ${SP}/pub_sub_10b_ipc_off.json
+  ${SP}/pub_sub_100kb_ipc_off.json
+  ${SP}/pub_sub_1mb_ipc_off.json
+  ${SP}/pub_sub_4mb_ipc_off.json
+)
+
+install(FILES
+  ${TOPOLOGY_FILES_SINGLE_PROCESS}
+  DESTINATION lib/${PROJECT_NAME}/${SP})
+
+set(MP topology/tests/multi_process)
+
+set(TOPOLOGY_FILES_MULTI_PROCESS
+  ${MP}/pub_ipc_off_10b.json
+  ${MP}/pub_ipc_off_100kb.json
+  ${MP}/pub_ipc_off_1mb.json
+  ${MP}/pub_ipc_off_4mb.json
+
+  ${MP}/sub_ipc_off_10b.json
+  ${MP}/sub_ipc_off_100kb.json
+  ${MP}/sub_ipc_off_1mb.json
+  ${MP}/sub_ipc_off_4mb.json
+
+  ${MP}/pub_loaned_10b.json
+  ${MP}/pub_loaned_100kb.json
+  ${MP}/pub_loaned_1mb.json
+  ${MP}/pub_loaned_4mb.json
+
+  ${MP}/sub_loaned_10b.json
+  ${MP}/sub_loaned_100kb.json
+  ${MP}/sub_loaned_1mb.json
+  ${MP}/sub_loaned_4mb.json
+)
+
+install(FILES
+  ${TOPOLOGY_FILES_MULTI_PROCESS}
+  DESTINATION lib/${PROJECT_NAME}/${MP})
+
+set(FT topology/tests/full_topologies)
+
+set(TEST_TOPOLOGY_FILES
+  ${FT}/sierra_nevada_fixed_size_debug.json
+  ${FT}/sierra_nevada_fixed_size.json
+  ${FT}/sierra_nevada_fixed_size_loaned.json
+  ${FT}/sierra_nevada_loaned.json
+  ${FT}/white_mountain_fixed_size_debug.json
+  ${FT}/white_mountain_fixed_size.json
+  ${FT}/white_mountain_fixed_size_loaned.json
+  ${FT}/white_mountain_loaned.json
+)
+
+install(FILES
+  ${TEST_TOPOLOGY_FILES}
+  DESTINATION lib/${PROJECT_NAME}/${FT})
+
+set(PROFILES
+  profiles/fastdds_settings_shm.xml
+  profiles/ignore_local_endpoints.xml)
+
+install(FILES
+  ${PROFILES}
+  DESTINATION lib/${PROJECT_NAME}/profiles)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

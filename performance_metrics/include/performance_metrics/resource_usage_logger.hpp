@@ -39,7 +39,7 @@ public:
 
   ResourceUsageLogger() = delete;
 
-  explicit ResourceUsageLogger(const std::string & filename);
+  explicit ResourceUsageLogger(const std::string & filename, const bool csv_out=false);
 
   ~ResourceUsageLogger();
 
@@ -59,6 +59,9 @@ private:
 
   // Print data to file
   void _print(std::ostream & stream);
+  template<typename T>
+  void _stream_out(std::ostream & stream, const T val, const int space=15,
+    const int prec=2, bool sep_suffix=true);
 
   Resources m_resources;
   std::fstream m_file;
@@ -77,6 +80,10 @@ private:
   int m_pubs {0};
   int m_subs {0};
   float m_frequency {0};
+  int m_wide_space {15};
+  int m_narrow_space {10};
+  bool m_csv_out {true};
+  int m_prec {2};
 };
 
 }  // namespace performance_metrics

@@ -75,7 +75,8 @@ create_ros2_system(
   auto system = std::make_unique<performance_test::System>(
     static_cast<performance_test::ExecutorType>(options.executor),
     performance_test::SpinType::SPIN,
-    events_output_path_opt);
+    events_output_path_opt,
+    options.csv_out);
 
   return system;
 }
@@ -103,6 +104,24 @@ create_ros2_nodes(
   return nodes_vec;
 }
 
+static
+void log_options_metadata(const std::string & filename,
+  const performance_test_factory::Options & opts)
+{
+  std::ofstream out_file;
+  out_file.open(filename);
+
+  if (!out_file.is_open()) {
+    std::cout << "[irobot_benchmark]: Error. Could not open file " << filename << std::endl;
+    std::cout << "[irobot_benchmark]: Not logging metadata." << std::endl;
+    return;
+  }
+  // log the overall and tracking options
+  out_file << opts;
+  out_file << opts.tracking_options << std::endl;
+  out_file.close();
+}
+
 int main(int argc, char ** argv)
 {
   auto options = parse_options(argc, argv);
@@ -120,9 +139,12 @@ int main(int argc, char ** argv)
   std::string events_output_path = result_dir_name + "/events.txt";
   std::string latency_all_output_path = result_dir_name + "/latency_all.txt";
   std::string latency_total_output_path = result_dir_name + "/latency_total.txt";
+  std::string metadata_output_path = result_dir_name + "/metadata.txt";
+  
+  log_options_metadata(metadata_output_path, options);
 
   // Start resources logger
-  performance_metrics::ResourceUsageLogger ru_logger(resources_output_path);
+  performance_metrics::ResourceUsageLogger ru_logger(resources_output_path, options.csv_out);
   ru_logger.start(std::chrono::milliseconds(options.resources_sampling_per_ms));
 
   // Start ROS 2 context

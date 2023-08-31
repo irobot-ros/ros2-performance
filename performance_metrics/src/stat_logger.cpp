@@ -19,15 +19,28 @@
 namespace performance_metrics
 {
 
+template<typename T>
+void stream_out(const bool csv_out, std::ostream & stream, const T val, const int space,
+    bool sep_suffix)
+{
+  // whether comma or space delimited
+  if(csv_out) {
+    stream << val << ((sep_suffix) ? "," : "");
+  } else {
+    const char separator = ' ';
+    stream << std::left << std::setw(space) << std::setfill(separator) << val;
+  }
+}
+
 void log_total_stats(
   uint64_t total_received,
   uint64_t total_lost,
   uint64_t total_late,
   uint64_t total_too_late,
   double average_latency,
-  std::ostream & stream)
+  std::ostream & stream,
+  const bool csv_out)
 {
-  const char separator = ' ';
   const int wide_space = 15;
   const int narrow_space = 10;
 
@@ -39,91 +52,75 @@ void log_total_stats(
     static_cast<double>(total_too_late) / total_received * 100;
 
   // log header
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << "received[#]";
-  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "mean[us]";
-  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[#]";
-  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[%]";
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << "too_late[#]";
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << "too_late[%]";
-  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[#]";
-  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[%]";
+  stream_out(csv_out, stream, "received[#]", wide_space);
+  stream_out(csv_out, stream, "mean[us]", narrow_space);
+  stream_out(csv_out, stream, "late[#]", narrow_space);
+  stream_out(csv_out, stream, "late[%]", narrow_space);
+  stream_out(csv_out, stream, "too_late[#]", wide_space);
+  stream_out(csv_out, stream, "too_late[%]", wide_space);
+  stream_out(csv_out, stream, "lost[#]", narrow_space);
+  stream_out(csv_out, stream, "lost[%]", narrow_space, false);
   stream << std::endl;
 
   // log total values
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << total_received;
-  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << average_latency;
-  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << total_late;
-  stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-    std::setprecision(4) << total_late_percentage;
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << total_too_late;
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-    std::setprecision(4) << total_too_late_percentage;
-  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << total_lost;
-  stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-    std::setprecision(4) << total_lost_percentage;
+  stream_out(csv_out, stream, total_received, wide_space);
+  stream_out(csv_out, stream, average_latency, narrow_space);
+  stream_out(csv_out, stream, total_late, narrow_space);
+  stream_out(csv_out, stream, total_late_percentage, narrow_space);
+  stream_out(csv_out, stream, total_too_late, wide_space);
+  stream_out(csv_out, stream, total_too_late_percentage, wide_space);
+  stream_out(csv_out, stream, total_lost, narrow_space);
+  stream_out(csv_out, stream, total_lost_percentage, narrow_space, false);
   stream << std::endl;
 }
 
 void log_trackers_latency_all_stats(
   std::ostream & stream,
   const std::vector<Tracker> & trackers,
+  const bool csv_out,
   const std::string & title)
 {
   const char separator = ' ';
   const int wide_space = 15;
   const int narrow_space = 10;
 
-  auto log_header = [&stream, wide_space, narrow_space, separator](const std::string & header_title)
+  auto log_header = [&stream, wide_space, narrow_space, separator, csv_out](const std::string & header_title)
     {
       stream << std::endl;
       stream << header_title << std::endl;
-      stream << std::left << std::setw(wide_space) << std::setfill(separator) << "node";
-      stream << std::left << std::setw(wide_space) << std::setfill(separator) << "topic";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "size[b]";
-      stream << std::left << std::setw(wide_space) << std::setfill(separator) << "received[#]";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "late[#]";
-      stream << std::left << std::setw(wide_space) << std::setfill(separator) << "too_late[#]";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "lost[#]";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "mean[us]";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "sd[us]";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "min[us]";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "max[us]";
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "freq[hz]";
-      stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-        "throughput[Kb/s]";
+      stream_out(csv_out, stream, "node", wide_space);
+      stream_out(csv_out, stream, "topic", wide_space);
+      stream_out(csv_out, stream, "size[b]", narrow_space);
+      stream_out(csv_out, stream, "received[#]", wide_space);
+      stream_out(csv_out, stream, "late[#]", narrow_space);
+      stream_out(csv_out, stream, "too_late[#]", wide_space);
+      stream_out(csv_out, stream, "lost[#]", narrow_space);
+      stream_out(csv_out, stream, "mean[us]", narrow_space);
+      stream_out(csv_out, stream, "sd[us]", narrow_space);
+      stream_out(csv_out, stream, "min[us]", narrow_space);
+      stream_out(csv_out, stream, "max[us]", narrow_space);
+      stream_out(csv_out, stream, "freq[hz]", narrow_space);
+      stream_out(csv_out, stream, "throughput[Kb/s]", wide_space, false);
 
       stream << std::endl;
     };
 
-  auto log_stats_line = [&stream, wide_space, narrow_space, separator](
+  auto log_stats_line = [&stream, wide_space, narrow_space, separator, csv_out](
     const Tracker & tracker)
     {
-      stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-        tracker.get_node_name();
-      stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-        tracker.get_entity_name();
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        tracker.size();
-      stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-        tracker.received();
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        tracker.late();
-      stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-        tracker.too_late();
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        tracker.lost();
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        std::round(tracker.stat().mean());
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        std::round(tracker.stat().stddev());
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        std::round(tracker.stat().min());
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        std::round(tracker.stat().max());
-      stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-        tracker.frequency();
-      stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-        (tracker.throughput() / 1024);
+      stream_out(csv_out, stream, tracker.get_node_name(), wide_space);
+      stream_out(csv_out, stream, tracker.get_entity_name(), wide_space);
+      stream_out(csv_out, stream, tracker.size(), narrow_space);
+      stream_out(csv_out, stream, tracker.received(), wide_space);
+      stream_out(csv_out, stream, tracker.late(), narrow_space);
+      stream_out(csv_out, stream, tracker.too_late(), wide_space);
+      stream_out(csv_out, stream, tracker.lost(), narrow_space);
+      stream_out(csv_out, stream, std::round(tracker.stat().mean()), narrow_space);
+      stream_out(csv_out, stream, std::round(tracker.stat().stddev()), narrow_space);
+      stream_out(csv_out, stream, std::round(tracker.stat().min()), narrow_space);
+      stream_out(csv_out, stream, std::round(tracker.stat().max()), narrow_space);
+      stream_out(csv_out, stream, tracker.frequency(), narrow_space);
+      stream_out(csv_out, stream, (tracker.throughput() / 1024), wide_space, false);
 
       stream << std::endl;
     };
@@ -140,7 +137,8 @@ void log_trackers_latency_all_stats(
 
 void log_trackers_latency_total_stats(
   std::ostream & stream,
-  const std::vector<Tracker> & trackers)
+  const std::vector<Tracker> & trackers,
+  const bool csv_out)
 {
   uint64_t total_received = 0;
   uint64_t total_lost = 0;
@@ -161,7 +159,7 @@ void log_trackers_latency_total_stats(
 
   log_total_stats(
     total_received, total_lost, total_late, total_too_late,
-    average_latency, stream);
+    average_latency, stream, csv_out);
 }
 
 }  // namespace performance_metrics

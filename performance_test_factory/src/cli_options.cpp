@@ -28,6 +28,7 @@ Options::Options()
   ros_params = true;
   name_threads = true;
   duration_sec = 5;
+  csv_out = false;
   resources_sampling_per_ms = 500;
   tracking_options.is_enabled = false;
   tracking_options.late_percentage = 20;
@@ -51,6 +52,7 @@ void Options::parse(int argc, char ** argv)
   std::string ros_params_option;
   std::string name_threads_option;
   std::string tracking_enabled_option;
+  std::string csv_out_option;
   options.positional_help("FILE [FILE...]").show_positional_help();
   options.parse_positional({"topology"});
   options.add_options()("h,help", "print help")(
@@ -94,7 +96,10 @@ void Options::parse(int argc, char ** argv)
     "too-late-absolute",
     "a msg with greater latency than this is considered lost",
     cxxopts::value<int>(tracking_options.too_late_absolute_us)->default_value(
-      std::to_string(tracking_options.too_late_absolute_us)), "usec");
+      std::to_string(tracking_options.too_late_absolute_us)), "usec")(
+    "csv-out",
+    "write comma-delimted results files",
+    cxxopts::value<std::string>(csv_out_option)->default_value(csv_out ? "on" : "off"), "on/off");
 
   try {
     auto result = options.parse(argc, argv);
@@ -116,6 +121,10 @@ void Options::parse(int argc, char ** argv)
     if (tracking_enabled_option != "off" && tracking_enabled_option != "on") {
       throw cxxopts::argument_incorrect_type(tracking_enabled_option);
     }
+    
+    if (csv_out_option != "off" && csv_out_option != "on") {
+      throw cxxopts::argument_incorrect_type(csv_out_option);
+    }
   } catch (const cxxopts::OptionException & e) {
     std::cout << "Error parsing options. " << e.what() << std::endl;
     exit(1);
@@ -125,11 +134,12 @@ void Options::parse(int argc, char ** argv)
   ros_params = (ros_params_option == "on" ? true : false);
   name_threads = (name_threads_option == "on" ? true : false);
   tracking_options.is_enabled = (tracking_enabled_option == "on" ? true : false);
+  csv_out = (csv_out_option == "on" ? true : false);
 }
 
 std::ostream & operator<<(std::ostream & os, const Options & options)
 {
-  os << "- Topology file(s):";
+  os << "topology_json_list:";
   for (const auto & json : options.topology_json_list) {
     os << " " << json;
   }
@@ -137,19 +147,18 @@ std::ostream & operator<<(std::ostream & os, const Options & options)
 
   // Get the system executor from options
   auto system_executor = static_cast<performance_test::ExecutorType>(options.executor);
-  os << "- System executor: " << system_executor << std::endl;
+  os << "system_executor: " << system_executor << std::endl;
 
   // Get the node type from options
   auto node_type = static_cast<performance_test_factory::NodeType>(options.node);
-  os << "- Node type: " << node_type << std::endl;
-
-  os << "- Intra-process-communication: " << (options.ipc ? "on" : "off") << std::endl;
-  os << "- Parameter services: " << (options.ros_params ? "on" : "off") << std::endl;
-  os << "- Naming threads: " << (options.name_threads ? "on" : "off") << std::endl;
-  os << "- Run test for: " << options.duration_sec << " seconds" << std::endl;
-  os << "- Sampling resources every " << options.resources_sampling_per_ms << "ms" << std::endl;
-  os << "- Logging events statistics: " << (options.tracking_options.is_enabled ? "on" : "off");
-  os << std::endl;
+  os << "node_type: " << node_type << std::endl;
+  os << "ipc: " << (options.ipc ? "on" : "off") << std::endl;
+  os << "ros_params: " << (options.ros_params ? "on" : "off") << std::endl;
+  os << "name_threads: " << (options.name_threads ? "on" : "off") << std::endl;
+  os << "duration_sec: " << options.duration_sec << " seconds" << std::endl;
+  os << "resources_sampling_per_ms: " << options.resources_sampling_per_ms << std::endl;
+  os << "csv_out: " << (options.csv_out ? "on" : "off") << std::endl;
+  os << "tracking.is_enabled: " << (options.tracking_options.is_enabled ? "on" : "off") << std::endl;
 
   return os;
 }

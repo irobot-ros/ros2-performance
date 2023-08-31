@@ -45,13 +45,18 @@ public:
 
   EventsLogger() = delete;
 
-  explicit EventsLogger(const std::string & filename);
+  explicit EventsLogger(const std::string & filename, const bool csv_out=false);
 
   void set_start_time(std::chrono::high_resolution_clock::time_point t);
 
   void write_event(const Event & event);
 
 private:
+  
+  template<typename T>
+  void stream_out(std::ostream & stream, const T val, const int space=15,
+    bool sep_suffix=true);
+
   std::chrono::high_resolution_clock::time_point m_start_time;
   std::fstream m_file;
   std::string m_filename;
@@ -63,6 +68,7 @@ private:
   static const int _p_caller_width = 25;
   static const int _p_code_width = 6;
   static const int _p_desc_width = 20;
+  bool _p_csv_out = false;
 };
 
 }  // namespace performance_metrics

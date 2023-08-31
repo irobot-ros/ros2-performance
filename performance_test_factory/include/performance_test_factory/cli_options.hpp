@@ -36,6 +36,7 @@ public:
   int resources_sampling_per_ms;
   std::vector<std::string> topology_json_list;
   performance_metrics::Tracker::Options tracking_options;
+  bool csv_out;
 };
 
 std::ostream & operator<<(std::ostream & os, const Options & options);

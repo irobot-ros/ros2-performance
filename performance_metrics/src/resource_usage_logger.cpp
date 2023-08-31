@@ -20,8 +20,8 @@
 namespace performance_metrics
 {
 
-ResourceUsageLogger::ResourceUsageLogger(const std::string & filename)
-: m_filename(filename)
+ResourceUsageLogger::ResourceUsageLogger(const std::string & filename, const bool csv_out)
+: m_filename(filename), m_csv_out(csv_out)
 {
   m_pid = getpid();
   m_pagesize = getpagesize();
@@ -154,24 +154,34 @@ void ResourceUsageLogger::_get()
   }
 }
 
+template<typename T>
+void ResourceUsageLogger::_stream_out(std::ostream & stream, const T val,
+  const int space, const int prec, bool sep_suffix)
+{
+  // whether comma or space delimited
+  if(m_csv_out) {
+    stream << val << ((sep_suffix) ? "," : "");
+  } else {
+    const char separator = ' ';
+    stream << std::left << std::setw(space) << std::setfill(separator) 
+           << std::setprecision(prec) << val << std::defaultfloat;
+  }
+}
+
 void ResourceUsageLogger::_print_header(std::ostream & stream)
 {
-  const char separator = ' ';
-  const int wide_space = 15;
-  const int narrow_space = 10;
-
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << "time[ms]";
-  stream << std::left << std::setw(narrow_space) << std::setfill(separator) << "cpu[%]";
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << "arena[KB]";
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << "in_use[KB]";
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << "mmap[KB]";
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << "rss[KB]";
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << "vsz[KB]";
+  _stream_out(stream, "time[ms]");
+  _stream_out(stream, "cpu[%]", m_narrow_space);
+  _stream_out(stream, "arena[KB]");
+  _stream_out(stream, "in_use[KB]");
+  _stream_out(stream, "mmap[KB]");
+  _stream_out(stream, "rss[KB]");
+  _stream_out(stream, "vsz[KB]", m_wide_space, m_prec, m_has_system_info);
 
   if (m_has_system_info) {
-    stream << std::left << std::setw(wide_space) << std::setfill(separator) << "pubs";
-    stream << std::left << std::setw(wide_space) << std::setfill(separator) << "subs";
-    stream << std::left << std::setw(wide_space) << std::setfill(separator) << "frequency";
+    _stream_out(stream, "pubs");
+    _stream_out(stream, "subs");
+    _stream_out(stream, "frequency", false);
   }
 
   stream << std::endl;
@@ -179,30 +189,20 @@ void ResourceUsageLogger::_print_header(std::ostream & stream)
 
 void ResourceUsageLogger::_print(std::ostream & stream)
 {
-  const char separator = ' ';
-  const int wide_space = 15;
-  const int narrow_space = 10;
+  const int prec = (m_wide_space - 1);
 
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) << std::setprecision(
-    wide_space - 1) << std::round(m_resources.elasped_ms);
-  stream << std::left << std::setw(narrow_space) << std::setfill(separator) <<
-    std::setprecision(2) << m_resources.cpu_usage;
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-    m_resources.mem_arena_KB;
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-    m_resources.mem_in_use_KB;
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-    m_resources.mem_mmap_KB;
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-    m_resources.mem_max_rss_KB;
-  stream << std::left << std::setw(wide_space) << std::setfill(separator) <<
-    m_resources.mem_virtual_KB;
+  _stream_out(stream, std::round(m_resources.elasped_ms), m_wide_space, prec);
+  _stream_out(stream, m_resources.cpu_usage, m_narrow_space);
+  _stream_out(stream, m_resources.mem_arena_KB);
+  _stream_out(stream, m_resources.mem_in_use_KB);
+  _stream_out(stream, m_resources.mem_mmap_KB);
+  _stream_out(stream, m_resources.mem_max_rss_KB);
+  _stream_out(stream, m_resources.mem_virtual_KB, m_wide_space, m_prec, m_has_system_info);
 
   if (m_has_system_info) {
-    stream << std::left << std::setw(wide_space) << std::setfill(separator) << m_pubs;
-    stream << std::left << std::setw(wide_space) << std::setfill(separator) << m_subs;
-    stream << std::left << std::setw(wide_space) << std::setfill(separator) << std::fixed <<
-      m_frequency << std::defaultfloat;
+    _stream_out(stream, m_pubs);
+    _stream_out(stream, m_subs);
+    _stream_out(stream, m_frequency, false);
   }
 
   stream << std::endl;

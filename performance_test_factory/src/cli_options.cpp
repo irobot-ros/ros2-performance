@@ -121,7 +121,7 @@ void Options::parse(int argc, char ** argv)
     if (tracking_enabled_option != "off" && tracking_enabled_option != "on") {
       throw cxxopts::argument_incorrect_type(tracking_enabled_option);
     }
-    
+
     if (csv_out_option != "off" && csv_out_option != "on") {
       throw cxxopts::argument_incorrect_type(csv_out_option);
     }
@@ -158,7 +158,8 @@ std::ostream & operator<<(std::ostream & os, const Options & options)
   os << "duration_sec: " << options.duration_sec << " seconds" << std::endl;
   os << "resources_sampling_per_ms: " << options.resources_sampling_per_ms << std::endl;
   os << "csv_out: " << (options.csv_out ? "on" : "off") << std::endl;
-  os << "tracking.is_enabled: " << (options.tracking_options.is_enabled ? "on" : "off") << std::endl;
+  os << "tracking.is_enabled: " << (options.tracking_options.is_enabled ? "on" : "off")
+     << std::endl;
 
   return os;
 }

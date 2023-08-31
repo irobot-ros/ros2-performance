@@ -105,7 +105,8 @@ create_ros2_nodes(
 }
 
 static
-void log_options_metadata(const std::string & filename,
+void log_options_metadata(
+  const std::string & filename,
   const performance_test_factory::Options & opts)
 {
   std::ofstream out_file;
@@ -140,7 +141,7 @@ int main(int argc, char ** argv)
   std::string latency_all_output_path = result_dir_name + "/latency_all.txt";
   std::string latency_total_output_path = result_dir_name + "/latency_total.txt";
   std::string metadata_output_path = result_dir_name + "/metadata.txt";
-  
+
   log_options_metadata(metadata_output_path, options);
 
   // Start resources logger

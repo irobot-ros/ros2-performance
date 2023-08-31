@@ -38,13 +38,14 @@ void log_trackers_latency_total_stats(
   std::ostream & stream,
   const std::vector<Tracker> & trackers,
   const bool csv_out = false);
-  
+
 template<typename T>
-void stream_out(const bool csv_out,
+void stream_out(
+  const bool csv_out,
   std::ostream & stream,
   const T val,
-  const int space=15,
-  bool sep_suffix=true);
+  const int space = 15,
+  bool sep_suffix = true);
 
 }  // namespace performance_metrics
 

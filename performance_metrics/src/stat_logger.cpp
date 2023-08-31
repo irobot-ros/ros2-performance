@@ -20,11 +20,14 @@ namespace performance_metrics
 {
 
 template<typename T>
-void stream_out(const bool csv_out, std::ostream & stream, const T val, const int space,
-    bool sep_suffix)
+void stream_out(
+  const bool csv_out,
+  std::ostream & stream,
+  const T val, const int space,
+  bool sep_suffix)
 {
   // whether comma or space delimited
-  if(csv_out) {
+  if (csv_out) {
     stream << val << ((sep_suffix) ? "," : "");
   } else {
     const char separator = ' ';
@@ -84,7 +87,8 @@ void log_trackers_latency_all_stats(
   const int wide_space = 15;
   const int narrow_space = 10;
 
-  auto log_header = [&stream, wide_space, narrow_space, separator, csv_out](const std::string & header_title)
+  auto log_header = [&stream, wide_space, narrow_space, separator, csv_out](
+    const std::string & header_title)
     {
       stream << std::endl;
       stream << header_title << std::endl;

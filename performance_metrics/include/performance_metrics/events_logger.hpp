@@ -45,17 +45,16 @@ public:
 
   EventsLogger() = delete;
 
-  explicit EventsLogger(const std::string & filename, const bool csv_out=false);
+  explicit EventsLogger(const std::string & filename, const bool csv_out = false);
 
   void set_start_time(std::chrono::high_resolution_clock::time_point t);
 
   void write_event(const Event & event);
 
 private:
-  
   template<typename T>
-  void stream_out(std::ostream & stream, const T val, const int space=15,
-    bool sep_suffix=true);
+  void stream_out(
+    std::ostream & stream, const T val, const int space = 15, bool sep_suffix = true);
 
   std::chrono::high_resolution_clock::time_point m_start_time;
   std::fstream m_file;

@@ -68,11 +68,11 @@ void EventsLogger::write_event(const Event & event)
 }
 
 template<typename T>
-void EventsLogger::stream_out(std::ostream & stream, const T val,
-  const int space, bool sep_suffix)
+void EventsLogger::stream_out(
+  std::ostream & stream, const T val, const int space, bool sep_suffix)
 {
   // whether comma or space delimited
-  if(_p_csv_out) {
+  if (_p_csv_out) {
     stream << val << ((sep_suffix) ? "," : "");
   } else {
     stream << std::left << std::setw(space) << std::setfill(_p_separator) << val;

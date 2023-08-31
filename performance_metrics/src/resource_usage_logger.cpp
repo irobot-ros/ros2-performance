@@ -155,15 +155,16 @@ void ResourceUsageLogger::_get()
 }
 
 template<typename T>
-void ResourceUsageLogger::_stream_out(std::ostream & stream, const T val,
+void ResourceUsageLogger::_stream_out(
+  std::ostream & stream, const T val,
   const int space, const int prec, bool sep_suffix)
 {
   // whether comma or space delimited
-  if(m_csv_out) {
+  if (m_csv_out) {
     stream << val << ((sep_suffix) ? "," : "");
   } else {
     const char separator = ' ';
-    stream << std::left << std::setw(space) << std::setfill(separator) 
+    stream << std::left << std::setw(space) << std::setfill(separator)
            << std::setprecision(prec) << val << std::defaultfloat;
   }
 }

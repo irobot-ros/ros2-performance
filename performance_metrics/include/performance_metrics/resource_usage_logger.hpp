@@ -39,7 +39,7 @@ public:
 
   ResourceUsageLogger() = delete;
 
-  explicit ResourceUsageLogger(const std::string & filename, const bool csv_out=false);
+  explicit ResourceUsageLogger(const std::string & filename, const bool csv_out = false);
 
   ~ResourceUsageLogger();
 
@@ -60,8 +60,9 @@ private:
   // Print data to file
   void _print(std::ostream & stream);
   template<typename T>
-  void _stream_out(std::ostream & stream, const T val, const int space=15,
-    const int prec=2, bool sep_suffix=true);
+  void _stream_out(
+    std::ostream & stream, const T val, const int space = 15, const int prec = 2,
+    bool sep_suffix = true);
 
   Resources m_resources;
   std::fstream m_file;

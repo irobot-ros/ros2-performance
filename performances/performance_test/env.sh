@@ -21,7 +21,7 @@ MERGE_INSTALL=false
 # Performance Test Framework package containing the example executables
 PERFORMANCE_TEST_EXAMPLES_PKG="performance_test_factory"
 # Performance Test Framework package containing the benchmark application
-PERFORMANCE_TEST_BENCHMARK_PKG="irobot-benchmark"
+PERFORMANCE_TEST_BENCHMARK_PKG="irobot_benchmark"
 
 # Check if the specified directories exist
 if [ ! -d "$ROS2_PERFORMANCE_TEST_INSTALL_PATH" ]; then

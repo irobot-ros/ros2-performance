@@ -382,7 +382,7 @@ between 10 and 100 bytes.
 
 Mont Blanc is a bigger 20-node topology, containing 23 publishers and 35 subscriptions. Two topics have a message size of 250KB, three topics have message sizes between 1KB and 25KB, and the rest of the topics have message sizes smaller than 1KB.
 
-A detailed description and the source code for these application and topologies can be found [here](https://github.com/irobot-ros/ros2-performance/tree/master/performances/irobot-benchmark).
+A detailed description and the source code for these application and topologies can be found [here](https://github.com/irobot-ros/ros2-performance/tree/master/performances/irobot_benchmark).
 
 Note that, differently from the previous experiment where the ownership of the messages was moved from the publisher to the subscription, here nodes use `const std::shared_ptr<const MessageT>` messages for the callbacks.
 

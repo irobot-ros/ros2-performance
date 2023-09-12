@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(irobot-benchmark)
+project(irobot_benchmark)
 
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
@@ -16,11 +16,11 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(performance_test REQUIRED)
 find_package(performance_test_factory REQUIRED)
 
-add_executable(irobot-benchmark src/irobot-benchmark.cpp)
-ament_target_dependencies(irobot-benchmark rclcpp rclcpp_lifecycle performance_test performance_test_factory)
+add_executable(irobot_benchmark src/irobot_benchmark.cpp)
+ament_target_dependencies(irobot_benchmark rclcpp rclcpp_lifecycle performance_test performance_test_factory)
 
 install(TARGETS
-  irobot-benchmark
+  irobot_benchmark
   DESTINATION lib/${PROJECT_NAME}
 )
 

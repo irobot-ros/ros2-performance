@@ -1,0 +1,22 @@
+{
+  "nodes": [
+      {
+        "node_name": "pub_node_sp",
+        "publishers": [
+              {
+                  "topic_name": "test",
+                  "msg_type": "stamped10b",
+                  "period_ms": 1,
+                  "msg_pass_by":"loaned_msg"
+              }
+
+            ]
+      },
+      {
+        "node_name": "sub_node_sp",
+        "subscribers":[
+            {"topic_name":"test", "msg_type":"stamped10b"}
+          ]
+      }
+    ]
+}

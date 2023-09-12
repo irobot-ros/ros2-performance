@@ -14,11 +14,13 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(performance_metrics REQUIRED)
 find_package(performance_test_msgs REQUIRED)
+find_package(irobot_events_executor REQUIRED)
 
 set(LIBRARY_DEPENDENCIES
   rclcpp
   performance_metrics
   performance_test_msgs
+  irobot_events_executor
 )
 
 set(LIBRARY_SRC

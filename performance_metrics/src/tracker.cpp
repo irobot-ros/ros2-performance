@@ -156,4 +156,14 @@ double Tracker::throughput() const
   return throughput;
 }
 
+std::ostream & operator<<(std::ostream & os, const Tracker::Options & opts)
+{
+  os << "late_percentage: " << opts.late_percentage << std::endl;
+  os << "late_absolute_us: " << opts.late_absolute_us << std::endl;
+  os << "too_late_percentage: " << opts.too_late_percentage << std::endl;
+  os << "too_late_absolute_us: " << opts.too_late_absolute_us << std::endl;
+
+  return os;
+}
+
 }  // namespace performance_metrics

@@ -36,12 +36,12 @@ set(TEST_TOPOLOGY_FILES
   ${FT}/mont_blanc.json
   ${FT}/sierra_nevada.json
   ${FT}/sierra_nevada_fixed_size.json
-  ${FT}/sierra_nevada_fixed_size_debug.json
+  ${FT}/debug_sierra_nevada_fixed_size_best_effort.json
   ${FT}/sierra_nevada_fixed_size_loaned.json
   ${FT}/sierra_nevada_loaned.json
   ${FT}/white_mountain.json
   ${FT}/white_mountain_fixed_size.json
-  ${FT}/white_mountain_fixed_size_debug.json
+  ${FT}/debug_white_mountain_fixed_size_best_effort.json
   ${FT}/white_mountain_fixed_size_loaned.json
   ${FT}/white_mountain_loaned.json
 )

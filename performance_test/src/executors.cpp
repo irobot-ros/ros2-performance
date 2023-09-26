@@ -14,7 +14,6 @@
 #include <string>
 
 #include "performance_test/executors.hpp"
-#include "rclcpp/executors/events_executor/events_executor.hpp"
 
 namespace performance_test
 {

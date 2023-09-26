@@ -113,6 +113,8 @@ private:
   rclcpp::Time m_last_msg_time;
 };
 
+std::ostream & operator<<(std::ostream & os, const Tracker::Options & opts);
+
 }  // namespace performance_metrics
 
 #endif  // PERFORMANCE_METRICS__TRACKER_HPP_

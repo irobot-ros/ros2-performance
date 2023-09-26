@@ -26,24 +26,28 @@
 namespace performance_test
 {
 
-static uint64_t parse_line(std::string & line)
+static uint64_t parse_line(std::string & line, const bool csv_out)
 {
-  std::string split_left = line.substr(0, line.find_first_of(" "));
-  std::string split_right = line.substr(line.find_first_of(" "), line.length());
-  line = split_right.substr(split_right.find_first_not_of(" "), split_right.length());
+  std::string sep = (csv_out) ? "," : " ";
+
+  std::string split_left = line.substr(0, line.find_first_of(sep));
+  std::string split_right = line.substr(line.find_first_of(sep), line.length());
+  line = split_right.substr(split_right.find_first_not_of(sep), split_right.length());
   return strtoul(split_left.c_str(), NULL, 0);
 }
 
 System::System(
   ExecutorType executor_type,
   SpinType spin_type,
-  const std::optional<std::string> & events_logger_path)
+  const std::optional<std::string> & events_logger_path,
+  const bool csv_out)
 {
   m_executor_type = executor_type;
   m_spin_type = spin_type;
+  m_csv_out = csv_out;
   if (events_logger_path) {
     m_events_logger =
-      std::make_shared<performance_metrics::EventsLogger>(*events_logger_path);
+      std::make_shared<performance_metrics::EventsLogger>(*events_logger_path, m_csv_out);
   }
 }
 
@@ -224,6 +228,7 @@ void System::log_latency_all_stats(
   performance_metrics::log_trackers_latency_all_stats(
     stream,
     subs,
+    m_csv_out,
     "Subscriptions stats:");
 
   if (include_services) {
@@ -237,6 +242,7 @@ void System::log_latency_all_stats(
     performance_metrics::log_trackers_latency_all_stats(
       stream,
       clients,
+      m_csv_out,
       "Clients stats:");
   }
 
@@ -250,6 +256,7 @@ void System::log_latency_all_stats(
   performance_metrics::log_trackers_latency_all_stats(
     stream,
     publishers,
+    m_csv_out,
     "Publishers stats:");
 }
 
@@ -266,7 +273,7 @@ void System::log_latency_total_stats(
       all_trackers.insert(all_trackers.end(), client_trackers.begin(), client_trackers.end());
     }
   }
-  performance_metrics::log_trackers_latency_total_stats(stream, all_trackers);
+  performance_metrics::log_trackers_latency_total_stats(stream, all_trackers, m_csv_out);
 }
 
 void System::print_aggregate_stats(const std::vector<std::string> & topology_json_list) const
@@ -288,13 +295,13 @@ void System::print_aggregate_stats(const std::vector<std::string> & topology_jso
       // The second line contains the data to parse
       getline(log_file, line);
 
-      total_received += parse_line(line);
-      total_latency += parse_line(line);
-      total_late += parse_line(line);
-      parse_line(line);
-      total_too_late += parse_line(line);
-      parse_line(line);
-      total_lost += parse_line(line);
+      total_received += parse_line(line, m_csv_out);
+      total_latency += parse_line(line, m_csv_out);
+      total_late += parse_line(line, m_csv_out);
+      parse_line(line, m_csv_out);
+      total_too_late += parse_line(line, m_csv_out);
+      parse_line(line, m_csv_out);
+      total_lost += parse_line(line, m_csv_out);
       log_file.close();
     } else {
       std::cout << "[SystemLatencyLogger]: Error. Could not open file " << filename << std::endl;
@@ -305,7 +312,7 @@ void System::print_aggregate_stats(const std::vector<std::string> & topology_jso
 
   performance_metrics::log_total_stats(
     total_received, total_lost, total_late, total_too_late,
-    average_latency, std::cout);
+    average_latency, std::cout, m_csv_out);
 }
 
 void System::wait_discovery()

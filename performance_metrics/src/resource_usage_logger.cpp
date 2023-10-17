@@ -49,7 +49,9 @@ void ResourceUsageLogger::start(std::chrono::milliseconds period)
   std::cout << "[ResourceUsageLogger]: Logging to " << m_filename << std::endl;
 
   m_t1_real_start = std::chrono::steady_clock::now();
-  m_t1_user = std::clock();
+  // Question: make this a flag? That is, calc RU since program start or over
+  // the last `period` ms.
+  //m_t1_user = std::clock(); 
   m_t1_real = std::chrono::steady_clock::now();
   m_logger_thread_done = false;
 
@@ -58,6 +60,10 @@ void ResourceUsageLogger::start(std::chrono::milliseconds period)
     [ = ]() {
       int64_t i = 1;
       while (m_is_logging) {
+        // Updating m_t1_user here will have the effect of averaging resource
+        // utilization only over the last `period` milliseconds, *not* since
+        // program start.
+        m_t1_user = std::clock();
         std::this_thread::sleep_until(m_t1_real_start + period * i);
         if (i == 1) {
           _print_header(m_file);

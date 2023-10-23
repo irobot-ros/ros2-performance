@@ -49,8 +49,6 @@ void ResourceUsageLogger::start(std::chrono::milliseconds period)
   std::cout << "[ResourceUsageLogger]: Logging to " << m_filename << std::endl;
 
   m_t1_real_start = std::chrono::steady_clock::now();
-  //m_t1_user = std::clock(); 
-  //m_t1_real = std::chrono::steady_clock::now();
   m_logger_thread_done = false;
 
   // create a detached thread that monitors resource usage periodically
@@ -59,7 +57,7 @@ void ResourceUsageLogger::start(std::chrono::milliseconds period)
       int64_t i = 1;
       while (m_is_logging) {
         // Updating m_t1_user and m_t1_real here will have the effect of calculating
-        // resource utilization only over the last `period` milliseconds, *not* 
+        // resource utilization only over the last `period` milliseconds, *not*
         // since program start.
         m_t1_user = std::clock();
         m_t1_real = std::chrono::steady_clock::now();

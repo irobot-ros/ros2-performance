@@ -29,7 +29,7 @@ Options::Options()
   name_threads = true;
   duration_sec = 5;
   csv_out = false;
-  resources_sampling_per_ms = 500;
+  resources_sampling_per_ms = 1000;
   tracking_options.is_enabled = false;
   tracking_options.late_percentage = 20;
   tracking_options.late_absolute_us = 5000;

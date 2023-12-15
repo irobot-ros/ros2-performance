@@ -55,14 +55,14 @@ void log_total_stats(
     static_cast<double>(total_too_late) / total_received * 100;
 
   // log header
-  stream_out(csv_out, stream, "received[#]", wide_space);
-  stream_out(csv_out, stream, "mean[us]", narrow_space);
-  stream_out(csv_out, stream, "late[#]", narrow_space);
-  stream_out(csv_out, stream, "late[%]", narrow_space);
-  stream_out(csv_out, stream, "too_late[#]", wide_space);
-  stream_out(csv_out, stream, "too_late[%]", wide_space);
-  stream_out(csv_out, stream, "lost[#]", narrow_space);
-  stream_out(csv_out, stream, "lost[%]", narrow_space, false);
+  stream_out(csv_out, stream, "received_num", wide_space);
+  stream_out(csv_out, stream, "mean_us", narrow_space);
+  stream_out(csv_out, stream, "late_num", narrow_space);
+  stream_out(csv_out, stream, "late_perc", narrow_space);
+  stream_out(csv_out, stream, "too_late_num", wide_space);
+  stream_out(csv_out, stream, "too_late_perc", wide_space);
+  stream_out(csv_out, stream, "lost_num", narrow_space);
+  stream_out(csv_out, stream, "lost_perc", narrow_space, false);
   stream << std::endl;
 
   // log total values
@@ -94,17 +94,17 @@ void log_trackers_latency_all_stats(
       stream << header_title << std::endl;
       stream_out(csv_out, stream, "node", wide_space);
       stream_out(csv_out, stream, "topic", wide_space);
-      stream_out(csv_out, stream, "size[b]", narrow_space);
-      stream_out(csv_out, stream, "received[#]", wide_space);
-      stream_out(csv_out, stream, "late[#]", narrow_space);
-      stream_out(csv_out, stream, "too_late[#]", wide_space);
-      stream_out(csv_out, stream, "lost[#]", narrow_space);
-      stream_out(csv_out, stream, "mean[us]", narrow_space);
-      stream_out(csv_out, stream, "sd[us]", narrow_space);
-      stream_out(csv_out, stream, "min[us]", narrow_space);
-      stream_out(csv_out, stream, "max[us]", narrow_space);
-      stream_out(csv_out, stream, "freq[hz]", narrow_space);
-      stream_out(csv_out, stream, "throughput[Kb/s]", wide_space, false);
+      stream_out(csv_out, stream, "size_b", narrow_space);
+      stream_out(csv_out, stream, "received_num", wide_space);
+      stream_out(csv_out, stream, "late_num", narrow_space);
+      stream_out(csv_out, stream, "too_late_num", wide_space);
+      stream_out(csv_out, stream, "lost_num", narrow_space);
+      stream_out(csv_out, stream, "mean_us", narrow_space);
+      stream_out(csv_out, stream, "sd_us", narrow_space);
+      stream_out(csv_out, stream, "min_us", narrow_space);
+      stream_out(csv_out, stream, "max_us", narrow_space);
+      stream_out(csv_out, stream, "freq_hz", narrow_space);
+      stream_out(csv_out, stream, "throughput_Kb_per_sec", wide_space, false);
 
       stream << std::endl;
     };

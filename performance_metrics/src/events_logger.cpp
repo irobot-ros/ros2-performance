@@ -33,7 +33,7 @@ EventsLogger::EventsLogger(const std::string & filename, const bool csv_out)
   }
 
   std::cout << "[EventsLogger]: Logging to " << m_filename << std::endl;
-  stream_out(m_file, "Time[ms]", _p_time_width);
+  stream_out(m_file, "Time_ms", _p_time_width);
   stream_out(m_file, "Caller", _p_caller_width);
   stream_out(m_file, "Code", _p_code_width);
   stream_out(m_file, "Description", _p_desc_width, false);

@@ -55,13 +55,13 @@ void log_total_stats(
     static_cast<double>(total_too_late) / total_received * 100;
 
   // log header
-  stream_out(csv_out, stream, "received_num", wide_space);
+  stream_out(csv_out, stream, "received_msgs", wide_space);
   stream_out(csv_out, stream, "mean_us", narrow_space);
-  stream_out(csv_out, stream, "late_num", narrow_space);
+  stream_out(csv_out, stream, "late_msgs", narrow_space);
   stream_out(csv_out, stream, "late_perc", narrow_space);
-  stream_out(csv_out, stream, "too_late_num", wide_space);
+  stream_out(csv_out, stream, "too_late_msgs", wide_space);
   stream_out(csv_out, stream, "too_late_perc", wide_space);
-  stream_out(csv_out, stream, "lost_num", narrow_space);
+  stream_out(csv_out, stream, "lost_msgs", narrow_space);
   stream_out(csv_out, stream, "lost_perc", narrow_space, false);
   stream << std::endl;
 
@@ -95,10 +95,10 @@ void log_trackers_latency_all_stats(
       stream_out(csv_out, stream, "node", wide_space);
       stream_out(csv_out, stream, "topic", wide_space);
       stream_out(csv_out, stream, "size_b", narrow_space);
-      stream_out(csv_out, stream, "received_num", wide_space);
-      stream_out(csv_out, stream, "late_num", narrow_space);
-      stream_out(csv_out, stream, "too_late_num", wide_space);
-      stream_out(csv_out, stream, "lost_num", narrow_space);
+      stream_out(csv_out, stream, "received_msgs", wide_space);
+      stream_out(csv_out, stream, "late_msgs", narrow_space);
+      stream_out(csv_out, stream, "too_late_msgs", wide_space);
+      stream_out(csv_out, stream, "lost_msgs", narrow_space);
       stream_out(csv_out, stream, "mean_us", narrow_space);
       stream_out(csv_out, stream, "sd_us", narrow_space);
       stream_out(csv_out, stream, "min_us", narrow_space);

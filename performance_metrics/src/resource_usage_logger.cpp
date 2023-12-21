@@ -174,13 +174,13 @@ void ResourceUsageLogger::_stream_out(
 
 void ResourceUsageLogger::_print_header(std::ostream & stream)
 {
-  _stream_out(stream, "time[ms]");
-  _stream_out(stream, "cpu[%]", m_narrow_space);
-  _stream_out(stream, "arena[KB]");
-  _stream_out(stream, "in_use[KB]");
-  _stream_out(stream, "mmap[KB]");
-  _stream_out(stream, "rss[KB]");
-  _stream_out(stream, "vsz[KB]", m_wide_space, m_prec, m_has_system_info);
+  _stream_out(stream, "time_ms");
+  _stream_out(stream, "cpu_perc", m_narrow_space);
+  _stream_out(stream, "arena_KB");
+  _stream_out(stream, "in_use_KB");
+  _stream_out(stream, "mmap_KB");
+  _stream_out(stream, "rss_KB");
+  _stream_out(stream, "vsz_KB", m_wide_space, m_prec, m_has_system_info);
 
   if (m_has_system_info) {
     _stream_out(stream, "pubs");

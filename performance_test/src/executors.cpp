@@ -14,6 +14,7 @@
 #include <string>
 
 #include "performance_test/executors.hpp"
+#include "rclcpp/experimental/executors/events_executor/events_executor.hpp"
 #include "rclcpp/executors/events_executor/events_executor.hpp"
 
 namespace performance_test
@@ -31,6 +32,9 @@ std::ostream & operator<<(std::ostream & os, const ExecutorType & t)
       break;
     case ExecutorType::EVENTS_EXECUTOR:
       executor_name = "EventsExecutor";
+      break;
+    case ExecutorType::EVENTS_EXECUTOR_EXPERIMENTAL_NS:
+      executor_name = "EventsExecutorExperimentalNs";
       break;
     default:
       executor_name = "Unknown ExecutorType";
@@ -53,6 +57,9 @@ std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type)
       break;
     case ExecutorType::EVENTS_EXECUTOR:
       executor = std::make_shared<rclcpp::executors::EventsExecutor>();
+      break;
+    case ExecutorType::EVENTS_EXECUTOR_EXPERIMENTAL_NS:
+      executor = std::make_shared<rclcpp::experimental::executors::EventsExecutor>();
       break;
   }
 

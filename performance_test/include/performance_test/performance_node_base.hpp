@@ -21,6 +21,8 @@
 #include <vector>
 
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp_action/client.hpp"
+#include "rclcpp_action/server.hpp"
 #include "rclcpp/qos.hpp"
 
 #include "performance_metrics/events_logger.hpp"
@@ -41,6 +43,7 @@ struct NodeInterfaces
   rclcpp::node_interfaces::NodeServicesInterface::SharedPtr services;
   rclcpp::node_interfaces::NodeTimersInterface::SharedPtr timers;
   rclcpp::node_interfaces::NodeTopicsInterface::SharedPtr topics;
+  rclcpp::node_interfaces::NodeWaitablesInterface::SharedPtr waitables;
 };
 
 class PerformanceNodeBase
@@ -103,12 +106,29 @@ public:
     const std::string & service_name,
     const rclcpp::QoS & qos_profile = rclcpp::ServicesQoS());
 
+  template<typename Action>
+  void add_action_server(
+    const std::string & action_name,
+    const rclcpp::QoS & qos_profile = rclcpp::ServicesQoS());
+
+  template<typename Action>
+  void add_periodic_action_client(
+    const std::string & action_name,
+    std::chrono::microseconds period,
+    const rclcpp::QoS & qos_profile = rclcpp::ServicesQoS());
+
+  template<typename Action>
+  void add_action_client(
+    const std::string & action_name,
+    const rclcpp::QoS & qos_profile = rclcpp::ServicesQoS());
+
   void add_timer(std::chrono::microseconds period, std::function<void()> callback);
 
   std::vector<performance_metrics::Tracker> sub_trackers();
-
+  std::vector<performance_metrics::Tracker> service_trackers();
   std::vector<performance_metrics::Tracker> client_trackers();
-
+  std::vector<performance_metrics::Tracker> action_client_trackers();
+  std::vector<performance_metrics::Tracker> action_server_trackers();
   std::vector<performance_metrics::Tracker> pub_trackers();
 
   void set_events_logger(std::shared_ptr<performance_metrics::EventsLogger> ev);
@@ -146,6 +166,16 @@ protected:
   void store_server(
     rclcpp::ServiceBase::SharedPtr server,
     const std::string & service_name,
+    const performance_metrics::Tracker::Options & tracking_options);
+
+  void store_action_client(
+    rclcpp_action::ClientBase::SharedPtr client,
+    const std::string & action_name,
+    const performance_metrics::Tracker::Options & tracking_options);
+
+  void store_action_server(
+    rclcpp_action::ServerBase::SharedPtr server,
+    const std::string & action_name,
     const performance_metrics::Tracker::Options & tracking_options);
 
   performance_test_msgs::msg::PerformanceHeader create_msg_header(
@@ -193,6 +223,9 @@ protected:
   template<typename Srv>
   void send_request(const std::string & name, size_t size);
 
+  template<typename Action>
+  void send_action_goal_request(const std::string & name);
+
   template<typename Srv>
   void response_received_callback(
     const std::string & name,
@@ -219,6 +252,7 @@ protected:
   // Client blocking call does not work with timers
   // Use a lock variable to avoid calling when you are already waiting
   std::atomic<bool> m_client_lock {false};
+  std::atomic<bool> m_action_client_lock {false};
 
   NodeInterfaces m_node_interfaces;
 
@@ -236,9 +270,18 @@ protected:
 
   using ClientsTuple =
     std::tuple<rclcpp::ClientBase::SharedPtr, performance_metrics::Tracker, uint32_t>;
+
+  using ActionClientsTuple =
+    std::tuple<rclcpp_action::ClientBase::SharedPtr, performance_metrics::Tracker, uint32_t>;
+
+  using ActionServersTuple =
+    std::tuple<rclcpp_action::ServerBase::SharedPtr, performance_metrics::Tracker, uint32_t>;
+
   // A service-name indexed map to store the client pointers with their
   // trackers.
   std::map<std::string, ClientsTuple> m_clients;
+  std::map<std::string, ActionClientsTuple> m_action_clients;
+  std::map<std::string, ActionServersTuple> m_action_servers;
 
   // A service-name indexed map to store the server pointers with their
   // trackers.

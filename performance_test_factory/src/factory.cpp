@@ -362,6 +362,61 @@ void TemplateFactory::add_server_from_strings(
     custom_qos_profile);
 }
 
+void TemplateFactory::add_action_server_from_strings(
+  performance_test::PerformanceNodeBase::SharedPtr n,
+  const std::string & action_type,
+  const std::string & action_name,
+  const rclcpp::QoS & custom_qos_profile)
+{
+  // Get library can modify the string, so we create a copy
+  std::string action_type__ = action_type;
+  auto library = performance_test_factory::get_library(action_type__);
+
+  typedef void (* function_impl_t)(
+    performance_test::PerformanceNodeBase::SharedPtr,
+    const std::string &,
+    const std::string &,
+    const rclcpp::QoS &);
+
+  auto add_action_server_impl =
+    reinterpret_cast<function_impl_t>(library->get_symbol("add_action_server_impl"));
+
+  add_action_server_impl(
+    n,
+    action_type__,
+    action_name,
+    custom_qos_profile);
+}
+
+void TemplateFactory::add_periodic_action_client_from_strings(
+  performance_test::PerformanceNodeBase::SharedPtr n,
+  const std::string & action_type,
+  const std::string & action_name,
+  const rclcpp::QoS & custom_qos_profile,
+  std::chrono::microseconds period)
+{
+  // Get library can modify the string, so we create a copy
+  std::string action_type__ = action_type;
+  auto library = performance_test_factory::get_library(action_type__);
+
+  typedef void (* function_impl_t)(
+    performance_test::PerformanceNodeBase::SharedPtr,
+    const std::string &,
+    const std::string &,
+    const rclcpp::QoS &,
+    std::chrono::microseconds);
+
+  auto add_action_client_impl =
+    reinterpret_cast<function_impl_t>(library->get_symbol("add_action_client_impl"));
+
+  add_action_client_impl(
+    n,
+    action_type__,
+    action_name,
+    custom_qos_profile,
+    period);
+}
+
 std::vector<performance_test::PerformanceNodeBase::SharedPtr>
 TemplateFactory::parse_topology_from_json(
   const std::string & json_path,
@@ -462,6 +517,18 @@ void TemplateFactory::create_node_entities_from_json(
       this->add_server_from_json(node, s_json);
     }
   }
+
+  if (node_json.find("action_clients") != node_json.end()) {
+    for (auto c_json : node_json["action_clients"]) {
+      this->add_periodic_action_client_from_json(node, c_json);
+    }
+  }
+
+  if (node_json.find("action_servers") != node_json.end()) {
+    for (auto c_json : node_json["action_servers"]) {
+      this->add_action_server_from_json(node, c_json);
+    }
+  }
 }
 
 void TemplateFactory::add_periodic_publisher_from_json(
@@ -555,6 +622,50 @@ void TemplateFactory::add_periodic_client_from_json(
     service_name,
     custom_qos_profile,
     period);
+}
+
+void TemplateFactory::add_periodic_action_client_from_json(
+  performance_test::PerformanceNodeBase::SharedPtr node,
+  const nlohmann::json & action_client_json)
+{
+  std::string action_name = action_client_json["action_name"];
+  std::string action_type = action_client_json["action_type"];
+
+  float period_ms = 0;
+  if (action_client_json.find("freq_hz") != action_client_json.end()) {
+    float frequency = action_client_json["freq_hz"];
+    period_ms = 1000 / frequency;
+  } else if (action_client_json.find("period_ms") != action_client_json.end()) {
+    period_ms = action_client_json["period_ms"];
+  } else {
+    std::cout << "Error! Action Clients must set period_ms or freq_hz in json file" << std::endl;
+  }
+
+  auto period = std::chrono::microseconds(static_cast<int>(period_ms * 1000));
+
+  rclcpp::QoS custom_qos_profile = get_qos_from_json(action_client_json);
+
+  this->add_periodic_action_client_from_strings(
+    node,
+    action_type,
+    action_name,
+    custom_qos_profile,
+    period);
+}
+
+void TemplateFactory::add_action_server_from_json(
+  performance_test::PerformanceNodeBase::SharedPtr node,
+  const nlohmann::json & action_server_json)
+{
+  std::string action_name = action_server_json["action_name"];
+  std::string action_type = action_server_json["action_type"];
+  rclcpp::QoS custom_qos_profile = get_qos_from_json(action_server_json);
+
+  this->add_action_server_from_strings(
+    node,
+    action_type,
+    action_name,
+    custom_qos_profile);
 }
 
 void TemplateFactory::add_server_from_json(

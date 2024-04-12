@@ -33,7 +33,8 @@ public:
     late_message,
     too_late_message,
     lost_messages,
-    service_unavailable
+    service_unavailable,
+    action_unavailable
   };
 
   struct Event

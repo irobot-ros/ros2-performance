@@ -1,0 +1,10 @@
+{
+    "nodes": [
+        {
+            "node_name": "server_node",
+            "servers": [
+                {"service_name": "stamped4mb", "srv_type": "stamped4mb"}
+              ]
+        }
+    ]
+}

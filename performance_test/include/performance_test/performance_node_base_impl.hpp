@@ -23,6 +23,8 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/qos.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
+#include "rclcpp_action/create_server.hpp"
 
 #include "performance_metrics/events_logger.hpp"
 #include "performance_metrics/tracker.hpp"
@@ -191,6 +193,110 @@ void PerformanceNodeBase::add_client(
   this->store_client(client, service_name, performance_metrics::Tracker::Options());
 }
 
+template<typename Action>
+void PerformanceNodeBase::add_action_server(
+  const std::string & action_name,
+  const rclcpp::QoS & qos_profile)
+{
+  // Define the callback for handling goals
+  auto handle_goal = [this, action_name] (const rclcpp_action::GoalUUID & guuid,
+    std::shared_ptr<const typename Action::Goal> goal)
+    {
+      auto & server_tuple = m_action_servers.at(action_name);
+      auto & tracker = std::get<1>(server_tuple);
+
+      tracker.scan(goal->header, m_node_interfaces.clock->get_clock()->now(), m_events_logger);
+      return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+    };
+
+  auto handle_cancel = [this] (
+    const typename std::shared_ptr<rclcpp_action::ServerGoalHandle<Action>> goal_handle)
+    {
+      (void)goal_handle;
+      return rclcpp_action::CancelResponse::ACCEPT;
+    };
+
+  auto handle_accepted = [this, action_name] (
+    const std::shared_ptr<rclcpp_action::ServerGoalHandle<Action>> goal_handle)
+    {
+      auto & server_tuple = m_action_servers.at(action_name);
+      auto & tracker = std::get<1>(server_tuple);
+      auto & tracking_number = std::get<2>(server_tuple);
+
+      auto feedback = std::make_shared<typename Action::Feedback>();
+      size_t msg_size = sizeof(feedback->data);
+
+      feedback->header = create_msg_header(
+        m_node_interfaces.clock->get_clock()->now(),
+        tracker.frequency(),
+        tracking_number++,
+        msg_size
+      );
+
+      goal_handle->publish_feedback(feedback);
+
+      auto result = std::make_shared<typename Action::Result>();
+      result->header = create_msg_header(
+          m_node_interfaces.clock->get_clock()->now(),
+          tracker.frequency(),
+          tracking_number++,
+          msg_size
+        );
+
+      goal_handle->succeed(result);
+    };
+
+  // Create the action server using the specified action type
+  auto action_server = rclcpp_action::create_server<Action>(
+    m_node_interfaces.base,
+    m_node_interfaces.clock,
+    m_node_interfaces.logging,
+    m_node_interfaces.waitables,
+    action_name,
+    handle_goal,
+    handle_cancel,
+    handle_accepted
+  );
+
+  this->store_action_server(action_server, action_name, performance_metrics::Tracker::Options());
+}
+
+template<typename Action>
+void PerformanceNodeBase::add_periodic_action_client(
+  const std::string & action_name,
+  std::chrono::microseconds period,
+  const rclcpp::QoS & qos_profile)
+{
+  this->add_action_client<Action>(action_name, qos_profile);
+
+  std::function<void()> action_client_task = std::bind(
+    &PerformanceNodeBase::send_action_goal_request<Action>,
+    this,
+    action_name);
+
+  // store the frequency of this action client task
+  std::get<1>(m_action_clients.at(action_name)).set_frequency(1000000 / period.count());
+
+  this->add_timer(period, action_client_task);
+}
+
+template<typename Action>
+void PerformanceNodeBase::add_action_client(
+  const std::string & action_name,
+  const rclcpp::QoS & qos_profile)
+{
+  auto client = rclcpp_action::create_client<Action>(
+    m_node_interfaces.base,
+    m_node_interfaces.graph,
+    m_node_interfaces.logging,
+    m_node_interfaces.waitables,
+    action_name,
+    nullptr,  // No callback group in this example
+    rcl_action_client_get_default_options());
+
+  this->store_action_client(client, action_name, performance_metrics::Tracker::Options());
+}
+
 template<typename Msg>
 void PerformanceNodeBase::publish_msg(
   const std::string & name,
@@ -324,6 +430,85 @@ void PerformanceNodeBase::topic_callback(
   this->handle_sub_received_msg(topic_name, work_duration, msg->header);
 }
 
+template<typename Action>
+void PerformanceNodeBase::send_action_goal_request(const std::string & name)
+{
+  if (m_action_client_lock) {
+    return;
+  }
+  m_action_client_lock = true;
+
+  // Get client and tracking count from map
+  auto & client_tuple = m_action_clients.at(name);
+  auto client = std::static_pointer_cast<rclcpp_action::Client<Action>>(std::get<0>(client_tuple));
+
+  // Wait for action server to become available
+  if (!client->wait_for_action_server(std::chrono::seconds(1))) {
+    if (m_events_logger != nullptr) {
+      // Log an event if the action server is unavailable
+      std::stringstream description;
+      description << "[action] '" << name.c_str() << "' unavailable after 1s";
+
+      performance_metrics::EventsLogger::Event ev;
+      ev.caller_name = name + "->" + m_node_interfaces.base->get_name();
+      ev.code = performance_metrics::EventsLogger::EventCode::action_unavailable;
+      ev.description = description.str();
+
+      m_events_logger->write_event(ev);
+    }
+    m_action_client_lock = false;
+    return;
+  }
+
+  // Create goal and populate the header with timestamp
+  auto goal = typename Action::Goal();
+  auto & tracker = std::get<1>(client_tuple);
+  auto & tracking_number = std::get<2>(client_tuple);
+  size_t msg_size = sizeof(goal.data);
+
+  goal.header = create_msg_header(
+    m_node_interfaces.clock->get_clock()->now(),
+    tracker.frequency(),
+    tracking_number++,
+    msg_size
+  );
+
+  // Create the goal options, which have the callbacks for when server sends back
+  // feedback or result, and compute their latency
+  typename rclcpp_action::Client<Action>::SendGoalOptions goal_options;
+
+  goal_options.goal_response_callback = [this, name, &tracker](auto goal_handle_future) {
+    auto goal_handle = goal_handle_future.get();
+    if (!goal_handle) {
+      RCLCPP_WARN(this->get_node_logger(), "Goal was rejected by action server for action %s", name.c_str());
+      return;
+    }
+    // RCLCPP_INFO(this->get_node_logger(), "Goal accepted by action server for action %s", name.c_str());
+  };
+
+  goal_options.result_callback =
+    [this, name, &tracker](
+      const typename rclcpp_action::ClientGoalHandle<Action>::WrappedResult & result)
+  {
+    if (result.code == rclcpp_action::ResultCode::SUCCEEDED) {
+      // RCLCPP_INFO(this->get_node_logger(), "Result received for action %s", name.c_str());
+      tracker.scan(result.result->header, m_node_interfaces.clock->get_clock()->now(), m_events_logger);
+    } else {
+      RCLCPP_WARN(this->get_node_logger(), "Action %s failed with result code %d", name.c_str(), result.code);
+    }
+
+    m_action_client_lock = false;
+  };
+
+  // Optional feedback callback (if feedback is important for your action)
+  goal_options.feedback_callback = [this, &tracker](auto, const auto & feedback) {
+    // RCLCPP_INFO(this->get_node_logger(), "Feedback received");
+    tracker.scan(feedback->header, m_node_interfaces.clock->get_clock()->now(), m_events_logger);
+  };
+
+  client->async_send_goal(goal, goal_options);
+}
+
 template<typename Srv>
 void PerformanceNodeBase::send_request(const std::string & name, size_t size)
 {
@@ -360,12 +545,13 @@ void PerformanceNodeBase::send_request(const std::string & name, size_t size)
 
   // Create request
   auto request = std::make_shared<typename Srv::Request>();
+  size_t msg_size = sizeof(request->data);
 
   request->header = create_msg_header(
     m_node_interfaces.clock->get_clock()->now(),
     tracker.frequency(),
     tracking_number,
-    0);
+    msg_size);
 
   // Client non-blocking call + callback
 

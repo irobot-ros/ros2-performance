@@ -1,0 +1,10 @@
+{
+    "nodes": [
+        {
+            "node_name": "action_server",
+            "action_servers": [
+                {"action_name": "stamped100kb", "action_type": "stamped100kb"}
+            ]
+        }
+    ]
+}

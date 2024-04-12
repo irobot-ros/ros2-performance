@@ -247,10 +247,19 @@ void System::log_latency_all_stats(
 
   if (include_services) {
     std::vector<performance_metrics::Tracker> clients;
+    std::vector<performance_metrics::Tracker> services;
+    std::vector<performance_metrics::Tracker> action_clients;
+    std::vector<performance_metrics::Tracker> action_servers;
 
     for (const auto & n : m_nodes) {
-      auto trackers = n->client_trackers();
-      clients.insert(clients.end(), trackers.begin(), trackers.end());
+      auto service_trackers = n->service_trackers();
+      auto client_trackers = n->client_trackers();
+      auto action_client_trackers = n->action_client_trackers();
+      auto action_server_trackers = n->action_server_trackers();
+      clients.insert(clients.end(), client_trackers.begin(), client_trackers.end());
+      services.insert(services.end(), service_trackers.begin(), service_trackers.end());
+      action_clients.insert(action_clients.end(), action_client_trackers.begin(), action_client_trackers.end());
+      action_servers.insert(action_servers.end(), action_server_trackers.begin(), action_server_trackers.end());
     }
 
     performance_metrics::log_trackers_latency_all_stats(
@@ -258,6 +267,24 @@ void System::log_latency_all_stats(
       clients,
       m_csv_out,
       "Clients stats:");
+
+    performance_metrics::log_trackers_latency_all_stats(
+      stream,
+      services,
+      m_csv_out,
+      "Services stats:");
+
+    performance_metrics::log_trackers_latency_all_stats(
+      stream,
+      action_clients,
+      m_csv_out,
+      "Action Clients stats:");
+
+    performance_metrics::log_trackers_latency_all_stats(
+      stream,
+      action_servers,
+      m_csv_out,
+      "Action Servers stats:");
   }
 
   std::vector<performance_metrics::Tracker> publishers;
@@ -283,8 +310,14 @@ void System::log_latency_total_stats(
     auto sub_trackers = n->sub_trackers();
     all_trackers.insert(all_trackers.end(), sub_trackers.begin(), sub_trackers.end());
     if (include_services) {
+      auto services_trackers = n->service_trackers();
+      all_trackers.insert(all_trackers.end(), services_trackers.begin(), services_trackers.end());
       auto client_trackers = n->client_trackers();
       all_trackers.insert(all_trackers.end(), client_trackers.begin(), client_trackers.end());
+      auto action_client_trackers = n->action_client_trackers();
+      all_trackers.insert(all_trackers.end(), action_client_trackers.begin(), action_client_trackers.end());
+      auto action_server_trackers = n->action_server_trackers();
+      all_trackers.insert(all_trackers.end(), action_server_trackers.begin(), action_server_trackers.end());
     }
   }
   performance_metrics::log_trackers_latency_total_stats(stream, all_trackers, m_csv_out);

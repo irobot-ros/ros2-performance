@@ -102,6 +102,36 @@ std::vector<performance_metrics::Tracker> PerformanceNodeBase::client_trackers()
   return trackers;
 }
 
+std::vector<performance_metrics::Tracker> PerformanceNodeBase::service_trackers()
+{
+  std::vector<performance_metrics::Tracker> trackers;
+  for (const auto & service : m_servers) {
+    trackers.push_back(std::get<1>(service.second));
+  }
+
+  return trackers;
+}
+
+std::vector<performance_metrics::Tracker> PerformanceNodeBase::action_client_trackers()
+{
+  std::vector<performance_metrics::Tracker> trackers;
+  for (const auto & client : m_action_clients) {
+    trackers.push_back(std::get<1>(client.second));
+  }
+
+  return trackers;
+}
+
+std::vector<performance_metrics::Tracker> PerformanceNodeBase::action_server_trackers()
+{
+  std::vector<performance_metrics::Tracker> trackers;
+  for (const auto & client : m_action_servers) {
+    trackers.push_back(std::get<1>(client.second));
+  }
+
+  return trackers;
+}
+
 std::vector<performance_metrics::Tracker> PerformanceNodeBase::pub_trackers()
 {
   std::vector<performance_metrics::Tracker> trackers;
@@ -186,6 +216,44 @@ void PerformanceNodeBase::store_client(
     });
 
   RCLCPP_INFO(this->get_node_logger(), "Client to %s created", service_name.c_str());
+}
+
+void PerformanceNodeBase::store_action_client(
+  rclcpp_action::ClientBase::SharedPtr client,
+  const std::string & action_name,
+  const performance_metrics::Tracker::Options & tracking_options)
+{
+  auto tracker = performance_metrics::Tracker(
+    m_node_interfaces.base->get_name(),
+    action_name,
+    tracking_options);
+
+  m_action_clients.insert(
+    {
+      action_name,
+      std::make_tuple(client, tracker, 0)
+    });
+
+  RCLCPP_INFO(this->get_node_logger(), "Action Client to %s created", action_name.c_str());
+}
+
+void PerformanceNodeBase::store_action_server(
+  rclcpp_action::ServerBase::SharedPtr server,
+  const std::string & action_name,
+  const performance_metrics::Tracker::Options & tracking_options)
+{
+  auto tracker = performance_metrics::Tracker(
+    m_node_interfaces.base->get_name(),
+    action_name,
+    tracking_options);
+
+  m_action_servers.insert(
+  {
+    action_name,
+    std::make_tuple(server, tracker, 0)
+  });
+
+  RCLCPP_INFO(this->get_node_logger(), "Action Server to %s created", action_name.c_str());
 }
 
 void PerformanceNodeBase::store_server(

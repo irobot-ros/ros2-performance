@@ -75,7 +75,7 @@ def get_namespaced_cpp_class_name(interface_name, package, interface_type):
   return class_name
 
 
-def get_include_paths(msgs, srvs, package):
+def get_include_paths(msgs, srvs, actions, package):
   '''
   Add all necessary include directives
   '''
@@ -96,6 +96,10 @@ def get_include_paths(msgs, srvs, package):
   content += "\n"
   for srv_name in srvs:
     statement = get_cpp_include_statement(srv_name, package, "srv")
+    content += statement + "\n"
+  content += "\n"
+  for action_name in actions:
+    statement = get_cpp_include_statement(action_name, package, "action")
     content += statement + "\n"
 
   return content
@@ -317,6 +321,111 @@ def get_client_factory(srvs, package):
 
   return content
 
+def get_action_server_factory(actions, package):
+
+  if len(actions) == 0:
+    return ""
+
+  content = """
+
+  extern "C" void add_action_server_impl(
+  """
+
+  performance_node = "performance_test::PerformanceNodeBase"
+  content += "\n std::shared_ptr<" + performance_node + "> n,"
+
+  content += """
+    const std::string & action_type,
+    const std::string & action_name,
+    const rclcpp::QoS & custom_qos_profile)
+  {
+    const std::map<std::string, std::function<void()>> action_servers_factory{
+  """
+
+  function = "add_action_server"
+  user_args = "action_name, custom_qos_profile"
+
+  for action_name in actions:
+
+    action_class_name = get_namespaced_cpp_class_name(action_name, package, "action")
+    lowercased_name = get_lowercased_name(action_name)
+    map_key = "\"" + lowercased_name + "\""
+
+    map_entry = f"{{ {map_key}, [&] {{ n->{function}<{action_class_name}>({user_args});}} }},"
+
+    content += "\n" + map_entry
+
+  if content.endswith(","):
+    content = content[:-1]
+
+  content += """
+    };"""
+
+  content += """
+    if (action_servers_factory.find(action_type) == action_servers_factory.end()) {
+      throw std::runtime_error("unknown action type passed to action servers factory: " + action_type);
+    }
+
+    action_servers_factory.at(action_type)();
+  }
+
+  """
+
+  return content
+
+def get_action_client_factory(actions, package):
+
+  if len(actions) == 0:
+    return ""
+
+  content = """
+
+  extern "C" void add_action_client_impl(
+  """
+
+  performance_node = "performance_test::PerformanceNodeBase"
+  content += "\n std::shared_ptr<" + performance_node + "> n,"
+
+  content += """
+    const std::string & action_type,
+    const std::string & action_name,
+    const rclcpp::QoS & custom_qos_profile,
+    std::chrono::microseconds period)
+  {
+    const std::map<std::string, std::function<void()>> action_clients_factory{
+  """
+
+  function = "add_periodic_action_client"
+  user_args = "action_name, period, custom_qos_profile"
+
+  for action_name in actions:
+
+    action_class_name = get_namespaced_cpp_class_name(action_name, package, "action")
+    lowercased_name = get_lowercased_name(action_name)
+    map_key = "\"" + lowercased_name + "\""
+
+    map_entry = f"{{ {map_key}, [&] {{ n->{function}<{action_class_name}>({user_args});}} }},"
+
+    content += "\n" + map_entry
+
+  if content.endswith(","):
+    content = content[:-1]
+
+  content += """
+    };"""
+
+  content += """
+    if (action_clients_factory.find(action_type) == action_clients_factory.end()) {
+      throw std::runtime_error("unknown action type passed to action clients factory: " + action_type);
+    }
+
+    action_clients_factory.at(action_type)();
+  }
+
+  """
+
+  return content
+
 def main():
 
   parser = argparse.ArgumentParser(description='Python script for generating interfaces implementation')
@@ -324,6 +433,7 @@ def main():
   parser.add_argument('--package', type=str)
   parser.add_argument('--msg', type=str, nargs='+', default=[])
   parser.add_argument('--srv', type=str, nargs='+', default=[])
+  parser.add_argument('--action', type=str, nargs='+', default=[])
 
   args = parser.parse_args()
 
@@ -331,27 +441,33 @@ def main():
   package = args.package
   msg_paths = args.msg
   srv_paths = args.srv
+  action_paths = args.action
 
-  if not msg_paths and not srv_paths:
+  if not msg_paths and not srv_paths and not action_paths:
     sys.exit('No interfaces!')
 
   msgs = []
   srvs = []
+  actions = []
 
   for path in msg_paths:
     msgs.append(get_interface_name_from_path(path))
   for path in srv_paths:
     srvs.append(get_interface_name_from_path(path))
+  for path in action_paths:
+    actions.append(get_interface_name_from_path(path))
 
   outdir = os.path.dirname(output_file_path)
   os.makedirs(outdir, exist_ok=True)
 
   content = ""
-  content += get_include_paths(msgs, srvs, package)
+  content += get_include_paths(msgs, srvs, actions, package)
   content += get_sub_factory(msgs, package)
   content += get_pub_factory(msgs, package)
   content += get_server_factory(srvs, package)
   content += get_client_factory(srvs, package)
+  content += get_action_server_factory(actions, package)
+  content += get_action_client_factory(actions, package)
 
   # Remove wacky indentation
   content = textwrap.dedent(content)

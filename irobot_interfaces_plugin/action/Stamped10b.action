@@ -1,0 +1,11 @@
+#goal definition
+performance_test_msgs/PerformanceHeader header
+byte[10] data
+---
+#result definition
+performance_test_msgs/PerformanceHeader header
+byte[10] data
+---
+#feedback
+performance_test_msgs/PerformanceHeader header
+byte[10] data

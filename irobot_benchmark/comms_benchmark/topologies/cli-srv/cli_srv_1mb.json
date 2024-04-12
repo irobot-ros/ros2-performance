@@ -1,0 +1,13 @@
+{
+    "nodes": [
+        {
+            "node_name": "server_node",
+            "servers": [
+                {"service_name": "stamped1mb", "srv_type": "stamped1mb"}
+              ],
+            "clients": [
+                {"service_name": "stamped1mb", "srv_type": "stamped1mb", "freq_hz": 25}
+              ]
+        }
+    ]
+}

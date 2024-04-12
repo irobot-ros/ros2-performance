@@ -1,0 +1,13 @@
+{
+    "nodes": [
+        {
+            "node_name": "action_node",
+            "action_servers": [
+                {"action_name": "stamped1mb", "action_type": "stamped1mb"}
+            ],
+            "action_clients": [
+                {"action_name": "stamped1mb", "action_type": "stamped1mb", "freq_hz": 10}
+            ]
+        }
+    ]
+}

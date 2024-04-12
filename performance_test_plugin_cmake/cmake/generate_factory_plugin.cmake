@@ -1,14 +1,16 @@
 # This is the path where this file is located
 set(GENERATE_FACTORY_PLUGIN__INTERNAL_DIR__ ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
 
-function(generate_factory_plugin argMSGS argSRVS)
+function(generate_factory_plugin argMSGS argSRVS argACTIONS)
 
   find_package(rclcpp REQUIRED)
+  find_package(rclcpp_action REQUIRED)
   find_package(performance_test REQUIRED)
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
 
   set(LIBRARY_DEPENDENCIES
     rclcpp
+    rclcpp_action
     performance_test
   )
 
@@ -24,6 +26,7 @@ function(generate_factory_plugin argMSGS argSRVS)
       --package ${PROJECT_NAME}
       --msg ${argMSGS}
       --srv ${argSRVS}
+      --action ${argACTIONS}
     DEPENDS ${PROJECT_NAME} ${GENERATOR_SCRIPT}
   )
 

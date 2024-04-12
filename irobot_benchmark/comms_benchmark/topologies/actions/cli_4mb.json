@@ -1,0 +1,10 @@
+{
+    "nodes": [
+        {
+            "node_name": "action_client",
+            "action_clients": [
+                {"action_name": "stamped4mb", "action_type": "stamped4mb", "freq_hz": 5}
+            ]
+        }
+    ]
+}

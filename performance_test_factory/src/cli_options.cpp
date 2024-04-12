@@ -51,6 +51,7 @@ void Options::parse(int argc, char ** argv)
   std::string ros_params_option;
   std::string tracking_enabled_option;
   std::string csv_out_option;
+  std::string result_folder_name_option;
   options.positional_help("FILE [FILE...]").show_positional_help();
   options.parse_positional({"topology"});
   options.add_options()("h,help", "print help")(
@@ -68,8 +69,9 @@ void Options::parse(int argc, char ** argv)
       std::to_string(
         resources_sampling_per_ms)), "msec")(
     "x, executor",
-    "the system executor:\n\t\t\t\t1:SingleThreadedExecutor. 2:StaticSingleThreadedExecutor",
-    cxxopts::value<int>(executor)->default_value(std::to_string(executor)), "<1/2>")(
+    "system executor:\n\t\t\t\t1:SingleThreadedExecutor. 2:StaticSingleThreadedExecutor. \
+    3:EventsExecutor.",
+    cxxopts::value<int>(executor)->default_value(std::to_string(executor)), "<1/2/3>")(
     "n, node", "the node type:\n\t\t\t\t1:Node. 2:LifecycleNode",
     cxxopts::value<int>(node)->default_value(std::to_string(node)), "<1/2>")(
     "tracking", "compute and logs detailed statistics and events",
@@ -94,7 +96,9 @@ void Options::parse(int argc, char ** argv)
       std::to_string(tracking_options.too_late_absolute_us)), "usec")(
     "csv-out",
     "write comma-delimted results files",
-    cxxopts::value<std::string>(csv_out_option)->default_value(csv_out ? "on" : "off"), "on/off");
+    cxxopts::value<std::string>(csv_out_option)->default_value(csv_out ? "on" : "off"), "on/off")(
+    "results-dir", "name of the result directory (will use <topology>_log if not provided)",
+    cxxopts::value<std::string>(result_folder_name_option)->default_value(""), "NAME");
 
   try {
     auto result = options.parse(argc, argv);
@@ -119,6 +123,10 @@ void Options::parse(int argc, char ** argv)
 
     if (csv_out_option != "off" && csv_out_option != "on") {
       throw cxxopts::argument_incorrect_type(csv_out_option);
+    }
+    if (result_folder_name_option != "" && (result.count("topology") == 1)) {
+      // Only allow to set folder name if a single topology passed
+      result_folder_name = result_folder_name_option;
     }
   } catch (const cxxopts::OptionException & e) {
     std::cout << "Error parsing options. " << e.what() << std::endl;
@@ -153,7 +161,9 @@ std::ostream & operator<<(std::ostream & os, const Options & options)
   os << "csv_out: " << (options.csv_out ? "on" : "off") << std::endl;
   os << "tracking.is_enabled: " << (options.tracking_options.is_enabled ? "on" : "off")
      << std::endl;
-
+  if (options.result_folder_name != "" && options.topology_json_list.size() == 1) {
+    os << "results-dir: " << options.result_folder_name << std::endl;
+  }
   return os;
 }
 

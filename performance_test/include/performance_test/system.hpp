@@ -65,7 +65,9 @@ public:
     std::ostream & stream = std::cout,
     bool include_services = true) const;
 
-  void print_aggregate_stats(const std::vector<std::string> & topology_json_list) const;
+  void print_aggregate_stats(
+    const std::vector<std::string> & topology_json_list,
+    const std::string & results_folder_path) const;
 
 private:
   void wait_discovery();

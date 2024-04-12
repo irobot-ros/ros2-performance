@@ -46,14 +46,19 @@ parse_options(int argc, char ** argv)
 
 static
 std::string
-create_result_directory(const std::string & topology_json)
+create_result_directory(const std::string & topology_json, const std::string & result_dir)
 {
-  const size_t last_slash =
-    topology_json.find_last_of("/");
-  const std::string topology_basename =
-    topology_json.substr(last_slash + 1, topology_json.length());
-  const std::string result_dir_name =
-    topology_basename.substr(0, topology_basename.length() - 5) + "_log";
+  std::string result_dir_name;
+
+  if (result_dir != "") {
+    result_dir_name = result_dir;
+  } else {
+    size_t last_slash = topology_json.find_last_of("/");
+    std::string topology_basename =
+      topology_json.substr(last_slash + 1, topology_json.length());
+    result_dir_name =
+      topology_basename.substr(0, topology_basename.length() - 5) + "_log";
+  }
 
   const std::string make_dir_cmd = "mkdir -p " + result_dir_name;
   const int ret = system(make_dir_cmd.c_str());
@@ -134,11 +139,10 @@ int main(int argc, char ** argv)
   std::string topology_json = options.topology_json_list[process_index];
 
   // Create results dir based on the topology name
-  std::string result_dir_name = create_result_directory(topology_json);
+  std::string result_dir_name = create_result_directory(topology_json, options.result_folder_name);
   // Define output paths
   std::string resources_output_path = result_dir_name + "/resources.txt";
   std::string events_output_path = result_dir_name + "/events.txt";
-  std::string latency_all_output_path = result_dir_name + "/latency_all.txt";
   std::string latency_total_output_path = result_dir_name + "/latency_total.txt";
   std::string metadata_output_path = result_dir_name + "/metadata.txt";
 
@@ -177,7 +181,7 @@ int main(int argc, char ** argv)
   }
 
   std::cout << std::endl;
-  ros2_system->save_latency_all_stats(latency_all_output_path);
+  ros2_system->save_latency_all_stats(result_dir_name);
   ros2_system->save_latency_total_stats(latency_total_output_path);
 
   // Parent process: wait for children to exit and print system stats
@@ -186,6 +190,6 @@ int main(int argc, char ** argv)
       waitpid(getpid() + 1, &pid, 0);
     }
     std::cout << "System total:" << std::endl;
-    ros2_system->print_aggregate_stats(options.topology_json_list);
+    ros2_system->print_aggregate_stats(options.topology_json_list, result_dir_name);
   }
 }

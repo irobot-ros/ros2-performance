@@ -169,14 +169,16 @@ std::unique_ptr<std::thread> System::create_spin_thread(rclcpp::Executor::Shared
 }
 
 void System::save_latency_all_stats(
-  const std::string & filename,
+  const std::string & results_folder,
   bool include_services) const
 {
-  if (filename.empty()) {
+  if (results_folder.empty()) {
     std::cout << "[SystemLatencyLogger]: Error. Provided an empty filename." << std::endl;
     std::cout << "[SystemLatencyLogger]: Not logging." << std::endl;
     return;
   }
+
+  auto filename = results_folder + "/latency_all.txt";
 
   std::ofstream out_file;
   out_file.open(filename);
@@ -274,7 +276,9 @@ void System::log_latency_total_stats(
   performance_metrics::log_trackers_latency_total_stats(stream, all_trackers, m_csv_out);
 }
 
-void System::print_aggregate_stats(const std::vector<std::string> & topology_json_list) const
+void System::print_aggregate_stats(
+  const std::vector<std::string> & topology_json_list,
+  const std::string & results_folder_path) const
 {
   uint64_t total_received = 0;
   uint64_t total_lost = 0;
@@ -286,6 +290,10 @@ void System::print_aggregate_stats(const std::vector<std::string> & topology_jso
     std::string basename = json.substr(json.find_last_of("/") + 1, json.length());
     std::string filename = basename.substr(0, basename.length() - 5) + "_log/latency_total.txt";
     std::string line;
+    if (results_folder_path != "") {
+      filename = results_folder_path + "/latency_total.txt";
+    }
+
     std::ifstream log_file(filename);
 
     if (log_file.is_open()) {

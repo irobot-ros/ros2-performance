@@ -11,22 +11,23 @@
 #define PERFORMANCE_TEST_FACTORY__NAMES_UTILITIES_HPP_
 
 #include <string>
+#include <iterator>
 
 namespace performance_test_factory
 {
 
-// converts a numeric id (e.g. 7) into a node name (e.g. node_7)
-std::string id_to_node_name(int id);
+    // converts a numeric id (e.g. 7) into a node name (e.g. node_7)
+    std::string id_to_node_name(int id);
 
-// converts a numeric id (e.g. 7) into a service name (e.g. service_7)
-std::string id_to_service_name(int id);
+    // converts a numeric id (e.g. 7) into a service name (e.g. service_7)
+    std::string id_to_service_name(int id);
 
-// converts a numeric id (e.g. 7) into a topic name (e.g. topic_7)
-std::string id_to_topic_name(int id);
+    // converts a numeric id (e.g. 7) into a topic name (e.g. topic_7)
+    std::string id_to_topic_name(int id);
 
-// extracts a numeric id from an item name (e.g. node_5, topic_10), eventually using hashing
-int item_name_to_id(std::string name);
+    // extracts a numeric id from an item name (e.g. node_5, topic_10), eventually using hashing
+    int item_name_to_id(std::string name);
 
-}  // namespace performance_test_factory
+} // namespace performance_test_factory
 
-#endif  // PERFORMANCE_TEST_FACTORY__NAMES_UTILITIES_HPP_
+#endif // PERFORMANCE_TEST_FACTORY__NAMES_UTILITIES_HPP_

@@ -1,0 +1,10 @@
+{
+  "nodes": [
+      {
+        "node_name": "sub_node",
+        "subscribers":[
+            {"topic_name":"test", "msg_type":"stamped1mb"}
+          ]
+      }
+    ]
+}

@@ -1,0 +1,15 @@
+{
+  "nodes": [
+      {
+        "node_name": "pub_node",
+        "publishers": [
+              {
+                  "topic_name": "test",
+                  "msg_type": "stamped100kb",
+                  "period_ms": 100,
+                  "msg_pass_by":"loaned_msg"
+              }
+            ]
+      }
+    ]
+}

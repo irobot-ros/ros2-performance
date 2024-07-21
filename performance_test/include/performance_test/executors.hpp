@@ -43,7 +43,7 @@ enum class SpinType
 
 std::ostream & operator<<(std::ostream & os, const ExecutorType & t);
 
-std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type);
+std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type, bool execute_timers_separate_thread);
 
 void sleep_task(std::chrono::milliseconds task_duration);
 

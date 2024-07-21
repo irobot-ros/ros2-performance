@@ -13,6 +13,8 @@
 #include <ostream>
 #include <string>
 
+#include <rclcpp/experimental/executors/events_executor/events_executor.hpp>
+
 #include "performance_test/executors.hpp"
 
 namespace performance_test
@@ -39,7 +41,7 @@ std::ostream & operator<<(std::ostream & os, const ExecutorType & t)
   return os << executor_name;
 }
 
-std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type)
+std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type, bool execute_timers_separate_thread)
 {
   std::shared_ptr<rclcpp::Executor> executor;
 
@@ -51,7 +53,7 @@ std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type)
       executor = std::make_shared<rclcpp::executors::StaticSingleThreadedExecutor>();
       break;
     case ExecutorType::EVENTS_EXECUTOR:
-      executor = std::make_shared<rclcpp::experimental::executors::EventsExecutor>();
+      executor = std::make_shared<rclcpp::experimental::executors::EventsExecutor>(std::make_unique<rclcpp::experimental::executors::SimpleEventsQueue>(), execute_timers_separate_thread, rclcpp::ExecutorOptions());
       break;
     case ExecutorType::MULTI_THREAD_EXECUTOR:
       executor = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();

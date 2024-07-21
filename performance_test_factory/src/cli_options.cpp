@@ -29,6 +29,7 @@ Options::Options()
   name_threads = true;
   duration_sec = 5;
   csv_out = false;
+  execute_timers_separate_thread = false;
   resources_sampling_per_ms = 1000;
   tracking_options.is_enabled = false;
   tracking_options.late_percentage = 20;
@@ -53,6 +54,7 @@ void Options::parse(int argc, char ** argv)
   std::string name_threads_option;
   std::string tracking_enabled_option;
   std::string csv_out_option;
+  std::string execute_timers_separate_thread_option;
   options.positional_help("FILE [FILE...]").show_positional_help();
   options.parse_positional({"topology"});
   options.add_options()("h,help", "print help")(
@@ -73,8 +75,9 @@ void Options::parse(int argc, char ** argv)
       std::to_string(
         resources_sampling_per_ms)), "msec")(
     "x, executor",
-    "the system executor:\n\t\t\t\t1:SingleThreadedExecutor. 2:StaticSingleThreadedExecutor",
-    cxxopts::value<int>(executor)->default_value(std::to_string(executor)), "<1/2>")(
+    "system executor:\n\t\t\t\t1:SingleThreadedExecutor. 2:StaticSingleThreadedExecutor. \
+    3:EventsExecutor.",
+    cxxopts::value<int>(executor)->default_value(std::to_string(executor)), "<1/2/3>")(
     "n, node", "the node type:\n\t\t\t\t1:Node. 2:LifecycleNode",
     cxxopts::value<int>(node)->default_value(std::to_string(node)), "<1/2>")(
     "tracking", "compute and logs detailed statistics and events",
@@ -99,7 +102,10 @@ void Options::parse(int argc, char ** argv)
       std::to_string(tracking_options.too_late_absolute_us)), "usec")(
     "csv-out",
     "write comma-delimted results files",
-    cxxopts::value<std::string>(csv_out_option)->default_value(csv_out ? "on" : "off"), "on/off");
+    cxxopts::value<std::string>(csv_out_option)->default_value(csv_out ? "on" : "off"), "on/off")(
+    "timers-separate-thread",
+    "use separate threads to execute timers",
+    cxxopts::value<std::string>(execute_timers_separate_thread_option)->default_value(execute_timers_separate_thread ? "on" : "off"), "on/off");
 
   try {
     auto result = options.parse(argc, argv);
@@ -125,6 +131,10 @@ void Options::parse(int argc, char ** argv)
     if (csv_out_option != "off" && csv_out_option != "on") {
       throw cxxopts::argument_incorrect_type(csv_out_option);
     }
+
+    if (execute_timers_separate_thread_option != "off" && execute_timers_separate_thread_option != "on") {
+      throw cxxopts::argument_incorrect_type(execute_timers_separate_thread_option);
+    }
   } catch (const cxxopts::OptionException & e) {
     std::cout << "Error parsing options. " << e.what() << std::endl;
     exit(1);
@@ -135,6 +145,7 @@ void Options::parse(int argc, char ** argv)
   name_threads = (name_threads_option == "on" ? true : false);
   tracking_options.is_enabled = (tracking_enabled_option == "on" ? true : false);
   csv_out = (csv_out_option == "on" ? true : false);
+  execute_timers_separate_thread = (execute_timers_separate_thread_option == "on" ? true : false);
 }
 
 std::ostream & operator<<(std::ostream & os, const Options & options)
@@ -158,6 +169,7 @@ std::ostream & operator<<(std::ostream & os, const Options & options)
   os << "duration_sec: " << options.duration_sec << " seconds" << std::endl;
   os << "resources_sampling_per_ms: " << options.resources_sampling_per_ms << std::endl;
   os << "csv_out: " << (options.csv_out ? "on" : "off") << std::endl;
+  os << "execute_timers_separate_thread: " << (options.execute_timers_separate_thread ? "on" : "off") << std::endl;
   os << "tracking.is_enabled: " << (options.tracking_options.is_enabled ? "on" : "off")
      << std::endl;
 

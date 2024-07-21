@@ -1,6 +1,6 @@
 # Scripts
 
-This directory contains Python and shell scripts that can be used to automate experiments and andalyze data.
+This directory contains Python and shell scripts that can be used to automate experiments and analyze data.
 
 **IMPORTANT: These scripts are experimental and, currently, not unit-tested. They may be broken.**
 

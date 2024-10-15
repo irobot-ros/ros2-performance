@@ -185,7 +185,7 @@ void PerformanceNodeBase::add_client(
     m_node_interfaces.graph,
     m_node_interfaces.services,
     service_name,
-    qos_profile.get_rmw_qos_profile(),
+    qos_profile,
     nullptr);
 
   this->store_client(client, service_name, performance_metrics::Tracker::Options());

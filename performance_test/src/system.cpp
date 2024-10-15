@@ -29,10 +29,24 @@ namespace performance_test
 static uint64_t parse_line(std::string & line, const bool csv_out)
 {
   std::string sep = (csv_out) ? "," : " ";
+  size_t sep_pos = line.find_first_of(sep);
 
-  std::string split_left = line.substr(0, line.find_first_of(sep));
-  std::string split_right = line.substr(line.find_first_of(sep), line.length());
-  line = split_right.substr(split_right.find_first_not_of(sep), split_right.length());
+  if (sep_pos == std::string::npos) {
+    std::cerr << "Separator not found in line: " << line << std::endl;
+    return 0;
+  }
+
+  std::string split_left = line.substr(0, sep_pos);
+  std::string split_right = line.substr(sep_pos, line.length());
+
+  size_t non_sep_pos = split_right.find_first_not_of(sep);
+  if (non_sep_pos == std::string::npos) {
+    std::cerr << "Non-separator character not found after separator in line: " << line << std::endl;
+    return 0; // or handle the error appropriately
+  }
+
+  line = split_right.substr(non_sep_pos, split_right.length());
+
   return strtoul(split_left.c_str(), NULL, 0);
 }
 
@@ -287,30 +301,36 @@ void System::print_aggregate_stats(
   uint64_t total_latency = 0;
 
   for (const auto & json : topology_json_list) {
-    std::string basename = json.substr(json.find_last_of("/") + 1, json.length());
-    std::string filename = basename.substr(0, basename.length() - 5) + "_log/latency_total.txt";
-    std::string line;
-    if (results_folder_path != "") {
-      filename = results_folder_path + "/latency_total.txt";
-    }
+    try {
+      std::string basename = json.substr(json.find_last_of("/") + 1, json.length());
+      std::string filename = basename.substr(0, basename.length() - 5) + "_log/latency_total.txt";
+      std::string line;
+      if (results_folder_path != "") {
+        filename = results_folder_path + "/latency_total.txt";
+      }
 
-    std::ifstream log_file(filename);
+      std::ifstream log_file(filename);
 
-    if (log_file.is_open()) {
-      getline(log_file, line);
-      // The second line contains the data to parse
-      getline(log_file, line);
+      if (log_file.is_open()) {
+        getline(log_file, line);
+        // The second line contains the data to parse
+        getline(log_file, line);
 
-      total_received += parse_line(line, m_csv_out);
-      total_latency += parse_line(line, m_csv_out);
-      total_late += parse_line(line, m_csv_out);
-      parse_line(line, m_csv_out);
-      total_too_late += parse_line(line, m_csv_out);
-      parse_line(line, m_csv_out);
-      total_lost += parse_line(line, m_csv_out);
-      log_file.close();
-    } else {
-      std::cout << "[SystemLatencyLogger]: Error. Could not open file " << filename << std::endl;
+        total_received += parse_line(line, m_csv_out);
+        total_latency += parse_line(line, m_csv_out);
+        total_late += parse_line(line, m_csv_out);
+        parse_line(line, m_csv_out);
+        total_too_late += parse_line(line, m_csv_out);
+        parse_line(line, m_csv_out);
+        total_lost += parse_line(line, m_csv_out);
+        log_file.close();
+      } else {
+        std::cout << "[SystemLatencyLogger]: Error. Could not open file " << filename << std::endl;
+      }
+    } catch (const std::out_of_range& e) {
+      std::cerr << "Out of range error: " << e.what() << " while processing json: " << json << std::endl;
+    } catch (const std::exception& e) {
+      std::cerr << "Exception: " << e.what() << " while processing json: " << json << std::endl;
     }
   }
 

@@ -25,6 +25,11 @@ void Tracker::scan(
   rclcpp::Time stamp(header.stamp.sec, header.stamp.nanosec, RCL_ROS_TIME);
   auto lat = std::chrono::nanoseconds((now - stamp).nanoseconds());
   uint64_t lat_us = lat.count() / 1000;
+
+  if (lat.count() < 0) {
+      std::cout << "Negative latency detected: " << lat.count() << " nanoseconds" << std::endl;
+  }
+
   // store the last latency to be read from node
   m_last_latency = lat_us;
 

@@ -107,11 +107,8 @@ void Tracker::scan(
     }
   }
 
-  if (!too_late) {
-    // Compute statistics with new sample. Don't add to this the msgs
-    // that arrived too late.
-    this->add_sample(now, lat_us, header.size, header.frequency);
-  }
+  // Compute statistics with new sample
+  this->add_sample(now, lat_us, header.size, header.frequency);
 
   m_received_messages++;
 }

@@ -50,7 +50,7 @@ create_result_directory(const std::string & topology_json, const std::string & r
 {
   std::string result_dir_name;
 
-  if (result_dir != "") {
+  if (!result_dir.empty()) {
     result_dir_name = result_dir;
   } else {
     size_t last_slash = topology_json.find_last_of("/");

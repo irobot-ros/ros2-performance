@@ -39,7 +39,7 @@
             {"topic_name":"parana", "msg_type":"stamped3_float32"}
           ],
         "publishers": [
-            {"topic_name": "salween", "msg_type": "stamped12_float32", "period_ms": 100, "msg_pass_by":"shared_ptr"}
+            {"topic_name": "salween", "msg_type": "stamped12_float32", "period_ms": 100, "msg_pass_by":"loaned_msg"}
           ]
       },
 

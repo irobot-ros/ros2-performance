@@ -638,7 +638,7 @@ void TemplateFactory::add_periodic_action_client_from_json(
   } else if (action_client_json.find("period_ms") != action_client_json.end()) {
     period_ms = action_client_json["period_ms"];
   } else {
-    std::cout << "Error! Action Clients must set period_ms or freq_hz in json file" << std::endl;
+    assert(0 && "Error! Action Clients must set period_ms or freq_hz in json file");
   }
 
   auto period = std::chrono::microseconds(static_cast<int>(period_ms * 1000));

@@ -1,0 +1,15 @@
+DDS=$1
+echo "tail -n +2 ${DDS}_cli_serv_diff_topics.csv        | rev | cut -c10- | rev | cut -c 30- | tr -d " \t\r" | xclip"
+echo "tail -n +2 ${DDS}_cli_serv_same_topics.csv        | rev | cut -c10- | rev | cut -c 30- | tr -d " \t\r" | xclip"
+echo "tail -n +2 ${DDS}_default_clients_params_off.csv  | rev | cut -c10- | rev | cut -c 30- | tr -d " \t\r" | xclip"
+echo "tail -n +2 ${DDS}_default_nodes.csv               | rev | cut -c10- | rev | cut -c 30- | tr -d " \t\r" | xclip"
+echo "tail -n +2 ${DDS}_default_pubs_params_off.csv     | rev | cut -c10- | rev | cut -c 30- | tr -d " \t\r" | xclip"
+echo "tail -n +2 ${DDS}_default_services_params_off.csv | rev | cut -c10- | rev | cut -c 30- | tr -d " \t\r" | xclip"
+echo "tail -n +2 ${DDS}_default_subs_params_off.csv     | rev | cut -c10- | rev | cut -c 30- | tr -d " \t\r" | xclip"
+echo "tail -n +2 ${DDS}_nodes_params_off.csv            | rev | cut -c10- | rev | cut -c 30- | tr -d " \t\r" | xclip"
+echo "tail -n +2 ${DDS}_pub_sub_big_history_size.csv    | rev | cut -c10- | rev | cut -c 30- | tr -d " \t\r" | xclip"
+echo "tail -n +2 ${DDS}_pub_sub_big_message_size.csv    | rev | cut -c10- | rev | cut -c 30- | tr -d " \t\r" | xclip"
+echo "tail -n +2 ${DDS}_pub_sub_diff_msg_type.csv       | rev | cut -c10- | rev | cut -c 30- | tr -d " \t\r" | xclip"
+echo "tail -n +2 ${DDS}_pub_sub_diff_topic.csv          | rev | cut -c10- | rev | cut -c 30- | tr -d " \t\r" | xclip"
+echo "tail -n +2 ${DDS}_pub_sub_same_topic.csv          | rev | cut -c10- | rev | cut -c 30- | tr -d " \t\r" | xclip"
+

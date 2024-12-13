@@ -75,6 +75,12 @@ void ResourceUsageLogger::start(std::chrono::milliseconds period)
     });
 }
 
+void ResourceUsageLogger::set_get_latency_callback(
+  std::function<uint64_t()> get_average_latency)
+{
+  m_get_average_latency = get_average_latency;
+}
+
 void ResourceUsageLogger::stop()
 {
   bool is_logging = m_is_logging.exchange(false);
@@ -155,6 +161,11 @@ void ResourceUsageLogger::_get()
   } else {
     m_resources.mem_virtual_KB = -1;
   }
+
+  // Call the latency callback to get the average latency in microseconds
+  if (m_get_average_latency) {
+    m_resources.latency_us = m_get_average_latency();
+  }
 }
 
 template<typename T>
@@ -176,6 +187,7 @@ void ResourceUsageLogger::_print_header(std::ostream & stream)
 {
   _stream_out(stream, "time_ms");
   _stream_out(stream, "cpu_perc", m_narrow_space);
+  _stream_out(stream, "latency_us", m_wide_space);
   _stream_out(stream, "arena_KB");
   _stream_out(stream, "in_use_KB");
   _stream_out(stream, "mmap_KB");
@@ -197,6 +209,7 @@ void ResourceUsageLogger::_print(std::ostream & stream)
 
   _stream_out(stream, std::round(m_resources.elasped_ms), m_wide_space, prec);
   _stream_out(stream, m_resources.cpu_usage, m_narrow_space);
+  _stream_out(stream, m_resources.latency_us, m_wide_space);
   _stream_out(stream, m_resources.mem_arena_KB);
   _stream_out(stream, m_resources.mem_in_use_KB);
   _stream_out(stream, m_resources.mem_mmap_KB);

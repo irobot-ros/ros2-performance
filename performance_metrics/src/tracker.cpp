@@ -116,6 +116,7 @@ void Tracker::scan(
   this->add_sample(now, lat_us, header.size, header.frequency);
 
   m_received_messages++;
+  m_delta_received_messages++;
 }
 
 void Tracker::add_sample(
@@ -133,6 +134,7 @@ void Tracker::add_sample(
 
   m_last_msg_time = now;
   m_stat.add_sample(latency_sample);
+  m_delta_stat.add_sample(latency_sample);
 }
 
 uint32_t Tracker::get_and_update_tracking_number()

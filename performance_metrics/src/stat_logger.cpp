@@ -166,4 +166,24 @@ void log_trackers_latency_total_stats(
     average_latency, stream, csv_out);
 }
 
+uint64_t get_trackers_avg_latency(const std::vector<const Tracker *> & trackers)
+{
+  uint64_t total_received = 0;
+  double total_latency = 0;
+
+  for (const auto & tracker : trackers) {
+    total_received += tracker->delta_received();
+    total_latency += tracker->delta_received() * tracker->delta_stat().mean();
+    // Reset values after read
+    tracker->reset_delta_received();
+    tracker->reset_delta_stat();
+  }
+
+  if (total_received) {
+    return std::round(total_latency / total_received);
+  } else {
+    return 0;
+  }
+}
+
 }  // namespace performance_metrics

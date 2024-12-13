@@ -124,6 +124,7 @@ public:
 
   void add_timer(std::chrono::microseconds period, std::function<void()> callback);
 
+  std::vector<const performance_metrics::Tracker*> sub_trackers_ptr();
   std::vector<performance_metrics::Tracker> sub_trackers();
   std::vector<performance_metrics::Tracker> service_trackers();
   std::vector<performance_metrics::Tracker> client_trackers();

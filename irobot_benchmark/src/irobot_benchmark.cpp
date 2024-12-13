@@ -161,6 +161,7 @@ int main(int argc, char ** argv)
   // Create ROS 2 system manager
   auto ros2_system = create_ros2_system(options, events_output_path);
   ros2_system->add_nodes(nodes_vec);
+  ros2_system->set_latency_callback(ru_logger);
 
   // now the system is complete and we can make it spin for the requested duration
   bool wait_for_discovery = true;

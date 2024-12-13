@@ -76,6 +76,14 @@ public:
 
   Stat<uint64_t> stat() const {return m_stat;}
 
+  uint64_t delta_received() const {return m_delta_received_messages;}
+
+  void reset_delta_received() const {m_delta_received_messages = 0;}
+
+  Stat<uint64_t> delta_stat() const {return m_delta_stat;}
+
+  void reset_delta_stat() const {m_delta_stat = Stat<uint64_t>();}
+
   double throughput() const;
 
   void set_frequency(float f) {m_frequency = f;}
@@ -99,6 +107,8 @@ private:
   std::string m_topic_srv_name;
   Options m_tracking_options;
 
+  mutable Stat<uint64_t> m_delta_stat;
+  mutable uint64_t m_delta_received_messages = 0;
   uint64_t m_last_latency = 0;
   uint64_t m_lost_messages = 0;
   uint64_t m_received_messages = 0;

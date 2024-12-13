@@ -17,6 +17,7 @@
 #include <utility>
 #include <vector>
 
+#include "performance_metrics/resource_usage_logger.hpp"
 #include "performance_metrics/events_logger.hpp"
 #include "performance_metrics/stat_logger.hpp"
 #include "performance_test/system.hpp"
@@ -321,6 +322,20 @@ void System::log_latency_total_stats(
     }
   }
   performance_metrics::log_trackers_latency_total_stats(stream, all_trackers, m_csv_out);
+}
+
+void System::set_latency_callback(
+  performance_metrics::ResourceUsageLogger & ru_logger)
+{
+  // Get all subscription trackers for later use
+  for (const auto& node : m_nodes) {
+    auto sub_trackers = node->sub_trackers_ptr();
+    m_all_subscription_trackers.insert(
+      m_all_subscription_trackers.end(), sub_trackers.begin(), sub_trackers.end());
+  }
+
+  ru_logger.set_get_latency_callback(
+    [this]() { return performance_metrics::get_trackers_avg_latency(m_all_subscription_trackers); });
 }
 
 void System::print_aggregate_stats(

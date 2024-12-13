@@ -92,6 +92,17 @@ PerformanceNodeBase::sub_trackers()
   return trackers;
 }
 
+std::vector<const performance_metrics::Tracker*>
+PerformanceNodeBase::sub_trackers_ptr()
+{
+  std::vector<const performance_metrics::Tracker*> trackers;
+  for (const auto& sub : m_subs) {
+    trackers.push_back(&(sub.second.second));
+  }
+
+  return trackers;
+}
+
 std::vector<performance_metrics::Tracker> PerformanceNodeBase::client_trackers()
 {
   std::vector<performance_metrics::Tracker> trackers;

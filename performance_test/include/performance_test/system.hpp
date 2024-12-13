@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "performance_metrics/events_logger.hpp"
+#include "performance_metrics/resource_usage_logger.hpp"
 #include "performance_test/performance_node_base.hpp"
 #include "performance_test/executors.hpp"
 
@@ -69,6 +70,9 @@ public:
     const std::vector<std::string> & topology_json_list,
     const std::string & results_folder_path) const;
 
+  void set_latency_callback(
+    performance_metrics::ResourceUsageLogger & ru_logger);
+
 private:
   void wait_discovery();
 
@@ -86,6 +90,7 @@ private:
 
   std::chrono::seconds m_experiment_duration;
 
+  std::vector<const performance_metrics::Tracker *> m_all_subscription_trackers;
   std::vector<std::shared_ptr<performance_test::PerformanceNodeBase>> m_nodes;
   std::map<int, NamedExecutor> m_executors_map;
   std::vector<std::unique_ptr<std::thread>> m_threads;

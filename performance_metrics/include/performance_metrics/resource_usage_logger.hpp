@@ -16,6 +16,7 @@
 #include <atomic>
 #include <chrono>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <string>
 #include <thread>
@@ -35,6 +36,7 @@ public:
     uint64_t mem_mmap_KB = 0;
     uint64_t mem_max_rss_KB = 0;
     uint64_t mem_virtual_KB = 0;
+    uint64_t latency_us = 0;
   };
 
   ResourceUsageLogger() = delete;
@@ -44,6 +46,8 @@ public:
   ~ResourceUsageLogger();
 
   void start(std::chrono::milliseconds period = std::chrono::milliseconds(1000));
+
+  void set_get_latency_callback(std::function<uint64_t()> get_latency_fn);
 
   void stop();
 
@@ -75,6 +79,7 @@ private:
   std::chrono::time_point<std::chrono::steady_clock> m_t1_real_start;
   pid_t m_pid;
   int m_pagesize;
+  std::function<uint64_t()> m_get_average_latency;
 
   // the following values are used for comparing different plots using the python scripts
   bool m_has_system_info {false};

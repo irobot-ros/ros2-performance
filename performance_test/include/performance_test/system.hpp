@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "performance_metrics/events_logger.hpp"
+#include "performance_metrics/resource_usage_logger.hpp"
 #include "performance_test/performance_node_base.hpp"
 #include "performance_test/executors.hpp"
 
@@ -47,8 +48,7 @@ public:
 
   void spin(
     std::chrono::seconds duration,
-    bool wait_for_discovery = true,
-    bool name_threads = true);
+    bool wait_for_discovery = true);
 
   void save_latency_all_stats(
     const std::string & filename,
@@ -66,7 +66,12 @@ public:
     std::ostream & stream = std::cout,
     bool include_services = true) const;
 
-  void print_aggregate_stats(const std::vector<std::string> & topology_json_list) const;
+  void print_aggregate_stats(
+    const std::vector<std::string> & topology_json_list,
+    const std::string & results_folder_path) const;
+
+  void set_latency_callback(
+    performance_metrics::ResourceUsageLogger & ru_logger);
 
 private:
   void wait_discovery();
@@ -85,6 +90,7 @@ private:
 
   std::chrono::seconds m_experiment_duration;
 
+  std::vector<const performance_metrics::Tracker *> m_all_subscription_trackers;
   std::vector<std::shared_ptr<performance_test::PerformanceNodeBase>> m_nodes;
   std::map<int, NamedExecutor> m_executors_map;
   std::vector<std::unique_ptr<std::thread>> m_threads;

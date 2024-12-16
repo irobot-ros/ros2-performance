@@ -17,6 +17,7 @@
 #include <utility>
 #include <vector>
 
+#include "performance_metrics/resource_usage_logger.hpp"
 #include "performance_metrics/events_logger.hpp"
 #include "performance_metrics/stat_logger.hpp"
 #include "performance_test/system.hpp"
@@ -29,10 +30,24 @@ namespace performance_test
 static uint64_t parse_line(std::string & line, const bool csv_out)
 {
   std::string sep = (csv_out) ? "," : " ";
+  size_t sep_pos = line.find_first_of(sep);
 
-  std::string split_left = line.substr(0, line.find_first_of(sep));
-  std::string split_right = line.substr(line.find_first_of(sep), line.length());
-  line = split_right.substr(split_right.find_first_not_of(sep), split_right.length());
+  if (sep_pos == std::string::npos) {
+    std::cerr << "Separator not found in line: " << line << std::endl;
+    return 0;
+  }
+
+  std::string split_left = line.substr(0, sep_pos);
+  std::string split_right = line.substr(sep_pos, line.length());
+
+  size_t non_sep_pos = split_right.find_first_not_of(sep);
+  if (non_sep_pos == std::string::npos) {
+    std::cerr << "Non-separator character not found after separator in line: " << line << std::endl;
+    return 0; // or handle the error appropriately
+  }
+
+  line = split_right.substr(non_sep_pos, split_right.length());
+
   return strtoul(split_left.c_str(), NULL, 0);
 }
 
@@ -89,7 +104,7 @@ void System::add_node(std::shared_ptr<performance_test::PerformanceNodeBase> nod
   m_nodes.push_back(node);
 }
 
-void System::spin(std::chrono::seconds duration, bool wait_for_discovery, bool name_threads)
+void System::spin(std::chrono::seconds duration, bool wait_for_discovery)
 {
   m_experiment_duration = duration;
   // Store the instant when the experiment started
@@ -119,9 +134,7 @@ void System::spin(std::chrono::seconds duration, bool wait_for_discovery, bool n
     // Spin each executor in a separate thread
     auto thread = create_spin_thread(executor);
 
-    if (name_threads) {
-      pthread_setname_np(thread->native_handle(), name.c_str());
-    }
+    pthread_setname_np(thread->native_handle(), name.c_str());
 
     m_threads.push_back(std::move(thread));
   }
@@ -171,14 +184,16 @@ std::unique_ptr<std::thread> System::create_spin_thread(rclcpp::Executor::Shared
 }
 
 void System::save_latency_all_stats(
-  const std::string & filename,
+  const std::string & results_folder,
   bool include_services) const
 {
-  if (filename.empty()) {
+  if (results_folder.empty()) {
     std::cout << "[SystemLatencyLogger]: Error. Provided an empty filename." << std::endl;
     std::cout << "[SystemLatencyLogger]: Not logging." << std::endl;
     return;
   }
+
+  auto filename = results_folder + "/latency_all.txt";
 
   std::ofstream out_file;
   out_file.open(filename);
@@ -233,10 +248,19 @@ void System::log_latency_all_stats(
 
   if (include_services) {
     std::vector<performance_metrics::Tracker> clients;
+    std::vector<performance_metrics::Tracker> services;
+    std::vector<performance_metrics::Tracker> action_clients;
+    std::vector<performance_metrics::Tracker> action_servers;
 
     for (const auto & n : m_nodes) {
-      auto trackers = n->client_trackers();
-      clients.insert(clients.end(), trackers.begin(), trackers.end());
+      auto service_trackers = n->service_trackers();
+      auto client_trackers = n->client_trackers();
+      auto action_client_trackers = n->action_client_trackers();
+      auto action_server_trackers = n->action_server_trackers();
+      clients.insert(clients.end(), client_trackers.begin(), client_trackers.end());
+      services.insert(services.end(), service_trackers.begin(), service_trackers.end());
+      action_clients.insert(action_clients.end(), action_client_trackers.begin(), action_client_trackers.end());
+      action_servers.insert(action_servers.end(), action_server_trackers.begin(), action_server_trackers.end());
     }
 
     performance_metrics::log_trackers_latency_all_stats(
@@ -244,6 +268,24 @@ void System::log_latency_all_stats(
       clients,
       m_csv_out,
       "Clients stats:");
+
+    performance_metrics::log_trackers_latency_all_stats(
+      stream,
+      services,
+      m_csv_out,
+      "Services stats:");
+
+    performance_metrics::log_trackers_latency_all_stats(
+      stream,
+      action_clients,
+      m_csv_out,
+      "Action Clients stats:");
+
+    performance_metrics::log_trackers_latency_all_stats(
+      stream,
+      action_servers,
+      m_csv_out,
+      "Action Servers stats:");
   }
 
   std::vector<performance_metrics::Tracker> publishers;
@@ -269,14 +311,36 @@ void System::log_latency_total_stats(
     auto sub_trackers = n->sub_trackers();
     all_trackers.insert(all_trackers.end(), sub_trackers.begin(), sub_trackers.end());
     if (include_services) {
+      auto services_trackers = n->service_trackers();
+      all_trackers.insert(all_trackers.end(), services_trackers.begin(), services_trackers.end());
       auto client_trackers = n->client_trackers();
       all_trackers.insert(all_trackers.end(), client_trackers.begin(), client_trackers.end());
+      auto action_client_trackers = n->action_client_trackers();
+      all_trackers.insert(all_trackers.end(), action_client_trackers.begin(), action_client_trackers.end());
+      auto action_server_trackers = n->action_server_trackers();
+      all_trackers.insert(all_trackers.end(), action_server_trackers.begin(), action_server_trackers.end());
     }
   }
   performance_metrics::log_trackers_latency_total_stats(stream, all_trackers, m_csv_out);
 }
 
-void System::print_aggregate_stats(const std::vector<std::string> & topology_json_list) const
+void System::set_latency_callback(
+  performance_metrics::ResourceUsageLogger & ru_logger)
+{
+  // Get all subscription trackers for later use
+  for (const auto& node : m_nodes) {
+    auto sub_trackers = node->sub_trackers_ptr();
+    m_all_subscription_trackers.insert(
+      m_all_subscription_trackers.end(), sub_trackers.begin(), sub_trackers.end());
+  }
+
+  ru_logger.set_get_latency_callback(
+    [this]() { return performance_metrics::get_trackers_avg_latency(m_all_subscription_trackers); });
+}
+
+void System::print_aggregate_stats(
+  const std::vector<std::string> & topology_json_list,
+  const std::string & results_folder_path) const
 {
   uint64_t total_received = 0;
   uint64_t total_lost = 0;
@@ -285,26 +349,36 @@ void System::print_aggregate_stats(const std::vector<std::string> & topology_jso
   uint64_t total_latency = 0;
 
   for (const auto & json : topology_json_list) {
-    std::string basename = json.substr(json.find_last_of("/") + 1, json.length());
-    std::string filename = basename.substr(0, basename.length() - 5) + "_log/latency_total.txt";
-    std::string line;
-    std::ifstream log_file(filename);
+    try {
+      std::string basename = json.substr(json.find_last_of("/") + 1, json.length());
+      std::string filename = basename.substr(0, basename.length() - 5) + "_log/latency_total.txt";
+      std::string line;
+      if (results_folder_path != "") {
+        filename = results_folder_path + "/latency_total.txt";
+      }
 
-    if (log_file.is_open()) {
-      getline(log_file, line);
-      // The second line contains the data to parse
-      getline(log_file, line);
+      std::ifstream log_file(filename);
 
-      total_received += parse_line(line, m_csv_out);
-      total_latency += parse_line(line, m_csv_out);
-      total_late += parse_line(line, m_csv_out);
-      parse_line(line, m_csv_out);
-      total_too_late += parse_line(line, m_csv_out);
-      parse_line(line, m_csv_out);
-      total_lost += parse_line(line, m_csv_out);
-      log_file.close();
-    } else {
-      std::cout << "[SystemLatencyLogger]: Error. Could not open file " << filename << std::endl;
+      if (log_file.is_open()) {
+        getline(log_file, line);
+        // The second line contains the data to parse
+        getline(log_file, line);
+
+        total_received += parse_line(line, m_csv_out);
+        total_latency += parse_line(line, m_csv_out);
+        total_late += parse_line(line, m_csv_out);
+        parse_line(line, m_csv_out);
+        total_too_late += parse_line(line, m_csv_out);
+        parse_line(line, m_csv_out);
+        total_lost += parse_line(line, m_csv_out);
+        log_file.close();
+      } else {
+        std::cout << "[SystemLatencyLogger]: Error. Could not open file " << filename << std::endl;
+      }
+    } catch (const std::out_of_range& e) {
+      std::cerr << "Out of range error: " << e.what() << " while processing json: " << json << std::endl;
+    } catch (const std::exception& e) {
+      std::cerr << "Exception: " << e.what() << " while processing json: " << json << std::endl;
     }
   }
 

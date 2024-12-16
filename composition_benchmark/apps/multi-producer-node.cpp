@@ -71,7 +71,7 @@ int main(int argc, char ** argv)
     performance_test::SpinType::SPIN);
 
   system->add_node(nodes);
-  system->spin(std::chrono::seconds(20), false, false);
+  system->spin(std::chrono::seconds(20), false);
 
   ru_logger.stop();
 

@@ -47,15 +47,26 @@ set( CUSTOM_MSGS
 
 set ( CUSTOM_SRVS
   "srv/Stamped10b.srv"
+  "srv/Stamped100kb.srv"
+  "srv/Stamped1mb.srv"
+  "srv/Stamped4mb.srv"
+)
+
+set( CUSTOM_ACTIONS
+  "action/Stamped10b.action"
+  "action/Stamped100kb.action"
+  "action/Stamped1mb.action"
+  "action/Stamped4mb.action"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   ${CUSTOM_MSGS}
   ${CUSTOM_SRVS}
+  ${CUSTOM_ACTIONS}
   DEPENDENCIES std_msgs performance_test_msgs
 )
 
-generate_factory_plugin("${CUSTOM_MSGS}" "${CUSTOM_SRVS}")
+generate_factory_plugin("${CUSTOM_MSGS}" "${CUSTOM_SRVS}" "${CUSTOM_ACTIONS}")
 
 ament_export_dependencies(rosidl_default_runtime)
 

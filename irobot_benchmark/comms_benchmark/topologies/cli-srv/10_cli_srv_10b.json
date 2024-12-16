@@ -1,0 +1,20 @@
+{
+    "nodes": [
+        {
+            "node_name": "server_node",
+            "servers": [
+                {"service_name": "stamped10b", "srv_type": "stamped10b"}
+              ],
+            "clients": [
+                {"service_name": "stamped10b", "srv_type": "stamped10b", "freq_hz": 1000}
+              ]
+        },
+        {
+            "node_name": "multi_node",
+            "clients": [
+                {"service_name": "stamped10b", "srv_type": "stamped10b", "period_ms": 600000}
+              ],
+             "number": 9
+        }
+    ]
+}

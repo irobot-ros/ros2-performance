@@ -74,7 +74,7 @@ int main(int argc, char ** argv)
     spin_type);
 
   system->add_nodes(nodes);
-  system->spin(MAX_HOURS, false, false);
+  system->spin(MAX_HOURS, false);
 
   rclcpp::shutdown();
 }

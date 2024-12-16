@@ -43,7 +43,8 @@ private:
       this->get_node_parameters_interface(),
       this->get_node_services_interface(),
       this->get_node_timers_interface(),
-      this->get_node_topics_interface()
+      this->get_node_topics_interface(),
+      this->get_node_waitables_interface()
     };
   }
 };

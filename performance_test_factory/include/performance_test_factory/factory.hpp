@@ -116,6 +116,18 @@ public:
     const std::string & service_name,
     const rclcpp::QoS & custom_qos_profile = rclcpp::ServicesQoS());
 
+  void add_action_server_from_strings(
+    performance_test::PerformanceNodeBase::SharedPtr n,
+    const std::string & action_type,
+    const std::string & action_name,
+    const rclcpp::QoS & custom_qos_profile = rclcpp::ServicesQoS());
+
+  void add_periodic_action_client_from_strings(
+    performance_test::PerformanceNodeBase::SharedPtr n,
+    const std::string & action_type,
+    const std::string & action_name,
+    const rclcpp::QoS & custom_qos_profile = rclcpp::ServicesQoS(),
+    std::chrono::microseconds period = std::chrono::milliseconds(10));
   /**
    * Helper function that, given a given a json file describing a system,
    * parses it and creates the nodes accordingly
@@ -147,6 +159,14 @@ private:
   void add_periodic_client_from_json(
     performance_test::PerformanceNodeBase::SharedPtr node,
     const nlohmann::json & client_json);
+
+  void add_periodic_action_client_from_json(
+    performance_test::PerformanceNodeBase::SharedPtr node,
+    const nlohmann::json & action_client_json);
+
+  void add_action_server_from_json(
+    performance_test::PerformanceNodeBase::SharedPtr node,
+    const nlohmann::json & server_json);
 
   void add_server_from_json(
     performance_test::PerformanceNodeBase::SharedPtr node,

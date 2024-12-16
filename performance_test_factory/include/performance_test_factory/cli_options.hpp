@@ -29,7 +29,6 @@ public:
 
   bool ipc;
   bool ros_params;
-  bool name_threads;
   int executor;
   int node;
   int duration_sec;
@@ -37,6 +36,7 @@ public:
   std::vector<std::string> topology_json_list;
   performance_metrics::Tracker::Options tracking_options;
   bool csv_out;
+  std::string result_folder_name;
 };
 
 std::ostream & operator<<(std::ostream & os, const Options & options);

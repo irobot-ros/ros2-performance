@@ -39,6 +39,9 @@ void log_trackers_latency_total_stats(
   const std::vector<Tracker> & trackers,
   const bool csv_out = false);
 
+uint64_t get_trackers_avg_latency(
+  const std::vector<const Tracker *> & trackers);
+
 template<typename T>
 void stream_out(
   const bool csv_out,

@@ -97,6 +97,7 @@ install(TARGETS
 # Install the entire comms_benchmark directory
 install(DIRECTORY scripts
   DESTINATION lib/${PROJECT_NAME}/
+  USE_SOURCE_PERMISSIONS
 )
 
 if(BUILD_TESTING)

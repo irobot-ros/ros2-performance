@@ -146,14 +146,16 @@ echo -e "$metrics_output_4mb \n"
 # ------------------------------------------------------------------------------------------------------------
 echo -e "### 8. Scalability of RAM Usage \n"
 echo -e "Requirement: RAM usage scales linearly with processes or entities. \n"
-metrics_output_pubsub=$(cat average_metrics.csv | grep pub-sub | grep multi | grep loaned | grep fast)
-echo -e "Pub-Sub Metrics: \n"
-head -n 1 average_metrics.csv
-echo -e "$metrics_output_pubsub \n"
-metrics_output_clisrv=$(cat average_metrics.csv | grep cli-srv | grep multi | grep loaned | grep fast)
-echo -e "CLI-SRV Metrics: \n"
-head -n 1 average_metrics.csv
-echo -e "$metrics_output_clisrv \n"
+# metrics_output_pubsub=$(cat average_metrics.csv | grep pub-sub | grep multi | grep loaned | grep fast)
+# echo -e "Pub-Sub Metrics: \n"
+# head -n 1 average_metrics.csv
+# echo -e "$metrics_output_pubsub \n"
+# metrics_output_clisrv=$(cat average_metrics.csv | grep cli-srv | grep multi | grep loaned | grep fast)
+# echo -e "CLI-SRV Metrics: \n"
+# head -n 1 average_metrics.csv
+# echo -e "$metrics_output_clisrv \n"
+# Create a temporary directory to store the results
+
 # ------------------------------------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------------------------------------

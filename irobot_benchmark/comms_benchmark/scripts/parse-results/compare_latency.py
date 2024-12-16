@@ -1,7 +1,8 @@
+#!/usr/bin/env python3
+
 import os
 import csv
 import sys
-import time
 import matplotlib.pyplot as plt
 
 def get_sorted_files_by_mtime(directory):

@@ -19,6 +19,7 @@
   <exec_depend>rclcpp_lifecycle</exec_depend>
   <exec_depend>performance_test</exec_depend>
   <exec_depend>performance_test_factory</exec_depend>
+  <exec_depend>memory_test</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_cmake_cppcheck</test_depend>

@@ -1,7 +1,8 @@
+#!/usr/bin/env python3
+
 import os
 import sys
 import pandas as pd
-import time
 import numpy as np
 import matplotlib.pyplot as plt
 

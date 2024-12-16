@@ -18,6 +18,7 @@ print_help() {
   echo "     - Single-process benchmarks [pub_sub, cli_srv, actions]."
   echo "     - Multi-process benchmarks [pub_sub, cli_srv, actions]"
   echo "     - Mix-process benchmarks [pub_sub, cli_srv, actions]"
+  echo "     - Memory benchmarks [nodes, pub_sub, cli_srv]"
   echo
   echo "  2. Results are stored in a timestamped directory (e.g., results_29_11_24_18h51)."
   echo
@@ -70,36 +71,44 @@ run_benchmark() {
   fi
 }
 
-# Single-process benchmarks
+# # Single-process benchmarks
 echo "Starting single-process benchmarks..."
 cd single-process
-run_benchmark "run_single_process_benchmark.sh" "pub_sub.conf"
-run_benchmark "run_single_process_benchmark.sh" "cli_srv.conf"
-run_benchmark "run_single_process_benchmark.sh" "actions.conf"
+# run_benchmark "run_single_process_benchmark.sh" "pub_sub.conf"
+# run_benchmark "run_single_process_benchmark.sh" "cli_srv.conf"
+# run_benchmark "run_single_process_benchmark.sh" "actions.conf"
 cd -
 
-# Multi-process benchmarks
-echo "Starting multi-process benchmarks..."
-cd multi-process
-run_benchmark "run_multi_process_benchmark.sh" "multi_process_pub_sub.conf"
-run_benchmark "run_multi_process_benchmark.sh" "multi_process_cli_srv.conf"
-run_benchmark "run_multi_process_benchmark.sh" "multi_process_actions.conf"
+# # Multi-process benchmarks
+# echo "Starting multi-process benchmarks..."
+# cd multi-process
+# run_benchmark "run_multi_process_benchmark.sh" "multi_process_pub_sub.conf"
+# run_benchmark "run_multi_process_benchmark.sh" "multi_process_cli_srv.conf"
+# run_benchmark "run_multi_process_benchmark.sh" "multi_process_actions.conf"
 
-# Mix-process benchmarks
-echo "Starting mix-process benchmarks..."
-run_benchmark "run_multi_process_benchmark.sh" "mix_process_pub_sub.conf"
-run_benchmark "run_multi_process_benchmark.sh" "mix_process_cli_srv.conf"
-run_benchmark "run_multi_process_benchmark.sh" "mix_process_actions.conf"
+# # Mix-process benchmarks
+# echo "Starting mix-process benchmarks..."
+# run_benchmark "run_multi_process_benchmark.sh" "mix_process_pub_sub.conf"
+# run_benchmark "run_multi_process_benchmark.sh" "mix_process_cli_srv.conf"
+# run_benchmark "run_multi_process_benchmark.sh" "mix_process_actions.conf"
+# cd -
+
+# Memory benchmarks
+echo "Starting memory benchmarks..."
+cd memory
+run_benchmark "run_memory_benchmark.sh" "memory_tests.conf" 
 cd -
 
-# Move results to the results directory
-mv single-process/pub-sub* "$results_dir"
-mv single-process/cli-srv* "$results_dir"
-mv single-process/actions* "$results_dir"
+# # Move results to the results directory
+# mv single-process/pub-sub* "$results_dir"
+# mv single-process/cli-srv* "$results_dir"
+# mv single-process/actions* "$results_dir"
 
-mv multi-process/pub-sub* "$results_dir"
-mv multi-process/cli-srv* "$results_dir"
-mv multi-process/actions* "$results_dir"
+# mv multi-process/pub-sub* "$results_dir"
+# mv multi-process/cli-srv* "$results_dir"
+# mv multi-process/actions* "$results_dir"
+
+mv memory/results/ "$results_dir"
 
 # Parse results
 echo

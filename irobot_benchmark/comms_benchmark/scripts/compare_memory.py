@@ -28,7 +28,7 @@ def parse_memory_results(directory):
             if all(col in df.columns for col in ['N', 'RSS', 'DELTA']):
                 memory_data[file_name] = {
                     'N': df['N'].values,
-                    'RSS': df['RSS'].values,
+                    'RSS': df['RSS'].values / 1024,  # Convert KB to MB
                     'DELTA': df['DELTA'].values,
                 }
             else:
@@ -88,7 +88,7 @@ def plot_memory_scaling_with_regression(memory_data, output_file, ignore_first_n
 
     # Add labels, title, and legend
     plt.xlabel('Number of Entities (N)')
-    plt.ylabel('RSS Memory (KB)')
+    plt.ylabel('RSS Memory (MB)')
     plt.title('RSS Memory Scaling with Linear Regression')
     plt.legend(loc='upper left', bbox_to_anchor=(1, 1), ncol=1)
     plt.grid(True, linestyle='--', alpha=0.5)

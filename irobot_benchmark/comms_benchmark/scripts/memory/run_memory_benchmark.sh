@@ -28,15 +28,16 @@ source "$CONFIG_FILE"
 MEMORY_TEST_DIR="../../../../memory_test"
 
 # Create a directory to store log folders
-SP="${PWD}/${OUTPUT_DIR}"
+SP="memory_tests"
 rm -rf "$SP" && mkdir -p "$SP"
 
 # Run the memory tests
-for BINARY in "${MEMORY_TEST_BINARIES[@]}"; do
+for BINARY in "${MEMORY_TOPOLOGIES[@]}"; do
   echo -e "\033[32mRunning memory test: $BINARY\033[0m"
 
   # Run the command
-  COMMAND="${MEMORY_TEST_DIR}/${BINARY} ${SP}"
+  RESULTS_FILE="${SP}/fast_${BINARY}.csv"
+  COMMAND="${MEMORY_TEST_DIR}/${BINARY} > ${RESULTS_FILE}"
   echo -e "\033[32m\nCommand: \n$COMMAND\n\033[0m"
   eval $COMMAND
   if [ $? -ne 0 ]; then

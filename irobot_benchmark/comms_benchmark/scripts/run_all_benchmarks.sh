@@ -74,24 +74,24 @@ run_benchmark() {
 # # Single-process benchmarks
 echo "Starting single-process benchmarks..."
 cd single-process
-# run_benchmark "run_single_process_benchmark.sh" "pub_sub.conf"
-# run_benchmark "run_single_process_benchmark.sh" "cli_srv.conf"
-# run_benchmark "run_single_process_benchmark.sh" "actions.conf"
+run_benchmark "run_single_process_benchmark.sh" "pub_sub.conf"
+run_benchmark "run_single_process_benchmark.sh" "cli_srv.conf"
+run_benchmark "run_single_process_benchmark.sh" "actions.conf"
 cd -
 
 # # Multi-process benchmarks
-# echo "Starting multi-process benchmarks..."
-# cd multi-process
-# run_benchmark "run_multi_process_benchmark.sh" "multi_process_pub_sub.conf"
-# run_benchmark "run_multi_process_benchmark.sh" "multi_process_cli_srv.conf"
-# run_benchmark "run_multi_process_benchmark.sh" "multi_process_actions.conf"
+echo "Starting multi-process benchmarks..."
+cd multi-process
+run_benchmark "run_multi_process_benchmark.sh" "multi_process_pub_sub.conf"
+run_benchmark "run_multi_process_benchmark.sh" "multi_process_cli_srv.conf"
+run_benchmark "run_multi_process_benchmark.sh" "multi_process_actions.conf"
 
 # # Mix-process benchmarks
-# echo "Starting mix-process benchmarks..."
-# run_benchmark "run_multi_process_benchmark.sh" "mix_process_pub_sub.conf"
-# run_benchmark "run_multi_process_benchmark.sh" "mix_process_cli_srv.conf"
-# run_benchmark "run_multi_process_benchmark.sh" "mix_process_actions.conf"
-# cd -
+echo "Starting mix-process benchmarks..."
+run_benchmark "run_multi_process_benchmark.sh" "mix_process_pub_sub.conf"
+run_benchmark "run_multi_process_benchmark.sh" "mix_process_cli_srv.conf"
+run_benchmark "run_multi_process_benchmark.sh" "mix_process_actions.conf"
+cd -
 
 # Memory benchmarks
 echo "Starting memory benchmarks..."
@@ -100,15 +100,15 @@ run_benchmark "run_memory_benchmark.sh" "memory_tests.conf"
 cd -
 
 # # Move results to the results directory
-# mv single-process/pub-sub* "$results_dir"
-# mv single-process/cli-srv* "$results_dir"
-# mv single-process/actions* "$results_dir"
+mv single-process/pub-sub* "$results_dir"
+mv single-process/cli-srv* "$results_dir"
+mv single-process/actions* "$results_dir"
 
-# mv multi-process/pub-sub* "$results_dir"
-# mv multi-process/cli-srv* "$results_dir"
-# mv multi-process/actions* "$results_dir"
+mv multi-process/pub-sub* "$results_dir"
+mv multi-process/cli-srv* "$results_dir"
+mv multi-process/actions* "$results_dir"
 
-mv memory/results/ "$results_dir"
+mv memory/memory_results/ "$results_dir"
 
 # Parse results
 echo

@@ -115,7 +115,7 @@ echo
 echo "To parse results run:"
 echo "  python3 parse-results/compare_metrics.py $results_dir --plot"
 echo "  python3 parse-results/compare_latency.py $results_dir --plot"
-echo "  python3 parse-results/compare_memory.py $results_dir --plot"
+echo "  python3 parse-results/compare_memory.py $results_dir"
 echo
 echo "Remove --plot if no plot is needed."
 echo "If not already done, run 'pip3 install pandas numpy matplotlib' to install dependencies"

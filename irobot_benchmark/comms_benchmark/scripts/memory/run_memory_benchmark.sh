@@ -28,7 +28,7 @@ source "$CONFIG_FILE"
 MEMORY_TEST_DIR="../../../../memory_test"
 
 # Create a directory to store log folders
-SP="memory_tests"
+SP="memory_results"
 rm -rf "$SP" && mkdir -p "$SP"
 
 # Run the memory tests

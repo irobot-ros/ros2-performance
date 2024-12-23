@@ -9,6 +9,7 @@ from scipy.stats import linregress
 import itertools
 from matplotlib.cm import get_cmap
 
+
 def parse_memory_results(directory):
     """
     Parse all CSV files in the memory_results directory.
@@ -36,21 +37,51 @@ def parse_memory_results(directory):
 
     return memory_data
 
-def analyze_scalability(N, RSS):
+def calculate_regressions(memory_data, ignore_first_n=0, num_samples=3):
     """
-    Perform linear regression on N vs. RSS.
-    Returns slope, intercept, standard error, and R².
+    Calculate linear regression for each dataset in memory_data.
+    Ignore the first `ignore_first_n` samples and take the subsequent `num_samples` samples.
+    If the total number of samples is fewer than `ignore_first_n + num_samples`, adjust accordingly.
     """
-    slope, intercept, r_value, _, std_err = linregress(N, RSS)
-    return slope, intercept, std_err, r_value**2  # Return R²
+    regression_results = {}
 
-def plot_memory_scaling_with_regression(memory_data, output_file, ignore_first_n=2, omit_last_n=1):
+    for file_name, data in memory_data.items():
+        N, RSS = data['N'], data['RSS']
+
+        if len(N) <= ignore_first_n:
+            print(f"Skipping {file_name} due to insufficient data points after ignoring the first {ignore_first_n}.")
+            continue
+
+        N_reg = N[ignore_first_n:]
+        RSS_reg = RSS[ignore_first_n:]
+
+        if num_samples is not None:
+            N_reg = N_reg[:num_samples]
+            RSS_reg = RSS_reg[:num_samples]
+
+        slope, intercept, r_value, _, std_err = linregress(N_reg, RSS_reg)
+        regression_line = slope * N_reg + intercept
+
+        regression_results[file_name] = {
+            'slope': slope,
+            'intercept': intercept,
+            'r2': r_value**2,  # Return R²
+        }
+
+    return regression_results
+
+def plot_memory_scaling(memory_data, regression_results, output_file, ignore_first_n_plot=2, omit_last_m_plot=1):
     """
-    Plot RSS vs. N for each file in memory_data on the same canvas.
+    Plot RSS vs. N for each file in memory_data on separate subplots within the same canvas.
     Include linear regression lines for each file.
-    Optionally ignore the first `ignore_first_n` entries and omit the last `omit_last_n` entries.
+    Optionally ignore the first `ignore_first_n_plot` entries and omit the last `omit_last_m_plot` entries for plotting.
     """
-    plt.figure(figsize=(10, 6))  # Set canvas size
+    num_plots = len(memory_data)
+    num_columns = 3
+    num_rows = (num_plots + num_columns - 1) // num_columns
+
+    fig, axes = plt.subplots(num_rows, num_columns, figsize=(15, 5 * num_rows))
+    axes = axes.flatten()
 
     # Generate dynamic color pairs using a colormap
     color_map = get_cmap('tab10').colors
@@ -59,42 +90,51 @@ def plot_memory_scaling_with_regression(memory_data, output_file, ignore_first_n
     for idx, (file_name, data) in enumerate(memory_data.items()):
         N, RSS = data['N'], data['RSS']
 
-        # Skip first `ignore_first_n` entries
-        if len(N) <= ignore_first_n:
-            print(f"Skipping {file_name} due to insufficient data points after ignoring the first {ignore_first_n}.")
+        # Skip first `ignore_first_n_plot` entries
+        if len(N) <= ignore_first_n_plot:
+            print(f"Skipping {file_name} due to insufficient data points after ignoring the first {ignore_first_n_plot}.")
             continue
 
-        N_subset = N[ignore_first_n:]
-        RSS_subset = RSS[ignore_first_n:]
+        N_plot = N[ignore_first_n_plot:]
+        RSS_plot = RSS[ignore_first_n_plot:]
 
-        # Further omit the last `omit_last_n` items
-        N_subset = N_subset[:-omit_last_n] if omit_last_n > 0 else N_subset
-        RSS_subset = RSS_subset[:-omit_last_n] if omit_last_n > 0 else RSS_subset
+        # Further omit the last `omit_last_m_plot` items
+        N_plot = N_plot[:-omit_last_m_plot] if omit_last_m_plot > 0 else N_plot
+        RSS_plot = RSS_plot[:-omit_last_m_plot] if omit_last_m_plot > 0 else RSS_plot
 
-        # Perform linear regression
-        slope, intercept, _, r2 = analyze_scalability(N_subset, RSS_subset)
-        regression_line = slope * N_subset + intercept
+        # Get regression results
+        regression_result = regression_results.get(file_name)
+        if regression_result:
+            slope = regression_result['slope']
+            intercept = regression_result['intercept']
+            r2 = regression_result['r2']
 
-        # Get color pair for the current plot
-        data_color, fit_color = color_pairs[idx % len(color_pairs)]
+            # Extend the regression line over the entire range of the plot
+            N_extended = np.linspace(N_plot[0], N_plot[-1], 100)  # 100 points for smooth line
+            regression_line_extended = slope * N_extended + intercept
 
-        # Plot the actual data
-        plt.plot(N[ignore_first_n:-omit_last_n if omit_last_n > 0 else None], 
-                 RSS[ignore_first_n:-omit_last_n if omit_last_n > 0 else None],
-                 'o-', color=data_color, label=f'{file_name} (data)')
+            # Get color pair for the current plot
+            data_color, fit_color = color_pairs[idx % len(color_pairs)]
 
-        # Plot the regression line (only for N_subset range)
-        plt.plot(N_subset, regression_line, '--', color=fit_color, label=f'{file_name} (fit, R²={r2:.2f})')
+            ax = axes[idx]
+            # Plot the actual data
+            ax.plot(N_plot, RSS_plot, 'o-', color=data_color, label=f'{file_name} (data)')
 
-    # Add labels, title, and legend
-    plt.xlabel('Number of Entities (N)')
-    plt.ylabel('RSS Memory (MB)')
-    plt.title('RSS Memory Scaling with Linear Regression')
-    plt.legend(loc='upper left', bbox_to_anchor=(1, 1), ncol=1)
-    plt.grid(True, linestyle='--', alpha=0.5)
+            # Plot the extended regression line
+            ax.plot(N_extended, regression_line_extended, '--', color=fit_color, label=f'{file_name} (fit, R²={r2:.2f})')
+
+            # Add labels, title, and legend
+            ax.set_xlabel('Number of Entities (N)')
+            ax.set_ylabel('RSS Memory (MB)')
+            ax.set_title(f'RSS Memory Scaling for {file_name}')
+            ax.legend(loc='upper left')
+            ax.grid(True, linestyle='--', alpha=0.5)
+
+    # Hide any unused subplots
+    for idx in range(len(memory_data), len(axes)):
+        fig.delaxes(axes[idx])
+
     plt.tight_layout()
-
-    # Save and show the plot
     plt.savefig(output_file, bbox_inches='tight')
     plt.show()
 
@@ -109,10 +149,14 @@ def main(results_dir):
     print("Parsing memory results...")
     memory_data = parse_memory_results(memory_results_dir)
 
+    # Calculate regression results
+    print("Calculating regressions...")
+    regression_results = calculate_regressions(memory_data, ignore_first_n=3, num_samples=3)
+
     # Generate plot
     print("Generating memory_scaling_comparison.png...")
     output_plot = os.path.join(results_dir, "memory_scaling_comparison.png")
-    plot_memory_scaling_with_regression(memory_data, output_plot, ignore_first_n=0, omit_last_n=1)
+    plot_memory_scaling(memory_data, regression_results, output_plot, ignore_first_n_plot=0, omit_last_m_plot=1)
 
     print(f"Processing completed. Results saved in:\n  - {output_plot}")
 

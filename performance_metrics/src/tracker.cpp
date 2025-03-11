@@ -135,6 +135,8 @@ void Tracker::add_sample(
   m_last_msg_time = now;
   m_stat.add_sample(latency_sample);
   m_delta_stat.add_sample(latency_sample);
+  // Add latency value to the deque
+  m_all_latency.push_back(latency_sample);
 }
 
 uint32_t Tracker::get_and_update_tracking_number()

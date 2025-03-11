@@ -10,6 +10,7 @@
 #ifndef PERFORMANCE_METRICS__TRACKER_HPP_
 #define PERFORMANCE_METRICS__TRACKER_HPP_
 
+#include <deque>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -102,6 +103,24 @@ public:
     return m_topic_srv_name;
   }
 
+  std::string get_all_latency() const
+  {
+    return dequeToString(m_all_latency);
+  }
+
+  static std::string dequeToString(const std::deque<uint64_t>& dq) {
+      std::ostringstream oss;
+      oss << "[";
+      for (size_t i = 0; i < dq.size(); ++i) {
+          oss << dq[i];
+          if (i < dq.size() - 1) {
+              oss << "; ";
+          }
+      }
+      oss << "]";
+      return oss.str();
+  }
+
 private:
   std::string m_node_name;
   std::string m_topic_srv_name;
@@ -120,6 +139,7 @@ private:
   float m_frequency = 0;
   Stat<uint64_t> m_stat;
   uint32_t m_tracking_number_count = 0;
+  std::deque<uint64_t> m_all_latency;
 
   rclcpp::Time m_first_msg_time;
   rclcpp::Time m_last_msg_time;

@@ -104,6 +104,7 @@ void log_trackers_latency_all_stats(
       stream_out(csv_out, stream, "min_us", narrow_space);
       stream_out(csv_out, stream, "max_us", narrow_space);
       stream_out(csv_out, stream, "freq_hz", narrow_space);
+      stream_out(csv_out, stream, "all_lat", wide_space);
       stream_out(csv_out, stream, "throughput_Kb_per_sec", wide_space, false);
 
       stream << std::endl;
@@ -124,6 +125,7 @@ void log_trackers_latency_all_stats(
       stream_out(csv_out, stream, std::round(tracker.stat().min()), narrow_space);
       stream_out(csv_out, stream, std::round(tracker.stat().max()), narrow_space);
       stream_out(csv_out, stream, tracker.frequency(), narrow_space);
+      stream_out(csv_out, stream, tracker.get_all_latency(), narrow_space);
       stream_out(csv_out, stream, (tracker.throughput() / 1024), wide_space, false);
 
       stream << std::endl;

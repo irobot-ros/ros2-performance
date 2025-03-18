@@ -69,7 +69,6 @@ TEST(TrackerTest, TrackerScanTest)
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(1e9), tracker.stat().max());
   ASSERT_EQ((uint64_t)RCL_NS_TO_US(1e9), tracker.last());
   ASSERT_EQ(3u, tracker.get_all_latency().size());
-
 }
 
 TEST(TrackerTest, TrackingOptionsTest)

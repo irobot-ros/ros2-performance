@@ -27,7 +27,7 @@ void Tracker::scan(
   uint64_t lat_us = lat.count() / 1000;
 
   if (lat.count() < 0) {
-      std::cout << "Negative latency detected: " << lat.count() << " nanoseconds" << std::endl;
+    std::cout << "Negative latency detected: " << lat.count() << " nanoseconds" << std::endl;
   }
 
   // store the last latency to be read from node

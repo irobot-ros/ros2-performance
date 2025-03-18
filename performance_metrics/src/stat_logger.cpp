@@ -19,17 +19,18 @@
 namespace performance_metrics
 {
 
-static std::string dequeToString(const std::deque<uint64_t>& dq) {
-    std::ostringstream oss;
-    oss << "[";
-    for (size_t i = 0; i < dq.size(); ++i) {
-        oss << dq[i];
-        if (i < dq.size() - 1) {
-            oss << "; ";
-        }
+static std::string dequeToString(const std::deque<uint64_t> & dq)
+{
+  std::ostringstream oss;
+  oss << "[";
+  for (size_t i = 0; i < dq.size(); ++i) {
+    oss << dq[i];
+    if (i < dq.size() - 1) {
+      oss << "; ";
     }
-    oss << "]";
-    return oss.str();
+  }
+  oss << "]";
+  return oss.str();
 }
 
 template<typename T>

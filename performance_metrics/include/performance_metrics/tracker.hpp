@@ -103,22 +103,9 @@ public:
     return m_topic_srv_name;
   }
 
-  std::string get_all_latency() const
+  std::deque<uint64_t> get_all_latency() const
   {
-    return dequeToString(m_all_latency);
-  }
-
-  static std::string dequeToString(const std::deque<uint64_t>& dq) {
-      std::ostringstream oss;
-      oss << "[";
-      for (size_t i = 0; i < dq.size(); ++i) {
-          oss << dq[i];
-          if (i < dq.size() - 1) {
-              oss << "; ";
-          }
-      }
-      oss << "]";
-      return oss.str();
+    return m_all_latency;
   }
 
 private:
@@ -126,7 +113,7 @@ private:
   std::string m_topic_srv_name;
   Options m_tracking_options;
 
-  // TODO: fix this `mutable` hack.
+  // TODO (alsora): fix this `mutable` hack.
   // We should allow for shared ownership of the trackers
   mutable Stat<uint64_t> m_delta_stat;
   mutable uint64_t m_delta_received_messages = 0;

@@ -113,7 +113,7 @@ private:
   std::string m_topic_srv_name;
   Options m_tracking_options;
 
-  // TODO (alsora): fix this `mutable` hack.
+  // TODO (neumarkt): fix this `mutable` hack.
   // We should allow for shared ownership of the trackers
   mutable Stat<uint64_t> m_delta_stat;
   mutable uint64_t m_delta_received_messages = 0;

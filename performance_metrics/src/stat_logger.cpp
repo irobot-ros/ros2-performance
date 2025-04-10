@@ -19,6 +19,15 @@
 namespace performance_metrics
 {
 
+/**
+ * @brief Converts a deque of uint64_t values to a formatted string.
+ *
+ * This function takes a `std::deque` of `uint64_t` integers and returns
+ * a string representation in the format: [val1; val2; val3].
+ *
+ * @param dq The deque of uint64_t values to convert.
+ * @return A string representation of the deque.
+ */
 static std::string dequeToString(const std::deque<uint64_t> & dq)
 {
   std::ostringstream oss;
@@ -97,10 +106,10 @@ void log_trackers_latency_all_stats(
   const bool csv_out,
   const std::string & title)
 {
-  const char separator = ' ';
-  const int wide_space = 15;
-  const int narrow_space = 10;
-  const int extended_space = 25;
+  constexpr char separator = ' ';
+  constexpr int wide_space = 15;
+  constexpr int narrow_space = 10;
+  constexpr int extended_space = 25;
 
   auto log_header = [&stream, wide_space, narrow_space, separator, csv_out](
     const std::string & header_title)

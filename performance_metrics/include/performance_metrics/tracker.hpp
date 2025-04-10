@@ -10,6 +10,7 @@
 #ifndef PERFORMANCE_METRICS__TRACKER_HPP_
 #define PERFORMANCE_METRICS__TRACKER_HPP_
 
+#include <deque>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -102,12 +103,17 @@ public:
     return m_topic_srv_name;
   }
 
+  std::deque<uint64_t> get_all_latency() const
+  {
+    return m_all_latency;
+  }
+
 private:
   std::string m_node_name;
   std::string m_topic_srv_name;
   Options m_tracking_options;
 
-  // TODO: fix this `mutable` hack.
+  // TODO(neumarkt): fix this `mutable` hack.
   // We should allow for shared ownership of the trackers
   mutable Stat<uint64_t> m_delta_stat;
   mutable uint64_t m_delta_received_messages = 0;
@@ -120,6 +126,7 @@ private:
   float m_frequency = 0;
   Stat<uint64_t> m_stat;
   uint32_t m_tracking_number_count = 0;
+  std::deque<uint64_t> m_all_latency;
 
   rclcpp::Time m_first_msg_time;
   rclcpp::Time m_last_msg_time;

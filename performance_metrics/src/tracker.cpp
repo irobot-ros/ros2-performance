@@ -27,7 +27,7 @@ void Tracker::scan(
   uint64_t lat_us = lat.count() / 1000;
 
   if (lat.count() < 0) {
-      std::cout << "Negative latency detected: " << lat.count() << " nanoseconds" << std::endl;
+    std::cout << "Negative latency detected: " << lat.count() << " nanoseconds" << std::endl;
   }
 
   // store the last latency to be read from node
@@ -135,6 +135,8 @@ void Tracker::add_sample(
   m_last_msg_time = now;
   m_stat.add_sample(latency_sample);
   m_delta_stat.add_sample(latency_sample);
+  // Add latency value to the deque
+  m_all_latency.push_back(latency_sample);
 }
 
 uint32_t Tracker::get_and_update_tracking_number()

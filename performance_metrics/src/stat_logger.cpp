@@ -19,6 +19,29 @@
 namespace performance_metrics
 {
 
+/**
+ * @brief Converts a deque of uint64_t values to a formatted string.
+ *
+ * This function takes a `std::deque` of `uint64_t` integers and returns
+ * a string representation in the format: [val1; val2; val3].
+ *
+ * @param dq The deque of uint64_t values to convert.
+ * @return A string representation of the deque.
+ */
+static std::string dequeToString(const std::deque<uint64_t> & dq)
+{
+  std::ostringstream oss;
+  oss << "[";
+  for (size_t i = 0; i < dq.size(); ++i) {
+    oss << dq[i];
+    if (i < dq.size() - 1) {
+      oss << "; ";
+    }
+  }
+  oss << "]";
+  return oss.str();
+}
+
 template<typename T>
 void stream_out(
   const bool csv_out,
@@ -83,9 +106,10 @@ void log_trackers_latency_all_stats(
   const bool csv_out,
   const std::string & title)
 {
-  const char separator = ' ';
-  const int wide_space = 15;
-  const int narrow_space = 10;
+  constexpr char separator = ' ';
+  constexpr int wide_space = 15;
+  constexpr int narrow_space = 10;
+  constexpr int extended_space = 25;
 
   auto log_header = [&stream, wide_space, narrow_space, separator, csv_out](
     const std::string & header_title)
@@ -104,7 +128,8 @@ void log_trackers_latency_all_stats(
       stream_out(csv_out, stream, "min_us", narrow_space);
       stream_out(csv_out, stream, "max_us", narrow_space);
       stream_out(csv_out, stream, "freq_hz", narrow_space);
-      stream_out(csv_out, stream, "throughput_Kb_per_sec", wide_space, false);
+      stream_out(csv_out, stream, "throughput_Kb_per_sec", extended_space);
+      stream_out(csv_out, stream, "all_lat", narrow_space, false);
 
       stream << std::endl;
     };
@@ -124,7 +149,8 @@ void log_trackers_latency_all_stats(
       stream_out(csv_out, stream, std::round(tracker.stat().min()), narrow_space);
       stream_out(csv_out, stream, std::round(tracker.stat().max()), narrow_space);
       stream_out(csv_out, stream, tracker.frequency(), narrow_space);
-      stream_out(csv_out, stream, (tracker.throughput() / 1024), wide_space, false);
+      stream_out(csv_out, stream, (tracker.throughput() / 1024), extended_space);
+      stream_out(csv_out, stream, dequeToString(tracker.get_all_latency()), narrow_space, false);
 
       stream << std::endl;
     };

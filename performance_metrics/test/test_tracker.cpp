@@ -8,6 +8,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <iostream>
 
 #include "performance_metrics/tracker.hpp"
 #include "performance_test_msgs/msg/performance_header.hpp"
@@ -21,6 +22,7 @@ TEST(TrackerTest, TrackerInitTest)
   ASSERT_EQ(0u, tracker.too_late());
   ASSERT_EQ(0u, tracker.received());
   ASSERT_EQ(0u, tracker.last());
+  ASSERT_EQ(0u, tracker.get_all_latency().size());
 
   EXPECT_TRUE(std::isnan(tracker.stat().mean()));
   EXPECT_TRUE(std::isnan(tracker.stat().stddev()));
@@ -45,6 +47,7 @@ TEST(TrackerTest, TrackerScanTest)
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(10), tracker.stat().min());
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(10), tracker.stat().max());
   ASSERT_EQ((uint64_t)RCL_NS_TO_US(10), tracker.last());
+  ASSERT_EQ(1u, tracker.get_all_latency().size());
 
   rclcpp::Time t_now2(0, 200, RCL_ROS_TIME);
   tracker.scan(header, t_now2, nullptr);
@@ -54,6 +57,7 @@ TEST(TrackerTest, TrackerScanTest)
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(10), tracker.stat().min());
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(200), tracker.stat().max());
   ASSERT_EQ((uint64_t)RCL_NS_TO_US(200), tracker.last());
+  ASSERT_EQ(2u, tracker.get_all_latency().size());
 
   // This is 1e9 nanoseconds
   rclcpp::Time t_now3(1, 0, RCL_ROS_TIME);
@@ -64,6 +68,7 @@ TEST(TrackerTest, TrackerScanTest)
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(10), tracker.stat().min());
   ASSERT_DOUBLE_EQ((double)RCL_NS_TO_US(1e9), tracker.stat().max());
   ASSERT_EQ((uint64_t)RCL_NS_TO_US(1e9), tracker.last());
+  ASSERT_EQ(3u, tracker.get_all_latency().size());
 }
 
 TEST(TrackerTest, TrackingOptionsTest)

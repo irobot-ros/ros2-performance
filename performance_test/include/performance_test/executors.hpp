@@ -30,9 +30,8 @@ struct NamedExecutor
 enum class ExecutorType
 {
   SINGLE_THREADED_EXECUTOR = 1,
-  STATIC_SINGLE_THREADED_EXECUTOR = 2,
-  EVENTS_EXECUTOR = 3,
-  MULTI_THREAD_EXECUTOR = 4,
+  EVENTS_EXECUTOR = 2,
+  MULTI_THREAD_EXECUTOR = 3,
 };
 
 enum class SpinType

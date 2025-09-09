@@ -23,7 +23,7 @@ namespace performance_test_factory
 Options::Options()
 {
   ipc = true;
-  executor = 2;
+  executor = 1;
   node = 1;
   ros_params = true;
   duration_sec = 5;
@@ -69,8 +69,8 @@ void Options::parse(int argc, char ** argv)
       std::to_string(
         resources_sampling_per_ms)), "msec")(
     "x, executor",
-    "system executor:\n\t\t\t\t1:SingleThreadedExecutor. 2:StaticSingleThreadedExecutor. \
-    3:EventsExecutor.",
+    "system executor:\n\t\t\t\t1:SingleThreadedExecutor. 2:EventsExecutor. \
+    3:MultiThreadedExecutor.",
     cxxopts::value<int>(executor)->default_value(std::to_string(executor)), "<1/2/3>")(
     "n, node", "the node type:\n\t\t\t\t1:Node. 2:LifecycleNode",
     cxxopts::value<int>(node)->default_value(std::to_string(node)), "<1/2>")(

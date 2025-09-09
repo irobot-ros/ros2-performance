@@ -25,9 +25,6 @@ std::ostream & operator<<(std::ostream & os, const ExecutorType & t)
     case ExecutorType::SINGLE_THREADED_EXECUTOR:
       executor_name = "SingleThreadedExecutor";
       break;
-    case ExecutorType::STATIC_SINGLE_THREADED_EXECUTOR:
-      executor_name = "StaticSingleThreadedExecutor";
-      break;
     case ExecutorType::EVENTS_EXECUTOR:
       executor_name = "EventsExecutor";
       break;
@@ -46,9 +43,6 @@ std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type)
   switch (type) {
     case ExecutorType::SINGLE_THREADED_EXECUTOR:
       executor = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-      break;
-    case ExecutorType::STATIC_SINGLE_THREADED_EXECUTOR:
-      executor = std::make_shared<rclcpp::executors::StaticSingleThreadedExecutor>();
       break;
     case ExecutorType::EVENTS_EXECUTOR:
       executor = std::make_shared<rclcpp::experimental::executors::EventsExecutor>();

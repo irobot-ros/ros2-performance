@@ -104,7 +104,7 @@ public:
   int use_ipc = 0;
   std::string json_path = "";
   int executor =
-    static_cast<int>(performance_test::ExecutorType::STATIC_SINGLE_THREADED_EXECUTOR);
+    static_cast<int>(performance_test::ExecutorType::SINGLE_THREADED_EXECUTOR);
   int use_ros_params = 1;
   std::string ros_namespace = "";
   int verbose = 0;

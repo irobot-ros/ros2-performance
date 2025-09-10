@@ -33,7 +33,10 @@ add_library(${LIBRARY_NAME} SHARED ${LIBRARY_SRC})
 target_include_directories(${LIBRARY_NAME} PUBLIC
   include
 )
-ament_target_dependencies(${LIBRARY_NAME} ${LIBRARY_DEPENDENCIES})
+target_link_libraries(${LIBRARY_NAME}
+  ${performance_test_msgs_TARGETS}
+  rclcpp::rclcpp
+)
 
 install(TARGETS
   ${LIBRARY_NAME}

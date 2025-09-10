@@ -42,10 +42,16 @@ target_include_directories(
   PUBLIC
     external/cxxopts/include
     include
+    ${performance_test_INCLUDE_DIRS}
 )
 
-ament_target_dependencies(${LIBRARY_NAME} ${LIBRARY_DEPENDENCIES})
-target_link_libraries(${LIBRARY_NAME} nlohmann_json::nlohmann_json)
+target_link_libraries(${LIBRARY_NAME}
+  rcpputils::rcpputils
+  rclcpp::rclcpp
+  rclcpp_lifecycle::rclcpp_lifecycle
+  ${performance_test_LIBRARIES}
+  nlohmann_json::nlohmann_json
+)
 
 install(TARGETS
   ${LIBRARY_NAME}

@@ -21,29 +21,69 @@ find_package(rclcpp_components REQUIRED)
 add_library(composable_node SHARED
   src/composable_node.cpp
 )
-ament_target_dependencies(composable_node rclcpp rclcpp_components performance_test)
-target_include_directories(composable_node PUBLIC include)
+target_link_libraries(composable_node PUBLIC
+  rclcpp::rclcpp
+  rclcpp_components::component
+  ${performance_test_LIBRARIES}
+)
+target_include_directories(composable_node PUBLIC
+  include
+  ${performance_test_INCLUDE_DIRS}
+)
 rclcpp_components_register_nodes(composable_node "ComposableNode")
 
 add_library(composable_publisher SHARED
   src/composable_publisher.cpp
 )
-ament_target_dependencies(composable_publisher rclcpp rclcpp_components performance_test irobot_interfaces_plugin)
-target_include_directories(composable_publisher PUBLIC include)
+target_link_libraries(composable_publisher PUBLIC
+  ${irobot_interfaces_plugin_TARGETS}
+  rclcpp::rclcpp
+  rclcpp_components::component
+  rclcpp_components::component_manager
+  ${performance_test_LIBRARIES}
+)
+target_include_directories(composable_publisher
+  PUBLIC
+  include
+  ${performance_test_INCLUDE_DIRS}
+)
 rclcpp_components_register_nodes(composable_publisher "ComposablePublisher")
 
 add_library(composable_subscriber SHARED
   src/composable_subscriber.cpp
 )
-ament_target_dependencies(composable_subscriber rclcpp rclcpp_components performance_metrics performance_test irobot_interfaces_plugin)
-target_include_directories(composable_subscriber PUBLIC include)
+target_link_libraries(composable_subscriber PUBLIC
+  ${irobot_interfaces_plugin_TARGETS}
+  rclcpp::rclcpp
+  rclcpp_components::component
+  rclcpp_components::component_manager
+  ${performance_test_LIBRARIES}
+  ${performance_metrics_LIBRARIES}
+)
+target_include_directories(composable_subscriber
+  PUBLIC
+  include
+  ${performance_test_INCLUDE_DIRS}
+  ${performance_metrics_INCLUDE_DIRS}
+)
 rclcpp_components_register_nodes(composable_subscriber "ComposableSubscriber")
 
 add_library(base_node SHARED
   src/base_node.cpp
 )
-ament_target_dependencies(base_node rclcpp rclcpp_components performance_metrics performance_test)
-target_include_directories(base_node PUBLIC include)
+target_link_libraries(base_node PUBLIC
+  rclcpp::rclcpp
+  rclcpp_components::component
+  rclcpp_components::component_manager
+  ${performance_test_LIBRARIES}
+  ${performance_metrics_LIBRARIES}
+)
+target_include_directories(base_node
+  PUBLIC
+  include
+  ${performance_test_INCLUDE_DIRS}
+  ${performance_metrics_INCLUDE_DIRS}
+)
 
 add_subdirectory(apps)
 

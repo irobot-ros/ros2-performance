@@ -34,7 +34,9 @@ function(generate_factory_plugin argMSGS argSRVS argACTIONS)
   add_library(${LIBRARY_NAME} SHARED
     ${CUSTOM_TARGET_PATH}
   )
-  ament_target_dependencies(${LIBRARY_NAME} ${LIBRARY_DEPENDENCIES})
+  target_include_directories(${LIBRARY_NAME} PUBLIC
+    ${performance_test_INCLUDE_DIRS}
+  )
 
   # First try >= Humble, fall back to <= Galactic
   if(COMMAND rosidl_get_typesupport_target)
@@ -42,7 +44,12 @@ function(generate_factory_plugin argMSGS argSRVS argACTIONS)
   else()
     rosidl_target_interfaces(${LIBRARY_NAME} ${PROJECT_NAME} "rosidl_typesupport_cpp")
   endif()
-  target_link_libraries(${LIBRARY_NAME} ${cpp_typesupport_target})
+  target_link_libraries(${LIBRARY_NAME}
+    ${cpp_typesupport_target}
+    rclcpp::rclcpp
+    rclcpp_action::rclcpp_action
+    ${performance_test_LIBRARIES}
+  )
 
   install(TARGETS
     ${LIBRARY_NAME}

@@ -33,6 +33,9 @@ set(TOPOLOGY_FILES
   topology/debug_sierra_nevada_best_effort.json
   topology/debug_mont_blanc_reliable.json
   topology/debug_mont_blanc_best_effort.json
+  topology/cli_10b.json
+  topology/cli_srv_10b.json
+  topology/topology_50_topics_2000hz.json
 )
 
 install(FILES

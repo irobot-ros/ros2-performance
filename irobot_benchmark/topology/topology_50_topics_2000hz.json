@@ -1,0 +1,514 @@
+{
+  "nodes": [
+    {
+      "node_name": "pub_node_sp",
+      "publishers": [
+        {
+          "topic_name": "test_0",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1508,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_1",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1352,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_2",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1774,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_3",
+          "msg_type": "stamped1mb",
+          "freq_hz": 754,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_4",
+          "msg_type": "stamped1mb",
+          "freq_hz": 63,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_5",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1413,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_6",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1894,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_7",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1539,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_8",
+          "msg_type": "stamped1mb",
+          "freq_hz": 456,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_9",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1070,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_10",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1415,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_11",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1772,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_12",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1108,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_13",
+          "msg_type": "stamped1mb",
+          "freq_hz": 497,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_14",
+          "msg_type": "stamped1mb",
+          "freq_hz": 296,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_15",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1371,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_16",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1795,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_17",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1201,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_18",
+          "msg_type": "stamped1mb",
+          "freq_hz": 727,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_19",
+          "msg_type": "stamped1mb",
+          "freq_hz": 478,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_20",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1734,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_21",
+          "msg_type": "stamped1mb",
+          "freq_hz": 81,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_22",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1102,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_23",
+          "msg_type": "stamped1mb",
+          "freq_hz": 547,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_24",
+          "msg_type": "stamped1mb",
+          "freq_hz": 807,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_25",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1834,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_26",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1438,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_27",
+          "msg_type": "stamped1mb",
+          "freq_hz": 174,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_28",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1336,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_29",
+          "msg_type": "stamped1mb",
+          "freq_hz": 884,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_30",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1204,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_31",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1362,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_32",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1960,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_33",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1065,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_34",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1926,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_35",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1111,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_36",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1730,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_37",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1592,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_38",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1813,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_39",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1456,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_40",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1963,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_41",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1009,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_42",
+          "msg_type": "stamped1mb",
+          "freq_hz": 966,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_43",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1416,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_44",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1864,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_45",
+          "msg_type": "stamped1mb",
+          "freq_hz": 104,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_46",
+          "msg_type": "stamped1mb",
+          "freq_hz": 937,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_47",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1465,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_48",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1500,
+          "msg_pass_by": "unique_ptr"
+        },
+        {
+          "topic_name": "test_49",
+          "msg_type": "stamped1mb",
+          "freq_hz": 1978,
+          "msg_pass_by": "unique_ptr"
+        }
+      ]
+    },
+    {
+      "node_name": "sub_node_sp",
+      "subscribers": [
+        {
+          "topic_name": "test_0",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_1",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_2",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_3",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_4",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_5",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_6",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_7",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_8",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_9",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_10",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_11",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_12",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_13",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_14",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_15",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_16",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_17",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_18",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_19",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_20",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_21",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_22",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_23",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_24",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_25",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_26",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_27",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_28",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_29",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_30",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_31",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_32",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_33",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_34",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_35",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_36",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_37",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_38",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_39",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_40",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_41",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_42",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_43",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_44",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_45",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_46",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_47",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_48",
+          "msg_type": "stamped1mb"
+        },
+        {
+          "topic_name": "test_49",
+          "msg_type": "stamped1mb"
+        }
+      ]
+    }
+  ]
+}

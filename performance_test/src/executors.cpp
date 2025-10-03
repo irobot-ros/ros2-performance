@@ -31,6 +31,9 @@ std::ostream & operator<<(std::ostream & os, const ExecutorType & t)
     case ExecutorType::MULTI_THREAD_EXECUTOR:
       executor_name = "MultiThreadedExecutor";
       break;
+    case ExecutorType::EVENTS_CBG_EXECUTOR:
+      executor_name = "EventsCBGExecutor";
+      break;
   }
 
   return os << executor_name;
@@ -49,6 +52,10 @@ std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type)
       break;
     case ExecutorType::MULTI_THREAD_EXECUTOR:
       executor = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
+      break;
+    case ExecutorType::EVENTS_CBG_EXECUTOR:
+      constexpr int num_threads = 1;
+      executor = std::make_shared<rclcpp::executors::EventsCBGExecutor>(rclcpp::ExecutorOptions(), num_threads);
       break;
   }
 

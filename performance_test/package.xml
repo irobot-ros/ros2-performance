@@ -13,6 +13,7 @@
 
   <depend>rclcpp</depend>
   <depend>rclcpp_action</depend>
+  <depend>cm_executors</depend>
   <depend>performance_metrics</depend>
   <depend>performance_test_msgs</depend>
 

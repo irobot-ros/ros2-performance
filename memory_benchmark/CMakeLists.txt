@@ -14,6 +14,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(std_srvs REQUIRED)
+find_package(cm_executors REQUIRED)
 
 # Generate all ROS 2 messages
 rosidl_generate_interfaces(${PROJECT_NAME}
@@ -74,59 +75,59 @@ rosidl_get_typesupport_target(memory_benchmark_msgs "${PROJECT_NAME}" "rosidl_ty
 
 add_executable(default_nodes src/default_nodes.cpp)
 target_include_directories(default_nodes PRIVATE include)
-target_link_libraries(default_nodes PRIVATE rclcpp::rclcpp ${memory_benchmark_msgs})
+target_link_libraries(default_nodes PRIVATE rclcpp::rclcpp cm_executors::cm_executors ${memory_benchmark_msgs})
 
 add_executable(nodes_params_off src/nodes_params_off.cpp)
 target_include_directories(nodes_params_off PRIVATE include)
-target_link_libraries(nodes_params_off PRIVATE rclcpp::rclcpp)
+target_link_libraries(nodes_params_off PRIVATE rclcpp::rclcpp cm_executors::cm_executors)
 
 add_executable(default_subs_params_off src/default_subs_params_off.cpp)
 target_include_directories(default_subs_params_off PRIVATE include)
-target_link_libraries(default_subs_params_off PRIVATE rclcpp::rclcpp ${memory_benchmark_msgs})
+target_link_libraries(default_subs_params_off PRIVATE rclcpp::rclcpp cm_executors::cm_executors ${memory_benchmark_msgs})
 
 add_executable(default_pubs_params_off src/default_pubs_params_off.cpp)
 target_include_directories(default_pubs_params_off PRIVATE include)
-target_link_libraries(default_pubs_params_off PRIVATE rclcpp::rclcpp ${memory_benchmark_msgs})
+target_link_libraries(default_pubs_params_off PRIVATE rclcpp::rclcpp cm_executors::cm_executors ${memory_benchmark_msgs})
 
 add_executable(default_clients_params_off src/default_clients_params_off.cpp)
 target_include_directories(default_clients_params_off PRIVATE include)
-target_link_libraries(default_clients_params_off PRIVATE rclcpp::rclcpp ${std_srvs_TARGETS})
+target_link_libraries(default_clients_params_off PRIVATE rclcpp::rclcpp cm_executors::cm_executors ${std_srvs_TARGETS})
 
 add_executable(default_services_params_off src/default_services_params_off.cpp)
 target_include_directories(default_services_params_off PRIVATE include)
-target_link_libraries(default_services_params_off PRIVATE rclcpp::rclcpp ${std_srvs_TARGETS})
+target_link_libraries(default_services_params_off PRIVATE rclcpp::rclcpp cm_executors::cm_executors ${std_srvs_TARGETS})
 
 add_executable(nodes_params_off_logging_on src/nodes_params_off_logging_on.cpp)
 target_include_directories(nodes_params_off_logging_on PRIVATE include)
-target_link_libraries(nodes_params_off_logging_on PRIVATE rclcpp::rclcpp)
+target_link_libraries(nodes_params_off_logging_on PRIVATE  cm_executors::cm_executors rclcpp::rclcpp)
 
 add_executable(pub_sub_diff_topic src/pub_sub_diff_topic.cpp)
 target_include_directories(pub_sub_diff_topic PRIVATE include)
-target_link_libraries(pub_sub_diff_topic PRIVATE rclcpp::rclcpp ${memory_benchmark_msgs})
+target_link_libraries(pub_sub_diff_topic PRIVATE rclcpp::rclcpp cm_executors::cm_executors ${memory_benchmark_msgs})
 
 add_executable(pub_sub_same_topic src/pub_sub_same_topic.cpp)
 target_include_directories(pub_sub_same_topic PRIVATE include)
-target_link_libraries(pub_sub_same_topic PRIVATE rclcpp::rclcpp ${memory_benchmark_msgs})
+target_link_libraries(pub_sub_same_topic PRIVATE rclcpp::rclcpp cm_executors::cm_executors ${memory_benchmark_msgs})
 
 add_executable(pub_sub_diff_msg_type src/pub_sub_diff_msg_type.cpp)
 target_include_directories(pub_sub_diff_msg_type PRIVATE include)
-target_link_libraries(pub_sub_diff_msg_type PRIVATE rclcpp::rclcpp ${memory_benchmark_msgs})
+target_link_libraries(pub_sub_diff_msg_type PRIVATE rclcpp::rclcpp cm_executors::cm_executors ${memory_benchmark_msgs})
 
 add_executable(cli_serv_diff_topics src/cli_serv_diff_topics.cpp)
 target_include_directories(cli_serv_diff_topics PRIVATE include)
-target_link_libraries(cli_serv_diff_topics PRIVATE rclcpp::rclcpp ${std_srvs_TARGETS})
+target_link_libraries(cli_serv_diff_topics PRIVATE rclcpp::rclcpp cm_executors::cm_executors ${std_srvs_TARGETS})
 
 add_executable(cli_serv_same_topics src/cli_serv_same_topics.cpp)
 target_include_directories(cli_serv_same_topics PRIVATE include)
-target_link_libraries(cli_serv_same_topics PRIVATE rclcpp::rclcpp ${std_srvs_TARGETS})
+target_link_libraries(cli_serv_same_topics PRIVATE rclcpp::rclcpp cm_executors::cm_executors ${std_srvs_TARGETS})
 
 add_executable(pub_sub_big_history_size src/pub_sub_big_history_size.cpp)
 target_include_directories(pub_sub_big_history_size PRIVATE include)
-target_link_libraries(pub_sub_big_history_size PRIVATE rclcpp::rclcpp ${memory_benchmark_msgs})
+target_link_libraries(pub_sub_big_history_size PRIVATE rclcpp::rclcpp cm_executors::cm_executors ${memory_benchmark_msgs})
 
 add_executable(pub_sub_big_message_size src/pub_sub_big_message_size.cpp)
 target_include_directories(pub_sub_big_message_size PRIVATE include)
-target_link_libraries(pub_sub_big_message_size PRIVATE rclcpp::rclcpp ${memory_benchmark_msgs})
+target_link_libraries(pub_sub_big_message_size PRIVATE rclcpp::rclcpp cm_executors::cm_executors ${memory_benchmark_msgs})
 
 install(TARGETS
   default_nodes

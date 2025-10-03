@@ -15,12 +15,14 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(performance_metrics REQUIRED)
 find_package(performance_test_msgs REQUIRED)
+find_package(cm_executors REQUIRED)
 
 set(LIBRARY_DEPENDENCIES
   rclcpp
   rclcpp_action
   performance_metrics
   performance_test_msgs
+  cm_executors
 )
 
 set(LIBRARY_SRC

@@ -21,7 +21,7 @@ int main(int argc, char * argv[])
   rclcpp::init(argc, argv);
   print_rss("rclcpp::init", 0);
 
-  auto executor = std::make_unique<rclcpp::experimental::executors::EventsExecutor>();
+  auto executor = std::make_unique<rclcpp::executors::EventsCBGExecutor>(rclcpp::ExecutorOptions(), 1);
   print_rss("EventsExecutor", 0);
 
   rclcpp::NodeOptions node_options = rclcpp::NodeOptions();

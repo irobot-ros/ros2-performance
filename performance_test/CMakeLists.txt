@@ -39,12 +39,16 @@ add_library(${LIBRARY_NAME} SHARED ${LIBRARY_SRC})
 target_include_directories(${LIBRARY_NAME} PUBLIC
   include
   ${performance_metrics_INCLUDE_DIRS}
+  ${cm_executors_INCLUDE_DIRS}
+
 )
 target_link_libraries(${LIBRARY_NAME}
   rclcpp::rclcpp
   rclcpp_action::rclcpp_action
   ${performance_metrics_LIBRARIES}
   ${performance_test_msgs_TARGETS}
+  ${cm_executors_TARGETS}
+
 )
 
 install(TARGETS

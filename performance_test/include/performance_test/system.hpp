@@ -48,7 +48,8 @@ public:
 
   void spin(
     std::chrono::seconds duration,
-    bool wait_for_discovery = true);
+    bool wait_for_discovery = true, 
+    double max_rss_usage_percent = -1.0);
 
   void save_latency_all_stats(
     const std::string & filename,
@@ -85,7 +86,7 @@ private:
     std::chrono::milliseconds max_edp_time = std::chrono::milliseconds(30 * 1000));
 
   std::unique_ptr<std::thread> create_spin_thread(rclcpp::Executor::SharedPtr executor);
-  std::unique_ptr<std::thread> create_resource_usage_monitor_thread();
+  std::unique_ptr<std::thread> create_resource_usage_monitor_thread(const double max_rss_usage_percent);
 
   std::chrono::high_resolution_clock::time_point m_start_time;
 

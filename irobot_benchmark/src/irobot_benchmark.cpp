@@ -169,7 +169,8 @@ int main(int argc, char ** argv)
   bool wait_for_discovery = true;
   ros2_system->spin(
     std::chrono::seconds(options.duration_sec),
-    wait_for_discovery);
+    wait_for_discovery,
+    options.max_rss_usage_percent);
 
   // terminate the experiment
   ru_logger.stop();

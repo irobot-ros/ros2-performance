@@ -37,6 +37,7 @@ public:
   performance_metrics::Tracker::Options tracking_options;
   bool csv_out;
   std::string result_folder_name;
+  double max_rss_usage_percent;
 };
 
 std::ostream & operator<<(std::ostream & os, const Options & options);

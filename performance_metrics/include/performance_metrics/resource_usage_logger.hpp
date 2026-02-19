@@ -23,6 +23,8 @@
 
 namespace performance_metrics
 {
+  unsigned long get_available_system_memory_kb();
+  unsigned long get_used_system_memory_kb();
 
 class ResourceUsageLogger
 {

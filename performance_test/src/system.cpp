@@ -77,6 +77,29 @@ System::~System()
     thread->join();
   }
 }
+constexpr double MAX_RSS_USAGE_PERCENT = 75.0;
+
+std::unique_ptr<std::thread> System::create_resource_usage_monitor_thread() {
+    auto thread = std::make_unique<std::thread>(
+      []() {
+        while (rclcpp::ok()) {
+          auto rss_used = performance_metrics::get_used_system_memory_kb();
+          auto rss_max = performance_metrics::get_available_system_memory_kb();
+          double rss_perc = (max > 0) ? (static_cast<double>(used) / static_cast<double>(max)) * 100.0 : -1.0;
+          RCLCPP_DEBUG(rclcpp::get_logger("ros2-performance"), "current rss usage (kb): %lu", rss_used);
+          RCLCPP_DEBUG(rclcpp::get_logger("ros2-performance"), "max rss usage (kb): %lu", rss_max);
+          RCLCPP_DEBUG(rclcpp::get_logger("ros2-performance"), "percent: %f", rss_perc);
+
+          if (rss_perc >= MAX_RSS_USAGE_PERCENT) 
+          {
+          RCLCPP_ERROR(rclcpp::get_logger("ros2-performance"), "RSS usage was too high (%ul / %ul, %f percent). Exiting...", used_rss, max_rss, rss_perc);
+          rclcpp::shutdown();
+        }
+          std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        }
+      });
+      return thread;
+}
 
 void System::add_node(std::shared_ptr<performance_test::PerformanceNodeBase> node)
 {
@@ -138,6 +161,10 @@ void System::spin(std::chrono::seconds duration, bool wait_for_discovery)
 
     m_threads.push_back(std::move(thread));
   }
+
+  auto mon_thread = create_resource_usage_monitor_thread();
+
+  m_threads.push_back(std::move(mon_thread));
 
   // let the nodes spin for the specified amount of time
   performance_test::sleep_task(m_experiment_duration);

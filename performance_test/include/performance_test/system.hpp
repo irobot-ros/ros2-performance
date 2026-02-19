@@ -85,6 +85,7 @@ private:
     std::chrono::milliseconds max_edp_time = std::chrono::milliseconds(30 * 1000));
 
   std::unique_ptr<std::thread> create_spin_thread(rclcpp::Executor::SharedPtr executor);
+  std::unique_ptr<std::thread> create_resource_usage_monitor_thread();
 
   std::chrono::high_resolution_clock::time_point m_start_time;
 

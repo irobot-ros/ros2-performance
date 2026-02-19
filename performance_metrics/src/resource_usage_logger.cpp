@@ -9,6 +9,7 @@
 
 #include <sys/resource.h>
 #include <sys/types.h>
+#include <sys/sysinfo.h>
 
 #include <cmath>
 #include <ctime>
@@ -118,6 +119,23 @@ void ResourceUsageLogger::set_system_info(int pubs, int subs, float frequency)
   m_has_system_info = true;
 }
 
+unsigned long get_available_system_memory_kb() 
+{
+  struct sysinfo si;
+	short status = sysinfo(&si) ;
+	if (status < 0) return -1;
+
+	return si.totalram >> 10;
+}
+
+unsigned long get_used_system_memory_kb() 
+{
+  struct rusage usage;
+  getrusage(RUSAGE_SELF, &usage);
+	
+	return usage.ru_maxrss;
+}
+
 // Get shared resources data
 void ResourceUsageLogger::_get()
 {
@@ -144,9 +162,7 @@ void ResourceUsageLogger::_get()
 #endif
 
   // Get rss
-  struct rusage usage;
-  getrusage(RUSAGE_SELF, &usage);
-  m_resources.mem_max_rss_KB = usage.ru_maxrss;
+  m_resources.mem_max_rss_KB = get_used_system_memory_kb();
 
   // Get vsz from /proc/[pid]/statm
   std::string virtual_mem_pages_string;

@@ -28,6 +28,7 @@ Options::Options()
   ros_params = true;
   duration_sec = 5;
   csv_out = false;
+  max_rss_usage_percent = -1.0;
   resources_sampling_per_ms = 1000;
   tracking_options.is_enabled = false;
   tracking_options.late_percentage = 20;
@@ -98,8 +99,9 @@ void Options::parse(int argc, char ** argv)
     "write comma-delimted results files",
     cxxopts::value<std::string>(csv_out_option)->default_value(csv_out ? "on" : "off"), "on/off")(
     "results-dir", "name of the result directory (will use <topology>_log if not provided)",
-    cxxopts::value<std::string>(result_folder_name_option)->default_value(""), "NAME");
-
+    cxxopts::value<std::string>(result_folder_name_option)->default_value(""), "NAME")(
+    "m, max_rss", "max allowable rss usage before the benchmark exits",
+    cxxopts::value<double>(max_rss_usage_percent)->default_value(std::to_string(max_rss_usage_percent) + "(disabled)"), "%");
   try {
     auto result = options.parse(argc, argv);
 
@@ -163,6 +165,9 @@ std::ostream & operator<<(std::ostream & os, const Options & options)
      << std::endl;
   if (options.result_folder_name != "" && options.topology_json_list.size() == 1) {
     os << "results-dir: " << options.result_folder_name << std::endl;
+  }
+  if (options.max_rss_usage_percent > 0.0) {
+    os << "max_rss_usage_percent: " << options.max_rss_usage_percent<<"%" << std::endl;
   }
   return os;
 }

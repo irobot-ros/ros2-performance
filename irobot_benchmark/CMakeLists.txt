@@ -20,6 +20,7 @@ add_executable(irobot_benchmark src/irobot_benchmark.cpp)
 target_include_directories(irobot_benchmark
   PUBLIC
   ${performance_test_INCLUDE_DIRS}
+  ${performance_test_factory_INCLUDE_DIRS}
 )
 target_link_libraries(irobot_benchmark
   rclcpp::rclcpp

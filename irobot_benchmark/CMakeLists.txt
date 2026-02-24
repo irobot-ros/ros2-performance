@@ -17,7 +17,17 @@ find_package(performance_test REQUIRED)
 find_package(performance_test_factory REQUIRED)
 
 add_executable(irobot_benchmark src/irobot_benchmark.cpp)
-ament_target_dependencies(irobot_benchmark rclcpp rclcpp_lifecycle performance_test performance_test_factory)
+target_include_directories(irobot_benchmark
+  PUBLIC
+  ${performance_test_INCLUDE_DIRS}
+  ${performance_test_factory_INCLUDE_DIRS}
+)
+target_link_libraries(irobot_benchmark
+  rclcpp::rclcpp
+  rclcpp_lifecycle::rclcpp_lifecycle
+  ${performance_test_LIBRARIES}
+  ${performance_test_factory_LIBRARIES}
+)
 
 install(TARGETS
   irobot_benchmark
@@ -46,4 +56,3 @@ if(BUILD_TESTING)
 endif()
 
 ament_package()
-

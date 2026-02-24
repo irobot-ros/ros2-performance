@@ -20,25 +20,74 @@ find_package(performance_test_factory REQUIRED)
 ##
 
 add_executable(publisher_nodes_main src/publisher_nodes_main.cpp)
-ament_target_dependencies(publisher_nodes_main rclcpp performance_test performance_test_factory)
+target_include_directories(publisher_nodes_main PUBLIC
+  ${performance_test_INCLUDE_DIRS}
+)
+target_link_libraries(publisher_nodes_main
+  rclcpp::rclcpp
+  ${performance_test_LIBRARIES}
+  ${performance_test_factory_LIBRARIES}
+)
 
 add_executable(subscriber_nodes_main src/subscriber_nodes_main.cpp)
-ament_target_dependencies(subscriber_nodes_main rclcpp performance_test performance_test_factory)
+target_include_directories(subscriber_nodes_main PUBLIC
+  ${performance_test_INCLUDE_DIRS}
+)
+target_link_libraries(subscriber_nodes_main
+  rclcpp::rclcpp
+  ${performance_test_LIBRARIES}
+  ${performance_test_factory_LIBRARIES}
+)
 
 add_executable(client_nodes_main src/client_nodes_main.cpp)
-ament_target_dependencies(client_nodes_main rclcpp performance_test performance_test_factory)
+target_include_directories(client_nodes_main PUBLIC
+  ${performance_test_INCLUDE_DIRS}
+)
+target_link_libraries(client_nodes_main
+  rclcpp::rclcpp
+  ${performance_test_LIBRARIES}
+  ${performance_test_factory_LIBRARIES}
+)
 
 add_executable(server_nodes_main src/server_nodes_main.cpp)
-ament_target_dependencies(server_nodes_main rclcpp performance_test performance_test_factory)
+target_include_directories(server_nodes_main PUBLIC
+  ${performance_test_INCLUDE_DIRS}
+)
+target_link_libraries(server_nodes_main
+  rclcpp::rclcpp
+  ${performance_test_LIBRARIES}
+  ${performance_test_factory_LIBRARIES}
+)
 
 add_executable(simple_pub_sub_main src/simple_pub_sub_main.cpp)
-ament_target_dependencies(simple_pub_sub_main rclcpp performance_test performance_test_factory)
+target_include_directories(simple_pub_sub_main PUBLIC
+  ${performance_test_INCLUDE_DIRS}
+)
+target_link_libraries(simple_pub_sub_main
+  rclcpp::rclcpp
+  ${performance_test_LIBRARIES}
+  ${performance_test_factory_LIBRARIES}
+)
 
 add_executable(simple_client_service_main src/simple_client_service_main.cpp)
-ament_target_dependencies(simple_client_service_main rclcpp performance_test performance_test_factory)
+target_include_directories(simple_client_service_main PUBLIC
+  ${performance_test_INCLUDE_DIRS}
+)
+target_link_libraries(simple_client_service_main
+  rclcpp::rclcpp
+  ${performance_test_LIBRARIES}
+  ${performance_test_factory_LIBRARIES}
+)
 
 add_executable(json_system_main src/json_system_main.cpp)
-ament_target_dependencies(json_system_main rclcpp performance_test performance_test_factory)
+target_include_directories(json_system_main PUBLIC
+  ${performance_test_INCLUDE_DIRS}
+)
+target_link_libraries(json_system_main
+  rclcpp::rclcpp
+  ${performance_test_LIBRARIES}
+  ${performance_test_factory_LIBRARIES}
+)
 
 install(TARGETS
   publisher_nodes_main

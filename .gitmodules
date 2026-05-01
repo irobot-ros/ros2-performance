@@ -4,3 +4,4 @@
 [submodule "performance_test_factory/external/cxxopts"]
 	path = performance_test_factory/external/cxxopts
 	url = https://github.com/jarro2783/cxxopts
+	version = v3.3.1

@@ -114,21 +114,21 @@ void Options::parse(int argc, char ** argv)
     }
 
     if (ipc_option != "off" && ipc_option != "on") {
-      throw cxxopts::argument_incorrect_type(ipc_option);
+      throw cxxopts::exceptions::incorrect_argument_type(ipc_option);
     }
 
     if (tracking_enabled_option != "off" && tracking_enabled_option != "on") {
-      throw cxxopts::argument_incorrect_type(tracking_enabled_option);
+      throw cxxopts::exceptions::incorrect_argument_type(tracking_enabled_option);
     }
 
     if (csv_out_option != "off" && csv_out_option != "on") {
-      throw cxxopts::argument_incorrect_type(csv_out_option);
+      throw cxxopts::exceptions::incorrect_argument_type(csv_out_option);
     }
     if (result_folder_name_option != "" && (result.count("topology") == 1)) {
       // Only allow to set folder name if a single topology passed
       result_folder_name = result_folder_name_option;
     }
-  } catch (const cxxopts::OptionException & e) {
+  } catch (const cxxopts::exceptions::exception & e) {
     std::cout << "Error parsing options. " << e.what() << std::endl;
     exit(1);
   }

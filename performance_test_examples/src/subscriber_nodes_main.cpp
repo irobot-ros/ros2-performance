@@ -12,7 +12,6 @@
 
 #include "rclcpp/rclcpp.hpp"
 
-#include "cxxopts.hpp"
 #include "performance_metrics/resource_usage_logger.hpp"
 #include "performance_test/system.hpp"
 #include "performance_test_factory/factory.hpp"

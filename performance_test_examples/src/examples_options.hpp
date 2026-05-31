@@ -87,7 +87,7 @@ public:
         std::cout << options.help() << std::endl;
         exit(0);
       }
-    } catch (const cxxopts::OptionException & e) {
+    } catch (const cxxopts::exceptions::exception & e) {
       std::cout << "Error parsing options. " << e.what() << std::endl;
       exit(1);
     }

@@ -12,7 +12,6 @@
 #include <string>
 #include <vector>
 
-#include "cxxopts.hpp"
 #include "performance_metrics/resource_usage_logger.hpp"
 #include "performance_metrics/tracker.hpp"
 #include "performance_test/system.hpp"

@@ -131,8 +131,11 @@ void Options::parse(int argc, char ** argv)
     if (csv_out_option != "off" && csv_out_option != "on") {
       throw cxxopts::exceptions::incorrect_argument_type(csv_out_option);
     }
-    if (result_folder_name_option != "" && (result.count("topology") == 1)) {
-      // Only allow to set folder name if a single topology passed
+    if (result_folder_name_option != "") {
+      // With multiple topologies, each forked process appends its topology
+      // basename as a subdirectory of this path so the per-process result
+      // files don't clobber each other (see create_result_directory in
+      // irobot_benchmark.cpp).
       result_folder_name = result_folder_name_option;
     }
   } catch (const cxxopts::exceptions::exception & e) {
@@ -180,7 +183,7 @@ std::ostream & operator<<(std::ostream & os, const Options & options)
   os << "csv_out: " << (options.csv_out ? "on" : "off") << std::endl;
   os << "tracking.is_enabled: " << (options.tracking_options.is_enabled ? "on" : "off")
      << std::endl;
-  if (options.result_folder_name != "" && options.topology_json_list.size() == 1) {
+  if (options.result_folder_name != "") {
     os << "results-dir: " << options.result_folder_name << std::endl;
   }
   if (options.max_rss_usage_percent > 0.0) {

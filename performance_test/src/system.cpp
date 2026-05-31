@@ -380,10 +380,18 @@ void System::print_aggregate_stats(
   for (const auto & json : topology_json_list) {
     try {
       std::string basename = json.substr(json.find_last_of("/") + 1, json.length());
-      std::string filename = basename.substr(0, basename.length() - 5) + "_log/latency_total.txt";
+      std::string topology_stem = basename.substr(0, basename.length() - 5);
+      std::string filename;
       std::string line;
       if (results_folder_path != "") {
-        filename = results_folder_path + "/latency_total.txt";
+        // Mirrors create_result_directory in irobot_benchmark.cpp: when there
+        // are multiple topologies, each fork writes into <results-dir>/<stem>;
+        // with a single topology, files live directly in <results-dir>.
+        filename = (topology_json_list.size() > 1)
+          ? results_folder_path + "/" + topology_stem + "/latency_total.txt"
+          : results_folder_path + "/latency_total.txt";
+      } else {
+        filename = topology_stem + "_log/latency_total.txt";
       }
 
       std::ifstream log_file(filename);

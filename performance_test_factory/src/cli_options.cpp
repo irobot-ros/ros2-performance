@@ -24,6 +24,7 @@ Options::Options()
 {
   ipc = true;
   executor = 1;
+  num_threads = 0;
   node = 1;
   ros_params = true;
   duration_sec = 5;
@@ -73,6 +74,10 @@ void Options::parse(int argc, char ** argv)
     "system executor:\n\t\t\t\t1:SingleThreadedExecutor. 2:EventsExecutor. \
     3:MultiThreadedExecutor. 4:EventsCBGExecutor",
     cxxopts::value<int>(executor)->default_value(std::to_string(executor)), "<1/2/3/4>")(
+    "T, threads",
+    "number of threads for thread-pool executors (MultiThreadedExecutor, EventsCBGExecutor); \
+    0 = hardware_concurrency; ignored for single-threaded executors",
+    cxxopts::value<int>(num_threads)->default_value(std::to_string(num_threads)), "N")(
     "n, node", "the node type:\n\t\t\t\t1:Node. 2:LifecycleNode",
     cxxopts::value<int>(node)->default_value(std::to_string(node)), "<1/2>")(
     "tracking", "compute and logs detailed statistics and events",
@@ -152,6 +157,18 @@ std::ostream & operator<<(std::ostream & os, const Options & options)
   // Get the system executor from options
   auto system_executor = static_cast<performance_test::ExecutorType>(options.executor);
   os << "system_executor: " << system_executor << std::endl;
+  // Only meaningful for the thread-pool executors; print "default" for 0 so the
+  // metadata.txt is self-explanatory in either case.
+  if (system_executor == performance_test::ExecutorType::MULTI_THREAD_EXECUTOR ||
+    system_executor == performance_test::ExecutorType::EVENTS_CBG_EXECUTOR)
+  {
+    os << "num_threads: ";
+    if (options.num_threads > 0) {
+      os << options.num_threads << std::endl;
+    } else {
+      os << "default" << std::endl;
+    }
+  }
 
   // Get the node type from options
   auto node_type = static_cast<performance_test_factory::NodeType>(options.node);

@@ -12,6 +12,7 @@
 #include <mutex>
 #include <ostream>
 #include <string>
+#include <thread>
 
 #include "performance_test/executors.hpp"
 
@@ -39,7 +40,7 @@ std::ostream & operator<<(std::ostream & os, const ExecutorType & t)
   return os << executor_name;
 }
 
-std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type)
+std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type, size_t num_threads)
 {
   std::shared_ptr<rclcpp::Executor> executor;
 
@@ -51,12 +52,18 @@ std::shared_ptr<rclcpp::Executor> make_executor(ExecutorType type)
       executor = std::make_shared<rclcpp::experimental::executors::EventsExecutor>();
       break;
     case ExecutorType::MULTI_THREAD_EXECUTOR:
-      executor = std::make_shared<rclcpp::executors::MultiThreadedExecutor>();
+      // 0 -> MultiThreadedExecutor falls back to std::thread::hardware_concurrency().
+      executor = std::make_shared<rclcpp::executors::MultiThreadedExecutor>(
+        rclcpp::ExecutorOptions(), num_threads);
       break;
-    case ExecutorType::EVENTS_CBG_EXECUTOR:
-      constexpr int num_threads = 1;
-      executor = std::make_shared<rclcpp::executors::EventsCBGExecutor>(rclcpp::ExecutorOptions(), num_threads);
+    case ExecutorType::EVENTS_CBG_EXECUTOR: {
+      // EventsCBGExecutor has no internal "use default" sentinel, so resolve 0
+      // to hardware_concurrency here to match MultiThreadedExecutor's behavior.
+      const size_t cbg_threads = (num_threads <= 0) ? std::thread::hardware_concurrency() : num_threads;
+      executor = std::make_shared<rclcpp::executors::EventsCBGExecutor>(
+        rclcpp::ExecutorOptions(), cbg_threads);
       break;
+    }
   }
 
   return executor;

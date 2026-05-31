@@ -55,11 +55,13 @@ System::System(
   ExecutorType executor_type,
   SpinType spin_type,
   const std::optional<std::string> & events_logger_path,
-  const bool csv_out)
+  const bool csv_out,
+  size_t num_threads)
 {
   m_executor_type = executor_type;
   m_spin_type = spin_type;
   m_csv_out = csv_out;
+  m_num_threads = num_threads;
   if (events_logger_path) {
     m_events_logger =
       std::make_shared<performance_metrics::EventsLogger>(*events_logger_path, m_csv_out);
@@ -116,7 +118,7 @@ void System::add_node(std::shared_ptr<performance_test::PerformanceNodeBase> nod
   } else {
     // Create a new executor with this ID
     auto ex = NamedExecutor();
-    ex.executor = performance_test::make_executor(m_executor_type);
+    ex.executor = performance_test::make_executor(m_executor_type, m_num_threads);
     ex.executor->add_node(node->get_node_base());
     ex.name = node->get_node_name();
 

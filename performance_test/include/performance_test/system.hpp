@@ -32,7 +32,8 @@ public:
     ExecutorType executor_type = ExecutorType::SINGLE_THREADED_EXECUTOR,
     SpinType spin_type = SpinType::SPIN,
     const std::optional<std::string> & events_logger_path = std::nullopt,
-    const bool csv_out = false);
+    const bool csv_out = false,
+    size_t num_threads = 0);
 
   ~System();
 
@@ -103,6 +104,7 @@ private:
   ExecutorType m_executor_type;
   SpinType m_spin_type;
   bool m_csv_out;
+  size_t m_num_threads;
 };
 
 }  // namespace performance_test

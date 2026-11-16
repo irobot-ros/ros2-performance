@@ -1,3 +1,5 @@
+# NOTICE - This repo is no longer actively maintained by iRobot. Please check the ros2 fork at https://github.com/ros2/ros2-performance for future developments.
+
 # iRobot ROS 2 Performance Evaluation Framework
 
 This repository contains executables and tools that allow to easily simulate arbitrary ROS 2 systems and then measures their performance.
